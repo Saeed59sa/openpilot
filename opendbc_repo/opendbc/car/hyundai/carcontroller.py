@@ -85,7 +85,7 @@ class CarController(CarControllerBase):
     # CS.out.steeringPressed and steeringTorque are based on the
     # STEERING_COL_TORQUE value
 
-    max_torque = 240
+    max_torque = 200
     # Interpolate a percent to apply to max torque based on vEgo value, which is
     # the "best estimate of speed".  This means that under 20 (units?) we will
     # apply less torque, and over 20 we will apply the full calculated torque.
@@ -275,7 +275,7 @@ class CarController(CarControllerBase):
           if self.CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS:
             if CS.canfd_buttons:
               for _ in range(20):
-                can_sends.append(hyundaicanfd.create_buttons_can_fd_alt(self.packer, self.CP, self.CAN, Buttons.RES_ACCEL, CS.canfd_buttons))
+                can_sends.append(hyundaicanfd.create_buttons_canfd_alt(self.packer, self.CP, self.CAN, Buttons.RES_ACCEL, CS.canfd_buttons))
               self.last_button_frame = self.frame
           else:
             for _ in range(20):

@@ -101,7 +101,7 @@ def create_buttons(packer, CP, CAN, cnt, btn):
   return packer.make_can_msg("CRUISE_BUTTONS", bus, values)
 
 
-def create_buttons_can_fd_alt(packer, CP, CAN, button, canfd_buttons):
+def create_buttons_canfd_alt(packer, CP, CAN, button, canfd_buttons):
   try:
     values = copy.copy(canfd_buttons)
     values["CRUISE_BUTTONS"] = button
