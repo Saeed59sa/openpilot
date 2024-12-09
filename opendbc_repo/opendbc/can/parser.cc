@@ -222,6 +222,7 @@ void CANParser::UpdateCans(const CanData &can, std::set<uint32_t> &updated_addre
   bus_timeout = (can.nanos - last_nonempty_nanos) > bus_timeout_threshold;
 }
 
+int error_print_count = 0;
 void CANParser::UpdateValid(uint64_t nanos) {
   const bool show_missing = (nanos - first_nanos) > 8e9;
 
@@ -245,13 +246,17 @@ void CANParser::UpdateValid(uint64_t nanos) {
       if (show_missing && !bus_timeout) {
         char can_log[100];
         if (missing) {
-          LOGE_100("0x%X '%s' NOT SEEN", state.address, state.name.c_str());
-          snprintf(can_log, sizeof(can_log), "echo -n \"%s\n0x%X (%d) '%s'\" > /data/can_missing.log", time_buffer, state.address, state.address, state.name.c_str());
-          system(can_log);
+          if (error_print_count++ < 20) {
+            LOGE_100("0x%X '%s' NOT SEEN", state.address, state.name.c_str());
+            snprintf(can_log, sizeof(can_log), "echo -n \"%s\n0x%X (%d) '%s'\" > /data/can_missing.log", time_buffer, state.address, state.address, state.name.c_str());
+            system(can_log);
+          }
         } else if (timed_out) {
-          LOGE_100("0x%X '%s' TIMED OUT", state.address, state.name.c_str());
-          snprintf(can_log, sizeof(can_log), "echo -n \"%s\n0x%X (%d) '%s'\" > /data/can_timeout.log", time_buffer, state.address, state.address, state.name.c_str());
-          system(can_log);
+          if (error_print_count++ < 20) {
+            LOGE_100("0x%X '%s' TIMED OUT", state.address, state.name.c_str());
+            snprintf(can_log, sizeof(can_log), "echo -n \"%s\n0x%X (%d) '%s'\" > /data/can_timeout.log", time_buffer, state.address, state.address, state.name.c_str());
+            system(can_log);
+          }
         }
       }
       _valid = false;

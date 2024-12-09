@@ -110,6 +110,8 @@ class HyundaiExFlags(IntFlag):
   NAVI = 2 ** 3
   TPMS = 2 ** 4
   LFA = 2 ** 5
+  CANFD_161 = 2 ** 6
+  BSM_IN_ADAS = 2 ** 7
 
 class Footnote(Enum):
   CANFD = CarFootnote(
@@ -775,6 +777,7 @@ class Buttons:
   SET_DECEL = 2
   GAP_DIST = 3
   CANCEL = 4  # on newer models, this is a pause/resume button
+  LFA_BUTTON = 5
 
 
 def get_platform_codes(fw_versions: list[bytes]) -> set[tuple[bytes, bytes | None]]:

@@ -2,6 +2,7 @@
 
 #include <QPainter>
 #include <QStackedLayout>
+#include <QProcess>
 
 #include "selfdrive/ui/qt/util.h"
 
@@ -48,6 +49,8 @@ void OnroadWindow::updateState(const UIState &s) {
   if (QFile::exists(file_path)) {
     const std::string txt = util::read_file(file_path.toStdString());
     RichTextDialog::alert(QString::fromStdString(txt), this);
+    QProcess::execute("rm -f /data/tmux_error.log");
+    QTimer::singleShot(5000, []() {});
   }
 
   alerts->updateState(s);

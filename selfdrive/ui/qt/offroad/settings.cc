@@ -592,8 +592,6 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     #selectCar_btn:pressed, #selectManufacturer_btn:pressed { background-color: #2424FF; }
   )");
 
-  bool is_canfd = params.getBool("IsCanfd");
-
   auto cleardtc_btn = new ButtonControl(tr("Clear DTC"), tr("RUN"));
   QObject::connect(cleardtc_btn, &ButtonControl::clicked, [=]() {
     if (ConfirmationDialog::confirm(tr("Clear DTC<br><br>Process?"), tr("Process"), this)) {
@@ -793,19 +791,16 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
                                   tr("Turn off this option to reduce system load"),
                                   "../assets/offroad/icon_addon.png",
                                   this));
-  if (is_canfd) {
-    toggles.append(new ParamControl("IsHda2",
-                                    tr("CANFD Car HDA2"),
-                                    tr("Highway Drive Assist 2, turn it on."),
-                                    "../assets/offroad/icon_long.png",
-                                    this));
-  } else {
-    toggles.append(new ParamControl("SccOnBus2",
-                                    tr("Scc on Bus 2"),
-                                    tr("If Scc is on bus 2, turn it on."),
-                                    "../assets/offroad/icon_long.png",
-                                    this));
-  }
+  toggles.append(new ParamControl("IsHda2",
+                                  tr("CANFD Car HDA2"),
+                                  tr("Highway Drive Assist 2, turn it on."),
+                                  "../assets/offroad/icon_long.png",
+                                  this));
+  toggles.append(new ParamControl("HyundaiCameraSCC",
+                                  tr("HDA2 ADAS ECAN Modify"),
+                                  tr("Connect the ADAS ECAN line to CAMERA"),
+                                  "../assets/offroad/icon_long.png",
+                                  this));
   toggles.append(new ParamControl("DriverCameraHardwareMissing",
                                   tr("DriverCamera Hardware Missing"),
                                   tr("If there is a problem with the driver camera hardware, drive without the driver camera."),

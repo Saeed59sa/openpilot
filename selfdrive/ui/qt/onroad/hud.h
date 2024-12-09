@@ -46,7 +46,7 @@ private:
   int autohold_state, nda_state = 0;
   int wifi_state = 0;
   int gpsSatelliteCount = 0;
-  int accel, sccBus = 0;
+  int accel = 0;
   int camLimitSpeed, sectionLimitSpeed = 0;
   int camLimitSpeedLeftDist, sectionLeftDist = 0;
   int traffic_state = 0;

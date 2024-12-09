@@ -256,8 +256,6 @@ struct CarState {
     rr @3 :Float32;
   }
 
-  lfaBtn @58 :Int32;
-
   struct WheelSpeeds {
     # optional wheel speeds
     fl @0 :Float32;
@@ -307,6 +305,8 @@ struct CarState {
       setCruise @9;
       resumeCruise @10;
       gapAdjustCruise @11;
+
+      lfaButton @12;
     }
   }
 
@@ -542,6 +542,8 @@ struct CarParams {
   secOcRequired @75 :Bool;  # Car requires SecOC message authentication to operate
   secOcKeyAvailable @76 :Bool;  # Stored SecOC key loaded from params
 
+  exFlags @77 :UInt32;
+
   struct SafetyConfig {
     safetyModel @0 :SafetyModel;
     safetyParam @3 :UInt16;
@@ -744,9 +746,4 @@ struct CarParams {
   longitudinalActuatorDelayLowerBoundDEPRECATED @61 :Float32;
   stoppingControlDEPRECATED @31 :Bool; # Does the car allow full control even at lows speeds when stopping
   radarTimeStepDEPRECATED @45: Float32 = 0.05;  # time delta between radar updates, 20Hz is very standard
-
-  # add
-  sccBus @77: Int8;
-  exFlags @78 :UInt32;
-  isCanfd @79 :Bool;
 }

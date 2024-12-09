@@ -25,17 +25,19 @@ class CarInterface(CarInterfaceBase):
   def _get_params(ret: structs.CarParams, candidate, fingerprint, car_fw, experimental_long, docs) -> structs.CarParams:
     ret.carName = "hyundai"
 
-    cam_can = CanBus(None, fingerprint).CAM
+    camera_scc = Params().get_bool("HyundaiCameraSCC")
+    if camera_scc:
+      ret.flags |= HyundaiFlags.CAMERA_SCC.value
+
+    cam_can = CanBus(None, fingerprint).CAM if camera_scc == 0 else 1
     hda2 = 0x50 in fingerprint[cam_can] or 0x110 in fingerprint[cam_can] or Params().get_bool("IsHda2")
     CAN = CanBus(None, fingerprint, hda2)
 
     if ret.flags & HyundaiFlags.CANFD:
       # Shared configuration for CAN-FD cars
-      ret.isCanfd = True
-      Params().put_bool("IsCanfd", True)
-      Params().put_bool("SccOnBus2", False)
 
-      ret.enableBsm = 0x1e5 in fingerprint[CAN.ECAN]
+      #ret.enableBsm = 0x1e5 in fingerprint[CAN.ECAN]
+      ret.enableBsm = 0x1ba in fingerprint[CAN.ECAN]
 
       if 0x60 in fingerprint[CAN.ECAN]:
         ret.exFlags |= HyundaiExFlags.AUTOHOLD.value
@@ -45,9 +47,8 @@ class CarInterface(CarInterfaceBase):
         ret.exFlags |= HyundaiExFlags.NAVI.value
       if {0x1AA, 0x1CF} & set(fingerprint[CAN.ECAN]):
         ret.exFlags |= HyundaiExFlags.LFA.value
-
-      ret.experimentalLongitudinalAvailable = candidate not in (CANFD_UNSUPPORTED_LONGITUDINAL_CAR | CANFD_RADAR_SCC_CAR)
-      ret.pcmCruise = not ret.openpilotLongitudinalControl
+      if ret.flags & HyundaiFlags.ANGLE_CONTROL:
+        ret.exFlags |= HyundaiExFlags.BSM_IN_ADAS.value
 
       if 0x105 in fingerprint[CAN.ECAN]:
         ret.flags |= HyundaiFlags.HYBRID.value
@@ -55,8 +56,14 @@ class CarInterface(CarInterfaceBase):
       # detect HDA2 with ADAS Driving ECU
       if hda2:
         ret.flags |= HyundaiFlags.CANFD_HDA2.value
-        if 0x110 in fingerprint[CAN.CAM]:
-          ret.flags |= HyundaiFlags.CANFD_HDA2_ALT_STEERING.value
+        if camera_scc:
+          if 0x110 in fingerprint[CAN.ACAN]:
+            ret.flags |= HyundaiFlags.CANFD_HDA2_ALT_STEERING.value
+        else:
+          if 0x110 in fingerprint[CAN.CAM]: # 0x110(272): LKAS_ALT
+            ret.flags |= HyundaiFlags.CANFD_HDA2_ALT_STEERING.value
+          if 0x2a4 not in fingerprint[CAN.CAM]: # 0x2a4(676): CAM_0x2a4
+            ret.flags |= HyundaiFlags.CANFD_HDA2_ALT_STEERING.value
       else:
         # non-HDA2
         if not ret.flags & HyundaiFlags.RADAR_SCC:
@@ -64,6 +71,8 @@ class CarInterface(CarInterfaceBase):
 
       if 0x1cf not in fingerprint[CAN.ECAN]:
         ret.flags |= HyundaiFlags.CANFD_ALT_BUTTONS.value
+      if 0x161 in fingerprint[CAN.ECAN]: # 0x161(353)
+        ret.exFlags |= HyundaiExFlags.CANFD_161.value
 
       # Some HDA2 cars have alternative messages for gear checks
       # ICE cars do not have 0x130; GEARS message on 0x40 or 0x70 instead
@@ -89,8 +98,6 @@ class CarInterface(CarInterfaceBase):
 
     else:
       # Shared configuration for non CAN-FD cars
-      ret.isCanfd = False
-      Params().put_bool("IsCanfd", False)
 
       ret.enableBsm = 0x58b in fingerprint[0]
 
@@ -103,21 +110,11 @@ class CarInterface(CarInterfaceBase):
       if 0x391 in fingerprint[0]:
         ret.exFlags |= HyundaiExFlags.LFA.value
 
-      ret.sccBus = 2 if Params().get_bool("SccOnBus2") else 0
-
-      if ret.sccBus == 2:
-        Params().put_bool("ExperimentalLongitudinalEnabled", True)
+      if camera_scc:
         if any(0x50a in fingerprint[i] for i in [0, 2]):
           ret.exFlags |= HyundaiExFlags.SCC13.value
         if any(0x389 in fingerprint[i] for i in [0, 2]):
           ret.exFlags|=  HyundaiExFlags.SCC14.value
-
-      ret.experimentalLongitudinalAvailable = candidate not in (UNSUPPORTED_LONGITUDINAL_CAR | CAMERA_SCC_CAR)
-
-      if ret.openpilotLongitudinalControl and ret.sccBus == 0:
-        ret.pcmCruise = False
-      else:
-        ret.pcmCruise = True
 
       # Send LFA message on cars with HDA
       if 0x485 in fingerprint[2]:
@@ -134,8 +131,8 @@ class CarInterface(CarInterfaceBase):
         ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundaiLegacy)]
       else:
         ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hyundai, 0)]
-      #if candidate in CAMERA_SCC_CAR:
-      #  ret.safetyConfigs[0].safetyParam |= Panda.FLAG_HYUNDAI_CAMERA_SCC
+      if ret.flags & HyundaiFlags.CAMERA_SCC:
+        ret.safetyConfigs[0].safetyParam |= Panda.FLAG_HYUNDAI_CAMERA_SCC
 
 
     # Common lateral control setup
@@ -149,10 +146,16 @@ class CarInterface(CarInterfaceBase):
     else:
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
 
+    if ret.flags & HyundaiFlags.ALT_LIMITS:
+      ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_HYUNDAI_ALT_LIMITS
+
     # Common longitudinal control setup
 
+    ret.experimentalLongitudinalAvailable = True  # candidate not in (CANFD_UNSUPPORTED_LONGITUDINAL_CAR | CANFD_RADAR_SCC_CAR)
+    ret.pcmCruise = not ret.openpilotLongitudinalControl
+
     ret.radarUnavailable = RADAR_START_ADDR not in fingerprint[1] or Bus.radar not in DBC[ret.carFingerprint]
-    ret.openpilotLongitudinalControl = experimental_long and ret.experimentalLongitudinalAvailable
+    ret.openpilotLongitudinalControl = (experimental_long and ret.experimentalLongitudinalAvailable) or camera_scc
     ret.startingState = True
     ret.vEgoStarting = 0.3
     ret.startAccel = 2.0
@@ -200,10 +203,11 @@ class CarInterface(CarInterfaceBase):
       return self.create_buttons_can(button)
 
   def create_buttons_can(self, button):
+    sccbus = 2 if self.CP.flags & HyundaiFlags.CAMERA_SCC.value else 0
     values = copy.copy(self.CS.clu11)
     values["CF_Clu_CruiseSwState"] = button
     values["CF_Clu_AliveCnt1"] = (values["CF_Clu_AliveCnt1"] + 1) % 0x10
-    return self.CC.packer.make_can_msg("CLU11", self.CP.sccBus, values)
+    return self.CC.packer.make_can_msg("CLU11", sccbus, values)
 
   def create_buttons_canfd(self, button):
     values = {

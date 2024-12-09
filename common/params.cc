@@ -210,13 +210,12 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"SelectedBranch", PERSISTENT},
     {"SoftRestartTriggered", CLEAR_ON_MANAGER_START},
     {"RadarTrackEnable", PERSISTENT},
-    {"SccOnBus2", PERSISTENT},
-    {"IsCanfd", PERSISTENT},
     {"IsHda2", PERSISTENT},
     {"DriverCameraHardwareMissing", PERSISTENT},
     {"DriverCameraOnReverse", PERSISTENT},
-    {"CarName", CLEAR_ON_MANAGER_START },
+    {"CarName", CLEAR_ON_MANAGER_START},
     {"Adb", PERSISTENT},
+    {"HyundaiCameraSCC", PERSISTENT},
 };
 
 } // namespace

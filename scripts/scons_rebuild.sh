@@ -2,6 +2,7 @@
 
 cd /data/openpilot && scons -c;
 rm /data/openpilot/.sconsign.dblite;
+rm -rf /data/scons_cache;
 rm -rf /tmp/scons_cache;
 
 echo -n "0" > /data/params/d/PrebuiltEnable

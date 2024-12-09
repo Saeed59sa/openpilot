@@ -37,7 +37,7 @@ static const CanMsg HYUNDAI_TX_MSGS[] = {
   {0x389, 0, 8}, // SCC14 Bus 0
   {0x38D, 0, 8}, // FCA11 Bus 0
   {0x483, 0, 8}, // FCA12 Bus 0
-  {0x485, 0, 4}, // LFAHDA_MFC Bus 0
+  {0x485, 0, 8}, // LFAHDA_MFC Bus 0
   {0x4A2, 0, 8}, // FRT_RADAR11 Bus 0
 };
 

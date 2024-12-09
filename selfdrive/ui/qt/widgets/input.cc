@@ -8,6 +8,11 @@
 #include "selfdrive/ui/qt/qt_window.h"
 #include "selfdrive/ui/qt/widgets/scrollview.h"
 
+#include <QHostAddress>
+#include <QNetworkInterface>
+#include <QAbstractSocket>
+#include <QProcess>
+#include <QFile>
 
 DialogBase::DialogBase(QWidget *parent) : QDialog(parent) {
   Q_ASSERT(parent != nullptr);
@@ -252,8 +257,19 @@ RichTextDialog::RichTextDialog(const QString &prompt_text, const QString &btn_te
   container->setStyleSheet("QFrame { background-color: #1B1B1B; }");
   QGridLayout *main_layout = new QGridLayout(container);
 
-  //QVBoxLayout *main_layout = new QVBoxLayout(container);
   main_layout->setContentsMargins(20, 20, 20, 20);
+
+  // Display device IP at the top-right corner
+  QLabel *network_label = new QLabel();
+  QString device_ip = "────────";
+  const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
+  for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
+    if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost)
+      device_ip = address.toString();
+  }
+  network_label->setText(device_ip);
+  network_label->setStyleSheet("color: #e0e879; font-size: 40px;");
+  main_layout->addWidget(network_label, 0, 0, 1, -1, Qt::AlignRight | Qt::AlignTop);
 
   QLabel *prompt = new QLabel(prompt_text, this);
   prompt->setWordWrap(true);
@@ -263,12 +279,25 @@ RichTextDialog::RichTextDialog(const QString &prompt_text, const QString &btn_te
   ScrollView *scroll_view = new ScrollView(prompt, this);
   scroll_view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-  main_layout->addWidget(scroll_view, 0, 0, 1, -1);
+  main_layout->addWidget(scroll_view, 1, 0, 1, -1);
 
-  // confirm button
+  // confirm and git pull buttons on the same row
   QPushButton* confirm_btn = new QPushButton(btn_text);
-  main_layout->addWidget(confirm_btn, 1, 0, 1, -1);
+  main_layout->addWidget(confirm_btn, 2, 0);
   QObject::connect(confirm_btn, &QPushButton::clicked, this, &RichTextDialog::accept);
+
+  auto gitpull_btn = new QPushButton(tr("Git Fetch and Reset"));
+  main_layout->addWidget(gitpull_btn, 2, 1);
+  QObject::connect(gitpull_btn, &QPushButton::clicked, [=]() {
+    if (ConfirmationDialog::confirm(tr("Git Fetch and Reset<br><br>Process?"), tr("Process"), this)) {
+      QProcess::execute("/data/openpilot/scripts/gitpull.sh");
+    }
+    const QString file_path = "/data/check_network.log";
+    if (QFile::exists(file_path)) {
+      const std::string txt = util::read_file(file_path.toStdString());
+      ConfirmationDialog::rich(QString::fromStdString(txt), this);
+    }
+  });
 
   QVBoxLayout *outer_layout = new QVBoxLayout(this);
   outer_layout->setContentsMargins(10, 10, 10, 10);
@@ -279,6 +308,7 @@ bool RichTextDialog::alert(const QString &prompt_text, QWidget *parent) {
   auto d = RichTextDialog(prompt_text, tr("Ok"), parent);
   return d.exec();
 }
+
 
 // MultiOptionDialog
 

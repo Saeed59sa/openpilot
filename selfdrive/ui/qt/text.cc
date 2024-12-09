@@ -38,16 +38,16 @@ int main(int argc, char *argv[]) {
   QPushButton *btn = new QPushButton();
 #ifdef __aarch64__
   QPushButton *btn2 = new QPushButton();
-  QLabel *label2 = new QLabel();
+  QLabel *network_label = new QLabel();
   QString device_ip = "────────";
   const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
   for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
     if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost)
       device_ip = address.toString();
   }
-  label2->setText(device_ip);
-  label2->setStyleSheet("color: #e0e879");
-  main_layout->addWidget(label2, 0, 0, Qt::AlignRight | Qt::AlignTop);
+  network_label->setText(device_ip);
+  network_label->setStyleSheet("color: #e0e879");
+  main_layout->addWidget(network_label, 0, 0, Qt::AlignRight | Qt::AlignTop);
   btn->setText(QObject::tr("Reboot"));
   QObject::connect(btn, &QPushButton::clicked, [=]() {
     Hardware::reboot();

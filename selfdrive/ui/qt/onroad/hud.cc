@@ -102,7 +102,6 @@ void HudRenderer::updateState(const UIState &s) {
   gpsSatelliteCount = s.scene.satelliteCount;
   steerAngle = ce.getSteeringAngleDeg();
   longControl = cp.getOpenpilotLongitudinalControl();
-  sccBus = cp.getSccBus();
   fl = ce.getExState().getTpms().getFl();
   fr = ce.getExState().getTpms().getFr();
   rl = ce.getExState().getTpms().getRl();

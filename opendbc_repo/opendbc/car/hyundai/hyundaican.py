@@ -5,7 +5,7 @@ hyundai_checksum = crcmod.mkCrcFun(0x11D, initCrc=0xFD, rev=False, xorOut=0xdf)
 
 
 def create_lkas11(packer, frame, CP, apply_steer, steer_req, torque_fault, sys_warning, sys_state, enabled,
-                  left_lane, right_lane, left_lane_depart, right_lane_depart, send_lfa, lkas11):
+                  left_lane, right_lane, left_lane_depart, right_lane_depart, lkas11):
   values = {s: lkas11[s] for s in [
     "CF_Lkas_LdwsActivemode",
     "CF_Lkas_LdwsSysState",
@@ -36,7 +36,7 @@ def create_lkas11(packer, frame, CP, apply_steer, steer_req, torque_fault, sys_w
   if CP.carFingerprint == CAR.GENESIS:
     values["CF_Lkas_LdwsActivemode"] = 2
     values["CF_Lkas_SysWarning"] = lkas11["CF_Lkas_SysWarning"]
-  elif send_lfa:
+  elif CP.flags & HyundaiFlags.SEND_LFA.value:
     values["CF_Lkas_LdwsActivemode"] = int(left_lane) + (int(right_lane) << 1)
     values["CF_Lkas_LdwsOpt_USM"] = 2
     values["CF_Lkas_FcwOpt_USM"] = 2 if enabled else 1
@@ -65,7 +65,7 @@ def create_lkas11(packer, frame, CP, apply_steer, steer_req, torque_fault, sys_w
   return packer.make_can_msg("LKAS11", 0, values)
 
 
-def create_clu11(packer, button, bus, clu11):
+def create_clu11(packer, frame, CP, button, clu11):
   values = {s: clu11[s] for s in [
     "CF_Clu_CruiseSwState",
     "CF_Clu_CruiseSwMain",
@@ -81,7 +81,9 @@ def create_clu11(packer, button, bus, clu11):
     "CF_Clu_AliveCnt1",
   ]}
   values["CF_Clu_CruiseSwState"] = button
-  values["CF_Clu_AliveCnt1"] = (values["CF_Clu_AliveCnt1"] + 1) % 0x10
+  values["CF_Clu_AliveCnt1"] = frame % 0x10
+  # send buttons to camera on camera-scc based cars
+  bus = 2 if CP.flags & HyundaiFlags.CAMERA_SCC else 0
   return packer.make_can_msg("CLU11", bus, values)
 
 

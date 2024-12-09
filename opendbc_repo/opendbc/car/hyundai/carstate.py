@@ -7,7 +7,7 @@ from opendbc.can.can_define import CANDefine
 from opendbc.car import Bus, create_button_events, structs
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.hyundai.hyundaicanfd import CanBus
-from opendbc.car.hyundai.values import (HyundaiFlags, CAR, DBC, Buttons, CarControllerParams, HyundaiExFlags)
+from opendbc.car.hyundai.values import HyundaiFlags, CAR, DBC, Buttons, CarControllerParams, HyundaiExFlags
 from opendbc.car.interfaces import CarStateBase
 
 ButtonType = structs.CarState.ButtonEvent.Type
@@ -17,7 +17,7 @@ CLUSTER_SAMPLE_RATE = 20  # frames
 STANDSTILL_THRESHOLD = 12 * 0.03125 * CV.KPH_TO_MS
 
 BUTTONS_DICT = {Buttons.RES_ACCEL: ButtonType.accelCruise, Buttons.SET_DECEL: ButtonType.decelCruise,
-                Buttons.GAP_DIST: ButtonType.gapAdjustCruise, Buttons.CANCEL: ButtonType.cancel}
+                Buttons.GAP_DIST: ButtonType.gapAdjustCruise, Buttons.CANCEL: ButtonType.cancel, Buttons.LFA_BUTTON: ButtonType.lfaButton}
 
 
 class CarState(CarStateBase):
@@ -51,6 +51,17 @@ class CarState(CarStateBase):
     self.eps_error_cnt = 0
 
     self.cruise_info = {}
+    self.lfa_info = {}
+    self.adrv_info_161 = None
+    self.adrv_info_200 = None
+    self.adrv_info_1ea = None
+    self.adrv_info_160 = None
+    self.adrv_info_162 = None
+    self.hda_info_4a3 = None
+    self.new_msg_4b4 = None
+
+    self.cruise_buttons_msg = None
+    self.hda2_lfa_block_msg = None
 
     # On some cars, CLU15->CF_Clu_VehicleSpeed can oscillate faster than the dash updates. Sample at 5 Hz
     self.cluster_speed = 0
@@ -58,9 +69,9 @@ class CarState(CarStateBase):
 
     self.params = CarControllerParams(CP)
 
-    self.lfa_btn = 0
-    self.lfa_enabled = False
     self.canfd_buttons = None
+
+    self.main_enabled = False
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -70,7 +81,7 @@ class CarState(CarStateBase):
       return self.update_canfd(can_parsers)
 
     ret = structs.CarState()
-    cp_cruise = cp_cam if self.CP.flags & HyundaiFlags.CAMERA_SCC or self.CP.sccBus == 2 else cp
+    cp_cruise = cp_cam if self.CP.flags & HyundaiFlags.CAMERA_SCC else cp
     self.is_metric = cp.vl["CLU11"]["CF_Clu_SPEED_UNIT"] == 0
     speed_factor = CV.KPH_TO_MS if self.is_metric else CV.MPH_TO_MS
 
@@ -116,14 +127,14 @@ class CarState(CarStateBase):
     ret.steerFaultTemporary = self.eps_error_cnt > 100
 
     # cruise state
-    if self.CP.openpilotLongitudinalControl and self.CP.sccBus == 0:
+    if self.CP.openpilotLongitudinalControl:
       # These are not used for engage/disengage since openpilot keeps track of state using the buttons
-      ret.cruiseState.available = cp.vl["TCS13"]["ACCEnable"] == 0
+      ret.cruiseState.available = self.main_enabled #cp.vl["TCS13"]["ACCEnable"] == 0
       ret.cruiseState.enabled = cp.vl["TCS13"]["ACC_REQ"] == 1
       ret.cruiseState.standstill = False
       ret.cruiseState.nonAdaptive = False
     else:
-      ret.cruiseState.available = cp_cruise.vl["SCC11"]["MainMode_ACC"] == 1
+      self.main_enabled = ret.cruiseState.available = cp_cruise.vl["SCC11"]["MainMode_ACC"] == 1
       ret.cruiseState.enabled = cp_cruise.vl["SCC12"]["ACCMode"] != 0
       ret.cruiseState.standstill = cp_cruise.vl["SCC11"]["SCCInfoDisplay"] == 4.
       ret.cruiseState.nonAdaptive = cp_cruise.vl["SCC11"]["SCCInfoDisplay"] == 2.  # Shows 'Cruise Control' on dash
@@ -165,7 +176,7 @@ class CarState(CarStateBase):
 
     ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(gear))
 
-    if not self.CP.openpilotLongitudinalControl or self.CP.sccBus == 2:
+    if not self.CP.openpilotLongitudinalControl or self.CP.flags & HyundaiFlags.CAMERA_SCC.value:
       aeb_src = "FCA11" if self.CP.flags & HyundaiFlags.USE_FCA.value else "SCC12"
       aeb_sig = "FCA_CmdAct" if self.CP.flags & HyundaiFlags.USE_FCA.value else "AEB_CmdAct"
       aeb_warning = cp_cruise.vl[aeb_src]["CF_VSM_Warn"] != 0
@@ -193,7 +204,17 @@ class CarState(CarStateBase):
     self.steer_state = cp.vl["MDPS12"]["CF_Mdps_ToiActive"]  # 0 NOT ACTIVE, 1 ACTIVE
     prev_cruise_buttons = self.cruise_buttons[-1]
     prev_main_buttons = self.main_buttons[-1]
-    self.cruise_buttons.extend(cp.vl_all["CLU11"]["CF_Clu_CruiseSwState"])
+    #self.cruise_buttons.extend(cp.vl_all["CLU11"]["CF_Clu_CruiseSwState"])
+    cruise_button = [Buttons.NONE]
+    if self.CP.exFlags & HyundaiExFlags.LFA:
+      if cp.vl["BCM_PO_11"]["LFA_Pressed"]:
+        cruise_button = [Buttons.LFA_BUTTON]
+      else:
+        cruise_button = cp.vl_all["CLU11"]["CF_Clu_CruiseSwState"]
+    else:
+      cruise_button = cp.vl_all["CLU11"]["CF_Clu_CruiseSwState"]
+    self.cruise_buttons.extend(cruise_button)
+
     self.main_buttons.extend(cp.vl_all["CLU11"]["CF_Clu_CruiseSwMain"])
     self.lead_distance = cp_cruise.vl["SCC11"]["ACC_ObjDist"]
 
@@ -214,14 +235,8 @@ class CarState(CarStateBase):
     if self.CP.exFlags & HyundaiExFlags.NAVI:
       ret.exState.navLimitSpeed = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"]
 
-    if self.CP.exFlags & HyundaiExFlags.LFA:
-      prev_lfa_btn = self.lfa_btn
-      self.lfa_btn = cp.vl["BCM_PO_11"]["LFA_Pressed"]
-      if prev_lfa_btn != 1 and self.lfa_btn == 1:
-        self.lfa_enabled = not self.lfa_enabled
-      ret.lfaBtn = self.lfa_btn
-      ret.cruiseState.available = self.lfa_enabled
-
+    if prev_main_buttons == 0 and self.main_buttons[-1] != 0:
+      self.main_enabled = not self.main_enabled
     return ret
 
   def update_canfd(self, can_parsers) -> structs.CarState:
@@ -272,30 +287,36 @@ class CarState(CarStateBase):
     ret.steerFaultTemporary = cp.vl["MDPS"]["LKA_FAULT"] != 0
 
     # TODO: alt signal usage may be described by cp.vl['BLINKERS']['USE_ALT_LAMP']
-    left_blinker_sig, right_blinker_sig = "LEFT_LAMP", "RIGHT_LAMP"
-    if self.CP.carFingerprint in CAR.HYUNDAI_KONA_SX2_EV or self.CP.flags & HyundaiFlags.ANGLE_CONTROL:
-      left_blinker_sig, right_blinker_sig = "LEFT_LAMP_ALT", "RIGHT_LAMP_ALT"
-    ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_lamp(50, cp.vl["BLINKERS"][left_blinker_sig],
-                                                                      cp.vl["BLINKERS"][right_blinker_sig])
+    #left_blinker_sig, right_blinker_sig = "LEFT_LAMP", "RIGHT_LAMP"
+    #if self.CP.carFingerprint in CAR.HYUNDAI_KONA_SX2_EV or self.CP.flags & HyundaiFlags.ANGLE_CONTROL:
+    #  left_blinker_sig, right_blinker_sig = "LEFT_LAMP_ALT", "RIGHT_LAMP_ALT"
+    #ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_lamp(50, cp.vl["BLINKERS"][left_blinker_sig], cp.vl["BLINKERS"][right_blinker_sig])
+
+    left_blinker_sig = cp.vl["BLINKERS"]["LEFT_LAMP"] or cp.vl["BLINKERS"]["LEFT_LAMP_ALT"]
+    right_blinker_sig = cp.vl["BLINKERS"]["RIGHT_LAMP"] or cp.vl["BLINKERS"]["RIGHT_LAMP_ALT"]
+    ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_lamp(50, left_blinker_sig, right_blinker_sig)
+
     if self.CP.enableBsm:
-      if self.CP.flags & HyundaiFlags.ANGLE_CONTROL:
-        ret.leftBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["INDICATOR_LEFT_FOUR"] != 0
-        ret.rightBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["INDICATOR_RIGHT_FOUR"] != 0
+      cp_bsm_info = cp_cam if (self.CP.flags & HyundaiFlags.CAMERA_SCC and self.CP.exFlags & HyundaiExFlags.BSM_IN_ADAS.value) else cp
+      if self.CP.exFlags & HyundaiExFlags.BSM_IN_ADAS.value:
+        ret.leftBlindspot = cp_bsm_info.vl["BLINDSPOTS_REAR_CORNERS"]["INDICATOR_LEFT_FOUR"] != 0
+        ret.rightBlindspot = cp_bsm_info.vl["BLINDSPOTS_REAR_CORNERS"]["INDICATOR_RIGHT_FOUR"] != 0
       else:
-        ret.leftBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["FL_INDICATOR"] != 0
-        ret.rightBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["FR_INDICATOR"] != 0
+        ret.leftBlindspot = cp_bsm_info.vl["BLINDSPOTS_REAR_CORNERS"]["FL_INDICATOR"] != 0
+        ret.rightBlindspot = cp_bsm_info.vl["BLINDSPOTS_REAR_CORNERS"]["FR_INDICATOR"] != 0
 
     # cruise state
     # CAN FD cars enable on main button press, set available if no TCS faults preventing engagement
-    ret.cruiseState.available = cp.vl["TCS"]["ACCEnable"] == 0
+    ret.cruiseState.available = self.main_enabled #cp.vl["TCS"]["ACCEnable"] == 0
     if self.CP.openpilotLongitudinalControl:
       # These are not used for engage/disengage since openpilot keeps track of state using the buttons
       ret.cruiseState.enabled = cp.vl["TCS"]["ACC_REQ"] == 1
       ret.cruiseState.standstill = False
     else:
       cp_cruise_info = cp_cam if self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC else cp
-      ret.cruiseState.available = cp_cruise_info.vl["SCC_CONTROL"]["MainMode_ACC"] == 1
       ret.cruiseState.enabled = cp_cruise_info.vl["SCC_CONTROL"]["ACCMode"] in (1, 2)
+      if cp_cruise_info.vl["SCC_CONTROL"]["MainMode_ACC"] == 1: # carrot
+        ret.cruiseState.available = self.main_enabled = True
       ret.cruiseState.standstill = cp_cruise_info.vl["SCC_CONTROL"]["CRUISE_STANDSTILL"] == 1
       ret.cruiseState.speed = cp_cruise_info.vl["SCC_CONTROL"]["VSetDis"] * speed_factor if ret.cruiseState.enabled else 0
       self.cruise_info = copy.copy(cp_cruise_info.vl["SCC_CONTROL"])
@@ -310,7 +331,12 @@ class CarState(CarStateBase):
     prev_cruise_buttons = self.cruise_buttons[-1]
     prev_main_buttons = self.main_buttons[-1]
     self.cruise_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["CRUISE_BUTTONS"])
+
     self.main_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["ADAPTIVE_CRUISE_MAIN_BTN"])
+
+    if self.CP.exFlags & HyundaiExFlags.LFA:
+      self.main_buttons.append(cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"])
+
     self.buttons_counter = cp.vl[self.cruise_btns_msg_canfd]["COUNTER"]
     ret.accFaulted = cp.vl["TCS"]["ACCEnable"] != 0  # 0 ACC CONTROL ENABLED, 1-3 ACC CONTROL DISABLED
 
@@ -332,18 +358,48 @@ class CarState(CarStateBase):
     if self.CP.exFlags & HyundaiExFlags.AUTOHOLD:
       ret.exState.autoHold = cp.vl["ESP_STATUS"]["AUTO_HOLD"]
 
-    if self.CP.exFlags & HyundaiExFlags.NAVI:
-      ret.exState.navLimitSpeed = cp.vl["CLUSTER_SPEED_LIMIT"]["SPEED_LIMIT_1"]
+    #if self.CP.exFlags & HyundaiExFlags.NAVI:
+    #  ret.exState.navLimitSpeed = cp.vl["CLUSTER_SPEED_LIMIT"]["SPEED_LIMIT_1"]
 
-    if self.CP.exFlags & HyundaiExFlags.LFA:
-      prev_lfa_btn = self.lfa_btn
-      self.lfa_btn = cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"]
-      if prev_lfa_btn != 1 and self.lfa_btn == 1:
-        self.lfa_enabled = not self.lfa_enabled
-      ret.lfaBtn = self.lfa_btn
-      ret.cruiseState.available = self.lfa_enabled
+    if self.CP.flags & HyundaiFlags.CAMERA_SCC.value:
+      self.cruise_info = copy.copy(cp_cam.vl["SCC_CONTROL"])
+      self.lfa_info = copy.copy(cp_cam.vl["LFA"])
+
+      if self.CP.exFlags & HyundaiExFlags.CANFD_161.value:
+        if "ADRV_0x161" in cp_cam.vl:
+          self.adrv_info_161 = copy.copy(cp_cam.vl.get("ADRV_0x161", {}))
+        if "CORNER_RADAR_HIGHWAY" in cp_cam.vl:
+          self.adrv_info_162 = copy.copy(cp_cam.vl.get("CORNER_RADAR_HIGHWAY", {}))
+      if "ADRV_0x200" in cp_cam.vl:
+        self.adrv_info_200 = copy.copy(cp_cam.vl.get("ADRV_0x200", {}))
+      if "ADRV_0x1ea" in cp_cam.vl:
+        self.adrv_info_1ea = copy.copy(cp_cam.vl.get("ADRV_0x1ea", {}))
+      if "ADRV_0x160" in cp_cam.vl:
+        self.adrv_info_160 = copy.copy(cp_cam.vl.get("ADRV_0x160", {}))
+
+      if "HDA_INFO_4A3" in cp.vl:
+        self.hda_info_4a3 = copy.copy(cp.vl.get("HDA_INFO_4A3", {}))
+      if "NEW_MSG_4B4" in cp.vl:
+        self.new_msg_4b4 = copy.copy(cp.vl.get("NEW_MSG_4B4", {}))
 
     self.canfd_buttons = cp.vl[self.cruise_btns_msg_canfd]
+
+    #carrot
+    if cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"]:
+      cruise_button = [Buttons.LFA_BUTTON]
+    else:
+      cruise_button = cp.vl_all[self.cruise_btns_msg_canfd]["CRUISE_BUTTONS"]
+    self.cruise_buttons.extend(cruise_button)
+
+    if self.cruise_btns_msg_canfd in cp.vl_all: #carrot
+      if not cp.vl_all[self.cruise_btns_msg_canfd]["CRUISE_BUTTONS"]:
+        pass
+        #print("empty cruise btns...")
+      else:
+        self.cruise_buttons_msg = copy.copy(cp.vl_all[self.cruise_btns_msg_canfd])
+
+    if self.main_buttons[-1] != prev_main_buttons and not self.main_buttons[-1]: # and self.CP.openpilotLongitudinalControl: #carrot
+      self.main_enabled = not self.main_enabled
 
     return ret
 
@@ -375,9 +431,12 @@ class CarState(CarStateBase):
       ]
 
     if CP.enableBsm:
-      pt_messages += [
-        ("BLINDSPOTS_REAR_CORNERS", 20),
-      ]
+      if (CP.flags & HyundaiFlags.CAMERA_SCC.value and CP.exFlags & HyundaiExFlags.BSM_IN_ADAS.value):
+        pass
+      else:
+        pt_messages += [
+          ("BLINDSPOTS_REAR_CORNERS", 20),
+        ]
 
     if not (CP.flags & HyundaiFlags.CANFD_CAMERA_SCC.value) and not CP.openpilotLongitudinalControl:
       pt_messages += [
@@ -390,20 +449,45 @@ class CarState(CarStateBase):
     if CP.exFlags & HyundaiExFlags.AUTOHOLD:
       pt_messages.append(("ESP_STATUS", 0))
 
-    if CP.flags & HyundaiFlags.CANFD_HDA2 and CP.exFlags & HyundaiExFlags.NAVI:
-      pt_messages.append(("CLUSTER_SPEED_LIMIT", 10))
+    #if CP.flags & HyundaiFlags.CANFD_HDA2 and CP.exFlags & HyundaiExFlags.NAVI:
+    #  pt_messages.append(("CLUSTER_SPEED_LIMIT", 10))
 
-    cam_messages = []
-    if CP.flags & HyundaiFlags.CANFD_HDA2:
-      block_lfa_msg = "CAM_0x362" if CP.flags & HyundaiFlags.CANFD_HDA2_ALT_STEERING else "CAM_0x2a4"
-      cam_messages += [(block_lfa_msg, 20)]
-    elif CP.flags & HyundaiFlags.CANFD_CAMERA_SCC:
-      cam_messages += [
-        ("SCC_CONTROL", 50),
+    if CP.flags & HyundaiFlags.CANFD_HDA2 and CP.flags & HyundaiFlags.CAMERA_SCC:
+      pt_messages += [
+        ("HDA_INFO_4A3", 5),
+        ("NEW_MSG_4B4", 10),
       ]
 
-    if not (CP.flags & HyundaiFlags.CANFD_HDA2) and CP.exFlags & HyundaiExFlags.NAVI:
-      cam_messages.append(("CLUSTER_SPEED_LIMIT", 10))
+    cam_messages = []
+    if CP.flags & HyundaiFlags.CANFD_HDA2 and not (CP.flags & HyundaiFlags.CAMERA_SCC.value):
+      block_lfa_msg = "CAM_0x362" if CP.flags & HyundaiFlags.CANFD_HDA2_ALT_STEERING else "CAM_0x2a4"
+      cam_messages += [(block_lfa_msg, 20)]
+
+    if CP.flags & HyundaiFlags.CANFD_CAMERA_SCC:
+      cam_messages += [
+        ("SCC_CONTROL", 50),
+        ("LFA", 20),
+      ]
+      if CP.flags & HyundaiFlags.CANFD_HDA2:
+        cam_messages += [
+          ("ADRV_0x200", 20),
+          ("ADRV_0x1ea", 20),
+          ("ADRV_0x160", 20),
+        ]
+      if CP.exFlags & HyundaiExFlags.CANFD_161:
+        cam_messages += [
+          ("ADRV_0x161", 20),
+          ("CORNER_RADAR_HIGHWAY", 20),
+        ]
+
+    #if not (CP.flags & HyundaiFlags.CANFD_HDA2) and CP.exFlags & HyundaiExFlags.NAVI:
+    #  cam_messages.append(("CLUSTER_SPEED_LIMIT", 10))
+
+    if CP.enableBsm:
+      if (CP.flags & HyundaiFlags.CAMERA_SCC.value and CP.exFlags & HyundaiExFlags.BSM_IN_ADAS.value):
+        cam_messages += [
+          ("BLINDSPOTS_REAR_CORNERS", 20),
+        ]
 
     return {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], pt_messages, CanBus(CP).ECAN),
@@ -476,7 +560,7 @@ class CarState(CarStateBase):
       ("LKAS11", 100)
     ]
 
-    if CP.openpilotLongitudinalControl and (CP.flags & HyundaiFlags.CAMERA_SCC or CP.sccBus == 2):
+    if CP.openpilotLongitudinalControl and CP.flags & HyundaiFlags.CAMERA_SCC:
       cam_messages += [
         ("SCC11", 50),
         ("SCC12", 50),
