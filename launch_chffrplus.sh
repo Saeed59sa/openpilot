@@ -91,7 +91,6 @@ function launch {
   grep "HYUNDAI.HYUNDAI" "$FINGERPRINTS" | awk -F ': ' '{print $1}' | awk '{gsub(/^ +| +$/,"")}1' | sed 's/"//g' | sort > ${PARAMS_ROOT}/crwusiz/CarList_Hyundai
   grep "HYUNDAI.KIA" "$FINGERPRINTS" | awk -F ': ' '{print $1}' | awk '{gsub(/^ +| +$/,"")}1' | sed 's/"//g' | sort > ${PARAMS_ROOT}/crwusiz/CarList_Kia
   grep "HYUNDAI.GENESIS" "$FINGERPRINTS" | awk -F ': ' '{print $1}' | awk '{gsub(/^ +| +$/,"")}1' | sed 's/"//g' | sort > ${PARAMS_ROOT}/crwusiz/CarList_Genesis
-  grep 'GM.CHEVROLET' "$FINGERPRINTS" | awk -F ': ' '{print $1}' | awk '{gsub(/^ +| +$/,"")}1' | sed 's/"//g' | sort > ${PARAMS_ROOT}/crwusiz/CarList_Gm
 
   MANUFACTURER=$(cat ${PARAMS_ROOT}/d/SelectedManufacturer)
   if [ "${MANUFACTURER}" = "HYUNDAI" ]; then
@@ -100,11 +99,9 @@ function launch {
     cp -f ${PARAMS_ROOT}/crwusiz/CarList_Kia ${PARAMS_ROOT}/crwusiz/CarList
   elif [ "${MANUFACTURER}" = "GENESIS" ]; then
     cp -f ${PARAMS_ROOT}/crwusiz/CarList_Genesis ${PARAMS_ROOT}/crwusiz/CarList
-  elif [ "${MANUFACTURER}" = "CHEVROLET" ]; then
-    cp -f ${PARAMS_ROOT}/crwusiz/CarList_Gm ${PARAMS_ROOT}/crwusiz/CarList
   else
     pushd ${PARAMS_ROOT}/crwusiz
-    cat CarList_Hyundai CarList_Kia CarList_Genesis CarList_Gm | sort -u > CarList
+    cat CarList_Hyundai CarList_Kia CarList_Genesis | sort -u > CarList
     popd
   fi
 

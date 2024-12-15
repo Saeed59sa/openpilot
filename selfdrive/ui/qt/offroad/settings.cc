@@ -373,23 +373,6 @@ void DevicePanel::poweroff() {
   }
 }
 
-static QStringList get_list(const char* path) {
-  QStringList stringList;
-  QFile textFile(path);
-  if (textFile.open(QIODevice::ReadOnly)) {
-    QTextStream textStream(&textFile);
-    while (true) {
-      QString line = textStream.readLine();
-      if (line.isNull()) {
-        break;
-      } else {
-        stringList.append(line);
-      }
-    }
-  }
-  return stringList;
-}
-
 void SettingsWindow::showEvent(QShowEvent *event) {
   setCurrentPanel(0);
 }
@@ -445,8 +428,8 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     {tr("Network"), networking},
     {tr("Toggles"), toggles},
     {tr("Software"), new SoftwarePanel(this)},
-    {tr("Developer"), new DeveloperPanel(this)},
     {tr("Community"), new CommunityPanel(this)},
+    {tr("Developer"), new DeveloperPanel(this)},
   };
 
   nav_btns = new QButtonGroup(this);
@@ -508,90 +491,201 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   )");
 }
 
+static QStringList get_list(const char* path) {
+  QStringList stringList;
+  QFile textFile(path);
+  if (textFile.open(QIODevice::ReadOnly)) {
+    QTextStream textStream(&textFile);
+    while (true) {
+      QString line = textStream.readLine();
+      if (line.isNull()) {
+        break;
+      } else {
+        stringList.append(line);
+      }
+    }
+  }
+  return stringList;
+}
 
 // Community Panel
 CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   main_layout = new QStackedLayout(this);
   homeScreen = new QWidget(this);
-  QVBoxLayout* vlayout = new QVBoxLayout(homeScreen);
-  vlayout->setContentsMargins(0, 20, 0, 20);
+  QVBoxLayout* communityLayout = new QVBoxLayout(homeScreen);
+  communityLayout->setMargin(40);
 
-  homeWidget = new QWidget(this);
-  QVBoxLayout* communityLayout = new QVBoxLayout(homeWidget);
-  homeWidget->setObjectName("homeWidget");
-
-  ScrollView *scroller = new ScrollView(homeWidget, this);
-  scroller->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
-  main_layout->addWidget(homeScreen);
-
+  // selectedManufacturer
   QString selectedManufacturer = QString::fromStdString(Params().get("SelectedManufacturer"));
   QPushButton* selectManufacturer_btn = new QPushButton(selectedManufacturer.length() ? selectedManufacturer : tr("Select your Manufacturer"));
   selectManufacturer_btn->setObjectName("selectManufacturer_btn");
-  connect(selectManufacturer_btn, &QPushButton::clicked, [=]() { main_layout->setCurrentWidget(selectManufacturer); });
+  selectManufacturer_btn->setStyleSheet(R"(
+    QPushButton { font-size: 50px; margin: 0px; padding: 15px; border-width: 0; border-radius: 15px; color: #FFFFFF; background-color: #2C2CE2; }
+    QPushButton:pressed { background-color: #2424FF; }
+  )");
+  connect(selectManufacturer_btn, &QPushButton::clicked, [=]() {
+    QStringList manufacturers = {"[ Not Selected ]", "HYUNDAI", "KIA", "GENESIS"};
 
-  selectManufacturer = new SelectManufacturer(this);
-  connect(selectManufacturer, &SelectManufacturer::backPress, [=]() { main_layout->setCurrentWidget(homeScreen); });
-  connect(selectManufacturer, &SelectManufacturer::selectedManufacturer, [=]() {
-     QString selected = QString::fromStdString(Params().get("SelectedManufacturer"));
-     selectManufacturer_btn->setText(selectedManufacturer.length() ? selectedManufacturer : tr("Select your Manufacturer"));
-     main_layout->setCurrentWidget(homeScreen);
+    QString selectedOption = MultiOptionDialog::getSelection(tr("Select your Manufacturer"), manufacturers,
+                                                            selectedManufacturer.isEmpty() ? manufacturers[0] : selectedManufacturer,
+                                                            this);
+
+    if (!selectedOption.isEmpty()) {
+      if (selectedOption == "[ Not Selected ]") {
+        Params().remove("SelectedManufacturer");
+        qApp->exit(18);
+        watchdog_kick(0);      } else {
+        QString carListFile;
+        if (selectedOption == "HYUNDAI") {
+          carListFile = "/data/params/crwusiz/CarList_Hyundai";
+          qApp->exit(18);
+          watchdog_kick(0);
+        } else if (selectedOption == "KIA") {
+          carListFile = "/data/params/crwusiz/CarList_Kia";
+          qApp->exit(18);
+          watchdog_kick(0);
+        } else if (selectedOption == "GENESIS") {
+          carListFile = "/data/params/crwusiz/CarList_Genesis";
+          qApp->exit(18);
+          watchdog_kick(0);
+        }
+
+        if (!carListFile.isEmpty()) {
+          QProcess::execute("cp -f " + carListFile + " /data/params/crwusiz/CarList");
+        }
+
+        Params().put("SelectedManufacturer", selectedOption.toStdString());
+        ConfirmationDialog::alert(selectedOption, this);
+      }
+    }
+
+    selectManufacturer_btn->setText(selectedManufacturer.length() ? selectedManufacturer : tr("Select your Manufacturer"));
   });
-  main_layout->addWidget(selectManufacturer);
 
+  // selectedCar
   QString selectedCar = QString::fromStdString(Params().get("SelectedCar"));
   QPushButton* selectCar_btn = new QPushButton(selectedCar.length() ? selectedCar : tr("Select your car"));
   selectCar_btn->setObjectName("selectCar_btn");
-  connect(selectCar_btn, &QPushButton::clicked, [=]() { main_layout->setCurrentWidget(selectCar); });
+  selectCar_btn->setStyleSheet(R"(
+    QPushButton { font-size: 50px; margin: 0px; padding: 15px; border-width: 0; border-radius: 15px; color: #FFFFFF; background-color: #2C2CE2; }
+    QPushButton:pressed { background-color: #2424FF; }
+  )");
 
-  selectCar = new SelectCar(this);
-  connect(selectCar, &SelectCar::backPress, [=]() { main_layout->setCurrentWidget(homeScreen); });
-  connect(selectCar, &SelectCar::selectedCar, [=]() {
-     QString selected = QString::fromStdString(Params().get("SelectedCar"));
-     selectCar_btn->setText(selectedCar.length() ? selectedCar : tr("Select your car"));
-     main_layout->setCurrentWidget(homeScreen);
+  connect(selectCar_btn, &QPushButton::clicked, [=]() {
+    QStringList cars = {"[ Not Selected ]"};
+    QStringList items = get_list("/data/params/crwusiz/CarList");
+    cars.append(items);
+
+    QString selectedOption = MultiOptionDialog::getSelection(tr("Select your car"), cars,
+                                                            selectedCar.isEmpty() ? cars[0] : selectedCar,
+                                                            this);
+
+    if (!selectedOption.isEmpty()) {
+      if (selectedOption == "[ Not Selected ]") {
+        Params().remove("SelectedCar");
+        qApp->exit(18);
+        watchdog_kick(0);
+      } else {
+        Params().put("SelectedCar", selectedOption.toStdString());
+        qApp->exit(18);
+        watchdog_kick(0);
+        ConfirmationDialog::alert(selectedOption, this);
+      }
+    }
+
+    selectCar_btn->setText(selectedCar.length() ? selectedCar : tr("Select your car"));
   });
-  main_layout->addWidget(selectCar);
 
+  // selectedBranch
   QString selectedBranch = QString::fromStdString(Params().get("SelectedBranch"));
   QPushButton* selectBranch_btn = new QPushButton(selectedBranch.length() ? selectedBranch : tr("Select Branch"));
   selectBranch_btn->setObjectName("selectBranch_btn");
-  connect(selectBranch_btn, &QPushButton::clicked, [=]() { main_layout->setCurrentWidget(selectBranch); });
-
-  selectBranch = new SelectBranch(this);
-  connect(selectBranch, &SelectBranch::backPress, [=]() { main_layout->setCurrentWidget(homeScreen); });
-  connect(selectBranch, &SelectBranch::selectedBranch, [=]() {
-     QString selected = QString::fromStdString(Params().get("SelectedBranch"));
-     selectBranch_btn->setText(selectedBranch.length() ? selectedBranch : tr("Select Branch"));
-     main_layout->setCurrentWidget(homeScreen);
-  });
-  main_layout->addWidget(selectBranch);
-
-  QHBoxLayout* layoutBtn = new QHBoxLayout(homeWidget);
-
-  layoutBtn->addWidget(selectManufacturer_btn);
-  layoutBtn->addSpacing(10);
-  layoutBtn->addWidget(selectCar_btn);
-
-  vlayout->addSpacing(10);
-  vlayout->addLayout(layoutBtn, 0);
-  vlayout->addSpacing(10);
-  vlayout->addWidget(scroller, 1);
-
-  QPalette pal = palette();
-  pal.setColor(QPalette::Background, QColor(0x29, 0x29, 0x29));
-  setAutoFillBackground(true);
-  setPalette(pal);
-
-  setStyleSheet(R"(
-    #back_btn {
-      font-size: 50px; margin: 0px; padding: 15px; border-width: 0; border-radius: 30px; color: #FFFFFF; background-color: #444444; }
-    #back_btn:pressed { background-color: #3B3B3B; }
-    #selectCar_btn, #selectManufacturer_btn {
-      font-size: 50px; margin: 0px; padding: 15px; border-width: 0; border-radius: 30px; color: #FFFFFF; background-color: #2C2CE2; }
-    #selectCar_btn:pressed, #selectManufacturer_btn:pressed { background-color: #2424FF; }
+  selectBranch_btn->setStyleSheet(R"(
+    QPushButton { font-size: 50px; margin: 0px; padding: 15px; border-width: 0; border-radius: 15px; color: #FFFFFF; background-color: #2C2CE2; }
+    QPushButton:pressed { background-color: #2424FF; }
   )");
 
+  connect(selectBranch_btn, &QPushButton::clicked, [=]() {
+    QStringList branches = {"[ Not Selected ]"};
+    QStringList items = get_list("/data/params/crwusiz/GitBranchList");
+    branches.append(items);
+
+    QString selectedOption = MultiOptionDialog::getSelection(tr("Select Branch"), branches,
+                                                            selectedBranch.isEmpty() ? branches[0] : selectedBranch,
+                                                            this);
+
+    if (!selectedOption.isEmpty()) {
+      if (selectedOption == "[ Not Selected ]") {
+        Params().remove("SelectedBranch");
+        qApp->exit(18);
+        watchdog_kick(0);
+      } else {
+        Params().put("SelectedBranch", selectedOption.toStdString());
+        qApp->exit(18);
+        watchdog_kick(0);
+        ConfirmationDialog::alert(selectedOption, this);
+      }
+    }
+
+    selectBranch_btn->setText(selectedBranch.length() ? selectedBranch : tr("Select Branch"));
+  });
+
+  QPushButton* toggle_btn = new QPushButton(tr("Toggle"));
+  toggle_btn->setObjectName("toggle_btn");
+  QObject::connect(toggle_btn, &QPushButton::clicked, this, [this]() {this->togglesCommunity(0); });
+
+  QPushButton* func_btn = new QPushButton(tr("Function"));
+  func_btn->setObjectName("func_btn");
+  QObject::connect(func_btn, &QPushButton::clicked, this, [this]() {this->togglesCommunity(1); });
+
+  QPushButton* upload_btn = new QPushButton(tr("Upload"));
+  upload_btn->setObjectName("upload_btn");
+  QObject::connect(upload_btn, &QPushButton::clicked, this, [this]() {this->togglesCommunity(2); });
+
+  setStyleSheet(R"(
+    #toggle_btn { height: 120px; border-radius: 15px; background-color: #393939; }
+    #toggle_btn:pressed { background-color: #4a4a4a; }
+    #func_btn { height: 120px; border-radius: 15px; background-color: #393939; }
+    #func_btn:pressed { background-color: #4a4a4a; }
+    #upload_btn { height: 120px; border-radius: 15px; background-color: #393939; }
+    #upload_btn:pressed { background-color: #4a4a4a; }
+  )");
+
+  QGridLayout* gridLayout = new QGridLayout();
+  gridLayout->setSpacing(30);
+
+  gridLayout->addWidget(selectManufacturer_btn, 0, 0);
+  gridLayout->addWidget(selectCar_btn, 0, 1);
+  gridLayout->addWidget(selectBranch_btn, 0, 2);
+
+  gridLayout->addWidget(toggle_btn, 1, 0);
+  gridLayout->addWidget(func_btn, 1, 1);
+  gridLayout->addWidget(upload_btn, 1, 2);
+
+  communityLayout->addLayout(gridLayout, 0);
+
+  QWidget* toggles = new QWidget();
+  QVBoxLayout* toggles_layout = new QVBoxLayout(toggles);
+
+
+  // main toggle
+  mainToggles = new ListWidget(this);
+  mainToggles->addItem(new ParamControl("PrebuiltEnable", tr("Prebuilt Enable"), tr("Create prebuilt file to speed bootup"),
+                                        "../assets/offroad/icon_addon.png", this));
+  mainToggles->addItem(new ParamControl("LoggerEnable", tr("Logger Enable"), tr("Turn off this option to reduce system load"),
+                                        "../assets/offroad/icon_addon.png", this));
+  mainToggles->addItem(new ParamControl("IsHda2", tr("CANFD Car HDA2"), tr("Highway Drive Assist 2, turn it on."),
+                                        "../assets/offroad/icon_long.png", this));
+  mainToggles->addItem(new ParamControl("HyundaiCameraSCC", tr("HDA2 ADAS ECAN Modify"), tr("Connect the ADAS ECAN line to CAMERA"),
+                                        "../assets/offroad/icon_long.png", this));
+  mainToggles->addItem(new ParamControl("DriverCameraHardwareMissing", tr("DriverCamera Hardware Missing"), tr("If there is a problem with the driver camera hardware, drive without the driver camera."),
+                                        "../assets/img_driver_face_static_x.png", this));
+  mainToggles->addItem(new ParamControl("DriverCameraOnReverse", tr("Driver Camera On Reverse"), tr("Displays the driver camera when in reverse."),
+                                        "../assets/img_driver_face_static.png", this));
+  mainToggles->addItem(new ParamControl("RadarTrackEnable", tr("Enable Radar Track use"), tr("Enable Radar Track use (disable AEB)"),
+                                        "../assets/offroad/icon_warning.png", this));
+
+  // func
   auto cleardtc_btn = new ButtonControl(tr("Clear DTC"), tr("RUN"));
   QObject::connect(cleardtc_btn, &ButtonControl::clicked, [=]() {
     if (ConfirmationDialog::confirm(tr("Clear DTC<br><br>Process?"), tr("Process"), this)) {
@@ -658,6 +752,52 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     }
   });
 
+  auto tmux_console = new ButtonControl(tr("tmux console"), tr("VIEW"));
+  QObject::connect(tmux_console, &ButtonControl::clicked, [=]() {
+    QProcess process;
+    QStringList arguments;
+    arguments << "capture-pane" << "-p" << "-t" << "0" << "-S" << "-250";
+    process.start("tmux", arguments);
+    process.waitForFinished();
+    QString output = process.readAllStandardOutput();
+    ConfirmationDialog::rich(output, this);
+  });
+
+  auto pandaflash_btn = new ButtonControl(tr("Panda Flash"), tr("RUN"));
+  QObject::connect(pandaflash_btn, &ButtonControl::clicked, [=]() {
+    if (ConfirmationDialog::confirm(tr("Panda Flash<br><br>Process?"), tr("Process"), this)) {
+      QProcess::execute("/data/openpilot/panda/board/flash.py");
+    }
+  });
+
+  auto pandarecover_btn = new ButtonControl(tr("Panda Recover"), tr("RUN"));
+  QObject::connect(pandarecover_btn, &ButtonControl::clicked, [=]() {
+    if (ConfirmationDialog::confirm(tr("Panda Recover<br><br>Process?"), tr("Process"), this)) {
+      QProcess::execute("/data/openpilot/panda/board/recover.py");
+    }
+  });
+
+  auto scons_rebuild_btn = new ButtonControl(tr("Scons Rebuild"), tr("RUN"));
+  QObject::connect(scons_rebuild_btn, &ButtonControl::clicked, [=]() {
+    if (ConfirmationDialog::confirm(tr("Scons Rebuild<br><br>Process?"), tr("Process"), this)) {
+      QProcess::execute("/data/openpilot/scripts/scons_rebuild.sh");
+    }
+  });
+
+  funcBtn = new ListWidget(this);
+  funcBtn->addItem(gitpull_btn);
+  funcBtn->addItem(tmux_error_log_btn);
+  funcBtn->addItem(tmux_console);
+  funcBtn->addItem(can_missing_error_log_btn);
+  funcBtn->addItem(can_timeout_error_log_btn);
+  funcBtn->addItem(gitcheckout_btn);
+  funcBtn->addItem(gitreset_btn);
+  funcBtn->addItem(scons_rebuild_btn);
+  funcBtn->addItem(cleardtc_btn);
+  funcBtn->addItem(pandaflash_btn);
+  funcBtn->addItem(pandarecover_btn);
+
+  // upload btn
   auto tmux_error_log_upload_btn = new ButtonControl(tr("tmux log"), tr("UPLOAD"));
   QObject::connect(tmux_error_log_upload_btn, &ButtonControl::clicked, [=]() {
     const QString file_path = "/data/tmux_error.log";
@@ -668,17 +808,6 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     } else {
       ConfirmationDialog::rich(tr("log file not found"), this);
     }
-  });
-
-  auto tmux_console = new ButtonControl(tr("tmux console"), tr("VIEW"));
-  QObject::connect(tmux_console, &ButtonControl::clicked, [=]() {
-    QProcess process;
-    QStringList arguments;
-    arguments << "capture-pane" << "-p" << "-t" << "0" << "-S" << "-250";
-    process.start("tmux", arguments);
-    process.waitForFinished();
-    QString output = process.readAllStandardOutput();
-    ConfirmationDialog::rich(output, this);
   });
 
   auto tmux_console_upload = new ButtonControl(tr("tmux console"), tr("UPLOAD"));
@@ -735,333 +864,32 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     }
   });
 
-  QGridLayout *gridLayout = new QGridLayout;
+  uploadBtn = new ListWidget(this);
+  uploadBtn->addItem(tmux_error_log_upload_btn);
+  uploadBtn->addItem(tmux_console_upload);
+  uploadBtn->addItem(carparams_dump_upload_btn);
+  uploadBtn->addItem(carstate_dump_upload_btn);
+  uploadBtn->addItem(carcontrol_dump_upload_btn);
+  uploadBtn->addItem(controlsstate_dump_upload_btn);
+  uploadBtn->addItem(devicestate_dump_upload_btn);
+  uploadBtn->addItem(pandastates_dump_upload_btn);
 
-  gridLayout->addWidget(vertical_line(), 0, 0);
-  gridLayout->addWidget(selectBranch_btn, 0, 1);
-  gridLayout->addWidget(vertical_line(), 0, 2);
-  gridLayout->addWidget(cleardtc_btn, 0, 3);
-  gridLayout->addWidget(vertical_line(), 0, 4);
+  toggles_layout->addWidget(mainToggles);
+  toggles_layout->addWidget(funcBtn);
+  toggles_layout->addWidget(uploadBtn);
 
-  gridLayout->addWidget(horizontal_line(), 1, 0, 1, 5);
+  ScrollView* toggles_view = new ScrollView(toggles, this);
+  communityLayout->addWidget(toggles_view, 1);
 
-  gridLayout->addWidget(vertical_line(), 2, 0);
-  gridLayout->addWidget(gitcheckout_btn, 2, 1);
-  gridLayout->addWidget(vertical_line(), 2, 2);
-  gridLayout->addWidget(gitpull_btn, 2, 3);
-  gridLayout->addWidget(vertical_line(), 2, 4);
+  homeScreen->setLayout(communityLayout);
+  main_layout->addWidget(homeScreen);
+  main_layout->setCurrentWidget(homeScreen);
 
-  gridLayout->addWidget(horizontal_line(), 3, 0, 1, 5);
-
-  gridLayout->addWidget(vertical_line(), 4, 0);
-  gridLayout->addWidget(tmux_error_log_btn, 4, 1);
-  gridLayout->addWidget(vertical_line(), 4, 2);
-  gridLayout->addWidget(tmux_error_log_upload_btn, 4, 3);
-  gridLayout->addWidget(vertical_line(), 4, 4);
-
-  gridLayout->addWidget(horizontal_line(), 5, 0, 1, 5);
-
-  gridLayout->addWidget(vertical_line(), 6, 0);
-  gridLayout->addWidget(tmux_console, 6, 1);
-  gridLayout->addWidget(vertical_line(), 6, 2);
-  gridLayout->addWidget(tmux_console_upload, 6, 3);
-  gridLayout->addWidget(vertical_line(), 6, 4);
-
-  gridLayout->addWidget(horizontal_line(), 7, 0, 1, 5);
-
-  gridLayout->addWidget(vertical_line(), 8, 0);
-  gridLayout->addWidget(can_missing_error_log_btn, 8, 1);
-  gridLayout->addWidget(vertical_line(), 8, 2);
-  gridLayout->addWidget(can_timeout_error_log_btn, 8, 3);
-  gridLayout->addWidget(vertical_line(), 8, 4);
-
-  communityLayout->addWidget(horizontal_line());
-  communityLayout->addLayout(gridLayout);
-  communityLayout->addWidget(horizontal_line());
-
-  // add community toggle
-  QList<ParamControl*> toggles;
-  toggles.append(new ParamControl("PrebuiltEnable",
-                                  tr("Prebuilt Enable"),
-                                  tr("Create prebuilt file to speed bootup"),
-                                  "../assets/offroad/icon_addon.png",
-                                  this));
-  toggles.append(new ParamControl("LoggerEnable",
-                                  tr("Logger Enable"),
-                                  tr("Turn off this option to reduce system load"),
-                                  "../assets/offroad/icon_addon.png",
-                                  this));
-  toggles.append(new ParamControl("IsHda2",
-                                  tr("CANFD Car HDA2"),
-                                  tr("Highway Drive Assist 2, turn it on."),
-                                  "../assets/offroad/icon_long.png",
-                                  this));
-  toggles.append(new ParamControl("HyundaiCameraSCC",
-                                  tr("HDA2 ADAS ECAN Modify"),
-                                  tr("Connect the ADAS ECAN line to CAMERA"),
-                                  "../assets/offroad/icon_long.png",
-                                  this));
-  toggles.append(new ParamControl("DriverCameraHardwareMissing",
-                                  tr("DriverCamera Hardware Missing"),
-                                  tr("If there is a problem with the driver camera hardware, drive without the driver camera."),
-                                  "../assets/img_driver_face_static_x.png",
-                                  this));
-  toggles.append(new ParamControl("DriverCameraOnReverse",
-                                  tr("Driver Camera On Reverse"),
-                                  tr("Displays the driver camera when in reverse."),
-                                  "../assets/img_driver_face_static.png",
-                                  this));
-  toggles.append(new ParamControl("RadarTrackEnable",
-                                  tr("Enable Radar Track use"),
-                                  tr("Enable Radar Track use (disable AEB)"),
-                                  "../assets/offroad/icon_warning.png",
-                                  this));
-  for (ParamControl *toggle : toggles) {
-    if (main_layout->count() != 0) {
-    }
-    communityLayout->addWidget(toggle);
-  }
-
-  auto pandaflash_btn = new ButtonControl(tr("Panda Flash"), tr("RUN"));
-  QObject::connect(pandaflash_btn, &ButtonControl::clicked, [=]() {
-    if (ConfirmationDialog::confirm(tr("Panda Flash<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/panda/board/flash.py");
-    }
-  });
-
-  auto pandarecover_btn = new ButtonControl(tr("Panda Recover"), tr("RUN"));
-  QObject::connect(pandarecover_btn, &ButtonControl::clicked, [=]() {
-    if (ConfirmationDialog::confirm(tr("Panda Recover<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/panda/board/recover.py");
-    }
-  });
-
-  auto scons_rebuild_btn = new ButtonControl(tr("Scons Rebuild"), tr("RUN"));
-  QObject::connect(scons_rebuild_btn, &ButtonControl::clicked, [=]() {
-    if (ConfirmationDialog::confirm(tr("Scons Rebuild<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/scripts/scons_rebuild.sh");
-    }
-  });
-
-  QGridLayout *gridLayout2 = new QGridLayout;
-
-  gridLayout2->addWidget(vertical_line(), 0, 0);
-  gridLayout2->addWidget(pandaflash_btn, 0, 1);
-  gridLayout2->addWidget(vertical_line(), 0, 2);
-  gridLayout2->addWidget(pandarecover_btn, 0, 3);
-  gridLayout2->addWidget(vertical_line(), 0, 4);
-
-  gridLayout2->addWidget(horizontal_line(), 1, 0, 1, 5);
-
-  gridLayout2->addWidget(vertical_line(), 2, 0);
-  gridLayout2->addWidget(gitreset_btn, 2, 1);
-  gridLayout2->addWidget(vertical_line(), 2, 2);
-  gridLayout2->addWidget(scons_rebuild_btn, 2, 3);
-  gridLayout2->addWidget(vertical_line(), 2, 4);
-
-  gridLayout2->addWidget(horizontal_line(), 3, 0, 1, 5);
-
-  gridLayout2->addWidget(vertical_line(), 4, 0);
-  gridLayout2->addWidget(carparams_dump_upload_btn, 4, 1);
-  gridLayout2->addWidget(vertical_line(), 4, 2);
-  gridLayout2->addWidget(carstate_dump_upload_btn, 4, 3);
-  gridLayout2->addWidget(vertical_line(), 4, 4);
-
-  gridLayout2->addWidget(horizontal_line(), 5, 0, 1, 5);
-
-  gridLayout2->addWidget(vertical_line(), 6, 0);
-  gridLayout2->addWidget(carcontrol_dump_upload_btn, 6, 1);
-  gridLayout2->addWidget(vertical_line(), 6, 2);
-  gridLayout2->addWidget(controlsstate_dump_upload_btn, 6, 3);
-  gridLayout2->addWidget(vertical_line(), 6, 4);
-
-  gridLayout2->addWidget(horizontal_line(), 7, 0, 1, 5);
-
-  gridLayout2->addWidget(vertical_line(), 8, 0);
-  gridLayout2->addWidget(devicestate_dump_upload_btn, 8, 1);
-  gridLayout2->addWidget(vertical_line(), 8, 2);
-  gridLayout2->addWidget(pandastates_dump_upload_btn, 8, 3);
-  gridLayout2->addWidget(vertical_line(), 8, 4);
-
-  communityLayout->addWidget(horizontal_line());
-  communityLayout->addLayout(gridLayout2);
-  communityLayout->addWidget(horizontal_line());
+  togglesCommunity(0);
 }
 
-SelectCar::SelectCar(QWidget* parent): QWidget(parent) {
-  QVBoxLayout* main_layout = new QVBoxLayout(this);
-  main_layout->setMargin(20);
-  main_layout->setSpacing(20);
-
-  // Back button
-  QPushButton* back = new QPushButton(tr("Back"));
-  back->setObjectName("back_btn");
-  back->setFixedSize(500, 100);
-  connect(back, &QPushButton::clicked, [=]() { emit backPress(); });
-  main_layout->addWidget(back, 0, Qt::AlignLeft);
-
-  QListWidget* list = new QListWidget(this);
-  list->setStyleSheet("QListView {padding: 40px; background-color: #393939; border-radius: 15px; height: 140px;} QListView::item{height: 100px}");
-  QScroller::grabGesture(list->viewport(), QScroller::LeftMouseButtonGesture);
-  list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-  list->addItem(tr("Select Car not use"));
-  QStringList items = get_list("/data/params/crwusiz/CarList");
-  list->addItems(items);
-  list->setCurrentRow(0);
-  QString selected = QString::fromStdString(Params().get("SelectedCar"));
-
-  int index = 0;
-  for (QString item : items) {
-    if (selected == item) {
-      list->setCurrentRow(index + 1);
-      break;
-    }
-    index++;
-  }
-
-  QObject::connect(list, QOverload<QListWidgetItem*>::of(&QListWidget::itemClicked),
-    [=](QListWidgetItem* item){
-
-    if (list->currentRow() == 0) {
-      Params().remove("SelectedCar");
-      qApp->exit(18);
-      watchdog_kick(0);
-    } else {
-      Params().put("SelectedCar", list->currentItem()->text().toStdString());
-      qApp->exit(18);
-      watchdog_kick(0);
-    }
-    emit selectedCar();
-    });
-  main_layout->addWidget(list);
-}
-
-SelectManufacturer::SelectManufacturer(QWidget* parent): QWidget(parent) {
-  QVBoxLayout* main_layout = new QVBoxLayout(this);
-  main_layout->setMargin(20);
-  main_layout->setSpacing(20);
-
-  // Back button
-  QPushButton* back = new QPushButton(tr("Back"));
-  back->setObjectName("back_btn");
-  back->setFixedSize(500, 100);
-  connect(back, &QPushButton::clicked, [=]() { emit backPress(); });
-  main_layout->addWidget(back, 0, Qt::AlignLeft);
-
-  QListWidget* list = new QListWidget(this);
-  list->setStyleSheet("QListView {padding: 40px; background-color: #393939; border-radius: 15px; height: 140px;} QListView::item{height: 100px}");
-  QScroller::grabGesture(list->viewport(), QScroller::LeftMouseButtonGesture);
-  list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-  list->addItem(tr("Select Manufacturer not use"));
-
-  QStringList items = {"HYUNDAI", "KIA", "GENESIS", "CHEVROLET"};
-  list->addItems(items);
-  list->setCurrentRow(0);
-  QString selected = QString::fromStdString(Params().get("SelectedManufacturer"));
-
-  int index = 1;
-  for(QString item : items) {
-    if(selected == item) {
-        list->setCurrentRow(index);
-        break;
-    }
-    index++;
-  }
-
-  QObject::connect(list, QOverload<QListWidgetItem*>::of(&QListWidget::itemClicked),
-    [=](QListWidgetItem* item){
-
-    if (list->currentRow() == 0) {
-      Params().remove("SelectedManufacturer");
-      qApp->exit(18);
-      watchdog_kick(0);
-    } else if (list->currentRow() == 1) {
-      QProcess::execute("cp -f /data/params/crwusiz/CarList_Hyundai /data/params/crwusiz/CarList");
-      Params().put("SelectedManufacturer", list->currentItem()->text().toStdString());
-      qApp->exit(18);
-      watchdog_kick(0);
-    } else if (list->currentRow() == 2) {
-      QProcess::execute("cp -f /data/params/crwusiz/CarList_Kia /data/params/crwusiz/CarList");
-      Params().put("SelectedManufacturer", list->currentItem()->text().toStdString());
-      qApp->exit(18);
-      watchdog_kick(0);
-    } else if (list->currentRow() == 3) {
-      QProcess::execute("cp -f /data/params/crwusiz/CarList_Genesis /data/params/crwusiz/CarList");
-      Params().put("SelectedManufacturer", list->currentItem()->text().toStdString());
-      qApp->exit(18);
-      watchdog_kick(0);
-    } else if (list->currentRow() == 4) {
-      QProcess::execute("cp -f /data/params/crwusiz/CarList_Gm /data/params/crwusiz/CarList");
-      Params().put("SelectedManufacturer", list->currentItem()->text().toStdString());
-      qApp->exit(18);
-      watchdog_kick(0);
-    /*} else if (list->currentRow() == 5) {
-      QProcess::execute("cp -f /data/params/crwusiz/CarList_Toyota /data/params/crwusiz/CarList");
-      Params().put("SelectedManufacturer", list->currentItem()->text().toStdString());
-      qApp->exit(18);
-      watchdog_kick(0);
-    } else if (list->currentRow() == 6) {
-      QProcess::execute("cp -f /data/params/crwusiz/CarList_Lexus /data/params/crwusiz/CarList");
-      Params().put("SelectedManufacturer", list->currentItem()->text().toStdString());
-      qApp->exit(18);
-      watchdog_kick(0);
-    } else if (list->currentRow() == 7) {
-      QProcess::execute("cp -f /data/params/crwusiz/CarList_Honda /data/params/crwusiz/CarList");
-      Params().put("SelectedManufacturer", list->currentItem()->text().toStdString());
-      qApp->exit(18);
-      watchdog_kick(0);
-*/
-    }
-    emit selectedManufacturer();
-    });
-
-  main_layout->addWidget(list);
-}
-
-SelectBranch::SelectBranch(QWidget* parent): QWidget(parent) {
-  QVBoxLayout* main_layout = new QVBoxLayout(this);
-  main_layout->setMargin(20);
-  main_layout->setSpacing(20);
-
-  // Back button
-  QPushButton* back = new QPushButton(tr("Back"));
-  back->setObjectName("back_btn");
-  back->setFixedSize(500, 100);
-  connect(back, &QPushButton::clicked, [=]() { emit backPress(); });
-  main_layout->addWidget(back, 0, Qt::AlignLeft);
-
-  QListWidget* list = new QListWidget(this);
-  list->setStyleSheet("QListView {padding: 40px; background-color: #393939; border-radius: 15px; height: 140px;} QListView::item{height: 100px}");
-  QScroller::grabGesture(list->viewport(), QScroller::LeftMouseButtonGesture);
-  list->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-  list->addItem(tr("Branch Select not use"));
-  QStringList items = get_list("/data/params/crwusiz/GitBranchList");
-  list->addItems(items);
-  list->setCurrentRow(0);
-  QString selected = QString::fromStdString(Params().get("SelectedBranch"));
-
-  int index = 0;
-  for (QString item : items) {
-    if (selected == item) {
-      list->setCurrentRow(index + 1);
-      break;
-    }
-    index++;
-  }
-
-  QObject::connect(list, QOverload<QListWidgetItem*>::of(&QListWidget::itemClicked),
-    [=](QListWidgetItem* item){
-
-    if (list->currentRow() == 0) {
-      Params().remove("SelectedBranch");
-      qApp->exit(18);
-      watchdog_kick(0);
-    } else {
-      Params().put("SelectedBranch", list->currentItem()->text().toStdString());
-      qApp->exit(18);
-      watchdog_kick(0);
-    }
-    emit selectedBranch();
-    });
-  main_layout->addWidget(list);
+void CommunityPanel::togglesCommunity(int widgetIndex) {
+  mainToggles->setVisible(widgetIndex == 0);
+  funcBtn->setVisible(widgetIndex == 1);
+  uploadBtn->setVisible(widgetIndex == 2);
 }

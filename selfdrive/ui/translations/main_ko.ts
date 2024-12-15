@@ -91,26 +91,26 @@
     <name>AnnotatedCameraWidget</name>
     <message>
         <source>km/h</source>
-        <translation>km/h</translation>
+        <translation type="vanished">km/h</translation>
     </message>
     <message>
         <source>mph</source>
-        <translation>mph</translation>
+        <translation type="vanished">mph</translation>
     </message>
     <message>
         <source>MAX</source>
-        <translation>MAX</translation>
+        <translation type="vanished">MAX</translation>
     </message>
     <message>
         <source>SET</source>
-        <translation>SET</translation>
+        <translation type="vanished">SET</translation>
     </message>
 </context>
 <context>
     <name>CommunityPanel</name>
     <message>
         <source>Select your car</source>
-        <translation>차량을 선택하세요</translation>
+        <translation>차량 선택</translation>
     </message>
     <message>
         <source>RUN</source>
@@ -122,7 +122,7 @@
     </message>
     <message>
         <source>Select your Manufacturer</source>
-        <translation>제조사를 선택하세요</translation>
+        <translation>제조사 선택</translation>
     </message>
     <message>
         <source>Process</source>
@@ -145,14 +145,6 @@
         <translation>시스템 부하를 줄이시려면 이 옵션을 끄세요</translation>
     </message>
     <message>
-        <source>Scc on Bus 2</source>
-        <translation>Scc on Bus 2</translation>
-    </message>
-    <message>
-        <source>If Scc is on bus 2, turn it on.</source>
-        <translation>SCC 배선 개조차량은 사용으로 변경하세요</translation>
-    </message>
-    <message>
         <source>Git Fetch and Reset</source>
         <translation>Git Fetch and Reset</translation>
     </message>
@@ -169,14 +161,6 @@
         <translation>Panda 복구</translation>
     </message>
     <message>
-        <source>Disengage on Brake Pedal</source>
-        <translation>브레이크페달 조작시 해제</translation>
-    </message>
-    <message>
-        <source>When enabled, pressing the brake pedal will disengage openpilot.</source>
-        <translation>활성화된 경우 브레이크 페달을 누르면 openpilot이 해제됩니다.</translation>
-    </message>
-    <message>
         <source>tmux log</source>
         <translation>tmux 로그</translation>
     </message>
@@ -190,7 +174,7 @@
     </message>
     <message>
         <source>Select Branch</source>
-        <translation>Branch 선택</translation>
+        <translation>브랜치 선택</translation>
     </message>
     <message>
         <source>Git Checkout</source>
@@ -332,6 +316,26 @@
         <source>pandaStates dump</source>
         <translation>pandaStates 덤프</translation>
     </message>
+    <message>
+        <source>HDA2 ADAS ECAN Modify</source>
+        <translation>HDA2 ADAS ECAN 개조차량</translation>
+    </message>
+    <message>
+        <source>Connect the ADAS ECAN line to CAMERA</source>
+        <translation>ADAS ECAN 라인을 CAMERA ECAN으로 연결하여 개조한 차량은 활성화 하세요</translation>
+    </message>
+    <message>
+        <source>Toggle</source>
+        <translation>토글</translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation>추가기능</translation>
+    </message>
+    <message>
+        <source>Upload</source>
+        <translation>업로드</translation>
+    </message>
 </context>
 <context>
     <name>ConfirmationDialog</name>
@@ -370,12 +374,12 @@
         <translation>롱컨 기동 모드</translation>
     </message>
     <message>
-        <source>ADB over TCP</source>
-        <translation>ADB over TCP</translation>
+        <source>Android Debug Bridge</source>
+        <translation>안드로이드 디버그 브릿지</translation>
     </message>
     <message>
-        <source>Enable ADB over TCP on port 5555</source>
-        <translation>Enable ADB over TCP on port 5555</translation>
+        <source>Enable ADB</source>
+        <translation>ADB 활성화</translation>
     </message>
 </context>
 <context>
@@ -556,6 +560,10 @@
     <message>
         <source>MAX</source>
         <translation>MAX</translation>
+    </message>
+    <message>
+        <source>SET</source>
+        <translation>SET</translation>
     </message>
 </context>
 <context>
@@ -850,36 +858,55 @@ This may take up to a minute.</source>
     </message>
 </context>
 <context>
+    <name>RichTextDialog</name>
+    <message>
+        <source>Git Fetch and Reset</source>
+        <translation>Git Fetch and Reset</translation>
+    </message>
+    <message>
+        <source>Git Fetch and Reset&lt;br&gt;&lt;br&gt;Process?</source>
+        <translation>Git Fetch and Reset&lt;br&gt;&lt;br&gt;실행하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Process</source>
+        <translation>실행</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>확인</translation>
+    </message>
+</context>
+<context>
     <name>SelectBranch</name>
     <message>
         <source>Back</source>
-        <translation>뒤로</translation>
+        <translation type="vanished">뒤로</translation>
     </message>
     <message>
         <source>Branch Select not use</source>
-        <translation>Branch 선택 사용안함</translation>
+        <translation type="vanished">Branch 선택 사용안함</translation>
     </message>
 </context>
 <context>
     <name>SelectCar</name>
     <message>
         <source>Back</source>
-        <translation>뒤로</translation>
+        <translation type="vanished">뒤로</translation>
     </message>
     <message>
         <source>Select Car not use</source>
-        <translation>차량 선택 사용안함</translation>
+        <translation type="vanished">차량 선택 사용안함</translation>
     </message>
 </context>
 <context>
     <name>SelectManufacturer</name>
     <message>
         <source>Back</source>
-        <translation>뒤로</translation>
+        <translation type="vanished">뒤로</translation>
     </message>
     <message>
         <source>Select Manufacturer not use</source>
-        <translation>제조사 선택 사용안함</translation>
+        <translation type="vanished">제조사 선택 사용안함</translation>
     </message>
 </context>
 <context>

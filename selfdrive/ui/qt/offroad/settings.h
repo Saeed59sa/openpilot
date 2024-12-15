@@ -103,39 +103,6 @@ private:
   ParamWatcher *fs_watch;
 };
 
-class SelectManufacturer : public QWidget {
-  Q_OBJECT
-public:
-  explicit SelectManufacturer(QWidget* parent = 0);
-
-private:
-signals:
-  void backPress();
-  void selectedManufacturer();
-};
-
-class SelectCar : public QWidget {
-  Q_OBJECT
-public:
-  explicit SelectCar(QWidget* parent = 0);
-
-private:
-signals:
-  void backPress();
-  void selectedCar();
-};
-
-class SelectBranch : public QWidget {
-  Q_OBJECT
-public:
-  explicit SelectBranch(QWidget* parent = 0);
-
-private:
-signals:
-  void backPress();
-  void selectedBranch();
-};
-
 class CommunityPanel : public QWidget {
   Q_OBJECT
 public:
@@ -144,9 +111,12 @@ public:
 private:
   QStackedLayout* main_layout = nullptr;
   QWidget* homeScreen = nullptr;
-  SelectCar* selectCar = nullptr;
-  SelectBranch* selectBranch = nullptr;
-  SelectManufacturer* selectManufacturer = nullptr;
-  QWidget* homeWidget;
+
+  ListWidget* mainToggles;
+  ListWidget* funcBtn;
+  ListWidget* uploadBtn;
+
   Params params;
+
+  void togglesCommunity(int widgetIndex);
 };
