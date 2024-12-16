@@ -47,6 +47,7 @@ class CarInterface(CarInterfaceBase):
         ret.exFlags |= HyundaiExFlags.NAVI.value
       if {0x1AA, 0x1CF} & set(fingerprint[CAN.ECAN]):
         ret.exFlags |= HyundaiExFlags.LFA.value
+        ret.isLfa = True
       if ret.flags & HyundaiFlags.ANGLE_CONTROL:
         ret.exFlags |= HyundaiExFlags.BSM_IN_ADAS.value
 
@@ -109,6 +110,7 @@ class CarInterface(CarInterfaceBase):
         ret.exFlags |= HyundaiExFlags.NAVI.value
       if 0x391 in fingerprint[0]:
         ret.exFlags |= HyundaiExFlags.LFA.value
+        ret.isLfa = True
 
       if camera_scc:
         if any(0x50a in fingerprint[i] for i in [0, 2]):

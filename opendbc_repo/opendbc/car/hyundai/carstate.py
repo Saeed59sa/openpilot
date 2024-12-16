@@ -69,9 +69,10 @@ class CarState(CarStateBase):
 
     self.params = CarControllerParams(CP)
 
-    self.canfd_buttons = None
+    self.lfa_btn = 0
+    self.lfa_enabled = False
 
-    self.main_enabled = False
+    self.canfd_buttons = None
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -129,12 +130,12 @@ class CarState(CarStateBase):
     # cruise state
     if self.CP.openpilotLongitudinalControl:
       # These are not used for engage/disengage since openpilot keeps track of state using the buttons
-      ret.cruiseState.available = self.main_enabled #cp.vl["TCS13"]["ACCEnable"] == 0
+      ret.cruiseState.available = cp.vl["TCS13"]["ACCEnable"] == 0
       ret.cruiseState.enabled = cp.vl["TCS13"]["ACC_REQ"] == 1
       ret.cruiseState.standstill = False
       ret.cruiseState.nonAdaptive = False
     else:
-      self.main_enabled = ret.cruiseState.available = cp_cruise.vl["SCC11"]["MainMode_ACC"] == 1
+      ret.cruiseState.available = cp_cruise.vl["SCC11"]["MainMode_ACC"] == 1
       ret.cruiseState.enabled = cp_cruise.vl["SCC12"]["ACCMode"] != 0
       ret.cruiseState.standstill = cp_cruise.vl["SCC11"]["SCCInfoDisplay"] == 4.
       ret.cruiseState.nonAdaptive = cp_cruise.vl["SCC11"]["SCCInfoDisplay"] == 2.  # Shows 'Cruise Control' on dash
@@ -235,8 +236,14 @@ class CarState(CarStateBase):
     if self.CP.exFlags & HyundaiExFlags.NAVI:
       ret.exState.navLimitSpeed = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"]
 
-    if prev_main_buttons == 0 and self.main_buttons[-1] != 0:
-      self.main_enabled = not self.main_enabled
+    if self.CP.exFlags & HyundaiExFlags.LFA:
+      prev_lfa_btn = self.lfa_btn
+      self.lfa_btn = cp.vl["BCM_PO_11"]["LFA_Pressed"]
+      if prev_lfa_btn != 1 and self.lfa_btn == 1:
+        self.lfa_enabled = not self.lfa_enabled
+      ret.lfaBtn = self.lfa_btn
+      ret.cruiseState.available = self.lfa_enabled
+
     return ret
 
   def update_canfd(self, can_parsers) -> structs.CarState:
@@ -307,7 +314,7 @@ class CarState(CarStateBase):
 
     # cruise state
     # CAN FD cars enable on main button press, set available if no TCS faults preventing engagement
-    ret.cruiseState.available = self.main_enabled #cp.vl["TCS"]["ACCEnable"] == 0
+    ret.cruiseState.available = cp.vl["TCS"]["ACCEnable"] == 0
     if self.CP.openpilotLongitudinalControl:
       # These are not used for engage/disengage since openpilot keeps track of state using the buttons
       ret.cruiseState.enabled = cp.vl["TCS"]["ACC_REQ"] == 1
@@ -315,8 +322,7 @@ class CarState(CarStateBase):
     else:
       cp_cruise_info = cp_cam if self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC else cp
       ret.cruiseState.enabled = cp_cruise_info.vl["SCC_CONTROL"]["ACCMode"] in (1, 2)
-      if cp_cruise_info.vl["SCC_CONTROL"]["MainMode_ACC"] == 1: # carrot
-        ret.cruiseState.available = self.main_enabled = True
+      ret.cruiseState.available = cp_cruise_info.vl["SCC_CONTROL"]["MainMode_ACC"] == 1
       ret.cruiseState.standstill = cp_cruise_info.vl["SCC_CONTROL"]["CRUISE_STANDSTILL"] == 1
       ret.cruiseState.speed = cp_cruise_info.vl["SCC_CONTROL"]["VSetDis"] * speed_factor if ret.cruiseState.enabled else 0
       self.cruise_info = copy.copy(cp_cruise_info.vl["SCC_CONTROL"])
@@ -334,8 +340,8 @@ class CarState(CarStateBase):
 
     self.main_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["ADAPTIVE_CRUISE_MAIN_BTN"])
 
-    if self.CP.exFlags & HyundaiExFlags.LFA:
-      self.main_buttons.append(cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"])
+    #if self.CP.exFlags & HyundaiExFlags.LFA:
+    #  self.main_buttons.append(cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"])
 
     self.buttons_counter = cp.vl[self.cruise_btns_msg_canfd]["COUNTER"]
     ret.accFaulted = cp.vl["TCS"]["ACCEnable"] != 0  # 0 ACC CONTROL ENABLED, 1-3 ACC CONTROL DISABLED
@@ -398,8 +404,13 @@ class CarState(CarStateBase):
       else:
         self.cruise_buttons_msg = copy.copy(cp.vl_all[self.cruise_btns_msg_canfd])
 
-    if self.main_buttons[-1] != prev_main_buttons and not self.main_buttons[-1]: # and self.CP.openpilotLongitudinalControl: #carrot
-      self.main_enabled = not self.main_enabled
+    if self.CP.exFlags & HyundaiExFlags.LFA:
+      prev_lfa_btn = self.lfa_btn
+      self.lfa_btn = cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"]
+      if prev_lfa_btn != 1 and self.lfa_btn == 1:
+        self.lfa_enabled = not self.lfa_enabled
+      ret.lfaBtn = self.lfa_btn
+      ret.cruiseState.available = self.lfa_enabled
 
     return ret
 

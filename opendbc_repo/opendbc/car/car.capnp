@@ -256,6 +256,8 @@ struct CarState {
     rr @3 :Float32;
   }
 
+  lfaBtn @58 :Int32;
+
   struct WheelSpeeds {
     # optional wheel speeds
     fl @0 :Float32;
@@ -543,6 +545,7 @@ struct CarParams {
   secOcKeyAvailable @76 :Bool;  # Stored SecOC key loaded from params
 
   exFlags @77 :UInt32;
+  isLfa @78 :Bool;
 
   struct SafetyConfig {
     safetyModel @0 :SafetyModel;
