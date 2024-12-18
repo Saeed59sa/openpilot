@@ -216,6 +216,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"CarName", CLEAR_ON_MANAGER_START},
     {"Adb", PERSISTENT},
     {"HyundaiCameraSCC", PERSISTENT},
+    {"NetworkAddress", CLEAR_ON_MANAGER_START},
 };
 
 } // namespace

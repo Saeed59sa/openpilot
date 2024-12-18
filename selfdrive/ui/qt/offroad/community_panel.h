@@ -15,8 +15,6 @@ private:
   ListWidget* funcBtn;
   ListWidget* uploadBtn;
 
-  Params params;
-
   void togglesCommunity(int widgetIndex);
   void blueButtonStyle(QPushButton* button);
 };

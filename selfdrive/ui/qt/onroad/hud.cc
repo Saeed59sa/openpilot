@@ -138,7 +138,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     w = 120;
     h = 54;
     x = (surface_rect.width() + (UI_BORDER_SIZE * 2)) / 2 - (w / 2) - UI_BORDER_SIZE;
-    y = UI_BORDER_SIZE * 3;
+    y = UI_BORDER_SIZE * 2;
     p.drawPixmap(x, y, w, h, nda_state == 1 ? nda_img : hda_img);
   }
 
@@ -269,6 +269,15 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
 
   p.setFont(InterFont(30));
   drawTextColorLR(p, x, y, infoText, whiteColor(200), "L");
+
+  // bottom right info
+  QString infoNetworkAddress = QString("[%1]").arg(QString::fromStdString(params.get("NetworkAddress")));
+
+  x = surface_rect.right() - 200;
+  y = surface_rect.height() - 20;
+
+  p.setFont(InterFont(30));
+  drawTextColorLR(p, x, y, infoNetworkAddress, whiteColor(200), "R");
 
   // turnsignal
   static int blink_index = 0;
