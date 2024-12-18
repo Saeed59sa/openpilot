@@ -446,6 +446,10 @@ class CAR(Platforms):
     HYUNDAI_SANTAFE_MX5.specs,
     flags=HyundaiFlags.ANGLE_CONTROL,
   )
+  HYUNDAI_GRANDEUR_GN7 = HyundaiCanFDPlatformConfig(
+    [HyundaiCarDocs("Hyundai Azera 2023-2024", "All", car_parts=CarParts.common([CarHarness.hyundai_a]))],
+    CarSpecs(mass=1700, wheelbase=2.895, steerRatio=16.5),
+  )
 
   # Kia
   KIA_K3 = HyundaiPlatformConfig(

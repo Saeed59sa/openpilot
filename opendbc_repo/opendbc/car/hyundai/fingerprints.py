@@ -688,6 +688,16 @@ FW_VERSIONS = {
     (Ecu.fwdCamera, 0x7c4, None): [
     ],
   },
+  CAR.HYUNDAI_GRANDEUR_GN7: {  # (GN7)
+    (Ecu.fwdRadar, 0x7d0, None): [
+      b'\xf1\x00GN7_ RDR -----      1.00 1.03 99110-N1000         ',
+      b'\xf1\x8b #\x11\x15',
+    ],
+    (Ecu.fwdCamera, 0x7c4, None): [
+      b'\xf1\x00GN7 MFC  AT KOR LHD 1.00 1.03 99211-N1000 230322',
+      b'\xf1\x8b #\x11\x16',
+    ],
+  },
 
   # kia
   CAR.KIA_K3: {  # (BD)
