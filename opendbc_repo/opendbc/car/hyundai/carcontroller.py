@@ -134,11 +134,10 @@ class CarController(CarControllerBase):
       self.lkas_max_torque = 0
 
     self.apply_angle_last = apply_angle
+    self.apply_steer_last = apply_steer
 
     # Hold torque with induced temporary fault when cutting the actuation bit
     torque_fault = CC.latActive and not apply_steer_req
-
-    self.apply_steer_last = apply_steer
 
     # accel + longitudinal
     accel = clip(actuators.accel, ACCEL_MIN, ACCEL_MAX)
