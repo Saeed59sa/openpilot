@@ -136,7 +136,7 @@ def create_buttons(packer, CP, CAN, cnt, btn):
     "CRUISE_BUTTONS": btn,
   }
 
-  bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_HDA2 else CAN.CAM
+  bus = CAN.ECAN #if CP.flags & HyundaiFlags.CANFD_HDA2 else CAN.CAM
   return packer.make_can_msg("CRUISE_BUTTONS", bus, values)
 
 
@@ -145,7 +145,7 @@ def create_buttons_canfd_alt(packer, CP, CAN, button, canfd_buttons):
     values = copy.copy(canfd_buttons)
     values["CRUISE_BUTTONS"] = button
     values["COUNTER"] = (values["COUNTER"] + 1) % 256
-    bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_HDA2 else CAN.CAM
+    bus = CAN.ECAN #if CP.flags & HyundaiFlags.CANFD_HDA2 else CAN.CAM
     return packer.make_can_msg("CRUISE_BUTTONS_ALT", bus, values)
   except:
     return None
@@ -304,7 +304,7 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control):
   }
   if CP.flags & HyundaiFlags.CAMERA_SCC.value:
     if frame % 5 == 0:
-      if CP.extFlags & HyundaiExFlags.CANFD_161.value:
+      if CP.exFlags & HyundaiExFlags.CANFD_161.value:
         if CS.adrv_info_161 is not None:
           main_enabled = CS.out.cruiseState.available
           cruise_enabled = CC.enabled

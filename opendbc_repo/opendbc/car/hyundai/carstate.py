@@ -321,51 +321,11 @@ class CarState(CarStateBase):
       ret.cruiseState.standstill = False
     else:
       cp_cruise_info = cp_cam if self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC else cp
-      ret.cruiseState.enabled = cp_cruise_info.vl["SCC_CONTROL"]["ACCMode"] in (1, 2)
       ret.cruiseState.available = cp_cruise_info.vl["SCC_CONTROL"]["MainMode_ACC"] == 1
+      ret.cruiseState.enabled = cp_cruise_info.vl["SCC_CONTROL"]["ACCMode"] in (1, 2)
       ret.cruiseState.standstill = cp_cruise_info.vl["SCC_CONTROL"]["CRUISE_STANDSTILL"] == 1
       ret.cruiseState.speed = cp_cruise_info.vl["SCC_CONTROL"]["VSetDis"] * speed_factor if ret.cruiseState.enabled else 0
       self.cruise_info = copy.copy(cp_cruise_info.vl["SCC_CONTROL"])
-
-    # Manual Speed Limit Assist is a feature that replaces non-adaptive cruise control on EV CAN FD platforms.
-    # It limits the vehicle speed, overridable by pressing the accelerator past a certain point.
-    # The car will brake, but does not respect positive acceleration commands in this mode
-    # TODO: find this message on ICE & HYBRID cars + cruise control signals (if exists)
-    if self.CP.flags & HyundaiFlags.EV:
-      ret.cruiseState.nonAdaptive = cp.vl["MANUAL_SPEED_LIMIT_ASSIST"]["MSLA_ENABLED"] == 1
-
-    prev_cruise_buttons = self.cruise_buttons[-1]
-    prev_main_buttons = self.main_buttons[-1]
-    self.cruise_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["CRUISE_BUTTONS"])
-
-    self.main_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["ADAPTIVE_CRUISE_MAIN_BTN"])
-
-    #if self.CP.exFlags & HyundaiExFlags.LFA:
-    #  self.main_buttons.append(cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"])
-
-    self.buttons_counter = cp.vl[self.cruise_btns_msg_canfd]["COUNTER"]
-    ret.accFaulted = cp.vl["TCS"]["ACCEnable"] != 0  # 0 ACC CONTROL ENABLED, 1-3 ACC CONTROL DISABLED
-
-    if self.CP.flags & HyundaiFlags.CANFD_HDA2:
-      self.hda2_lfa_block_msg = copy.copy(cp_cam.vl["CAM_0x362"] if self.CP.flags & HyundaiFlags.CANFD_HDA2_ALT_STEERING
-                                          else cp_cam.vl["CAM_0x2a4"])
-
-    ret.buttonEvents = [*create_button_events(self.cruise_buttons[-1], prev_cruise_buttons, BUTTONS_DICT),
-                        *create_button_events(self.main_buttons[-1], prev_main_buttons, {1: ButtonType.mainCruise})]
-
-    if self.CP.exFlags & HyundaiExFlags.TPMS:
-      tpms = ret.exState.tpms
-      tpms_unit = cp.vl["TPMS"]["UNIT"] * 0.725 if int(cp.vl["TPMS"]["UNIT"]) > 0 else 1.
-      tpms.fl = tpms_unit * cp.vl["TPMS"]["PRESSURE_FL"]
-      tpms.fr = tpms_unit * cp.vl["TPMS"]["PRESSURE_FR"]
-      tpms.rl = tpms_unit * cp.vl["TPMS"]["PRESSURE_RL"]
-      tpms.rr = tpms_unit * cp.vl["TPMS"]["PRESSURE_RR"]
-
-    if self.CP.exFlags & HyundaiExFlags.AUTOHOLD:
-      ret.exState.autoHold = cp.vl["ESP_STATUS"]["AUTO_HOLD"]
-
-    #if self.CP.exFlags & HyundaiExFlags.NAVI:
-    #  ret.exState.navLimitSpeed = cp.vl["CLUSTER_SPEED_LIMIT"]["SPEED_LIMIT_1"]
 
     if self.CP.flags & HyundaiFlags.CAMERA_SCC.value:
       self.cruise_info = copy.copy(cp_cam.vl["SCC_CONTROL"])
@@ -388,7 +348,15 @@ class CarState(CarStateBase):
       if "NEW_MSG_4B4" in cp.vl:
         self.new_msg_4b4 = copy.copy(cp.vl.get("NEW_MSG_4B4", {}))
 
-    self.canfd_buttons = cp.vl[self.cruise_btns_msg_canfd]
+    # Manual Speed Limit Assist is a feature that replaces non-adaptive cruise control on EV CAN FD platforms.
+    # It limits the vehicle speed, overridable by pressing the accelerator past a certain point.
+    # The car will brake, but does not respect positive acceleration commands in this mode
+    # TODO: find this message on ICE & HYBRID cars + cruise control signals (if exists)
+    if self.CP.flags & HyundaiFlags.EV:
+      ret.cruiseState.nonAdaptive = cp.vl["MANUAL_SPEED_LIMIT_ASSIST"]["MSLA_ENABLED"] == 1
+
+    prev_cruise_buttons = self.cruise_buttons[-1]
+    #self.cruise_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["CRUISE_BUTTONS"])
 
     #carrot
     if cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"]:
@@ -403,6 +371,38 @@ class CarState(CarStateBase):
         #print("empty cruise btns...")
       else:
         self.cruise_buttons_msg = copy.copy(cp.vl_all[self.cruise_btns_msg_canfd])
+
+    prev_main_buttons = self.main_buttons[-1]
+    self.main_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["ADAPTIVE_CRUISE_MAIN_BTN"])
+
+    #if self.CP.exFlags & HyundaiExFlags.LFA:
+    #  self.main_buttons.append(cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"])
+
+    self.buttons_counter = cp.vl[self.cruise_btns_msg_canfd]["COUNTER"]
+    ret.accFaulted = cp.vl["TCS"]["ACCEnable"] != 0  # 0 ACC CONTROL ENABLED, 1-3 ACC CONTROL DISABLED
+
+    if self.CP.flags & HyundaiFlags.CANFD_HDA2 and not (self.CP.flags & HyundaiFlags.CAMERA_SCC):
+      self.hda2_lfa_block_msg = copy.copy(cp_cam.vl["CAM_0x362"] if self.CP.flags & HyundaiFlags.CANFD_HDA2_ALT_STEERING
+                                          else cp_cam.vl["CAM_0x2a4"])
+
+    ret.buttonEvents = [*create_button_events(self.cruise_buttons[-1], prev_cruise_buttons, BUTTONS_DICT),
+                        *create_button_events(self.main_buttons[-1], prev_main_buttons, {1: ButtonType.mainCruise})]
+
+    if self.CP.exFlags & HyundaiExFlags.TPMS:
+      tpms = ret.exState.tpms
+      tpms_unit = cp.vl["TPMS"]["UNIT"] * 0.725 if int(cp.vl["TPMS"]["UNIT"]) > 0 else 1.
+      tpms.fl = tpms_unit * cp.vl["TPMS"]["PRESSURE_FL"]
+      tpms.fr = tpms_unit * cp.vl["TPMS"]["PRESSURE_FR"]
+      tpms.rl = tpms_unit * cp.vl["TPMS"]["PRESSURE_RL"]
+      tpms.rr = tpms_unit * cp.vl["TPMS"]["PRESSURE_RR"]
+
+    if self.CP.exFlags & HyundaiExFlags.AUTOHOLD:
+      ret.exState.autoHold = cp.vl["ESP_STATUS"]["AUTO_HOLD"]
+
+    #if self.CP.exFlags & HyundaiExFlags.NAVI:
+    #  ret.exState.navLimitSpeed = cp.vl["CLUSTER_SPEED_LIMIT"]["SPEED_LIMIT_1"]
+
+    self.canfd_buttons = cp.vl[self.cruise_btns_msg_canfd]
 
     if self.CP.exFlags & HyundaiExFlags.LFA:
       prev_lfa_btn = self.lfa_btn
