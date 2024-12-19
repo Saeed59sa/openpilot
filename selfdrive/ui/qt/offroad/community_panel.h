@@ -10,6 +10,7 @@ public:
 private:
   QStackedLayout* main_layout = nullptr;
   QWidget* homeScreen = nullptr;
+  int currentCommunityIndex = 0;
 
   ListWidget* mainToggles;
   ListWidget* funcBtn;
@@ -17,4 +18,5 @@ private:
 
   void togglesCommunity(int widgetIndex);
   void blueButtonStyle(QPushButton* button);
+  void updateButtonStyles();
 };

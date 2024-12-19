@@ -87,30 +87,29 @@ ButtonControl::ButtonControl(const QString &title, const QString &text, const QS
   hlayout->addWidget(&btn);
 }
 
-// horizontal_line
-QFrame *horizontal_line(QWidget *parent) {
-  QFrame *line = new QFrame(parent);
-  line->setFrameShape(QFrame::StyledPanel);
-  line->setStyleSheet(R"(
-    border-width: 1px;
-    border-bottom-style: solid;
-    border-color: white;
-  )");
-  line->setFixedHeight(2);
-  return line;
-}
+// controls big button
 
-// vertical_line
-QFrame *vertical_line(QWidget *parent) {
-  QFrame *line = new QFrame(parent);
-  line->setFrameShape(QFrame::StyledPanel);
-  line->setStyleSheet(R"(
-    border-width: 1px;
-    border-left-style: solid;
-    border-color: white;
+ButtonControl2::ButtonControl2(const QString &title, const QString &text, const QString &desc, QWidget *parent) : AbstractControl(title, desc, "", parent) {
+  btn.setText(text);
+  btn.setStyleSheet(R"(
+    QPushButton {
+      padding: 0;
+      border-radius: 15px;
+      font-size: 40px;
+      font-weight: 400;
+      color: #E4E4E4;
+      background-color: #393939;
+    }
+    QPushButton:pressed {
+      background-color: #4a4a4a;
+    }
+    QPushButton:disabled {
+      color: #33E4E4E4;
+    }
   )");
-  line->setFixedWidth(2);
-  return line;
+  btn.setFixedSize(250, 120);
+  QObject::connect(&btn, &QPushButton::clicked, this, &ButtonControl2::clicked);
+  hlayout->addWidget(&btn);
 }
 
 // ElidedLabel
