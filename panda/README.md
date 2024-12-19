@@ -90,7 +90,7 @@ EOF
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 
-The panda jungle uses different udev rules. See [the repo](https://github.com/commaai/panda_jungle#udev-rules) for instructions.
+The panda jungle uses different udev rules. See [the repo](https://github.com/commaai/panda_jungle#udev-rules) for instructions. 
 
 ## Software interface support
 
