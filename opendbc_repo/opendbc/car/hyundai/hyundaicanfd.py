@@ -198,30 +198,32 @@ def create_acc_control_scc2(packer, CAN, enabled, accel_last, accel, stopping, g
     a_raw = accel
     a_val = clip(accel, accel_last - jn, accel_last + jn)
 
-  values = {
-    "ACCMode": 0 if not enabled else (2 if gas_override else 1),
-    "MainMode_ACC": 1,
-    "StopReq": 1 if stopping else 0,
-    "aReqValue": a_val,
-    "aReqRaw": a_raw,
-    "VSetDis": set_speed,
-    "JerkLowerLimit": jerk if enabled else 1,
-    "JerkUpperLimit": 3.0,
-    "DISTANCE_SETTING": hud_control.leadDistanceBars,
-    # "ACC_ObjDist": 1,
-    # "ObjValid": 0,
-    # "OBJ_STATUS": 2,
-    "SET_ME_2": 0x4,
-    # "SET_ME_3": 0x3,  # objRelsped와 충돌
-    "SET_ME_TMP_64": 0x64,
-    "NEW_SIGNAL_3": 1 if hud_control.leadVisible else 0,  # 0  # 1이되면 차선이탈방지 알람이 뜬다고...  => 앞에 차가 있으면, 1또는 2가 됨. 전방두부?
-    # "NEW_SIGNAL_4": 2,
-    "ZEROS_5": 0,
-    "NEW_SIGNAL_15_DESIRE_DIST": CS.out.vEgo * 1.0 + 4.0,
-    "CRUISE_STANDSTILL": 1 if stopping and CS.out.aEgo > -0.1 else 0,
-    "NEW_SIGNAL_2": 0,  # 이것이 켜지면 가속을 안하는듯함.
-    #"NEW_SIGNAL_4": 0,    # signal2와 조합하여.. 앞차와 깜박이등이 인식되는것 같음..
-  }
+  values = CS.cruise_info
+  values["ACCMode"] = 0 if not enabled else (2 if gas_override else 1)
+  values["MainMode_ACC"] = 1
+  values["StopReq"] = 1 if stopping else 0
+  values["aReqValue"] = a_val
+  values["aReqRaw"] = a_raw
+  values["VSetDis"] = set_speed
+  #values["JerkLowerLimit"] = jerk if enabled else 1
+  #values["JerkUpperLimit"] = 3.0
+  values["JerkLowerLimit"] = jerk if enabled else 1
+  values["JerkUpperLimit"] = 3.0
+  values["DISTANCE_SETTING"] = hud_control.leadDistanceBars  # + 5
+  #values["ACC_ObjDist"] = 1
+  #values["ObjValid"] = 0
+  #values["OBJ_STATUS"] =  2
+  values["SET_ME_2"] = 0x4
+  #values["SET_ME_3"] = 0x3  # objRelsped와 충돌
+  values["SET_ME_TMP_64"] = 0x64
+  values["NEW_SIGNAL_3"] = 1 if hud_control.leadVisible else 0  # 0  # 1이되면 차선이탈방지 알람이 뜬다고...  => 앞에 차가 있으면, 1또는 2가 됨. 전방두부?
+  #values["NEW_SIGNAL_4"] = 2
+  values["ZEROS_5"] = 0
+  values["NEW_SIGNAL_15_DESIRE_DIST"] = CS.out.vEgo * 1.0 + 4.0
+  values["CRUISE_STANDSTILL"] = 1 if stopping and CS.out.aEgo > -0.1 else 0
+  values["NEW_SIGNAL_2"] = 0  # 이것이 켜지면 가속을 안하는듯함.
+  #values["NEW_SIGNAL_4"] = 0    # signal2와 조합하여.. 앞차와 깜박이등이 인식되는것 같음..
+
   return packer.make_can_msg("SCC_CONTROL", CAN.ECAN, values)
 
 

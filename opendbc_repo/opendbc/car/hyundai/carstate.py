@@ -466,7 +466,7 @@ class CarState(CarStateBase):
     if CP.flags & HyundaiFlags.CANFD_HDA2 and CP.flags & HyundaiFlags.CAMERA_SCC:
       pt_messages += [
         ("HDA_INFO_4A3", 5),
-        ("NEW_MSG_4B4", 10),
+        #("NEW_MSG_4B4", 10),
       ]
 
     cam_messages = []
