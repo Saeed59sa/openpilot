@@ -281,7 +281,7 @@ class CarState(CarStateBase):
     ret.vEgoRaw = (ret.wheelSpeeds.fl + ret.wheelSpeeds.fr + ret.wheelSpeeds.rl + ret.wheelSpeeds.rr) / 4.
     ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
     #ret.vEgoCluster = ret.vEgo * 1.037
-    cluSpeed = cp.vl["CRUISE_BUTTONS_ALT"]["CLU_SPEED"]
+    cluSpeed = cp.vl["CRUISE_BUTTONS_ALT"]["CLUSTER_SPEED"]
     ret.vEgoCluster = cluSpeed * speed_factor
 
     ret.standstill = ret.wheelSpeeds.fl <= STANDSTILL_THRESHOLD and ret.wheelSpeeds.rr <= STANDSTILL_THRESHOLD

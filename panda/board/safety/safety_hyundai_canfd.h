@@ -350,6 +350,8 @@ static safety_config hyundai_canfd_init(uint16_t param) {
     {512, 0, 8}, // ADRV_0x200
     {1187, 2, 8}, // 4A3
     {1204, 2, 8}, // 4B4
+
+    {203, 0, 24}, // CB
   };
 
   static const CanMsg HYUNDAI_CANFD_HDA1_TX_MSGS[] = {

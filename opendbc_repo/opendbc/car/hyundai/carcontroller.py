@@ -131,7 +131,7 @@ class CarController(CarControllerBase):
     # *** common hyundai stuff ***
 
     # tester present - w/ no response (keeps relevant ECU disabled)
-    if self.frame % 100 == 0 and not (self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC.value) and self.CP.openpilotLongitudinalControl:
+    if self.frame % 100 == 0 and not (self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC) and self.CP.openpilotLongitudinalControl:
       # for longitudinal control, either radar or ADAS driving ECU
       addr, bus = 0x7d0, self.CAN.ECAN if self.CP.flags & HyundaiFlags.CANFD else 0
       if self.CP.flags & HyundaiFlags.CANFD_HDA2.value:
@@ -143,7 +143,6 @@ class CarController(CarControllerBase):
         can_sends.append(make_tester_present_msg(0x7b1, self.CAN.ECAN, suppress_response=True))
 
     camera_scc = self.CP.flags & HyundaiFlags.CAMERA_SCC
-
     # CAN-FD platforms
     if self.CP.flags & HyundaiFlags.CANFD:
       hda2 = self.CP.flags & HyundaiFlags.CANFD_HDA2
@@ -153,7 +152,7 @@ class CarController(CarControllerBase):
       angle_control = self.CP.flags & HyundaiFlags.ANGLE_CONTROL
 
       if camera_scc:
-        can_sends.extend(hyundaicanfd.create_steering_messages_camera_scc(self.packer, self.CP, self.CAN, CC.enabled,
+        can_sends.extend(hyundaicanfd.create_steering_messages_camera_scc(self.packer, self.CP, CS, self.CAN, CC.enabled,
                                                                           apply_steer_req, apply_steer, apply_angle, self.lkas_max_torque, angle_control))
       else:
         can_sends.extend(hyundaicanfd.create_steering_messages(self.packer, self.CP, self.CAN, CC.enabled,
