@@ -48,8 +48,6 @@ class CarInterface(CarInterfaceBase):
       if {0x1AA, 0x1CF} & set(fingerprint[CAN.ECAN]):
         ret.exFlags |= HyundaiExFlags.LFA.value
         ret.isLfa = True
-      if ret.flags & HyundaiFlags.ANGLE_CONTROL:
-        ret.exFlags |= HyundaiExFlags.BSM_IN_ADAS.value
 
       if 0x105 in fingerprint[CAN.ECAN]:
         ret.flags |= HyundaiFlags.HYBRID.value
@@ -72,8 +70,10 @@ class CarInterface(CarInterfaceBase):
 
       if 0x1cf not in fingerprint[CAN.ECAN]:
         ret.flags |= HyundaiFlags.CANFD_ALT_BUTTONS.value
-      if 0x161 in fingerprint[CAN.ECAN]: # 0x161(353)
+      if 0x161 in fingerprint[CAN.ECAN]:
         ret.exFlags |= HyundaiExFlags.CANFD_161.value
+        if hda2:
+          ret.exFlags |= HyundaiExFlags.BSM_IN_ADAS.value
 
       # Some HDA2 cars have alternative messages for gear checks
       # ICE cars do not have 0x130; GEARS message on 0x40 or 0x70 instead
