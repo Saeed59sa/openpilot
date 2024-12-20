@@ -277,7 +277,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   y = surface_rect.height() - 20;
 
   p.setFont(InterFont(30));
-  drawTextColorLR(p, x, y, infoNetworkAddress, whiteColor(200), "R");
+  drawTextColorLR(p, x, y, infoNetworkAddress, orangeColor(200), "R");
 
   // turnsignal
   static int blink_index = 0;
@@ -539,14 +539,27 @@ void HudRenderer::drawText(QPainter &p, int x, int y, const QString &text, int a
 
 void HudRenderer::drawTextColor(QPainter &p, int x, int y, const QString &text, const QColor &color) {
   p.setOpacity(1.0);
+
+  QFont font = p.font();
+  font.setBold(true);
+  p.setFont(font);
+
   QRect real_rect = p.fontMetrics().boundingRect(text);
   real_rect.moveCenter({x, y - real_rect.height() / 2});
   p.setPen(color);
   p.drawText(real_rect.x(), real_rect.bottom(), text);
+
+  font.setBold(false);
+  p.setFont(font);
 }
 
 void HudRenderer::drawTextColorLR(QPainter &p, int x, int y, const QString &text, const QColor &color, const QString &alignment) {
   p.setOpacity(1.0);
+
+  QFont font = p.font();
+  font.setBold(true);
+  p.setFont(font);
+
   QRect real_rect = p.fontMetrics().boundingRect(text);
 
   if (alignment == "L") {
@@ -558,4 +571,7 @@ void HudRenderer::drawTextColorLR(QPainter &p, int x, int y, const QString &text
   real_rect.moveTop(y - real_rect.height() / 2);
   p.setPen(color);
   p.drawText(real_rect, text);
+
+  font.setBold(false);
+  p.setFont(font);
 }

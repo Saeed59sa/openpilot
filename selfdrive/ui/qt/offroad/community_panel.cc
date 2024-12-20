@@ -423,26 +423,26 @@ void CommunityPanel::blueButtonStyle(QPushButton* button) {
 }
 
 void CommunityPanel::updateButtonStyles() {
-    QString styleSheet = R"(
-        #gitpull_btn, #toggle_btn, #func_btn, #upload_btn {
-            height: 120px; border-radius: 15px; background-color: #393939;
-        }
-        #gitpull_btn:pressed, #toggle_btn:pressed, #func_btn:pressed, #upload_btn:pressed {
-            background-color: #4a4a4a;
-        }
-    )";
-
-    switch (currentCommunityIndex) {
-    case 0:
-        styleSheet += "#toggle_btn { background-color: #33ab4c; }";
-        break;
-    case 1:
-        styleSheet += "#func_btn { background-color: #33ab4c; }";
-        break;
-    case 2:
-        styleSheet += "#upload_btn { background-color: #33ab4c; }";
-        break;
+  QString styleSheet = R"(
+    #gitpull_btn, #toggle_btn, #func_btn, #upload_btn {
+      height: 120px; border-radius: 15px; background-color: #393939;
     }
+    #gitpull_btn:pressed, #toggle_btn:pressed, #func_btn:pressed, #upload_btn:pressed {
+      background-color: #4a4a4a;
+    }
+  )";
 
-    setStyleSheet(styleSheet);
+  switch (currentCommunityIndex) {
+  case 0:
+    styleSheet += "#toggle_btn { background-color: #33ab4c; }";
+    break;
+  case 1:
+    styleSheet += "#func_btn { background-color: #33ab4c; }";
+    break;
+  case 2:
+    styleSheet += "#upload_btn { background-color: #33ab4c; }";
+    break;
+  }
+
+  setStyleSheet(styleSheet);
 }
