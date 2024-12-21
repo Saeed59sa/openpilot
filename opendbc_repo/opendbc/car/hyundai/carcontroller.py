@@ -10,6 +10,7 @@ from opendbc.car.hyundai.values import HyundaiFlags, Buttons, CarControllerParam
 from opendbc.car.interfaces import CarControllerBase, ACCEL_MIN, ACCEL_MAX
 
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
+from openpilot.common.params import Params
 
 VisualAlert = structs.CarControl.HUDControl.VisualAlert
 LongCtrlState = structs.CarControl.Actuators.LongControlState
@@ -145,7 +146,7 @@ class CarController(CarControllerBase):
     camera_scc = self.CP.flags & HyundaiFlags.CAMERA_SCC
     # CAN-FD platforms
     if self.CP.flags & HyundaiFlags.CANFD:
-      hda2 = self.CP.flags & HyundaiFlags.CANFD_HDA2
+      hda2 = self.CP.flags & HyundaiFlags.CANFD_HDA2 or Params().get_bool("IsHda2")
       hda2_long = hda2 and self.CP.openpilotLongitudinalControl
 
       # steering control

@@ -16,6 +16,7 @@ private:
   AnnotatedCameraWidget *nvg;
   QColor bg = bg_colors[STATUS_DISENGAGED];
   QHBoxLayout* split;
+  bool isWarningShown = false;
 
 private slots:
   void offroadTransition(bool offroad);

@@ -114,25 +114,6 @@ private:
   QPushButton btn;
 };
 
-// widget for a button with a label
-class ButtonControl2 : public AbstractControl {
-  Q_OBJECT
-
-public:
-  ButtonControl2(const QString &title, const QString &text, const QString &desc = "", QWidget *parent = nullptr);
-  inline void setText(const QString &text) { btn.setText(text); }
-  inline QString text() const { return btn.text(); }
-
-signals:
-  void clicked();
-
-public slots:
-  void setEnabled(bool enabled) { btn.setEnabled(enabled); }
-
-private:
-  QPushButton btn;
-};
-
 class ToggleControl : public AbstractControl {
   Q_OBJECT
 
@@ -280,7 +261,7 @@ class ListWidget : public QWidget {
     outer_layout.setSpacing(0);
     outer_layout.addLayout(&inner_layout);
     inner_layout.setMargin(0);
-    inner_layout.setSpacing(10); // default spacing is 25
+    inner_layout.setSpacing(25); // default spacing is 25
     outer_layout.addStretch(1);
   }
   inline void addItem(QWidget *w) { inner_layout.addWidget(w); }
@@ -291,14 +272,14 @@ private:
   void paintEvent(QPaintEvent *) override {
     QPainter p(this);
     p.setPen(Qt::gray);
-    /*for (int i = 0; i < inner_layout.count() - 1; ++i) {
+    for (int i = 0; i < inner_layout.count() - 1; ++i) {
       QWidget *widget = inner_layout.itemAt(i)->widget();
       if (widget == nullptr || widget->isVisible()) {
         QRect r = inner_layout.itemAt(i)->geometry();
         int bottom = r.bottom() + inner_layout.spacing() / 2;
         p.drawLine(r.left() + 40, bottom, r.right() - 40, bottom);
       }
-    }*/
+    }
   }
   QVBoxLayout outer_layout;
   QVBoxLayout inner_layout;

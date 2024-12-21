@@ -286,7 +286,7 @@ RichTextDialog::RichTextDialog(const QString &prompt_text, const QString &btn_te
   main_layout->addWidget(confirm_btn, 2, 0);
   QObject::connect(confirm_btn, &QPushButton::clicked, this, &RichTextDialog::accept);
 
-  auto gitpull_btn = new QPushButton(tr("Git Fetch and Reset"));
+  auto gitpull_btn = new QPushButton("Git Pull");
   main_layout->addWidget(gitpull_btn, 2, 1);
   QObject::connect(gitpull_btn, &QPushButton::clicked, [=]() {
     if (ConfirmationDialog::confirm(tr("Git Fetch and Reset<br><br>Process?"), tr("Process"), this)) {
@@ -296,6 +296,14 @@ RichTextDialog::RichTextDialog(const QString &prompt_text, const QString &btn_te
     if (QFile::exists(file_path)) {
       const std::string txt = util::read_file(file_path.toStdString());
       ConfirmationDialog::rich(QString::fromStdString(txt), this);
+    }
+  });
+
+  auto upload_btn = new QPushButton("tmux log");
+  main_layout->addWidget(upload_btn, 2, 2);
+  QObject::connect(upload_btn, &QPushButton::clicked, [=]() {
+    if (ConfirmationDialog::confirm(tr("tmux log upload<br><br>Process?"), tr("Process"), this)) {
+      QProcess::execute("/data/openpilot/scripts/log_upload.sh tmux_error.log");
     }
   });
 

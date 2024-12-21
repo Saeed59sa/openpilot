@@ -20,24 +20,15 @@ int main(int argc, char *argv[]) {
   QWidget window;
   setMainWindow(&window);
 
-  QGridLayout *main_layout = new QGridLayout(&window);
-  main_layout->setMargin(50);
-
+  QVBoxLayout *main_layout = new QVBoxLayout(&window);
+  QHBoxLayout *top_layout = new QHBoxLayout();
   QLabel *label = new QLabel(argv[1]);
   label->setWordWrap(true);
   label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
   ScrollView *scroll = new ScrollView(label);
   scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-  main_layout->addWidget(scroll, 0, 0, Qt::AlignTop);
+  top_layout->addWidget(scroll, 1);
 
-  // Scroll to the bottom
-  QObject::connect(scroll->verticalScrollBar(), &QAbstractSlider::rangeChanged, [=]() {
-    scroll->verticalScrollBar()->setValue(scroll->verticalScrollBar()->maximum());
-  });
-
-  QPushButton *btn = new QPushButton();
-#ifdef __aarch64__
-  QPushButton *btn2 = new QPushButton();
   QLabel *network_label = new QLabel();
   QString device_ip = "────────";
   const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
@@ -47,37 +38,57 @@ int main(int argc, char *argv[]) {
   }
   network_label->setText(device_ip);
   network_label->setStyleSheet("color: #e0e879");
-  main_layout->addWidget(network_label, 0, 0, Qt::AlignRight | Qt::AlignTop);
+  top_layout->addWidget(network_label, 0);
+  main_layout->addLayout(top_layout);
+
+  QHBoxLayout *button_layout = new QHBoxLayout();
+  QPushButton *btn = new QPushButton();
+  QPushButton *btn2 = new QPushButton();
+  QPushButton *btn3 = new QPushButton();
+
+#ifdef __aarch64__
   btn->setText(QObject::tr("Reboot"));
   QObject::connect(btn, &QPushButton::clicked, [=]() {
     Hardware::reboot();
   });
-  btn2->setText(QObject::tr("Git Fetch and Reset"));
-  QObject::connect(btn2, &QPushButton::clicked, [=]() {
-    QProcess::execute("sh /data/openpilot/scripts/gitpull.sh");
-    Hardware::reboot();
-  });
-  main_layout->addWidget(btn2, 0, 0, Qt::AlignLeft | Qt::AlignBottom);
 #else
   btn->setText(QObject::tr("Exit"));
   QObject::connect(btn, &QPushButton::clicked, &a, &QApplication::quit);
 #endif
-  main_layout->addWidget(btn, 0, 0, Qt::AlignRight | Qt::AlignBottom);
+
+  btn2->setText(QObject::"Git Pull");
+  QObject::connect(btn2, &QPushButton::clicked, [=]() {
+    QProcess::execute("sh /data/openpilot/scripts/gitpull.sh");
+    Hardware::reboot();
+  });
+
+  btn3->setText(QObject::tr("Git Reset -1"));
+  QObject::connect(btn3, &QPushButton::clicked, [=]() {
+    QProcess::execute("sh /data/openpilot/scripts/reset.sh");
+    Hardware::reboot();
+  });
+
+  button_layout->addWidget(btn);
+  button_layout->addWidget(btn2);
+  button_layout->addWidget(btn3);
+  button_layout->setSpacing(20);
+
+  main_layout->addLayout(button_layout);
 
   window.setStyleSheet(R"(
     * {
       outline: none;
       color: white;
       background-color: black;
-      font-size: 60px;
+      font-size: 50px;
     }
     QPushButton {
-      padding: 50px;
-      padding-right: 100px;
-      padding-left: 100px;
+      padding: 30px;
+      padding-right: 30px;
+      padding-left: 30px;
       border: 2px solid white;
       border-radius: 20px;
-      margin-right: 40px;
+      margin-right: 30px;
     }
   )");
 

@@ -45,14 +45,6 @@ void OnroadWindow::updateState(const UIState &s) {
     return;
   }
 
-  const QString file_path = "/data/tmux_error.log";
-  if (QFile::exists(file_path)) {
-    const std::string txt = util::read_file(file_path.toStdString());
-    RichTextDialog::alert(QString::fromStdString(txt), this);
-    QProcess::execute("rm -f /data/tmux_error.log");
-    QTimer::singleShot(5000, []() {});
-  }
-
   alerts->updateState(s);
   nvg->updateState(s);
 
@@ -61,6 +53,18 @@ void OnroadWindow::updateState(const UIState &s) {
     // repaint border
     bg = bgColor;
     update();
+  }
+
+  const QString file_path = "/data/tmux_error.log";
+  if (QFile::exists(file_path) && !isWarningShown) {
+    const std::string txt = util::read_file(file_path.toStdString());
+    RichTextDialog::alert(QString::fromStdString(txt), this);
+    QProcess::execute("rm -f /data/tmux_error.log");
+    isWarningShown = true;
+
+    QTimer::singleShot(5000, [this]() {
+      isWarningShown = false;
+    });
   }
 }
 

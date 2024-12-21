@@ -30,7 +30,7 @@ class CarInterface(CarInterfaceBase):
       ret.flags |= HyundaiFlags.CAMERA_SCC.value
 
     cam_can = CanBus(None, fingerprint).CAM if camera_scc == 0 else 1
-    hda2 = 0x50 in fingerprint[cam_can] or 0x110 in fingerprint[cam_can] or Params().get_bool("IsHda2")
+    hda2 = any((0x50 in fingerprint[cam_can], 0x110 in fingerprint[cam_can], Params().get_bool("IsHda2")))
     CAN = CanBus(None, fingerprint, hda2)
 
     if ret.flags & HyundaiFlags.CANFD:

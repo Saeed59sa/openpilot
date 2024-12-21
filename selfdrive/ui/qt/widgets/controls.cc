@@ -82,33 +82,8 @@ ButtonControl::ButtonControl(const QString &title, const QString &text, const QS
       color: #33E4E4E4;
     }
   )");
-  btn.setFixedSize(200, 100);
+  btn.setFixedSize(250, 100);
   QObject::connect(&btn, &QPushButton::clicked, this, &ButtonControl::clicked);
-  hlayout->addWidget(&btn);
-}
-
-// controls big button
-
-ButtonControl2::ButtonControl2(const QString &title, const QString &text, const QString &desc, QWidget *parent) : AbstractControl(title, desc, "", parent) {
-  btn.setText(text);
-  btn.setStyleSheet(R"(
-    QPushButton {
-      padding: 0;
-      border-radius: 15px;
-      font-size: 40px;
-      font-weight: 400;
-      color: #E4E4E4;
-      background-color: #393939;
-    }
-    QPushButton:pressed {
-      background-color: #4a4a4a;
-    }
-    QPushButton:disabled {
-      color: #33E4E4E4;
-    }
-  )");
-  btn.setFixedSize(250, 120);
-  QObject::connect(&btn, &QPushButton::clicked, this, &ButtonControl2::clicked);
   hlayout->addWidget(&btn);
 }
 
