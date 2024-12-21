@@ -33,9 +33,9 @@ struct CanData {
     int delta = 0;
     int same_delta_counter = 0;
     bool suppressed = false;
-    std::array<uint32_t, 8> bit_change_counts;
   };
   std::vector<ByteLastChange> last_changes;
+  std::vector<std::array<uint32_t, 8>> bit_flip_counts;
   double last_freq_update_ts = 0;
 };
 
@@ -53,6 +53,7 @@ struct CompareCanEvent {
 };
 
 typedef std::unordered_map<MessageId, std::vector<const CanEvent *>> MessageEventsMap;
+using CanEventIter = std::vector<const CanEvent *>::const_iterator;
 
 class AbstractStream : public QObject {
   Q_OBJECT
@@ -85,6 +86,7 @@ public:
   inline const std::vector<const CanEvent *> &allEvents() const { return all_events_; }
   const CanData &lastMessage(const MessageId &id) const;
   const std::vector<const CanEvent *> &events(const MessageId &id) const;
+  std::pair<CanEventIter, CanEventIter> eventsInRange(const MessageId &id, std::optional<std::pair<double, double>> time_range) const;
 
   size_t suppressHighlighted();
   void clearSuppressed();
