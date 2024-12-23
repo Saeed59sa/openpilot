@@ -83,7 +83,7 @@ class HyundaiFlags(IntFlag):
   # The radar does SCC on these cars when HDA I, rather than the camera
   RADAR_SCC = 2 ** 14
   # The camera does SCC on these cars, rather than the radar
-  CAMERA_SCC = 2 ** 15
+  CAMERA_SCC = CANFD_CAMERA_SCC #2 ** 15
   CHECKSUM_CRC8 = 2 ** 16
   CHECKSUM_6B = 2 ** 17
 
