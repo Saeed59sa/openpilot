@@ -299,7 +299,7 @@ RichTextDialog::RichTextDialog(const QString &prompt_text, const QString &btn_te
     }
   });
 
-  auto upload_btn = new QPushButton("tmux log");
+  auto upload_btn = new QPushButton("tmux log Upload");
   main_layout->addWidget(upload_btn, 2, 2);
   QObject::connect(upload_btn, &QPushButton::clicked, [=]() {
     if (ConfirmationDialog::confirm(tr("tmux log upload<br><br>Process?"), tr("Process"), this)) {

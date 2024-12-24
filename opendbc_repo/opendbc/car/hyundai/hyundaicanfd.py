@@ -58,32 +58,30 @@ def create_steering_messages_camera_scc(packer, CP, CS, CAN, enabled, lat_active
     values["LKA_MODE"] = 0
     values["LKA_ICON"] = 2 if enabled else 1
     values["TORQUE_REQUEST"] = -1024  # apply_steer,
-    values["VALUE63"] = 0  # LKA_ASSIST
+    values["LKA_ASSIST"] = 0
     values["STEER_REQ"] = 0  # 1 if lat_active else 0,
     values["HAS_LANE_SAFETY"] = 0  # hide LKAS settings
     values["LKA_ACTIVE"] = 3 if lat_active else 0  # this changes sometimes, 3 seems to indicate engaged
-    values["VALUE64"] = 0  # STEER_MODE, NEW_SIGNAL_2
+    values["STEER_MODE"] = 0
     values["LKAS_ANGLE_CMD"] = -25.6  # -apply_angle if lat_active else 0,
     values["LKAS_ANGLE_ACTIVE"] = 0  # 2 if lat_active else 1,
-    # a torque scale value? ramps up when steering, highest seen is 234
-    # "UNKNOWN": 50 if lat_active and not steering_pressed else 0,
-    values["UNKNOWN"] = 0  # max_torque if lat_active else 0,
-    values["NEW_SIGNAL_1"] = 10
+    values["LKAS_ANGLE_MAX_TORQUE"] = 0  # max_torque if lat_active else 0,
+    values["LKAS_SIGNAL_1"] = 10
     values["NEW_SIGNAL_3"] = 9
-    values["NEW_SIGNAL_4"] = 1
-    values["NEW_SIGNAL_5"] = 1
-    values["NEW_SIGNAL_6"] = 1
-    values["NEW_SIGNAL_7"] = 1
+    values["LKAS_SIGNAL_2"] = 1
+    values["LKAS_SIGNAL_3"] = 1
+    values["LKAS_SIGNAL_4"] = 1
+    values["LKAS_SIGNAL_5"] = 1
   else:
     values = {}
     values["LKA_MODE"] = 2
     values["LKA_ICON"] = 2 if lat_active else 1
     values["TORQUE_REQUEST"] = apply_steer
     values["STEER_REQ"] = 1 if lat_active else 0
-    values["VALUE64"] = 0  # STEER_MODE, NEW_SIGNAL_2
+    values["STEER_MODE"] = 0
     values["HAS_LANE_SAFETY"] = 0
     values["LKA_ACTIVE"] = 0  # NEW_SIGNAL_1
-    #values["VALUE63"] = 0
+    #values["LKA_ASSIST"] = 0
     #values["VALUE104"] = 3 if lat_active else 100
     #values["VALUE82_SET256"] = 0
 
@@ -99,35 +97,30 @@ def create_steering_messages(packer, CP, CAN, enabled, lat_active, apply_steer, 
       "LKA_MODE": 0,
       "LKA_ICON": 2 if enabled else 1,
       "TORQUE_REQUEST": 0,  # apply_steer,
-      "VALUE63": 0, # LKA_ASSIST
+      "LKA_ASSIST": 0,
       "STEER_REQ": 0,  # 1 if lat_active else 0,
-      #"STEER_MODE": 0,
+      "STEER_MODE": 0,
       "HAS_LANE_SAFETY": 0,  # hide LKAS settings
       "LKA_ACTIVE": 3 if lat_active else 0,  # this changes sometimes, 3 seems to indicate engaged
-      "VALUE64": 0,  # STEER_MODE, NEW_SIGNAL_2
       "LKAS_ANGLE_CMD": -apply_angle if lat_active else 0,
       "LKAS_ANGLE_ACTIVE": 2 if lat_active else 1,
-      # a torque scale value? ramps up when steering, highest seen is 234
-      # "UNKNOWN": 50 if lat_active and not steering_pressed else 0,
-      "UNKNOWN": max_torque if lat_active else 0,
-      "NEW_SIGNAL_1": 10,
+      "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0,
+      "LKAS_SIGNAL_1": 10,
       "NEW_SIGNAL_3": 9,
-      "NEW_SIGNAL_4": 1,
-      "NEW_SIGNAL_5": 1,
-      "NEW_SIGNAL_6": 1,
-      "NEW_SIGNAL_7": 1,
+      "LKAS_SIGNAL_2": 1,
+      "LKAS_SIGNAL_3": 1,
+      "LKAS_SIGNAL_4": 1,
+      "LKAS_SIGNAL_5": 1,
     }
   else:
     values = {
       "LKA_MODE": 2,
       "LKA_ICON": 2 if enabled else 1,
       "TORQUE_REQUEST": apply_steer,
-      #"LKA_ASSIST": 0,
+      "LKA_ASSIST": 0,
       "STEER_REQ": 1 if lat_active else 0,
-      #"STEER_MODE": 0,
+      "STEER_MODE": 0,
       "HAS_LANE_SAFETY": 0,  # hide LKAS settings
-      "VALUE63": 0,
-      "VALUE64": 0,
     }
 
   if CP.flags & HyundaiFlags.CANFD_HDA2:
@@ -229,8 +222,6 @@ def create_acc_control_scc2(packer, CAN, enabled, accel_last, accel, stopping, g
   values["aReqValue"] = a_val
   values["aReqRaw"] = a_raw
   values["VSetDis"] = set_speed
-  #values["JerkLowerLimit"] = jerk if enabled else 1
-  #values["JerkUpperLimit"] = 3.0
   values["JerkLowerLimit"] = jerk if enabled else 1
   values["JerkUpperLimit"] = 3.0
   values["DISTANCE_SETTING"] = hud_control.leadDistanceBars  # + 5
@@ -271,10 +262,10 @@ def create_acc_control(packer, CAN, enabled, accel_last, accel, stopping, gas_ov
     "JerkUpperLimit": 3.0,
 
     "ACC_ObjDist": 1,
-    "ObjValid": 0,
-    "OBJ_STATUS": 2,
+    #"ObjValid": 0,
+    #"OBJ_STATUS": 2,
     "SET_ME_2": 0x4,
-    "SET_ME_3": 0x3,
+    #"SET_ME_3": 0x3,
     "SET_ME_TMP_64": 0x64,
     "DISTANCE_SETTING": hud_control.leadDistanceBars,
   }
@@ -325,9 +316,7 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control):
   # the ADAS Driving ECU to do longitudinal control
 
   ret = []
-
-  values = {
-  }
+  values = {}
   if CP.flags & HyundaiFlags.CAMERA_SCC.value:
     if frame % 5 == 0:
       if CP.exFlags & HyundaiExFlags.CANFD_161.value:

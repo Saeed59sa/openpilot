@@ -145,10 +145,6 @@
         <translation>시스템 부하를 줄이시려면 이 옵션을 끄세요</translation>
     </message>
     <message>
-        <source>Git Fetch and Reset</source>
-        <translation>Git Fetch and Reset</translation>
-    </message>
-    <message>
         <source>Clear DTC</source>
         <translation>고장코드 제거</translation>
     </message>
@@ -175,10 +171,6 @@
     <message>
         <source>Select Branch</source>
         <translation>브랜치 선택</translation>
-    </message>
-    <message>
-        <source>Git Checkout</source>
-        <translation>Git Checkout</translation>
     </message>
     <message>
         <source>Git Fetch and Reset&lt;br&gt;&lt;br&gt;Process?</source>
@@ -321,10 +313,6 @@
         <translation>HDA2 ADAS ECAN 개조차량</translation>
     </message>
     <message>
-        <source>Connect the ADAS ECAN line to CAMERA</source>
-        <translation>ADAS ECAN 라인을 CAMERA ECAN으로 연결하여 개조한 차량은 활성화 하세요</translation>
-    </message>
-    <message>
         <source>Toggle</source>
         <translation>토글</translation>
     </message>
@@ -335,6 +323,18 @@
     <message>
         <source>Upload</source>
         <translation>업로드</translation>
+    </message>
+    <message>
+        <source>Connect the ADAS ECAN line to CAMERA, turn it on.</source>
+        <translation>ADAS ECAN 라인을 CAMERA ECAN으로 연결하여 개조한 차량은 활성화 하세요</translation>
+    </message>
+    <message>
+        <source>Cruise State Controls</source>
+        <translation>크루즈 상태 컨트롤</translation>
+    </message>
+    <message>
+        <source>Openpilot controls cruise on/off, gap and set speed.</source>
+        <translation>오픈파일럿이 크루즈 상태를 컨트롤합니다</translation>
     </message>
 </context>
 <context>
@@ -812,8 +812,8 @@
         <translation>now</translation>
     </message>
     <message>
-        <source>Git Fetch and Reset</source>
-        <translation>Git Fetch and Reset</translation>
+        <source>Git Reset -1</source>
+        <translation>Git 리셋 -1</translation>
     </message>
 </context>
 <context>
@@ -860,10 +860,6 @@ This may take up to a minute.</source>
 <context>
     <name>RichTextDialog</name>
     <message>
-        <source>Git Fetch and Reset</source>
-        <translation>Git Fetch and Reset</translation>
-    </message>
-    <message>
         <source>Git Fetch and Reset&lt;br&gt;&lt;br&gt;Process?</source>
         <translation>Git Fetch and Reset&lt;br&gt;&lt;br&gt;실행하시겠습니까?</translation>
     </message>
@@ -875,38 +871,9 @@ This may take up to a minute.</source>
         <source>Ok</source>
         <translation>확인</translation>
     </message>
-</context>
-<context>
-    <name>SelectBranch</name>
     <message>
-        <source>Back</source>
-        <translation type="vanished">뒤로</translation>
-    </message>
-    <message>
-        <source>Branch Select not use</source>
-        <translation type="vanished">Branch 선택 사용안함</translation>
-    </message>
-</context>
-<context>
-    <name>SelectCar</name>
-    <message>
-        <source>Back</source>
-        <translation type="vanished">뒤로</translation>
-    </message>
-    <message>
-        <source>Select Car not use</source>
-        <translation type="vanished">차량 선택 사용안함</translation>
-    </message>
-</context>
-<context>
-    <name>SelectManufacturer</name>
-    <message>
-        <source>Back</source>
-        <translation type="vanished">뒤로</translation>
-    </message>
-    <message>
-        <source>Select Manufacturer not use</source>
-        <translation type="vanished">제조사 선택 사용안함</translation>
+        <source>tmux log upload&lt;br&gt;&lt;br&gt;Process?</source>
+        <translation>tmux 로그 업로드&lt;br&gt;&lt;br&gt;실행하시겠습니까?</translation>
     </message>
 </context>
 <context>
