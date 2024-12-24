@@ -218,12 +218,10 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
 }
 
 int addr_list1[128] = { 0, };
-int addr_list_len1[128] = { 0, };
 int addr_list_count1 = 0;
 int addr_list2[128] = { 0, };
-int addr_list_len2[128] = { 0, };
 int addr_list_count2 = 0;
-uint32_t last_ts_lkas_msg_acan = 0;
+#define OP_CAN_SEND_TIMEOUT 100000
 
 static int hyundai_canfd_fwd_hook(int bus_num, int addr) {
   int bus_fwd = -1;
@@ -232,18 +230,15 @@ static int hyundai_canfd_fwd_hook(int bus_num, int addr) {
   if (bus_num == 0) {
     bus_fwd = 2;
   }
-  extern uint8_t to_push_data_len_code;
   if (bus_num == 1) {
     int i;
     for (i = 0; i < addr_list_count1 && i < 127; i++) {
       if (addr_list1[i] == addr) {
-        addr_list_len1[i] = to_push_data_len_code;
         break;
       }
     }
     if (i == addr_list_count1 && i!=127) {
       addr_list1[addr_list_count1] = addr;
-      addr_list_len1[addr_list_count1] = to_push_data_len_code;
       addr_list_count1++;
       print("!!!!! bus1_list=");
       for (int j = 0; j < addr_list_count1; j++) { putui((uint32_t)addr_list1[j]); print(","); }
@@ -254,13 +249,11 @@ static int hyundai_canfd_fwd_hook(int bus_num, int addr) {
     int i;
     for (i = 0; i < addr_list_count2 && i < 127; i++) {
       if (addr_list2[i] == addr) {
-        addr_list_len2[i] = to_push_data_len_code;
         break;
       }
     }
     if (i == addr_list_count2 && i != 127) {
       addr_list2[addr_list_count2] = addr;
-      addr_list_len2[addr_list_count2] = to_push_data_len_code;
       addr_list_count2++;
       print("@@@@ bus2_list=");
       for (int j = 0; j < addr_list_count2; j++) { putui((uint32_t)addr_list2[j]); print(","); }
@@ -269,7 +262,7 @@ static int hyundai_canfd_fwd_hook(int bus_num, int addr) {
 #if 1
   bus_fwd = 0;
   for (int i = 0; canfd_tx_addr[i] > 0; i++) {
-    if (addr == canfd_tx_addr[i] && (now - canfd_tx_time[i]) < 200000) {
+    if (addr == canfd_tx_addr[i] && (now - canfd_tx_time[i]) < OP_CAN_SEND_TIMEOUT) {
       bus_fwd = -1;
       break;
     }
