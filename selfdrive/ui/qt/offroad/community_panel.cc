@@ -204,7 +204,9 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
                                         "../assets/offroad/icon_addon.png", this));
   mainToggles->addItem(new ParamControl("IsHda2", tr("CANFD Car HDA2"), tr("Highway Drive Assist 2, turn it on."),
                                         "../assets/offroad/icon_long.png", this));
-  mainToggles->addItem(new ParamControl("HyundaiCameraSCC", tr("HDA2 ADAS ECAN Modify"), tr("Connect the ADAS ECAN line to CAMERA"),
+  mainToggles->addItem(new ParamControl("HyundaiCameraSCC", tr("HDA2 ADAS ECAN Modify"), tr("Connect the ADAS ECAN line to CAMERA, turn it on."),
+                                        "../assets/offroad/icon_long.png", this));
+  mainToggles->addItem(new ParamControl("CruiseStateControl", tr("Cruise State Controls"), tr("Openpilot controls cruise on/off, gap and set speed."),
                                         "../assets/offroad/icon_long.png", this));
   mainToggles->addItem(new ParamControl("DriverCameraHardwareMissing", tr("DriverCamera Hardware Missing"), tr("If there is a problem with the driver camera hardware, drive without the driver camera."),
                                         "../assets/img_driver_face_static_x.png", this));

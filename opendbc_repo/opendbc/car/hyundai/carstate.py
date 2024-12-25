@@ -10,6 +10,8 @@ from opendbc.car.hyundai.hyundaicanfd import CanBus
 from opendbc.car.hyundai.values import HyundaiFlags, CAR, DBC, Buttons, CarControllerParams, HyundaiExFlags
 from opendbc.car.interfaces import CarStateBase
 
+from openpilot.selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager
+
 ButtonType = structs.CarState.ButtonEvent.Type
 
 PREV_BUTTON_SAMPLES = 8
@@ -244,6 +246,10 @@ class CarState(CarStateBase):
       ret.lfaBtn = self.lfa_btn
       ret.cruiseState.available = self.lfa_enabled
 
+    if self.CP.openpilotLongitudinalControl and CruiseStateManager.instance().cruise_state_control:
+      available = ret.cruiseState.available
+      CruiseStateManager.instance().update(ret, self.main_buttons, self.cruise_buttons, BUTTONS_DICT, available)
+
     return ret
 
   def update_canfd(self, can_parsers) -> structs.CarState:
@@ -411,6 +417,9 @@ class CarState(CarStateBase):
         self.lfa_enabled = not self.lfa_enabled
       ret.lfaBtn = self.lfa_btn
       ret.cruiseState.available = self.lfa_enabled
+
+    CruiseStateManager.instance().update(ret, self.main_buttons, self.cruise_buttons, BUTTONS_DICT,
+                                         cruise_state_control=self.CP.openpilotLongitudinalControl and CruiseStateManager.instance().cruise_state_control)
 
     return ret
 
