@@ -11,11 +11,15 @@ LongCtrlState = car.CarControl.Actuators.LongControlState
 
 
 def long_control_state_trans(CP, active, long_control_state, v_ego,
-                             should_stop, brake_pressed, cruise_standstill):
-  stopping_condition = should_stop
+                             should_stop, brake_pressed, cruise_standstill, lead):
+  stopping_condition = should_stop or cruise_standstill or brake_pressed
   starting_condition = (not should_stop and
                         not cruise_standstill and
                         not brake_pressed)
+
+  if lead.status:
+    starting_condition = starting_condition and lead.vLeadK > 0.2 and lead.dRel > 4.
+
   started_condition = v_ego > CP.vEgoStarting
 
   if not active:
@@ -56,14 +60,14 @@ class LongControl:
   def reset(self):
     self.pid.reset()
 
-  def update(self, active, CS, a_target, should_stop, accel_limits):
+  def update(self, active, CS, a_target, should_stop, accel_limits, sm):
     """Update longitudinal control. This updates the state machine and runs a PID loop"""
     self.pid.neg_limit = accel_limits[0]
     self.pid.pos_limit = accel_limits[1]
 
     self.long_control_state = long_control_state_trans(self.CP, active, self.long_control_state, CS.vEgo,
                                                        should_stop, CS.brakePressed,
-                                                       CS.cruiseState.standstill)
+                                                       CS.cruiseState.standstill, sm['radarState'].leadOne)
     if self.long_control_state == LongCtrlState.off:
       self.reset()
       output_accel = 0.

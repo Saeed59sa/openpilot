@@ -50,6 +50,10 @@ class CruiseStateManager:
     self.available = False
     self.enabled = False
     self.speed = V_CRUISE_ENABLE_MIN * CV.KPH_TO_MS
+    gap = self.params.get('SccGapAdjust')
+    self.leadDistanceBars = int(gap) if gap is not None else 4
+    if self.leadDistanceBars < 1 or self.leadDistanceBars > 4:
+      self.leadDistanceBars = 4
 
     self.prev_speed = 0
     self.prev_main_buttons = 0
@@ -110,6 +114,7 @@ class CruiseStateManager:
       CS.cruiseState.enabled = self.enabled
       CS.cruiseState.standstill = False
       CS.cruiseState.speed = self.speed
+      CS.cruiseState.leadDistanceBars = self.leadDistanceBars
 
   def update_buttons(self):
     if self.button_events is None:
@@ -175,6 +180,15 @@ class CruiseStateManager:
           road_limit_speed = SpeedLimiter.instance().get_road_limit_speed()
           if V_CRUISE_ENABLE_MIN < road_limit_speed < V_CRUISE_MAX:
             v_cruise_kph = max(v_cruise_kph, road_limit_speed)
+
+    if btn == ButtonType.gapAdjustCruise:
+      if not self.btn_long_pressed:
+        self.leadDistanceBars -= 1
+        if self.leadDistanceBars < 1:
+          self.leadDistanceBars = 4
+        self.params.put_nonblocking("SccGapAdjust", str(self.leadDistanceBars))
+      else:
+        self.params.put_bool("ExperimentalMode", not self.params.get_bool("ExperimentalMode"))
 
     if btn == ButtonType.cancel:
       self.enabled = False

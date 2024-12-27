@@ -42,7 +42,7 @@ X_EGO_COST = 0.
 V_EGO_COST = 0.
 A_EGO_COST = 0.
 J_EGO_COST = 5.0
-A_CHANGE_COST = 100.
+A_CHANGE_COST = 200.
 DANGER_ZONE_COST = 100.
 CRASH_DISTANCE = .25
 LEAD_DANGER_FACTOR = 0.75
@@ -60,7 +60,7 @@ T_IDXS = np.array(T_IDXS_LST)
 FCW_IDXS = T_IDXS < 5.0
 T_DIFFS = np.diff(T_IDXS, prepend=[0.])
 COMFORT_BRAKE = 2.5
-STOP_DISTANCE = 6.5
+STOP_DISTANCE = 5.0
 
 def get_jerk_factor(personality=log.LongitudinalPersonality.standard):
   if personality==log.LongitudinalPersonality.relaxed:
@@ -376,7 +376,12 @@ class LongitudinalMpc:
 
     # Update in ACC mode or ACC/e2e blend
     if self.mode == 'acc':
-      self.params[:,5] = LEAD_DANGER_FACTOR
+      if radarstate.leadOne.status:
+        lead_danger_factor = interp(radarstate.leadOne.dRel, [STOP_DISTANCE, 10.], [0.85, LEAD_DANGER_FACTOR])
+      else:
+        lead_danger_factor = LEAD_DANGER_FACTOR
+
+      self.params[:,5] = lead_danger_factor
 
       x2 = stop_x * np.ones(N+1) if (self.xState == XState.e2eStop) else 400.0 * np.ones(N+1)
 

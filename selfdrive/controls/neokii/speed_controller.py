@@ -13,6 +13,7 @@ from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 from openpilot.selfdrive.modeld.constants import ModelConstants
 
 MIN_CURVE_SPEED = 40. * CV.KPH_TO_MS
+SYNC_MARGIN = 3.
 
 ButtonType = car.CarState.ButtonEvent.Type
 
@@ -185,6 +186,27 @@ class SpeedController:
       else:
         self.curve_speed_ms = 255.
 
+  def _cal_target_speed(self, CS, clu_speed, v_cruise_kph, cruise_btn_pressed):
+    override_speed = -1
+    if not self.long_control:
+      if CS.gasPressed and not cruise_btn_pressed:
+        if clu_speed + SYNC_MARGIN > self._kph_to_clu(v_cruise_kph):
+          set_speed = clip(clu_speed + SYNC_MARGIN, self.min_set_speed_stock, self.max_set_speed_clu)
+          v_cruise_kph = int(round(set_speed * self.speed_conv_to_ms * CV.MS_TO_KPH))
+          override_speed = v_cruise_kph
+
+      self.target_speed = self._kph_to_clu(v_cruise_kph)
+      if self.max_speed_clu > self.min_set_speed_stock:
+        self.target_speed = clip(self.target_speed, self.min_set_speed_stock, self.max_speed_clu)
+
+    elif CS.cruiseState.enabled:
+      if CS.gasPressed and not cruise_btn_pressed:
+        if clu_speed + SYNC_MARGIN > self._kph_to_clu(v_cruise_kph):
+          set_speed = clip(clu_speed + SYNC_MARGIN, self.min_set_speed_clu, self.max_set_speed_clu)
+          self.target_speed = set_speed
+          CruiseStateManager.instance().speed = set_speed * self.speed_conv_to_ms
+
+    return override_speed
 
   def _update_max_speed(self, max_speed):
     if not self.long_control or self.max_speed_clu <= 0:
@@ -196,7 +218,7 @@ class SpeedController:
 
 
   def _get_button(self, current_set_speed):
-    if self.target_speed < self.min_set_speed_clu:
+    if self.target_speed < self.min_set_speed_stock:
       return Buttons.NONE
     error = self.target_speed - current_set_speed
     if abs(error) < 0.9:
@@ -236,6 +258,11 @@ class SpeedController:
 
       if CruiseStateManager.instance().cruise_state_control:
         self.cruise_speed_kph = min(self.cruise_speed_kph, max(self.real_set_speed_kph, V_CRUISE_MIN_CRUISE_STATE))
+
+      override_speed = self._cal_target_speed(CS, clu_speed, self.real_set_speed_kph, self.CI.CS.cruise_buttons[-1] != Buttons.NONE)
+      if override_speed > 0:
+        v_cruise_kph = override_speed
+
     else:
       self.reset()
 
