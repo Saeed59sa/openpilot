@@ -127,11 +127,11 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *to_push) {
 
 static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
   const SteeringLimits HYUNDAI_CANFD_STEERING_LIMITS = {
-    .max_steer = 270,
+    .max_steer = 512,
     .max_rt_delta = 112,
     .max_rt_interval = 250000,
-    .max_rate_up = 2,
-    .max_rate_down = 3,
+    .max_rate_up = 10,
+    .max_rate_down = 10,
     .driver_torque_allowance = 250,
     .driver_torque_factor = 2,
     .type = TorqueDriverLimited,
@@ -217,77 +217,88 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
   return tx;
 }
 
-int addr_list1[128] = { 0, };
-int addr_list_count1 = 0;
-int addr_list2[128] = { 0, };
-int addr_list_count2 = 0;
+#define MAX_ADDR_LIST_SIZE 128
 #define OP_CAN_SEND_TIMEOUT 100000
+
+typedef struct {
+  int addrs[MAX_ADDR_LIST_SIZE];
+  int count;
+} AddrList;
+
+static bool add_addr_to_list(AddrList *list, int addr) {
+  if (list->count >= MAX_ADDR_LIST_SIZE) {
+    return false; // List is full
+  }
+
+  for (int i = 0; i < list->count; i++) {
+    if (list->addrs[i] == addr) {
+      return false; // Already exists
+    }
+  }
+
+  list->addrs[list->count++] = addr;
+  return true;
+}
+
+static void print_addr_list(const char *prefix, const AddrList *list) {
+  print(prefix);
+  for (int j = 0; j < list->count; j++) {
+    putui((uint32_t)list->addrs[j]);
+    print(",");
+  }
+  print("\n");
+}
 
 static int hyundai_canfd_fwd_hook(int bus_num, int addr) {
   int bus_fwd = -1;
   uint32_t now = microsecond_timer_get();
 
-  if (bus_num == 0) {
-    bus_fwd = 2;
-  }
-  if (bus_num == 1) {
-    int i;
-    for (i = 0; i < addr_list_count1 && i < 127; i++) {
-      if (addr_list1[i] == addr) {
-        break;
-      }
-    }
-    if (i == addr_list_count1 && i!=127) {
-      addr_list1[addr_list_count1] = addr;
-      addr_list_count1++;
-      print("!!!!! bus1_list=");
-      for (int j = 0; j < addr_list_count1; j++) { putui((uint32_t)addr_list1[j]); print(","); }
-      print("\n");
-    }
-  }
-  if (bus_num == 2) {
-    int i;
-    for (i = 0; i < addr_list_count2 && i < 127; i++) {
-      if (addr_list2[i] == addr) {
-        break;
-      }
-    }
-    if (i == addr_list_count2 && i != 127) {
-      addr_list2[addr_list_count2] = addr;
-      addr_list_count2++;
-      print("@@@@ bus2_list=");
-      for (int j = 0; j < addr_list_count2; j++) { putui((uint32_t)addr_list2[j]); print(","); }
-      print("\n");
-    }
-#if 1
-  bus_fwd = 0;
-  for (int i = 0; canfd_tx_addr[i] > 0; i++) {
-    if (addr == canfd_tx_addr[i] && (now - canfd_tx_time[i]) < OP_CAN_SEND_TIMEOUT) {
-      bus_fwd = -1;
+  static AddrList addr_list1 = {{0}, 0};
+  static AddrList addr_list2 = {{0}, 0};
+
+  switch (bus_num) {
+    case 0:
+      bus_fwd = 2;
       break;
-    }
-  }
-#else
-  // LKAS for HDA2, LFA for HDA1
-  int hda2_lfa_block_addr = hyundai_canfd_hda2_alt_steering ? 0x362 : 0x2a4;
-  bool is_lkas_msg = ((addr == hyundai_canfd_hda2_get_lkas_addr()) || (addr == hda2_lfa_block_addr)) && hyundai_canfd_hda2;
-  bool is_lfa_msg = ((addr == 0x12a) && !hyundai_canfd_hda2);
-
-  // HUD icons
-  bool is_lfahda_msg = ((addr == 0x1e0) && !hyundai_canfd_hda2);
-
-  // CRUISE_INFO for non-HDA2, we send our own longitudinal commands
-  bool is_scc_msg = ((addr == 0x1a0) && hyundai_longitudinal && !hyundai_canfd_hda2);
-
-  bool block_msg = is_lkas_msg || is_lfa_msg || is_lfahda_msg || is_scc_msg;
-  if (!block_msg) {
-    bus_fwd = 0;
-  }
-#endif
+    case 1:
+      if (add_addr_to_list(&addr_list1, addr)) {
+        print_addr_list("!!!!! bus1_list=", &addr_list1);
+      }
+      break;
+    case 2:
+      if (add_addr_to_list(&addr_list2, addr)) {
+        print_addr_list("@@@@ bus2_list=", &addr_list2);
+      }
+      bus_fwd = 0;
+      for (int i = 0; canfd_tx_addr[i] > 0; i++) {
+        if (addr == canfd_tx_addr[i] && (now - canfd_tx_time[i]) < OP_CAN_SEND_TIMEOUT) {
+          bus_fwd = -1;
+          break;
+        }
+      }
+      break;
   }
 
   return bus_fwd;
 }
+
+/*
+    // LKAS for HDA2, LFA for HDA1
+    int hda2_lfa_block_addr = hyundai_canfd_hda2_alt_steering ? 0x362 : 0x2a4;
+    bool is_lkas_msg = ((addr == hyundai_canfd_hda2_get_lkas_addr()) || (addr == hda2_lfa_block_addr)) && hyundai_canfd_hda2;
+    bool is_lfa_msg = ((addr == 0x12a) && !hyundai_canfd_hda2);
+
+    // HUD icons
+    bool is_lfahda_msg = ((addr == 0x1e0) && !hyundai_canfd_hda2);
+
+    // CRUISE_INFO for non-HDA2, we send our own longitudinal commands
+    bool is_scc_msg = ((addr == 0x1a0) && hyundai_longitudinal && !hyundai_canfd_hda2);
+
+    bool block_msg = is_lkas_msg || is_lfa_msg || is_lfahda_msg || is_scc_msg;
+    if (!block_msg) {
+      bus_fwd = 0;
+    }
+*/
 
 static safety_config hyundai_canfd_init(uint16_t param) {
   const int HYUNDAI_PARAM_CANFD_HDA2_ALT_STEERING = 128;
@@ -308,43 +319,36 @@ static safety_config hyundai_canfd_init(uint16_t param) {
 
   static const CanMsg HYUNDAI_CANFD_HDA2_LONG_TX_MSGS[] = {
     {0x50, 0, 16},  // LKAS
+    {0x50, 1, 16},  // LKAS
     {0x1CF, 1, 8},  // CRUISE_BUTTON
     {0x2A4, 0, 24}, // CAM_0x2A4
-    {0x51, 0, 32},  // ADRV_0x51
-    {0x730, 1, 8},  // tester present for ADAS ECU disable
-    {0x12A, 1, 16}, // LFA
-    {0x160, 1, 16}, // ADRV_0x160
-    {0x1E0, 1, 16}, // LFAHDA_CLUSTER
-    {0x1A0, 1, 32}, // CRUISE_INFO
-    {0x1EA, 1, 32}, // ADRV_0x1ea
-    {0x200, 1, 8},  // ADRV_0x200
-    {0x345, 1, 8},  // ADRV_0x345
-    {0x1DA, 1, 32}, // ADRV_0x1da
-
-    {0x12A, 0, 16}, // LFA
-    {0x1E0, 0, 16}, // LFAHDA_CLUSTER
-    {0x160, 0, 16}, // ADRV_0x160
-    {0x1EA, 0, 32}, // ADRV_0x1ea
-    {0x200, 0, 8},  // ADRV_0x200
-    {0x1A0, 0, 32}, // CRUISE_INFO
-    {0x345, 0, 8},  // ADRV_0x345
-    {0x1DA, 0, 32}, // ADRV_0x1da
-
-    {0x362, 1, 32}, // CAM_0x362
     {0x2a4, 1, 24}, // CAM_0x2a4
-
+    {0x51, 0, 32},  // ADRV_0x51
+    {0x51, 1, 32},  // ADRV_0x51
+    {0x730, 1, 8},  // tester present for ADAS ECU disable
+    {0x12A, 0, 16}, // LFA
+    {0x12A, 1, 16}, // LFA
+    {0x160, 0, 16}, // ADRV_0x160
+    {0x160, 1, 16}, // ADRV_0x160
+    {0x161, 0, 32}, // ADRV_353
+    {0x162, 0, 32}, // CORNER_RADAR_HIGHWAY
+    {0x1E0, 0, 16}, // LFAHDA_CLUSTER
+    {0x1E0, 1, 16}, // LFAHDA_CLUSTER
+    {0x1A0, 0, 32}, // CRUISE_INFO
+    {0x1A0, 1, 32}, // CRUISE_INFO
+    {0x1EA, 0, 32}, // ADRV_0x1ea
+    {0x1EA, 1, 32}, // ADRV_0x1ea
+    {0x200, 0, 8},  // ADRV_0x200
+    {0x200, 1, 8},  // ADRV_0x200
+    {0x345, 0, 8},  // ADRV_0x345
+    {0x345, 1, 8},  // ADRV_0x345
+    {0x362, 1, 32}, // CAM_0x362
+    {0x1DA, 0, 32}, // ADRV_0x1da
+    {0x1DA, 1, 32}, // ADRV_0x1da
     {0x110, 1, 32}, // LKAS_ALT (272)
-
-    {0x50, 1, 16}, //
-    {0x51, 1, 32}, //
-
-    {353, 0, 32}, // ADRV_353
-    {354, 0, 32}, // CORNER_RADAR_HIGHWAY
-    {512, 0, 8}, // ADRV_0x200
-    {1187, 2, 8}, // 4A3
-    {1204, 2, 8}, // 4B4
-
-    {203, 0, 24}, // CB
+    {0xCB, 0, 24},  // CB
+    {0x4A3, 2, 8},  // 4A3
+    {0x4B4, 2, 8},  // 4B4
   };
 
   static const CanMsg HYUNDAI_CANFD_HDA1_TX_MSGS[] = {

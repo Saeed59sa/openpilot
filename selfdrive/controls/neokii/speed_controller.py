@@ -102,7 +102,7 @@ class SpeedController:
     apply_limit_speed, road_limit_speed, left_dist, first_started, cam_type, max_speed_log = \
       SpeedLimiter.instance().get_max_speed(clu_speed, self.is_metric)
 
-    self._cal_curve_speed(sm, CS.vEgoCluster, sm.frame)
+    self._cal_curve_speed(sm, CS.vEgo, sm.frame)
     if self.curve_speed_ms >= MIN_CURVE_SPEED:
       max_speed_clu = min(v_cruise_kph * CV.KPH_TO_MS, self.curve_speed_ms) * self.speed_conv_to_clu
     else:
@@ -151,7 +151,7 @@ class SpeedController:
         if 0. < d < -lead.vRel * 11. * 2. and lead.vRel < -1.:
           t = d / lead.vRel
           accel = -(lead.vRel / t) * self.speed_conv_to_clu
-          accel *= 1.5 #1.2
+          accel *= 1.2
 
           if accel < 0.:
             target_speed = clu_speed + accel
@@ -284,7 +284,7 @@ class SpeedController:
 
     if self.wait_timer > 0:
       self.wait_timer -= 1
-    elif ascc_enabled and CS.vEgoCluster > 0.1:
+    elif ascc_enabled and CS.vEgo > 0.1:
       if self.alive_timer == 0:
         current_set_speed_clu = int(round(CS.cruiseState.speed * self.speed_conv_to_clu))
         self.btn = self._get_button(current_set_speed_clu)
@@ -302,7 +302,7 @@ class SpeedController:
           self.wait_timer = self._get_wait_count()
           self.btn = Buttons.NONE
       else:
-        if self.long_control and self.target_speed >= self.min_set_speed_clu:
+        if self.long_control and self.target_speed >= self.min_set_speed_stock:
           self.target_speed = 0.
     else:
       if self.long_control:

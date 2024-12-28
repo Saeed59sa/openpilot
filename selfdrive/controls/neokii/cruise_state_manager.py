@@ -53,7 +53,7 @@ class CruiseStateManager:
     gap = self.params.get('SccGapAdjust')
     self.leadDistanceBars = int(gap) if gap is not None else 4
     if self.leadDistanceBars < 1 or self.leadDistanceBars > 4:
-      self.leadDistanceBars = 4
+      self.leadDistanceBars = 2
 
     self.prev_speed = 0
     self.prev_main_buttons = 0
@@ -114,7 +114,6 @@ class CruiseStateManager:
       CS.cruiseState.enabled = self.enabled
       CS.cruiseState.standstill = False
       CS.cruiseState.speed = self.speed
-      CS.cruiseState.leadDistanceBars = self.leadDistanceBars
 
   def update_buttons(self):
     if self.button_events is None:

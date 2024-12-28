@@ -153,7 +153,7 @@ def create_buttons(packer, CP, CAN, cnt, btn):
     "CRUISE_BUTTONS": btn,
   }
 
-  bus = CAN.ECAN #if CP.flags & HyundaiFlags.CANFD_HDA2 else CAN.CAM
+  bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_HDA2 else CAN.CAM
   return packer.make_can_msg("CRUISE_BUTTONS", bus, values)
 
 
@@ -162,7 +162,7 @@ def create_buttons_canfd_alt(packer, CP, CAN, button, canfd_buttons):
     values = copy.copy(canfd_buttons)
     values["CRUISE_BUTTONS"] = button
     values["COUNTER"] = (values["COUNTER"] + 1) % 256
-    bus = CAN.ECAN #if CP.flags & HyundaiFlags.CANFD_HDA2 else CAN.CAM
+    bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_HDA2 else CAN.CAM
     return packer.make_can_msg("CRUISE_BUTTONS_ALT", bus, values)
   except:
     return None
@@ -206,7 +206,7 @@ def create_lfahda_cluster(packer, CAN, enabled):
   return packer.make_can_msg("LFAHDA_CLUSTER", CAN.ECAN, values)
 
 
-def create_acc_control_scc2(packer, CAN, enabled, accel_last, accel, stopping, gas_override, set_speed, hud_control, CS):
+def create_acc_control_scc2(packer, CAN, enabled, accel_last, accel, stopping, gas_override, set_speed, hud_control, jerk_u, jerk_l, CS):
   jerk = 5
   jn = jerk / 50
   if not enabled or gas_override:
@@ -222,16 +222,19 @@ def create_acc_control_scc2(packer, CAN, enabled, accel_last, accel, stopping, g
   values["aReqValue"] = a_val
   values["aReqRaw"] = a_raw
   values["VSetDis"] = set_speed
-  values["JerkLowerLimit"] = jerk if enabled else 1
-  values["JerkUpperLimit"] = 3.0
-  values["DISTANCE_SETTING"] = hud_control.leadDistanceBars  # + 5
+  #values["JerkLowerLimit"] = jerk if enabled else 1
+  #values["JerkUpperLimit"] = 3.0
+  values["JerkLowerLimit"] = jerk_l if enabled else 1
+  values["JerkUpperLimit"] = jerk_u
+  values["DISTANCE_SETTING"] = hud_control.leadDistanceBars # + 5
+
   #values["ACC_ObjDist"] = 1
   #values["ObjValid"] = 0
   #values["OBJ_STATUS"] =  2
   values["SET_ME_2"] = 0x4
   #values["SET_ME_3"] = 0x3  # objRelsped와 충돌
   values["SET_ME_TMP_64"] = 0x64
-  values["NEW_SIGNAL_3"] = 1 if hud_control.leadVisible else 0  # 0  # 1이되면 차선이탈방지 알람이 뜬다고...  => 앞에 차가 있으면, 1또는 2가 됨. 전방두부?
+  values["NEW_SIGNAL_3"] = 1 if hud_control.leadVisible else 0 #0  # 1이되면 차선이탈방지 알람이 뜬다고...  => 앞에 차가 있으면, 1또는 2가 됨. 전방두부?
   #values["NEW_SIGNAL_4"] = 2
   values["ZEROS_5"] = 0
   values["NEW_SIGNAL_15_DESIRE_DIST"] = CS.out.vEgo * 1.0 + 4.0
@@ -242,7 +245,7 @@ def create_acc_control_scc2(packer, CAN, enabled, accel_last, accel, stopping, g
   return packer.make_can_msg("SCC_CONTROL", CAN.ECAN, values)
 
 
-def create_acc_control(packer, CAN, enabled, accel_last, accel, stopping, gas_override, set_speed, hud_control):
+def create_acc_control(packer, CAN, enabled, accel_last, accel, stopping, gas_override, set_speed, hud_control, jerk_u, jerk_l, CS):
   jerk = 5
   jn = jerk / 50
   if not enabled or gas_override:
@@ -258,8 +261,10 @@ def create_acc_control(packer, CAN, enabled, accel_last, accel, stopping, gas_ov
     "aReqValue": a_val,
     "aReqRaw": a_raw,
     "VSetDis": set_speed,
-    "JerkLowerLimit": jerk if enabled else 1,
-    "JerkUpperLimit": 3.0,
+    #"JerkLowerLimit": jerk if enabled else 1,
+    #"JerkUpperLimit": 3.0,
+    "JerkLowerLimit": jerk_l if enabled else 1,
+    "JerkUpperLimit": jerk_u,
 
     "ACC_ObjDist": 1,
     #"ObjValid": 0,
@@ -267,7 +272,8 @@ def create_acc_control(packer, CAN, enabled, accel_last, accel, stopping, gas_ov
     "SET_ME_2": 0x4,
     #"SET_ME_3": 0x3,
     "SET_ME_TMP_64": 0x64,
-    "DISTANCE_SETTING": hud_control.leadDistanceBars,
+    "DISTANCE_SETTING": hud_control.leadDistanceBars, # + 5,
+    "CRUISE_STANDSTILL": 1 if stopping and CS.out.cruiseState.standstill else 0,
   }
 
   return packer.make_can_msg("SCC_CONTROL", CAN.ECAN, values)

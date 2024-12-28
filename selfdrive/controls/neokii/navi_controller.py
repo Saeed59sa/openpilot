@@ -334,6 +334,7 @@ class SpeedLimiter:
     self.sock = messaging.sub_sock("naviData")
     self.naviData = None
     self.logMonoTime = 0
+    self.active_cam = False
 
   def recv(self):
     try:

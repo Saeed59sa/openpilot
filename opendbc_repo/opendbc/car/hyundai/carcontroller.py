@@ -63,6 +63,8 @@ class CarController(CarControllerBase):
     self.torque_reducer = 0
     self.turningSignalTimer = 0
 
+    self.hyundai_jerk = HyundaiJerk()
+
   def update(self, CC, CS, now_nanos):
     actuators = CC.actuators
     hud_control = CC.hudControl
@@ -77,6 +79,9 @@ class CarController(CarControllerBase):
                                                                        MAX_ANGLE_CONSECUTIVE_FRAMES)
 
     apply_angle = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_angle_last, CS.out.vEgoRaw, self.params)
+
+    if abs(CS.out.steeringTorqueEps) >= 100.0: # carrot. fault avoidance, test code
+      apply_angle = CS.out.steeringAngleDeg
 
     # Constants
     TORQUE_THRESHOLD = 200  # Driver-applied torque threshold (absolute value)
@@ -173,6 +178,8 @@ class CarController(CarControllerBase):
         can_sends.extend(hyundaicanfd.create_spas_messages(self.packer, self.CAN, self.frame, CC.leftBlinker, CC.rightBlinker))
 
       if self.CP.openpilotLongitudinalControl:
+        self.hyundai_jerk.make_jerk(self.CP, CS, accel, actuators, hud_control)
+
         if hda2:
           can_sends.extend(hyundaicanfd.create_adrv_messages(self.CP, self.packer, self.CAN, self.frame, CC, CS, hud_control))
         else:
@@ -180,10 +187,10 @@ class CarController(CarControllerBase):
         if self.frame % 2 == 0:
           if self.CP.flags & HyundaiFlags.CAMERA_SCC.value:
             can_sends.append(hyundaicanfd.create_acc_control_scc2(self.packer, self.CAN, CC.enabled, self.accel_last, accel, stopping, CC.cruiseControl.override,
-                                                             set_speed_in_units, hud_control, CS))
+                                                             set_speed_in_units, hud_control, self.hyundai_jerk.jerk_u, self.hyundai_jerk.jerk_l, CS))
           else:
             can_sends.append(hyundaicanfd.create_acc_control(self.packer, self.CAN, CC.enabled, self.accel_last, accel, stopping, CC.cruiseControl.override,
-                                                             set_speed_in_units, hud_control))
+                                                             set_speed_in_units, hud_control, self.hyundai_jerk.jerk_u, self.hyundai_jerk.jerk_l, CS))
           self.accel_last = accel
       else:
         # button presses
@@ -271,3 +278,36 @@ class CarController(CarControllerBase):
             self.last_button_frame = self.frame
 
     return can_sends
+
+
+class HyundaiJerk:
+  def __init__(self):
+    self.jerk = 0.0
+    self.jerk_u = self.jerk_l = 0.0
+    self.cb_upper = self.cb_lower = 0.0
+    self.jerk_u_min = 0.5
+
+  def make_jerk(self, CP, CS, accel, actuators, hud_control):
+    if actuators.longControlState == LongCtrlState.stopping:
+      self.jerk = self.jerk_u_min / 2 - CS.out.aEgo
+    else:
+      jerk = actuators.jerk if actuators.longControlState == LongCtrlState.pid else 0.0
+      #a_error = actuators.aTargetNow - CS.out.aEgo
+      self.jerk = jerk #+ a_error
+
+    jerk_max_l = 5.0
+    jerk_max_u = jerk_max_l
+    if actuators.longControlState == LongCtrlState.off:
+      self.jerk_u = jerk_max_u
+      self.jerk_l = jerk_max_l
+      self.cb_upper = self.cb_lower = 0.0
+    else:
+      if CP.flags & HyundaiFlags.CANFD:
+        self.jerk_u = min(max(self.jerk_u_min, self.jerk * 2.0), jerk_max_u)
+        self.jerk_l = min(max(1.0, -self.jerk * 4.0), jerk_max_l)
+        self.cb_upper = self.cb_lower = 0.0
+      else:
+        self.jerk_u = min(max(self.jerk_u_min, self.jerk * 2.0), jerk_max_u)
+        self.jerk_l = min(max(1.0, -self.jerk * 2.0), jerk_max_l)
+        self.cb_upper = clip(0.9 + accel * 0.2, 0, 1.2)
+        self.cb_lower = clip(0.8 + accel * 0.2, 0, 1.2)

@@ -218,7 +218,7 @@ class CarSpecificEvents:
     # Handle button presses
     for b in CS.buttonEvents:
       # Enable OP long on falling edge of enable buttons (defaults to accelCruise and decelCruise, overridable per-port)
-      if (b.type in enable_buttons and not b.pressed):
+      if not self.CP.pcmCruise and (b.type in enable_buttons and not b.pressed):
         events.add(EventName.buttonEnable)
       # Disable on rising and falling edge of cancel for both stock and OP long
       #if b.type == ButtonType.cancel:
@@ -246,15 +246,15 @@ class CarSpecificEvents:
 
     # we engage when pcm is active (rising edge)
     # enabling can optionally be blocked by the car interface
-    #if pcm_enable:
-    if CS.cruiseState.available and not CS_prev.cruiseState.available and allow_enable:
-      events.add(EventName.pcmEnable)
-    elif not CS.cruiseState.available:
-      events.add(EventName.pcmDisable)
-    else:
-      if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled:
-        events.add(EventName.cruiseOn)
-      elif not CS.cruiseState.enabled and CS_prev.cruiseState.enabled:
-        events.add(EventName.cruiseOff)
+    if pcm_enable:
+      if CS.cruiseState.available and not CS_prev.cruiseState.available and allow_enable:
+        events.add(EventName.pcmEnable)
+      elif not CS.cruiseState.available:
+        events.add(EventName.pcmDisable)
+      else:
+        if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled:
+          events.add(EventName.cruiseOn)
+        elif not CS.cruiseState.enabled and CS_prev.cruiseState.enabled:
+          events.add(EventName.cruiseOff)
 
     return events
