@@ -13,8 +13,11 @@ private:
   int currentCommunityIndex = 0;
 
   ListWidget* mainToggles;
-  ListWidget* funcBtn;
-  ListWidget* uploadBtn;
+  QWidget* funcWidget;
+  QWidget* uploadWidget;
+
+  QGridLayout* funcLayout;
+  QGridLayout* uploadLayout;
 
   void togglesCommunity(int widgetIndex);
   void blueButtonStyle(QPushButton* button);

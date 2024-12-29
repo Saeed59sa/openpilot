@@ -113,14 +113,6 @@
         <translation>차량 선택</translation>
     </message>
     <message>
-        <source>RUN</source>
-        <translation>실행</translation>
-    </message>
-    <message>
-        <source>VIEW</source>
-        <translation>보기</translation>
-    </message>
-    <message>
         <source>Select your Manufacturer</source>
         <translation>제조사 선택</translation>
     </message>
@@ -155,18 +147,6 @@
     <message>
         <source>Panda Recover</source>
         <translation>Panda 복구</translation>
-    </message>
-    <message>
-        <source>tmux log</source>
-        <translation>tmux 로그</translation>
-    </message>
-    <message>
-        <source>can missing log</source>
-        <translation>can missing 로그</translation>
-    </message>
-    <message>
-        <source>can timeout log</source>
-        <translation>can timeout 로그</translation>
     </message>
     <message>
         <source>Select Branch</source>
@@ -273,40 +253,8 @@
         <translation>로그 파일이 없습니다</translation>
     </message>
     <message>
-        <source>tmux console</source>
-        <translation>tmux 콘솔</translation>
-    </message>
-    <message>
         <source>tmux console log upload&lt;br&gt;&lt;br&gt;Process?</source>
         <translation>tmux 콘솔 로그 업로드&lt;br&gt;&lt;br&gt;실행할까요?</translation>
-    </message>
-    <message>
-        <source>UPLOAD</source>
-        <translation>업로드</translation>
-    </message>
-    <message>
-        <source>carParams dump</source>
-        <translation>carParams 덤프</translation>
-    </message>
-    <message>
-        <source>carState dump</source>
-        <translation>carState 덤프</translation>
-    </message>
-    <message>
-        <source>carControl dump</source>
-        <translation>carControl 덤프</translation>
-    </message>
-    <message>
-        <source>controlsState dump</source>
-        <translation>controlsState 덤프</translation>
-    </message>
-    <message>
-        <source>deviceState dump</source>
-        <translation>deviceState 덤프</translation>
-    </message>
-    <message>
-        <source>pandaStates dump</source>
-        <translation>pandaStates 덤프</translation>
     </message>
     <message>
         <source>HDA2 ADAS ECAN Modify</source>
@@ -335,6 +283,58 @@
     <message>
         <source>Openpilot controls cruise on/off, gap and set speed.</source>
         <translation>오픈파일럿이 크루즈 상태를 컨트롤합니다</translation>
+    </message>
+    <message>
+        <source>tmux log View</source>
+        <translation>tmux 로그 보기</translation>
+    </message>
+    <message>
+        <source>can missing log View</source>
+        <translation>can missing 로그 보기</translation>
+    </message>
+    <message>
+        <source>can timeout log View</source>
+        <translation>can timeout 로그 보기</translation>
+    </message>
+    <message>
+        <source>tmux console View</source>
+        <translation>tmux 콘솔 보기</translation>
+    </message>
+    <message>
+        <source>Camera View</source>
+        <translation>카메라 보기</translation>
+    </message>
+    <message>
+        <source>tmux log Upload</source>
+        <translation>tmux 로그 업로드</translation>
+    </message>
+    <message>
+        <source>tmux console Upload</source>
+        <translation>tmux 콘솔 업로드</translation>
+    </message>
+    <message>
+        <source>carParams dump Upload</source>
+        <translation>carParams 덤프 업로드</translation>
+    </message>
+    <message>
+        <source>carState dump Upload</source>
+        <translation>carState 덤프 업로드</translation>
+    </message>
+    <message>
+        <source>carControl dump Upload</source>
+        <translation>carControl 덤프 업로드</translation>
+    </message>
+    <message>
+        <source>controlsState dump Upload</source>
+        <translation>controlsState 덤프 업로드</translation>
+    </message>
+    <message>
+        <source>deviceState dump Upload</source>
+        <translation>deviceState 덤프 업로드</translation>
+    </message>
+    <message>
+        <source>pandaStates dump Upload</source>
+        <translation>pandaStates 덤프 업로드</translation>
     </message>
 </context>
 <context>
@@ -410,7 +410,7 @@
     </message>
     <message>
         <source>Reset Calibration</source>
-        <translation>캘리브레이션 초기화</translation>
+        <translation>캘리브레이션</translation>
     </message>
     <message>
         <source>RESET</source>
@@ -422,7 +422,7 @@
     </message>
     <message>
         <source>Review Training Guide</source>
-        <translation>트레이닝 가이드 다시보기</translation>
+        <translation>트레이닝 가이드</translation>
     </message>
     <message>
         <source>REVIEW</source>
@@ -438,11 +438,11 @@
     </message>
     <message>
         <source>Regulatory</source>
-        <translation type="vanished">규제</translation>
+        <translation>규제</translation>
     </message>
     <message>
         <source>VIEW</source>
-        <translation type="vanished">보기</translation>
+        <translation>보기</translation>
     </message>
     <message>
         <source>Change Language</source>
