@@ -8,7 +8,7 @@
 //#include "safety/safety_honda.h"
 //#include "safety/safety_toyota.h"
 //#include "safety/safety_tesla.h"
-#include "safety/safety_gm.h"
+//#include "safety/safety_gm.h"
 //#include "safety/safety_ford.h"
 #include "safety/safety_hyundai.h"
 //#include "safety/safety_chrysler.h"
@@ -365,7 +365,7 @@ int set_safety_hooks(uint16_t mode, uint16_t param) {
   //{SAFETY_HONDA_NIDEC, &honda_nidec_hooks},
   //{SAFETY_TOYOTA, &toyota_hooks},
   {SAFETY_ELM327, &elm327_hooks},
-  {SAFETY_GM, &gm_hooks},
+  //{SAFETY_GM, &gm_hooks},
   //{SAFETY_HONDA_BOSCH, &honda_bosch_hooks},
   {SAFETY_HYUNDAI, &hyundai_hooks},
   //{SAFETY_CHRYSLER, &chrysler_hooks},

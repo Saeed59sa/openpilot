@@ -733,6 +733,12 @@ struct RadarState @0x9a185389d6fdd05f {
   leadOne @3 :LeadData;
   leadTwo @4 :LeadData;
 
+  leadLeft @13 :LeadData;
+  leadRight @14 :LeadData;
+  leadsCenter @15 : List(LeadData);
+  leadsLeft @16 : List(LeadData);
+  leadsRight @17 : List(LeadData);
+
   struct LeadData {
     dRel @0 :Float32;
     yRel @1 :Float32;
@@ -750,7 +756,7 @@ struct RadarState @0x9a185389d6fdd05f {
     radar @14 :Bool;
     radarTrackId @15 :Int32 = -1;
 
-    aLeadDEPRECATED @5 :Float32;
+    aLead @5 :Float32;
   }
 
   # deprecated
@@ -1243,13 +1249,15 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   shouldStop @37: Bool;
   allowThrottle @38: Bool;
   allowBrake @39: Bool;
-
+  vTarget @40: Float32;
+  jTarget @41: Float32;
+  xTarget @42: Float32;
 
   solverExecutionTime @35 :Float32;
 
-  trafficState @40 : Int32;
-  xStop @41 : Float32;
-  xState @42 : XState;
+  trafficState @43 : Int32;
+  xStop @44 : Float32;
+  xState @45 : XState;
 
   enum XState {
     lead @0;

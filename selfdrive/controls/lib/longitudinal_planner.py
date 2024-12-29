@@ -50,21 +50,23 @@ def limit_accel_in_turns(v_ego, angle_steers, a_target, CP):
   return [a_target[0], min(a_target[1], a_x_allowed)]
 
 
-def get_accel_from_plan(speeds, accels, action_t=DT_MDL, vEgoStopping=0.05):
+def get_accel_from_plan(speeds, accels, jerks, action_t=DT_MDL, vEgoStopping=0.05):
   if len(speeds) == CONTROL_N:
     v_now = speeds[0]
     a_now = accels[0]
 
     v_target = interp(action_t, CONTROL_N_T_IDX, speeds)
+    j_target = interp(action_t, CONTROL_N_T_IDX, jerks)
     a_target = 2 * (v_target - v_now) / (action_t) - a_now
     v_target_1sec = interp(action_t + 1.0, CONTROL_N_T_IDX, speeds)
   else:
     v_target = 0.0
+    j_target = 0.0
     v_target_1sec = 0.0
     a_target = 0.0
   should_stop = (v_target < vEgoStopping and
                  v_target_1sec < vEgoStopping)
-  return a_target, should_stop
+  return a_target, should_stop, v_target, j_target
 
 
 class LongitudinalPlanner:
@@ -83,6 +85,9 @@ class LongitudinalPlanner:
     self.a_desired_trajectory = np.zeros(CONTROL_N)
     self.j_desired_trajectory = np.zeros(CONTROL_N)
     self.solverExecutionTime = 0.0
+
+    self.vCluRatio = 1.0
+    self.v_cruise_kph = 0.0
 
   @staticmethod
   def parse_model(model_msg, model_error):
@@ -117,6 +122,12 @@ class LongitudinalPlanner:
     v_cruise = v_cruise_kph * CV.KPH_TO_MS
     v_cruise_initialized = sm['carState'].vCruise != V_CRUISE_UNSET
 
+    self.v_cruise_kph = sm['carState'].exState.vCruiseKph
+    vCluRatio = sm['carState'].exState.vCluRatio
+    if vCluRatio > 0.5:
+      self.vCluRatio = vCluRatio
+      v_cruise *= vCluRatio
+
     long_control_off = sm['controlsState'].longControlState == LongCtrlState.off
     force_slow_decel = sm['controlsState'].forceDecel
 
@@ -142,6 +153,9 @@ class LongitudinalPlanner:
       # Clip aEgo to cruise limits to prevent large accelerations when becoming active
       self.a_desired = clip(sm['carState'].aEgo, accel_limits[0], accel_limits[1])
 
+      self.mpc.prev_a = np.full(N+1, self.a_desired) ## carrot
+      accel_limits_turns[0] = accel_limits_turns[0] = 0.0 ## carrot
+
     # Prevent divergence, smooth in current v_ego
     self.v_desired_filter.x = max(0.0, self.v_desired_filter.update(v_ego))
     # Compute model v_ego error
@@ -164,14 +178,14 @@ class LongitudinalPlanner:
     self.mpc.set_weights(prev_accel_constraint, personality=sm['selfdriveState'].personality)
     self.mpc.set_accel_limits(accel_limits_turns[0], accel_limits_turns[1])
     self.mpc.set_cur_state(self.v_desired_filter.x, self.a_desired)
-    self.mpc.update(sm, v_cruise, x, v, a, j, personality=sm['selfdriveState'].personality)
+    self.mpc.update(sm, reset_state, v_cruise, x, v, a, j, personality=sm['selfdriveState'].personality)
 
     self.v_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, self.mpc.v_solution)
     self.a_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, self.mpc.a_solution)
     self.j_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC[:-1], self.mpc.j_solution)
 
     # TODO counter is only needed because radar is glitchy, remove once radar is gone
-    self.fcw = self.mpc.crash_cnt > 2 and not sm['carState'].standstill
+    self.fcw = self.mpc.crash_cnt > 2 and not sm['carState'].standstill and not reset_state
     if self.fcw:
       cloudlog.info("FCW triggered")
 
@@ -199,9 +213,13 @@ class LongitudinalPlanner:
     longitudinalPlan.fcw = self.fcw
 
     action_t =  self.CP.longitudinalActuatorDelay + DT_MDL
-    a_target, should_stop = get_accel_from_plan(longitudinalPlan.speeds, longitudinalPlan.accels,
+
+    a_target, should_stop, v_target, j_target = get_accel_from_plan(longitudinalPlan.speeds, longitudinalPlan.accels, longitudinalPlan.jerks,
                                                 action_t=action_t, vEgoStopping=self.CP.vEgoStopping)
     longitudinalPlan.aTarget = a_target
+    longitudinalPlan.vTarget = v_target
+    longitudinalPlan.jTarget = j_target
+    longitudinalPlan.xTarget = self.v_cruise_kph
     longitudinalPlan.shouldStop = should_stop
     longitudinalPlan.allowBrake = True
     longitudinalPlan.allowThrottle = self.allow_throttle

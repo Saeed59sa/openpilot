@@ -334,7 +334,7 @@ class LongitudinalMpc:
     if lead is not None and lead.status:
       x_lead = lead.dRel
       v_lead = lead.vLead
-      a_lead = lead.aLeadK
+      a_lead = lead.aLead
       a_lead_tau = lead.aLeadTau
     else:
       # Fake a fast lead car, so mpc can keep running in the same mode
@@ -358,10 +358,11 @@ class LongitudinalMpc:
     self.cruise_min_a = min_a
     self.max_a = max_a
 
-  def update(self, sm, v_cruise, x, v, a, j, personality=log.LongitudinalPersonality.standard):
+  def update(self, sm, reset_state, v_cruise, x, v, a, j, personality=log.LongitudinalPersonality.standard):
     radarstate = sm['radarState']
     t_follow = get_T_FOLLOW(personality)
     v_ego = self.x0[1]
+    a_ego = self.x0[2]
     self.trafficState = 0
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
 
@@ -377,9 +378,9 @@ class LongitudinalMpc:
     comfort_brake = COMFORT_BRAKE
     stop_distance = STOP_DISTANCE
 
-    self.params[:,0] = ACCEL_MIN
+    self.params[:,0] = ACCEL_MIN if not reset_state else a_ego
     # negative accel constraint causes problems because negative speed is not allowed
-    self.params[:,1] = max(0.0, self.max_a)
+    self.params[:,1] = max(0.0, self.max_a if not reset_state else a_ego)
 
     v_cruise, stop_x = self._update_carrot(sm, v_cruise)
 

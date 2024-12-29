@@ -73,6 +73,7 @@ class CarState(CarStateBase):
 
     self.lfa_btn = 0
     self.lfa_enabled = False
+
     self.main_enabled = False
 
     self.canfd_buttons = None
@@ -116,7 +117,13 @@ class CarState(CarStateBase):
     #ret.vEgoCluster = self.cluster_speed * speed_factor
     #ret.vEgoCluster = ret.vEgo * 1.037
     cluSpeed = cp.vl["CLU11"]["CF_Clu_Vanz"]
+    decimal = cp.vl["CLU11"]["CF_Clu_VanzDecimal"]
+    if 0. < decimal < 0.5:
+      cluSpeed += decimal
+
     ret.vEgoCluster = cluSpeed * speed_factor
+    vEgoClu, aEgoClu = self.update_clu_speed_kf(ret.vEgoCluster)
+    ret.exState.vCluRatio = (ret.vEgo / vEgoClu) if (vEgoClu > 3. and ret.vEgo > 3.) else 1.0
 
     ret.steeringAngleDeg = cp.vl["SAS11"]["SAS_Angle"]
     ret.steeringRateDeg = cp.vl["SAS11"]["SAS_Speed"]
@@ -294,6 +301,9 @@ class CarState(CarStateBase):
     #ret.vEgoCluster = ret.vEgo * 1.037
     cluSpeed = cp.vl["CRUISE_BUTTONS_ALT"]["CLUSTER_SPEED"]
     ret.vEgoCluster = cluSpeed * speed_factor
+
+    vEgoClu, aEgoClu = self.update_clu_speed_kf(ret.vEgoCluster)
+    ret.exState.vCluRatio = (ret.vEgo / vEgoClu) if (vEgoClu > 3. and ret.vEgo > 3.) else 1.0
 
     ret.standstill = ret.wheelSpeeds.fl <= STANDSTILL_THRESHOLD and ret.wheelSpeeds.rr <= STANDSTILL_THRESHOLD
 

@@ -77,20 +77,42 @@ void UIState::updateStatus() {
   if (scene.started && sm->updated("selfdriveState")) {
     auto ss = (*sm)["selfdriveState"].getSelfdriveState();
     auto ce = (*sm)["carState"].getCarState();
+    auto cc = (*sm)["carControl"].getCarControl();
     auto state = ss.getState();
     scene.engaged = ss.getEnabled();
     scene.steeringPressed = ce.getSteeringPressed();
 
     if ((state == cereal::SelfdriveState::OpenpilotState::PRE_ENABLED || state == cereal::SelfdriveState::OpenpilotState::OVERRIDING) && !ce.getSteeringPressed()) {
       status = STATUS_OVERRIDE;
-    } else if (ss.getEnabled()) {
-      status = STATUS_ENGAGED;
+    } else if (ss.getEnabled() && !cc.getLatActive()) {
       if (ce.getSteeringPressed()) {
         status = STATUS_STEERING;
       } else if (ce.getBrakePressed()) {
         status = STATUS_RED;
       } else if (ce.getLeftBlinker() || ce.getRightBlinker()) {
         status = STATUS_BLINKER;
+      } else {
+        status = STATUS_ENGAGED;
+      }
+    } else if (ss.getEnabled() && cc.getLatActive()) {
+      if (ce.getSteeringPressed()) {
+        status = STATUS_STEERING;
+      } else if (ce.getBrakePressed()) {
+        status = STATUS_RED;
+      } else if (ce.getLeftBlinker() || ce.getRightBlinker()) {
+        status = STATUS_BLINKER;
+      } else {
+        status = STATUS_ACTIVE;
+      }
+    } else if (cc.getLongActive()) {
+      if (ce.getSteeringPressed()) {
+        status = STATUS_STEERING;
+      } else if (ce.getBrakePressed()) {
+        status = STATUS_RED;
+      } else if (ce.getLeftBlinker() || ce.getRightBlinker()) {
+        status = STATUS_BLINKER;
+      } else {
+        status = STATUS_LONG;
       }
     } else if (ce.getGearShifter() == cereal::CarState::GearShifter::REVERSE) {
       status = STATUS_RED;

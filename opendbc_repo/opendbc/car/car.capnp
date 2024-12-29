@@ -244,9 +244,11 @@ struct CarState {
   exState @57 :ExState;
 
   struct ExState {
-    autoHold @0 : Int32;
-    tpms @1 :Tpms;
-    navLimitSpeed @2 :Int16;
+    vCruiseKph @0 :Float32;
+    vCluRatio @1 :Float32;
+    autoHold @2 : Int32;
+    tpms @3 :Tpms;
+    navLimitSpeed @4 :Int16;
   }
 
   struct Tpms {
@@ -393,6 +395,9 @@ struct CarControl {
     brake @1: Float32; # [0.0, 1.0]
     steerOutputCan @8: Float32;   # value sent over can to the car
     speed @6: Float32;  # m/s
+
+    jerk @9: Float32;  # m/s^3
+    aTargetNow @10: Float32;  # m/s^2
 
     enum LongControlState @0xe40f3a917d908282{
       off @0;

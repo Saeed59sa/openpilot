@@ -267,7 +267,7 @@ class SpeedController:
       self.reset()
 
     self.v_cruise_kph = v_cruise_kph
-
+    self._update_message(CS)
 
   def spam_message(self, CS, can_sends):
     ascc_enabled = CS.cruiseState.enabled and 1 < CS.cruiseState.speed < 255 and not CS.brakePressed
@@ -349,3 +349,9 @@ class SpeedController:
       v_cruise_kph = clip(v_cruise_kph, V_CRUISE_ENABLE_MIN, V_CRUISE_MAX)
 
     return v_cruise_kph
+
+  def _update_message(self, CS):
+    exState = CS.exState
+    exState.vCruiseKph = self.v_cruise_kph
+    exState.cruiseMaxSpeed = self.real_set_speed_kph
+    exState.applyMaxSpeed = self.cruise_speed_kph
