@@ -1249,22 +1249,14 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   shouldStop @37: Bool;
   allowThrottle @38: Bool;
   allowBrake @39: Bool;
-  vTarget @40: Float32;
-  jTarget @41: Float32;
-  xTarget @42: Float32;
 
   solverExecutionTime @35 :Float32;
 
-  trafficState @43 : Int32;
-  xStop @44 : Float32;
-  xState @45 : XState;
-
-  enum XState {
-    lead @0;
-    cruise @1;
-    e2eCruise @2;
-    e2eStop @3;
-  }
+  vTarget @40: Float32;
+  jTarget @41: Float32;
+  xTarget @42: Float32;
+  xState @43: Int32;
+  trafficState @44: Int32;
 
   enum LongitudinalPlanSource {
     cruise @0;

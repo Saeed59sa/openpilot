@@ -217,15 +217,14 @@ class LongitudinalPlanner:
     a_target, should_stop, v_target, j_target = get_accel_from_plan(longitudinalPlan.speeds, longitudinalPlan.accels, longitudinalPlan.jerks,
                                                 action_t=action_t, vEgoStopping=self.CP.vEgoStopping)
     longitudinalPlan.aTarget = a_target
-    longitudinalPlan.vTarget = v_target
-    longitudinalPlan.jTarget = j_target
-    longitudinalPlan.xTarget = self.v_cruise_kph
     longitudinalPlan.shouldStop = should_stop
     longitudinalPlan.allowBrake = True
     longitudinalPlan.allowThrottle = self.allow_throttle
 
-    longitudinalPlan.trafficState = self.mpc.trafficState
-    longitudinalPlan.xState = self.mpc.xState
-    longitudinalPlan.xStop = float(self.mpc.stopDist)
+    longitudinalPlan.vTarget = v_target
+    longitudinalPlan.jTarget = j_target
+    longitudinalPlan.xTarget = self.v_cruise_kph
+    longitudinalPlan.trafficState = self.mpc.trafficState.value
+    longitudinalPlan.xState = self.mpc.xState.value
 
     pm.send('longitudinalPlan', plan_send)
