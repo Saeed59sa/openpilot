@@ -42,14 +42,12 @@ const Eigen::Matrix3f ECAM_INTRINSIC_MATRIX = (Eigen::Matrix3f() <<
   0.0, 0.0, 1.0).finished();
 
 typedef enum UIStatus {
-  STATUS_DISENGAGED = 0,
-  STATUS_OVERRIDE = 1,
-  STATUS_ENGAGED = 2,
-  STATUS_RED = 3,
-  STATUS_STEERING = 4,
-  STATUS_BLINKER = 5,
-  STATUS_ACTIVE = 6,
-  STATUS_LONG = 7,
+  STATUS_DISENGAGED,
+  STATUS_OVERRIDE,
+  STATUS_ENGAGED,
+  STATUS_RED,
+  STATUS_STEERING,
+  STATUS_BLINKER,
 } UIStatus;
 
 const QColor bg_colors [] = {
@@ -59,8 +57,6 @@ const QColor bg_colors [] = {
   [STATUS_RED] = QColor(0xc9, 0x22, 0x31, 0x64),
   [STATUS_STEERING] = QColor(0x00, 0xbf, 0xff, 0x64),
   [STATUS_BLINKER] = QColor(0xff, 0x95, 0x00, 0x64),
-  [STATUS_ACTIVE] = QColor(0x6f, 0xc0, 0xc9, 0x64),
-  [STATUS_LONG] = QColor(0x8f, 0xc9, 0xc0, 0x64),
 };
 
 typedef struct UIScene {
