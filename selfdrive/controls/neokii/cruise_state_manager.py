@@ -56,9 +56,10 @@ class CruiseStateManager:
       self.leadDistanceBars = 2
 
     self.prev_speed = 0
-    self.prev_main_buttons = 0
     self.prev_cruise_button = 0
     self.button_events = None
+
+    self.lat_enabled = False
 
     self.prev_btn = ButtonType.unknown
     self.btn_count = 0
@@ -79,14 +80,7 @@ class CruiseStateManager:
 #    return self.is_resume_spam_allowed(CP)
 
   # CS - CarState cereal message
-  def update(self, CS, main_buttons, cruise_buttons, buttons_dict, available=-1, cruise_state_control=True):
-
-    if available >= 0:
-      self.available = available
-    elif main_buttons[-1] != self.prev_main_buttons and main_buttons[-1]:
-      self.available = not self.available
-
-    self.prev_main_buttons = main_buttons[-1]
+  def update(self, CS, main_buttons, cruise_buttons, buttons_dict, cruise_state_control=True):
 
     cruise_button = cruise_buttons[-1]
     if cruise_button != self.prev_cruise_button:
@@ -101,14 +95,9 @@ class CruiseStateManager:
     if button != ButtonType.unknown:
       self.update_cruise_state(CS, int(round(self.speed * CV.MS_TO_KPH)), button)
 
-    if not self.available:
-      self.enabled = False
-
     if self.prev_brake_pressed != CS.brakePressed and CS.brakePressed:
       self.enabled = False
     self.prev_brake_pressed = CS.brakePressed
-
-    CS.cruiseState.available = self.available
 
     if cruise_state_control:
       CS.cruiseState.enabled = self.enabled
@@ -125,12 +114,15 @@ class CruiseStateManager:
       self.btn_count += 1
 
     for b in self.button_events:
-      if b.pressed and self.btn_count == 0 \
-          and (
-          b.type == ButtonType.accelCruise
-          or b.type == ButtonType.decelCruise
-          or b.type == ButtonType.gapAdjustCruise
-          or b.type == ButtonType.cancel
+      if (
+        b.pressed and self.btn_count == 0 and b.type in
+        [
+          ButtonType.accelCruise,
+          ButtonType.decelCruise,
+          ButtonType.gapAdjustCruise,
+          ButtonType.cancel,
+          ButtonType.lfaButton
+        ]
       ):
         self.btn_count = 1
         self.prev_btn = b.type
@@ -184,13 +176,16 @@ class CruiseStateManager:
       if not self.btn_long_pressed:
         self.leadDistanceBars -= 1
         if self.leadDistanceBars < 1:
-          self.leadDistanceBars = 4
+          self.leadDistanceBars = 2
         self.params.put_nonblocking("SccGapAdjust", str(self.leadDistanceBars))
       else:
         self.params.put_bool("ExperimentalMode", not self.params.get_bool("ExperimentalMode"))
 
     if btn == ButtonType.cancel:
       self.enabled = False
+
+    if btn == ButtonType.lfaButton:
+      self.lat_enabled = not self.lat_enabled
 
     v_cruise_kph = clip(round(v_cruise_kph, 1), V_CRUISE_MIN_CRUISE_STATE, V_CRUISE_MAX)
     self.speed = v_cruise_kph * CV.KPH_TO_MS

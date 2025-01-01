@@ -4,6 +4,7 @@ import argparse
 import json
 import codecs
 import datetime
+import textwrap
 
 from cereal import log
 from cereal.services import SERVICE_LIST
@@ -33,22 +34,36 @@ if __name__ == "__main__":
   parser.add_argument('--raw', action='store_true', help='Hexadecimal dump output')
   parser.add_argument('--json', action='store_true', help='Output each event as JSON format')
   parser.add_argument('--addr', default='127.0.0.1', help='Address to listen to (default: 127.0.0.1)')
-  parser.add_argument('-v', '--values', help='Specific variables to monitor, e.g., param.name')
+  parser.add_argument('-v', '--values', help='Specific variables to monitor, e.g (dump.py carState -v cruiseState)')
   parser.add_argument('-c', '--count', type=int, help='Number of iterations to run before exiting')
   parser.add_argument('-o', '--output', help='Output file')
-  parser.add_argument("socket", type=str, nargs='*', default=list(SERVICE_LIST.keys()),
-                      help="Socket names to dump. Defaults to all sockets defined in cereal.")
+  parser.add_argument('socket', type=str, nargs='?', help="Socket name to dump (required)")
+
+  if len(sys.argv) == 1 or ('-h' in sys.argv or '--help' in sys.argv):
+    parser.print_help()
+    print("\nAvailable sockets:")
+    socket_list = ", ".join(SERVICE_LIST.keys())
+    print(textwrap.fill(f"({socket_list})", width=100))
+    sys.exit(0)
+
   args = parser.parse_args()
 
-  lr = raw_live_logreader(args.socket, args.addr)
-  values = [s.strip().split(".") for s in args.values.split(",")] if args.values else None
-  count = args.count if args.count else sys.maxsize
+  # Check if the provided socket is valid
+  if args.socket not in SERVICE_LIST:
+    print(f"Error: The socket '{args.socket}' is not a valid service. Available sockets:")
+    socket_list = ", ".join(SERVICE_LIST.keys())
+    print(textwrap.fill(f"({socket_list})", width=100))
+    sys.exit(1)
+
+  lr = raw_live_logreader([args.socket], args.addr)
+  values = [f"{args.socket}.{s.strip()}" for s in args.values.split(",")] if args.values else None
+  count = args.count if args.count else 999
   iterations = 0
 
   output_file = open(args.output, 'w') if args.output else None
 
   # Print initial separator
-  initial_separator = f"{'-' * 80}\n    Dump communication sockets (1/{count}): {', '.join(args.socket)}\n{'-' * 80}\n"
+  initial_separator = f"{'-' * 80}\n    Dump communication socket: {args.socket} (1/{count})\n{'-' * 80}\n"
   if output_file:
     output_file.write(initial_separator)
   else:
@@ -79,10 +94,12 @@ if __name__ == "__main__":
           elif values:
             for value in values:
               item = evt
-              for key in value:
+              for key in value.split("."):
                 item = getattr(item, key, None)
+                if item is None:
+                  break
               if item is not None:
-                output_lines.append(f"{'.'.join(value)} = {item}\n")
+                output_lines.append(f"{value} = {item}\n")
           else:
             evt_str = str(evt).replace("logMonoTime", f"currentTime ({format_current_time()})")
             output_lines.append(evt_str + "\n")

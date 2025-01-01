@@ -149,7 +149,7 @@ class CarSpecificEvents:
       # On some newer model years, the CANCEL button acts as a pause/resume button based on the PCM state
       # To avoid re-engaging when openpilot cancels, check user engagement intention via buttons
       # Main button also can trigger an engagement on these cars
-      self.cruise_buttons.append(any(ev.type in HYUNDAI_ENABLE_BUTTONS for ev in CS.buttonEvents) or CS.lfaBtn)
+      self.cruise_buttons.append(any(ev.type in HYUNDAI_ENABLE_BUTTONS for ev in CS.buttonEvents))
       events = self.create_common_events(CS, CS_prev, extra_gears=(GearShifter.sport, GearShifter.manumatic), allow_enable=any(self.cruise_buttons))
 
       # low speed steer alert hysteresis logic (only for cars with steer cut off above 10 m/s)
@@ -182,8 +182,8 @@ class CarSpecificEvents:
       events.add(EventName.wrongGear)
     if CS.gearShifter == GearShifter.reverse:
       events.add(EventName.reverseGear)
-    if not CS.cruiseState.available:
-      events.add(EventName.wrongCarMode)
+    #if not CS.cruiseState.available:
+    #  events.add(EventName.wrongCarMode)
     if CS.espDisabled:
       events.add(EventName.espDisabled)
     if CS.espActive:
@@ -218,6 +218,7 @@ class CarSpecificEvents:
     # Handle button presses
     for b in CS.buttonEvents:
       # Enable OP long on falling edge of enable buttons (defaults to accelCruise and decelCruise, overridable per-port)
+      #if not self.CP.pcmCruise and (b.type in enable_buttons and not b.pressed):
       if not self.CP.pcmCruise and (b.type in enable_buttons and not b.pressed):
         events.add(EventName.buttonEnable)
       # Disable on rising and falling edge of cancel for both stock and OP long
@@ -246,15 +247,22 @@ class CarSpecificEvents:
 
     # we engage when pcm is active (rising edge)
     # enabling can optionally be blocked by the car interface
+
+    #if pcm_enable:
+    #  if CS.cruiseState.available and not CS_prev.cruiseState.available and allow_enable:
+    #    events.add(EventName.pcmEnable)
+    #  elif not CS.cruiseState.available:
+    #    events.add(EventName.pcmDisable)
+    #  else:
+    #    if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled:
+    #      events.add(EventName.cruiseOn)
+    #    elif not CS.cruiseState.enabled and CS_prev.cruiseState.enabled:
+    #      events.add(EventName.cruiseOff)
+
     if pcm_enable:
-      if CS.cruiseState.available and not CS_prev.cruiseState.available and allow_enable:
+      if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled and allow_enable:
         events.add(EventName.pcmEnable)
-      elif not CS.cruiseState.available:
+      elif not CS.cruiseState.enabled:
         events.add(EventName.pcmDisable)
-      else:
-        if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled:
-          events.add(EventName.cruiseOn)
-        elif not CS.cruiseState.enabled and CS_prev.cruiseState.enabled:
-          events.add(EventName.cruiseOff)
 
     return events

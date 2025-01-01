@@ -61,6 +61,7 @@ V_EGO_COST = 0.
 A_EGO_COST = 0.
 J_EGO_COST = 5.0
 A_CHANGE_COST = 200.
+A_CHANGE_COST_STARTING = 50.
 DANGER_ZONE_COST = 100.
 CRASH_DISTANCE = .25
 LEAD_DANGER_FACTOR = 0.75
@@ -288,7 +289,6 @@ class LongitudinalMpc:
     self.stopSignCount = 0
     self.actual_stop_distance = 0.0
     self.user_stop_distance = -1
-    self.trafficState = TrafficState.off
 
     for i in range(N+1):
       self.solver.set(i, 'x', np.zeros(X_DIM))
@@ -323,7 +323,7 @@ class LongitudinalMpc:
   def set_weights(self, prev_accel_constraint=True, personality=log.LongitudinalPersonality.standard):
     jerk_factor = get_jerk_factor(personality)
     if self.mode == 'acc':
-      a_change_cost = A_CHANGE_COST if prev_accel_constraint else 0
+      a_change_cost = A_CHANGE_COST if prev_accel_constraint else A_CHANGE_COST_STARTING
       cost_weights = [X_EGO_OBSTACLE_COST, X_EGO_COST, V_EGO_COST, A_EGO_COST, jerk_factor * a_change_cost, jerk_factor * J_EGO_COST]
       constraint_cost_weights = [LIMIT_COST, LIMIT_COST, LIMIT_COST, DANGER_ZONE_COST]
     elif self.mode == 'blended':
@@ -384,7 +384,6 @@ class LongitudinalMpc:
     t_follow = get_T_FOLLOW(personality)
     v_ego = self.x0[1]
     a_ego = self.x0[2]
-    self.trafficState = TrafficState.off
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
 
     lead_xv_0 = self.process_lead(radarstate.leadOne)
@@ -403,19 +402,14 @@ class LongitudinalMpc:
     # negative accel constraint causes problems because negative speed is not allowed
     self.params[:,1] = max(0.0, self.max_a if not reset_state else a_ego)
 
-    v_cruise, stop_x = self._update_carrot(sm, v_cruise)
+    if self.mode == 'blended':
+      stop_x = 1000.0
+    else:
+      v_cruise, stop_x = self._update_carrot(sm, v_cruise)
 
     # Update in ACC mode or ACC/e2e blend
     if self.mode == 'acc':
-      if radarstate.leadOne.status:
-        lead_danger_factor = interp(radarstate.leadOne.dRel, [STOP_DISTANCE, 10.], [0.85, LEAD_DANGER_FACTOR])
-      else:
-        lead_danger_factor = LEAD_DANGER_FACTOR
-
-      self.params[:,5] = lead_danger_factor
-
-      x2 = stop_x * np.ones(N+1) if (self.xState == XState.e2eStop) else 400.0 * np.ones(N+1)
-
+      self.params[:,5] = LEAD_DANGER_FACTOR
       # Fake an obstacle for cruise, this ensures smooth acceleration to set speed
       # when the leads are no factor.
       v_lower = v_ego + (T_IDXS * self.cruise_min_a * 1.05)
@@ -425,19 +419,18 @@ class LongitudinalMpc:
                                  v_lower,
                                  v_upper)
       cruise_obstacle = np.cumsum(T_DIFFS * v_cruise_clipped) + get_safe_obstacle_distance(v_cruise_clipped, t_follow, comfort_brake, stop_distance)
+
+      adjust_dist = 1.0 if v_ego > 0.1 else -2.0
+      if 50 < stop_x + adjust_dist < cruise_obstacle[0]:
+        stop_x = cruise_obstacle[0] - adjust_dist
+      x2 = stop_x * np.ones(N+1) + adjust_dist
+
       x_obstacles = np.column_stack([lead_0_obstacle, lead_1_obstacle, cruise_obstacle, x2])
 
       self.source = SOURCES[np.argmin(x_obstacles[0])]
 
       # These are not used in ACC mode
       x[:], v[:], a[:], j[:] = 0.0, 0.0, 0.0, 0.0
-
-      cruise_target = T_IDXS * np.clip(v_cruise, v_ego - 2.0, 1e3) + x[0]
-      xforward = ((v[1:] + v[:-1]) / 2) * (T_IDXS[1:] - T_IDXS[:-1])
-      x = np.cumsum(np.insert(xforward, 0, x[0]))
-
-      x_and_cruise = np.column_stack([x, cruise_target])
-      x = np.min(x_and_cruise, axis=1)
 
     elif self.mode == 'blended':
       self.params[:,5] = 1.0
@@ -533,6 +526,7 @@ class LongitudinalMpc:
     model = sm['modelV2']
     radarstate = sm['radarState']
     v_ego = carstate.vEgo
+    a_ego = carstate.aEgo
     v_ego_kph = v_ego * CV.MS_TO_KPH
 
     x = model.position.x
@@ -546,7 +540,7 @@ class LongitudinalMpc:
     ## 모델의 신호정지 검사
     lead_detected = radarstate.leadOne.status
     d_rel = radarstate.leadOne.dRel if lead_detected else 1000
-    self._check_model_stopping(v, v_ego, x[-1], y, d_rel)
+    self._check_model_stopping(v, v_ego, a_ego, x[-1], y, d_rel)
 
     if carstate.gasPressed or carstate.brakePressed:
       self.user_stop_distance = -1
@@ -570,7 +564,7 @@ class LongitudinalMpc:
         self.xState = XState.lead
       else:
         if self.trafficState == TrafficState.green:
-          self.xState = XState.e2ePrepare
+          self.xState = XState.e2eCruise
         else:
           self.trafficStopAdjustRatio = interp(v_ego_kph, [0, 100], [1.0, 0.7])
           stop_dist = self.xStop * interp(self.xStop, [0, 100], [1.0, self.trafficStopAdjustRatio])
@@ -615,6 +609,7 @@ class LongitudinalMpc:
       stop_model_x = 0.0
 
     stop_dist =  stop_model_x + self.actual_stop_distance
+    stop_dist = max(stop_dist, v_ego ** 2 / (COMFORT_BRAKE * 2))
 
     return v_cruise, stop_dist
 
@@ -623,7 +618,7 @@ class LongitudinalMpc:
     stop_x = self.xStopFilter2.process(stop_x)
     return stop_x
 
-  def _check_model_stopping(self, v, v_ego, model_x, y, d_rel):
+  def _check_model_stopping(self, v, v_ego, a_ego, model_x, y, d_rel):
     v_ego_kph = v_ego * CV.MS_TO_KPH
     model_v = self.vFilter.process(v[-1])
     startSign = model_v > 5.0 or model_v > (v[0] + 2)
@@ -635,6 +630,9 @@ class LongitudinalMpc:
                   model_x < interp(v[0], [60/3.6, 80/3.6], [120.0, 150]) and
                   ((model_v < 3.0) or (model_v < v[0]*0.7)) and
                   abs(y[-1]) < 5.0)
+      # 정상주행중 감속하는 경우(카메라 감속등), 오감지가 많음.
+      if self.xState == XState.e2eCruise and a_ego < -1.0:
+        stopSign = False
     else:
       stopSign = False
 

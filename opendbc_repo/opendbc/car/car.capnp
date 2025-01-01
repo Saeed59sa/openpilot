@@ -258,8 +258,6 @@ struct CarState {
     rr @3 :Float32;
   }
 
-  lfaBtn @58 :Int32;
-
   struct WheelSpeeds {
     # optional wheel speeds
     fl @0 :Float32;
