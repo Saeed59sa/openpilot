@@ -57,12 +57,14 @@ void OnroadWindow::updateState(const UIState &s) {
 
   const QString file_path = "/data/tmux_error.log";
   if (QFile::exists(file_path) && !isWarningShown) {
-    const std::string txt = util::read_file(file_path.toStdString());
-    RichTextDialog::alert(QString::fromStdString(txt), this);
-    QProcess::execute("rm -f /data/tmux_error.log");
     isWarningShown = true;
 
-    QTimer::singleShot(5000, [this]() {
+    QTimer::singleShot(5000, [this, file_path]() {
+      if (QFile::exists(file_path)) {
+        const std::string txt = util::read_file(file_path.toStdString());
+        RichTextDialog::alert(QString::fromStdString(txt), this);
+        QProcess::execute("rm -f /data/tmux_error.log");
+      }
       isWarningShown = false;
     });
   }
