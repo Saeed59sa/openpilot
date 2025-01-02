@@ -3,11 +3,13 @@
 #include <QPushButton>
 #include <QScrollBar>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QWidget>
 #include <QProcess>
 #include <QHostAddress>
 #include <QNetworkInterface>
 #include <QAbstractSocket>
+#include <QTimer>
 
 #include "system/hardware/hw.h"
 #include "selfdrive/ui/qt/util.h"
@@ -21,25 +23,37 @@ int main(int argc, char *argv[]) {
   setMainWindow(&window);
 
   QVBoxLayout *main_layout = new QVBoxLayout(&window);
-  QHBoxLayout *top_layout = new QHBoxLayout();
+  QHBoxLayout *ip_layout = new QHBoxLayout();
+  QLabel *network_label = new QLabel();
+
+  network_label->setStyleSheet("color: #e0e879");
+  auto update_ip_address = [&]() {
+    QString device_ip = "────────";
+    const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
+    for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
+      if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost && address.toString().contains(".")) {
+        device_ip = address.toString();
+        break;
+      }
+    }
+    network_label->setText(device_ip);
+  };
+
+  ip_layout->addWidget(network_label);
+  ip_layout->setAlignment(Qt::AlignRight | Qt::AlignTop);
+
+  main_layout->addLayout(ip_layout);
+
+  QHBoxLayout *scroll_layout = new QHBoxLayout();
+
   QLabel *label = new QLabel(argv[1]);
   label->setWordWrap(true);
   label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
   ScrollView *scroll = new ScrollView(label);
   scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-  top_layout->addWidget(scroll, 1);
 
-  QLabel *network_label = new QLabel();
-  QString device_ip = "────────";
-  const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
-  for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
-    if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost)
-      device_ip = address.toString();
-  }
-  network_label->setText(device_ip);
-  network_label->setStyleSheet("color: #e0e879");
-  top_layout->addWidget(network_label, 0);
-  main_layout->addLayout(top_layout);
+  scroll_layout->addWidget(scroll, 1);
+  main_layout->addLayout(scroll_layout);
 
   QHBoxLayout *button_layout = new QHBoxLayout();
   QPushButton *btn = new QPushButton();
@@ -56,7 +70,7 @@ int main(int argc, char *argv[]) {
   QObject::connect(btn, &QPushButton::clicked, &a, &QApplication::quit);
 #endif
 
-  btn2->setText(QObject::"Git Pull");
+  btn2->setText(QObject::tr("Git Pull"));
   QObject::connect(btn2, &QPushButton::clicked, [=]() {
     QProcess::execute("sh /data/openpilot/scripts/gitpull.sh");
     Hardware::reboot();
@@ -91,6 +105,15 @@ int main(int argc, char *argv[]) {
       margin-right: 30px;
     }
   )");
+
+  QTimer *timer = new QTimer(&a);
+  QObject::connect(timer, &QTimer::timeout, update_ip_address);
+  timer->start(5000);
+
+  update_ip_address();
+
+  window.setLayout(main_layout);
+  window.show();
 
   return a.exec();
 }
