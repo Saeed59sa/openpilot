@@ -1016,6 +1016,15 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.PERMANENT: Alert("", "", AlertStatus.normal, AlertSize.none,
                         Priority.MID, VisualAlert.none, AudibleAlert.cruiseOff, 1.),
   },
+  EventName.ding: {
+    ET.PERMANENT: Alert("", "", AlertStatus.normal, AlertSize.none,
+                        Priority.MID, VisualAlert.none, AudibleAlert.cruiseOn, 1.),
+  },
+
+  EventName.dong: {
+    ET.PERMANENT: Alert("", "", AlertStatus.normal, AlertSize.none,
+                        Priority.MID, VisualAlert.none, AudibleAlert.cruiseOff, 1.),
+  },
 }
 
 

@@ -218,12 +218,13 @@ class CarSpecificEvents:
     # Handle button presses
     for b in CS.buttonEvents:
       # Enable OP long on falling edge of enable buttons (defaults to accelCruise and decelCruise, overridable per-port)
-      #if not self.CP.pcmCruise and (b.type in enable_buttons and not b.pressed):
       if not self.CP.pcmCruise and (b.type in enable_buttons and not b.pressed):
         events.add(EventName.buttonEnable)
       # Disable on rising and falling edge of cancel for both stock and OP long
-      #if b.type == ButtonType.cancel:
-      #  events.add(EventName.buttonCancel)
+      if b.type == ButtonType.cancel:
+        events.add(EventName.buttonCancel)
+      if b.type == ButtonType.lfaButton and CS.cruiseState.available and not CS_prev.cruiseState.available:
+        events.add(EventName.ding)
 
     # Handle permanent and temporary steering faults
     self.steering_unpressed = 0 if CS.steeringPressed else self.steering_unpressed + 1

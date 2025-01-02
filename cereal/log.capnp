@@ -128,8 +128,11 @@ struct OnroadEvent @0xc4fa6047f024e718 {
 
     cruiseOn @93;
     cruiseOff @94;
-    turningIndicatorOn @95;
-    autoLaneChange @96;
+    ding @95;
+    dong @96;
+
+    turningIndicatorOn @97;
+    autoLaneChange @98;
 
     soundsUnavailableDEPRECATED @47;
   }

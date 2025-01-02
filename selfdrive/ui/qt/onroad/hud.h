@@ -34,12 +34,12 @@ private:
   QPixmap lane_change_left_img, lane_change_right_img;
   QPixmap autohold_warning_img;
   QPixmap autohold_active_img;
-  QPixmap nda_img, hda_img;
+  QPixmap nda_img, hda_img, mads_on_img, mads_off_img;
 
   QString leftDistStr, sa_str, sa_direction, altitudeStr, accuracyStr, infoGps;
 
   bool hideBottomIcons = false;
-  bool longControl = false;
+  bool longControl, mads_state = false;
   bool brake_press, gas_press = false;
   bool left_blinker, right_blinker = false;
 

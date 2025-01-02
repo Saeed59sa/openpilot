@@ -74,7 +74,8 @@ class CarState(CarStateBase):
     self.lfa_btn = 0
     self.lfa_enabled = False
 
-    self.main_enabled = False
+    self.main_enabled = True
+    self.main_cruise_enabled = False
 
     self.canfd_buttons = None
 
@@ -246,7 +247,7 @@ class CarState(CarStateBase):
     if self.CP.exFlags & HyundaiExFlags.NAVI:
       ret.exState.navLimitSpeed = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"]
 
-    if self.CP.exFlags & HyundaiExFlags.LFA:
+    if self.CP.exFlags & HyundaiExFlags.LFA and not self.CP.openpilotLongitudinalControl:
       prev_lfa_btn = self.lfa_btn
       self.lfa_btn = cp.vl["BCM_PO_11"]["LFA_Pressed"]
       if prev_lfa_btn != 1 and self.lfa_btn == 1:
@@ -421,15 +422,19 @@ class CarState(CarStateBase):
 
     self.canfd_buttons = cp.vl[self.cruise_btns_msg_canfd]
 
-    if self.CP.exFlags & HyundaiExFlags.LFA:
+    if self.CP.exFlags & HyundaiExFlags.LFA and not self.CP.openpilotLongitudinalControl:
       prev_lfa_btn = self.lfa_btn
       self.lfa_btn = cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"]
       if prev_lfa_btn != 1 and self.lfa_btn == 1:
         self.lfa_enabled = not self.lfa_enabled
       ret.cruiseState.available = self.lfa_enabled
 
-    #if self.CP.exFlags & HyundaiExFlags.LFA and self.CP.openpilotLongitudinalControl:
-    #  self.main_buttons.append(cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"])
+    if self.CP.exFlags & HyundaiExFlags.LFA and self.CP.openpilotLongitudinalControl:
+      self.main_buttons.append(cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"])
+
+    if any(be.type == ButtonType.mainCruise and be.pressed for be in ret.buttonEvents):
+      self.main_cruise_enabled = not self.main_cruise_enabled
+      ret.mads = self.main_cruise_enabled
 
     if self.main_buttons[-1] != prev_main_buttons and not self.main_buttons[-1]:
       self.main_enabled = not self.main_enabled

@@ -26,6 +26,8 @@ HudRenderer::HudRenderer() {
   sign_none_img = loadPixmap("../assets/img_sign_none.png", {img_size, img_size});
   sign_go_img = loadPixmap("../assets/img_sign_go.png", {img_size, img_size});
   sign_stop_img = loadPixmap("../assets/img_sign_stop.png", {img_size, img_size});
+  mads_on_img = loadPixmap("../assets/img_mads_on.png", {img_size, img_size});
+  mads_off_img = loadPixmap("../assets/img_mads_off.png", {img_size, img_size});
   lane_change_left_img = loadPixmap("../assets/lane_change_left.png");
   lane_change_right_img = loadPixmap("../assets/lane_change_right.png");
 
@@ -114,6 +116,7 @@ void HudRenderer::updateState(const UIState &s) {
   sectionLimitSpeed = nd.getSectionLimitSpeed();
   sectionLeftDist = nd.getSectionLeftDist();
   traffic_state = lo.getTrafficState();
+  mads_state = ce.getMads();
 }
 
 void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
@@ -142,7 +145,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     p.drawPixmap(x, y, w, h, nda_state == 1 ? nda_img : hda_img);
   }
 
-  // sign icon (upper right 3)
+  // sign icon
   if (traffic_state >= 0) {
     x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 2.1);
     y = (btn_size / 2) + (UI_BORDER_SIZE * 4);
@@ -155,12 +158,17 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     }
   }
 
-  // N direction icon (upper right 4)
+  // mads icon
+  x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 2.1);
+  y = (btn_size / 2) + (UI_BORDER_SIZE * 4);
+  drawIcon(p, QPoint(x, y), mads_on_img, icon_bg, mads_state == 1 ? 0.8 : 0.2);
+
+  // N direction icon
   x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 1.1);
   y = (btn_size / 2) + (UI_BORDER_SIZE * 20);
   drawIconRotate(p, QPoint(x, y), direction_img, icon_bg, gpsSatelliteCount != 0 ? 0.8 : 0.2, gpsBearing);
 
-  // gps icon (upper right 3)
+  // gps icon
   x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 0.1);
   y = (btn_size / 2) + (UI_BORDER_SIZE * 20);
   drawIcon(p, QPoint(x, y), gps_img, icon_bg, gpsSatelliteCount != 0 ? 0.8 : 0.2);

@@ -115,10 +115,12 @@ struct OnroadEventDEPRECATED @0x9b1657f34caf3ad3 {
     personalityChanged @122;
     aeb @123;
 
-    cruiseOn @129;
-    cruiseOff @126;
-    turningIndicatorOn @127;
-    autoLaneChange @128;
+    cruiseOn @126;
+    cruiseOff @127;
+    ding @128;
+    dong @129;
+    turningIndicatorOn @130;
+    autoLaneChange @131;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -257,6 +259,8 @@ struct CarState {
     rl @2 :Float32;
     rr @3 :Float32;
   }
+
+  mads @58 :Bool;
 
   struct WheelSpeeds {
     # optional wheel speeds
@@ -452,6 +456,8 @@ struct CarControl {
       ready @9;
       cruiseOn @10;
       cruiseOff @11;
+      ding @12;
+      dong @13;
     }
   }
 
