@@ -47,7 +47,6 @@ class CruiseStateManager:
   def __init__(self):
     self.params = Params()
 
-    self.available = False
     self.enabled = False
     self.speed = V_CRUISE_ENABLE_MIN * CV.KPH_TO_MS
     gap = self.params.get('SccGapAdjust')
@@ -59,14 +58,12 @@ class CruiseStateManager:
     self.prev_cruise_button = 0
     self.button_events = None
 
-    self.lat_enabled = False
+    self.lat_enabled = True
 
     self.prev_btn = ButtonType.unknown
     self.btn_count = 0
     self.btn_long_pressed = False
     self.is_cruise_enabled = False
-
-    self.prev_brake_pressed = False
 
     self.is_metric = self.params.get_bool('IsMetric')
     self.cruise_state_control = self.params.get_bool('CruiseStateControl')
@@ -95,9 +92,13 @@ class CruiseStateManager:
     if button != ButtonType.unknown:
       self.update_cruise_state(CS, int(round(self.speed * CV.MS_TO_KPH)), button)
 
-    if self.prev_brake_pressed != CS.brakePressed and CS.brakePressed:
-      self.enabled = False
-    self.prev_brake_pressed = CS.brakePressed
+  #  if self.prev_brake_pressed != CS.brakePressed and CS.brakePressed:
+  #    self.enabled = False
+  #  self.prev_brake_pressed = CS.brakePressed
+
+    if self.enabled:
+      self.lat_enabled = True
+      CS.cruiseState.available = self.lat_enabled
 
     if cruise_state_control:
       CS.cruiseState.enabled = self.enabled
@@ -182,10 +183,18 @@ class CruiseStateManager:
         self.params.put_bool("ExperimentalMode", not self.params.get_bool("ExperimentalMode"))
 
     if btn == ButtonType.cancel:
-      self.enabled = False
+      if not self.btn_long_pressed:
+        self.enabled = False
+      else:
+        self.enabled = False
+        self.lat_enabled = False
 
     if btn == ButtonType.lfaButton:
-      self.lat_enabled = not self.lat_enabled
+      if not self.btn_long_pressed:
+        self.lat_enabled = not self.lat_enabled
+      else:
+        self.enabled = False
+        self.lat_enabled = False
 
     v_cruise_kph = clip(round(v_cruise_kph, 1), V_CRUISE_MIN_CRUISE_STATE, V_CRUISE_MAX)
     self.speed = v_cruise_kph * CV.KPH_TO_MS

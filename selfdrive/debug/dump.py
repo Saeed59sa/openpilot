@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
   lr = raw_live_logreader([args.socket], args.addr)
   values = [f"{args.socket}.{s.strip()}" for s in args.values.split(",")] if args.values else None
-  count = args.count if args.count else 999
+  count = args.count if args.count else sys.maxsize
   iterations = 0
 
   output_file = open(args.output, 'w') if args.output else None
