@@ -14,7 +14,7 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget *par
   pm = std::make_unique<PubMaster>(std::vector<const char*>{"uiDebug"});
 
   main_layout = new QVBoxLayout(this);
-  main_layout->setMargin(UI_BORDER_SIZE * 4);
+  main_layout->setMargin(UI_BORDER_SIZE * 2);
   main_layout->setSpacing(20);
 
   experimental_btn = new ExperimentalButton(this);

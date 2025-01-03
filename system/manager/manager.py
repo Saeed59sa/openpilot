@@ -53,6 +53,7 @@ def manager_init() -> None:
     ("LoggerEnable", "1"),
     ("RadarTrackEnable", "0"),
     ("HyundaiCameraSCC", "0"),
+    ("PcmCruise", "0"),
   ]
 
   if params.get_bool("RecordFrontLock"):

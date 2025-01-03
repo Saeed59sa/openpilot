@@ -116,7 +116,7 @@ void HudRenderer::updateState(const UIState &s) {
   sectionLimitSpeed = nd.getSectionLimitSpeed();
   sectionLeftDist = nd.getSectionLeftDist();
   traffic_state = lo.getTrafficState();
-  mads_state = ce.getMads();
+  mads_state = ce.getCruiseState().getAvailable();
 }
 
 void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
@@ -136,19 +136,19 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   int x,y,w,h = 0;
   QColor icon_bg = blackColor(100);
 
-  // nda icon (upper center)
+  // nda icon
   if (nda_state > 0) {
     w = 120;
     h = 54;
-    x = (surface_rect.width() + (UI_BORDER_SIZE * 2)) / 2 - (w / 2) - UI_BORDER_SIZE;
-    y = UI_BORDER_SIZE * 2;
+    x = (surface_rect.width() + (UI_BORDER_SIZE)) / 2 - (w / 2);
+    y = UI_BORDER_SIZE;
     p.drawPixmap(x, y, w, h, nda_state == 1 ? nda_img : hda_img);
   }
 
   // sign icon
   if (traffic_state >= 0) {
-    x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 2.1);
-    y = (btn_size / 2) + (UI_BORDER_SIZE * 4);
+    x = (btn_size / 2) + (UI_BORDER_SIZE * 1.5) + (btn_size * 2);
+    y = (btn_size / 2) + (UI_BORDER_SIZE * 2);
     if (traffic_state == 1 && is_cruise_set) {
       drawIcon(p, QPoint(x, y), sign_stop_img, icon_bg, 0.8);
     } else if (traffic_state == 2 && is_cruise_set) {
@@ -158,19 +158,14 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     }
   }
 
-  // mads icon
-  //x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 2.1);
-  //y = (btn_size / 2) + (UI_BORDER_SIZE * 20);
-  //drawIcon(p, QPoint(x, y), mads_on_img, icon_bg, mads_state == 1 ? 0.8 : 0.2);
-
   // N direction icon
-  x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 1.1);
-  y = (btn_size / 2) + (UI_BORDER_SIZE * 20);
+  x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 3);
+  y = (btn_size / 2) + (UI_BORDER_SIZE * 2);
   drawIconRotate(p, QPoint(x, y), direction_img, icon_bg, gpsSatelliteCount != 0 ? 0.8 : 0.2, gpsBearing);
 
   // gps icon
-  x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 0.1);
-  y = (btn_size / 2) + (UI_BORDER_SIZE * 20);
+  x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 2);
+  y = (btn_size / 2) + (UI_BORDER_SIZE * 2);
   drawIcon(p, QPoint(x, y), gps_img, icon_bg, gpsSatelliteCount != 0 ? 0.8 : 0.2);
 
   if (wifi_state == 1) {
@@ -184,8 +179,8 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   }
 
   // wifi icon
-  x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 1.1);
-  y = (btn_size / 2) + (UI_BORDER_SIZE * 4);
+  x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 1);
+  y = (btn_size / 2) + (UI_BORDER_SIZE * 2);
   drawIcon(p, QPoint(x, y), wifi_img, icon_bg, wifi_state > 0 ? 0.8 : 0.2);
 
   // upper gps info
@@ -210,15 +205,15 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
                                 gpsSatelliteCount);
   }
 
-  x = surface_rect.right() - 20;
-  y = (UI_BORDER_SIZE * 2);
+  x = surface_rect.right() - 30;
+  y = (UI_BORDER_SIZE * 1.5);
 
   p.setFont(InterFont(30));
   drawTextColorLR(p, x, y, infoGps, whiteColor(200), "R");
 
   if (!hideBottomIcons) {
-    // steer img (bottom 1 right)
-    x = (btn_size / 2) + (UI_BORDER_SIZE * 2) + (btn_size);
+    // steer img
+    x = (btn_size / 2) + (UI_BORDER_SIZE * 1.5) + (btn_size);
     y = surface_rect.bottom() - (UI_FOOTER_HEIGHT / 2);
     drawIconRotate(p, QPoint(x, y), steer_img, icon_bg, 0.8, steerAngle);
 
@@ -242,12 +237,16 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     drawTextColor(p, x - 30, y + 95, sa_str, sa_color);
     drawTextColor(p, x + 30, y + 95, sa_direction, whiteColor(200));
 
-    // gaspress img (bottom right 2)
-    x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 2.1);
+    // mads icon
+    x = (btn_size / 2) + (UI_BORDER_SIZE * 1.5) + (btn_size * 2);
+    drawIcon(p, QPoint(x, y), mads_on_img, icon_bg, mads_state == 1 ? 0.8 : 0.2);
+
+    // gaspress img
+    x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 2);
     drawIcon(p, QPoint(x, y), gaspress_img, icon_bg, gas_press ? 0.8 : 0.2);
 
-    // brake and autohold icon (bottom right 3)
-    x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 1.1);
+    // brake and autohold icon
+    x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 1);
     if (autohold_state >= 1) {
       drawIcon(p, QPoint(x, y), autohold_state > 1 ? autohold_warning_img : autohold_active_img, icon_bg, autohold_state ? 0.8 : 0.2);
     } else {
@@ -272,8 +271,8 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   // bottom left info
   QString infoText = QString("[%1]").arg(QString::fromStdString(params.get("CarName")));
 
-  x = surface_rect.left() + 20;
-  y = surface_rect.height() - 20;
+  x = surface_rect.left() + 30;
+  y = surface_rect.height() - 30;
 
   p.setFont(InterFont(30));
   drawTextColorLR(p, x, y, infoText, whiteColor(200), "L");
@@ -281,8 +280,8 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   // bottom right info
   QString infoNetworkAddress = QString("[%1]").arg(QString::fromStdString(params.get("NetworkAddress")));
 
-  x = surface_rect.right() - 200;
-  y = surface_rect.height() - 20;
+  x = surface_rect.right() - 30;
+  y = surface_rect.height() - 30;
 
   p.setFont(InterFont(30));
   drawTextColorLR(p, x, y, infoNetworkAddress, orangeColor(200), "R");
@@ -383,7 +382,7 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   p.drawRoundedRect(max_speed_rect, 32, 32);
   //drawRoundedRect(p, max_speed_rect, top_radius, top_radius, bottom_radius, bottom_radius);
 
-  // max speed (upper left 1)
+  // max speed
   QString cruiseSpeedStr = QString::number(std::nearbyint(cruise_speed));
   QRect max_speed_outer(max_speed_rect.left() + 10, max_speed_rect.top() + 10, 140, 168);
   p.setPen(QPen(whiteColor(200), 2));
@@ -421,7 +420,7 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   max_rect.moveTop(max_speed_rect.top() + 25);
   p.drawText(max_rect, Qt::AlignCenter, tr("MAX"));
 
-  // apply speed (upper left 2)
+  // apply speed
   QString applySpeedStr = QString::number(std::nearbyint(apply_speed));
   QRect apply_speed_outer(max_speed_rect.right() - 150, max_speed_rect.top() + 10, 140, 168);
   p.setPen(QPen(whiteColor(200), 2));

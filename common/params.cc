@@ -218,6 +218,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"NetworkAddress", CLEAR_ON_MANAGER_START},
     {"CruiseStateControl", PERSISTENT},
     {"SccGapAdjust", PERSISTENT},
+    {"PcmCruise", PERSISTENT},
 };
 
 } // namespace

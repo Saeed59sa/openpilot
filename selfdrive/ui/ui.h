@@ -17,7 +17,7 @@
 
 #include "selfdrive/ui/qt/network/wifi_manager.h"
 
-const int UI_BORDER_SIZE = 10;
+const int UI_BORDER_SIZE = 20;
 const int UI_HEADER_HEIGHT = 420;
 const int UI_FOOTER_HEIGHT = 280;
 

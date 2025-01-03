@@ -68,9 +68,9 @@ void DriverMonitorRenderer::draw(QPainter &painter, const QRect &surface_rect) {
 
   painter.save();
 
-  int offset = (UI_BORDER_SIZE * 3) + btn_size / 2;
+  int offset = (UI_BORDER_SIZE * 1.5) + btn_size / 2;
   float x = is_rhd ? surface_rect.width() - offset : offset;
-  float y = surface_rect.height() - offset - (UI_BORDER_SIZE * 3);
+  float y = surface_rect.height() - offset - (UI_BORDER_SIZE * 1.5);
   float opacity = is_active ? 0.8f : 0.2f;
 
   drawIcon(painter, QPoint(x, y), dm_img, QColor(0, 0, 0, 100), opacity);
