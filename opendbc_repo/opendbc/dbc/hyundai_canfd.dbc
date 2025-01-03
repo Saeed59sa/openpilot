@@ -196,7 +196,7 @@ BO_ 298 LFA: 16 ADRV
  SG_ LFA_BUTTON : 56|1@1+ (1,0) [0|255] "" XXX
  SG_ LKA_ACTIVE : 27|2@1+ (1,0) [0|255] "" XXX
  SG_ LKA_ASSIST : 62|1@1+ (1,0) [0|1] "" XXX
- SG_ LKA_ICON : 38|3@1+ (1,0) [0|7] "" XXX
+ SG_ LKA_ICON : 38|2@1+ (1,0) [0|3] "" XXX
  SG_ LKA_MODE : 24|3@1+ (1,0) [0|7] "" XXX
  SG_ LKA_WARNING : 32|1@1+ (1,0) [0|1] "" XXX
  SG_ LKAS_ANGLE_ACTIVE : 77|2@0+ (1,0) [0|3] "" XXX
