@@ -75,7 +75,6 @@ class CarState(CarStateBase):
     self.lfa_enabled = False
 
     self.main_enabled = True
-    self.main_cruise_enabled = False
 
     self.canfd_buttons = None
 
@@ -431,10 +430,6 @@ class CarState(CarStateBase):
 
     if self.CP.exFlags & HyundaiExFlags.LFA and self.CP.openpilotLongitudinalControl:
       self.main_buttons.append(cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"])
-
-    if any(be.type == ButtonType.mainCruise and be.pressed for be in ret.buttonEvents):
-      self.main_cruise_enabled = not self.main_cruise_enabled
-      ret.mads = self.main_cruise_enabled
 
     if self.main_buttons[-1] != prev_main_buttons and not self.main_buttons[-1]:
       self.main_enabled = not self.main_enabled

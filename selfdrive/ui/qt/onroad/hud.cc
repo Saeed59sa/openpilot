@@ -159,9 +159,9 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   }
 
   // mads icon
-  x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 2.1);
-  y = (btn_size / 2) + (UI_BORDER_SIZE * 4);
-  drawIcon(p, QPoint(x, y), mads_on_img, icon_bg, mads_state == 1 ? 0.8 : 0.2);
+  //x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 2.1);
+  //y = (btn_size / 2) + (UI_BORDER_SIZE * 20);
+  //drawIcon(p, QPoint(x, y), mads_on_img, icon_bg, mads_state == 1 ? 0.8 : 0.2);
 
   // N direction icon
   x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 1.1);
@@ -183,7 +183,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     wifi_img = wifi_f_img;
   }
 
-  // wifi icon (upper right 2)
+  // wifi icon
   x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 1.1);
   y = (btn_size / 2) + (UI_BORDER_SIZE * 4);
   drawIcon(p, QPoint(x, y), wifi_img, icon_bg, wifi_state > 0 ? 0.8 : 0.2);
