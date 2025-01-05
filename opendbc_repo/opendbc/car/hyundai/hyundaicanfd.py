@@ -45,7 +45,7 @@ def create_steering_messages_camera_scc(packer, CP, CS, CAN, enabled, lat_active
     values = {
       "LKAS_ANGLE_ACTIVE": 2 if abs(CS.out.steeringAngleDeg) < 110.0 and lat_active else 1,
       "LKAS_ANGLE_CMD": -apply_angle,
-      "TORQUE_MAYBE": max_torque if lat_active else 0,
+      "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0,
     }
     ret.append(packer.make_can_msg("LFA_ANGLE_MAYBE_CB", CAN.ECAN, values))
 
