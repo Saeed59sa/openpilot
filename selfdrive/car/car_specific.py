@@ -223,8 +223,6 @@ class CarSpecificEvents:
       # Disable on rising and falling edge of cancel for both stock and OP long
       #if b.type == ButtonType.cancel:
       #  events.add(EventName.buttonCancel)
-      if b.type == ButtonType.lfaButton and CS.cruiseState.available and not CS_prev.cruiseState.available:
-        events.add(EventName.ding)
 
     # Handle permanent and temporary steering faults
     self.steering_unpressed = 0 if CS.steeringPressed else self.steering_unpressed + 1
@@ -260,15 +258,15 @@ class CarSpecificEvents:
     #    elif not CS.cruiseState.enabled and CS_prev.cruiseState.enabled:
     #      events.add(EventName.cruiseOff)
 
-    if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled and CS.cruiseState.speed > 0:
-      events.add(EventName.cruiseOn)
-    elif not CS.cruiseState.enabled and CS_prev.cruiseState.enabled:
-      events.add(EventName.cruiseOff)
-
     if pcm_enable:
-      if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled and allow_enable:
+      if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled and CS.cruiseState.available and allow_enable:
         events.add(EventName.pcmEnable)
       elif not CS.cruiseState.enabled and not CS.cruiseState.available:
         events.add(EventName.pcmDisable)
+
+    if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled and CS.cruiseState.speed > 0:
+      events.add(EventName.ding)
+    elif not CS.cruiseState.enabled and CS_prev.cruiseState.enabled:
+      events.add(EventName.dong)
 
     return events

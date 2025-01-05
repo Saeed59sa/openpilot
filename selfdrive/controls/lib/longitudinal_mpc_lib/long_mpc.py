@@ -402,10 +402,7 @@ class LongitudinalMpc:
     # negative accel constraint causes problems because negative speed is not allowed
     self.params[:,1] = max(0.0, self.max_a if not reset_state else a_ego)
 
-    if self.mode == 'blended':
-      stop_x = 1000.0
-    else:
-      v_cruise, stop_x = self._update_carrot(sm, v_cruise)
+    v_cruise, stop_x = self._update_carrot(sm, v_cruise)
 
     # Update in ACC mode or ACC/e2e blend
     if self.mode == 'acc':
@@ -608,7 +605,7 @@ class LongitudinalMpc:
     elif self.actual_stop_distance > 0: ## e2eStop, e2eStopped
       stop_model_x = 0.0
 
-    stop_dist =  stop_model_x + self.actual_stop_distance
+    stop_dist = stop_model_x + self.actual_stop_distance
     stop_dist = max(stop_dist, v_ego ** 2 / (COMFORT_BRAKE * 2))
 
     return v_cruise, stop_dist

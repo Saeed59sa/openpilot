@@ -97,8 +97,7 @@ class CruiseStateManager:
       self.enabled = False
     self.prev_brake_pressed = CS.brakePressed
 
-    if self.enabled:
-      CS.cruiseState.available = self.lat_enabled
+    CS.cruiseState.available = True if self.enabled else self.lat_enabled
 
     if cruise_state_control:
       CS.cruiseState.enabled = self.enabled
@@ -122,7 +121,6 @@ class CruiseStateManager:
           ButtonType.decelCruise,
           ButtonType.gapAdjustCruise,
           ButtonType.cancel,
-          ButtonType.lfaButton
         ]
       ):
         self.btn_count = 1
@@ -183,14 +181,8 @@ class CruiseStateManager:
         self.params.put_bool("ExperimentalMode", not self.params.get_bool("ExperimentalMode"))
 
     if btn == ButtonType.cancel:
-      #if not self.btn_long_pressed:
-      #  self.enabled = False
-      #else:
-      self.enabled = False
-
-    if btn == ButtonType.lfaButton:
       if not self.btn_long_pressed:
-        self.lat_enabled = not self.lat_enabled
+        self.enabled = False
       else:
         self.enabled = False
         self.lat_enabled = False
