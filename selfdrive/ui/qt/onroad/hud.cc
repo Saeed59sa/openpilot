@@ -152,10 +152,10 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
 
   // nda icon
   if (nda_state > 0) {
-    x = (surface_rect.width() + (UI_BORDER_SIZE)) / 2 - (w / 2);
-    y = UI_BORDER_SIZE;
     w = 120;
     h = 54;
+    x = (surface_rect.width() + (UI_BORDER_SIZE)) / 2 - (w / 2);
+    y = UI_BORDER_SIZE;
     p.drawPixmap(x, y, w, h, nda_state == 1 ? nda_img : hda_img);
   }
 
@@ -163,9 +163,9 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   if (traffic_state >= 0) {
     x = (btn_size / 2) + (UI_BORDER_SIZE * 1.5) + (btn_size * 2);
     y = (btn_size / 2) + (UI_BORDER_SIZE * 2);
-    if (traffic_state == 1 && is_cruise_set) {
+    if (traffic_state == 1) {
       drawIcon(p, QPoint(x, y), sign_stop_img, icon_bg, 0.8);
-    } else if (traffic_state == 2 && is_cruise_set) {
+    } else if (traffic_state == 2) {
       drawIcon(p, QPoint(x, y), sign_go_img, icon_bg, 0.8);
     } else {
       drawIcon(p, QPoint(x, y), sign_none_img, icon_bg, 0.2);
@@ -272,10 +272,10 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     }
 
     // tpms
-    x = surface_rect.right() - w - (UI_BORDER_SIZE * 2);
-    y = surface_rect.height() - h - (UI_BORDER_SIZE * 2);
     w = 160;
     h = 208;
+    x = surface_rect.right() - w - (UI_BORDER_SIZE * 2);
+    y = surface_rect.height() - h - (UI_BORDER_SIZE * 2);
 
     p.drawPixmap(x, y, w, h, tpms_img);
 
