@@ -256,18 +256,21 @@ static int hyundai_canfd_fwd_hook(int bus_num, int addr) {
   static AddrList addr_list1 = {{0}, 0};
   static AddrList addr_list2 = {{0}, 0};
 
-  // LKAS for HDA2, LFA for HDA1
-  int hda2_lfa_block_addr = hyundai_canfd_hda2_alt_steering ? 0x362 : 0x2a4;
-  bool is_lkas_msg = ((addr == hyundai_canfd_hda2_get_lkas_addr()) || (addr == hda2_lfa_block_addr)) && hyundai_canfd_hda2;
-  bool is_lfa_msg = ((addr == 0x12a) && !hyundai_canfd_hda2);
+  bool block_msg = false;
 
-  // HUD icons
-  bool is_lfahda_msg = ((addr == 0x1e0) && !hyundai_canfd_hda2);
+  if (hyundai_canfd_hda2) {
+    // LKAS for HDA2
+    int hda2_lfa_block_addr = hyundai_canfd_hda2_alt_steering ? 0x362 : 0x2a4;
+    bool is_lkas_msg = (addr == hyundai_canfd_hda2_get_lkas_addr()) || (addr == hda2_lfa_block_addr);
 
-  // CRUISE_INFO for non-HDA2, we send our own longitudinal commands
-  bool is_scc_msg = ((addr == 0x1a0) && hyundai_longitudinal && !hyundai_canfd_hda2);
+    block_msg = is_lkas_msg;
+  } else {
+    bool is_lfa_msg = (addr == 0x12a);                            // LFA for HDA1
+    bool is_lfahda_msg = (addr == 0x1e0);                         // HUD icons for HDA1
+    bool is_scc_msg = (addr == 0x1a0 && hyundai_longitudinal);    // CRUISE_INFO for non-HDA2
 
-  bool block_msg = is_lkas_msg || is_lfa_msg || is_lfahda_msg || is_scc_msg;
+    block_msg = is_lfa_msg || is_lfahda_msg || is_scc_msg;
+  }
 
   switch (bus_num) {
     case 0:
