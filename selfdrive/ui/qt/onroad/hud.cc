@@ -7,8 +7,20 @@
 
 constexpr int SET_SPEED_NA = 255;
 
+// blinker
+constexpr float BLINKER_IMG_ALPHA = 0.8f;
+constexpr int BLINKER_DRAW_COUNT = 8;
+constexpr int BLINKER_WIDTH = 200;
+constexpr int BLINKER_HEIGHT = 200;
+constexpr double BLINK_PERIOD_MS = 900.0;
+constexpr int BLINK_WAIT_FRAMES = UI_FREQ / 4;
+
+static int blink_index = 0;
+static int blink_wait = 0;
+static double prev_blink_time = 0.0;
+
 HudRenderer::HudRenderer() {
-  steer_img = loadPixmap("../assets/img_chffr_wheel.png", {img_size, img_size});
+  steer_img = loadPixmap("../assets/img_steer.png", {img_size, img_size});
   gaspress_img = loadPixmap("../assets/offroad/icon_disengage_on_accelerator.svg", {img_size, img_size});
 
   // crwusiz add
@@ -68,6 +80,7 @@ void HudRenderer::updateState(const UIState &s) {
   }
 
   const auto ce = sm["carState"].getCarState();
+  const auto cc = sm["carControl"].getCarControl();
   const auto cp = sm["carParams"].getCarParams();
   const auto ds = sm["deviceState"].getDeviceState();
   const auto ge = sm["gpsLocationExternal"].getGpsLocationExternal();
@@ -117,6 +130,7 @@ void HudRenderer::updateState(const UIState &s) {
   sectionLeftDist = nd.getSectionLeftDist();
   traffic_state = lo.getTrafficState();
   mads_state = ce.getCruiseState().getAvailable();
+  lat_active = cc.getLatActive();
 }
 
 void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
@@ -138,10 +152,10 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
 
   // nda icon
   if (nda_state > 0) {
-    w = 120;
-    h = 54;
     x = (surface_rect.width() + (UI_BORDER_SIZE)) / 2 - (w / 2);
     y = UI_BORDER_SIZE;
+    w = 120;
+    h = 54;
     p.drawPixmap(x, y, w, h, nda_state == 1 ? nda_img : hda_img);
   }
 
@@ -239,9 +253,13 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
 
     // mads icon
     x = (btn_size / 2) + (UI_BORDER_SIZE * 1.5) + (btn_size * 2);
-    drawIcon(p, QPoint(x, y), mads_on_img, icon_bg, mads_state == 1 ? 0.8 : 0.2);
+    if (lat_active) {
+      drawIcon(p, QPoint(x, y), mads_on_img, icon_bg, mads_state == 1 ? 0.8 : 0.2);
+    } else {
+      drawIcon(p, QPoint(x, y), mads_off_img, icon_bg, mads_state == 1 ? 0.8 : 0.2);
+    }
 
-    // gaspress img
+    // gaspress icon
     x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 2);
     drawIcon(p, QPoint(x, y), gaspress_img, icon_bg, gas_press ? 0.8 : 0.2);
 
@@ -253,11 +271,11 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
       drawIcon(p, QPoint(x, y), brake_img, icon_bg, brake_press ? 0.8 : 0.2);
     }
 
-    // tpms (bottom right)
-    w = 160;
-    h = 208;
+    // tpms
     x = surface_rect.right() - w - (UI_BORDER_SIZE * 2);
     y = surface_rect.height() - h - (UI_BORDER_SIZE * 2);
+    w = 160;
+    h = 208;
 
     p.drawPixmap(x, y, w, h, tpms_img);
 
@@ -287,56 +305,27 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   drawTextColorLR(p, x, y, infoNetworkAddress, orangeColor(200), "R");
 
   // turnsignal
-  static int blink_index = 0;
-  static int blink_wait = 0;
-  static double prev_ts = 0.0;
-
   if (blink_wait > 0) {
     blink_wait--;
     blink_index = 0;
   } else {
-    const float img_alpha = 0.8f;
-    const int center_x = surface_rect.width() / 2;
-    const int draw_count = 8;
-    w = 200;
-    h = 200;
-    y = (surface_rect.height() - h) / 2;
-
-    x = center_x;
     if (left_blinker) {
-      for (int i = 0; i < draw_count; i++) {
-        float alpha = img_alpha;
-        int d = std::abs(blink_index - i);
-        if (d > 0)
-          alpha /= d * 2;
-        p.setOpacity(alpha);
-        p.drawPixmap(x - w, y, w, h, turnsignal_l_img);
-        x -= w * 0.6;
-      }
+      draw_blinker(p, surface_rect, true, turnsignal_l_img);
     }
 
-    x = center_x;
     if (right_blinker) {
-      for (int i = 0; i < draw_count; i++) {
-        float alpha = img_alpha;
-        int d = std::abs(blink_index - i);
-        if (d > 0)
-          alpha /= d * 2;
-        p.setOpacity(alpha);
-        p.drawPixmap(x, y, w, h, turnsignal_r_img);
-        x += w * 0.6;
-      }
+      draw_blinker(p, surface_rect, false, turnsignal_r_img);
     }
 
     if (left_blinker || right_blinker) {
       double now = millis_since_boot();
-      if (now - prev_ts > 900 / UI_FREQ) {
-        prev_ts = now;
+      if (now - prev_blink_time > BLINK_PERIOD_MS / UI_FREQ) {
+        prev_blink_time = now;
         blink_index++;
       }
-      if (blink_index >= draw_count) {
-        blink_index = draw_count - 1;
-        blink_wait = UI_FREQ / 4;
+      if (blink_index >= BLINKER_DRAW_COUNT) {
+        blink_index = BLINKER_DRAW_COUNT - 1;
+        blink_wait = BLINK_WAIT_FRAMES;
       }
     } else {
       blink_index = 0;
@@ -581,4 +570,22 @@ void HudRenderer::drawTextColorLR(QPainter &p, int x, int y, const QString &text
 
   font.setBold(false);
   p.setFont(font);
+}
+
+void HudRenderer::draw_blinker(QPainter& p, const QRect& surface_rect, bool is_left, const QPixmap& blinker_img) {
+  const int center_x = surface_rect.width() / 2;
+  const int y = (surface_rect.height() - BLINKER_HEIGHT) / 2;
+  int x = center_x;
+  int direction = is_left ? -1 : 1;
+
+  for (int i = 0; i < BLINKER_DRAW_COUNT; ++i) {
+    float alpha = BLINKER_IMG_ALPHA;
+    int distance = std::abs(blink_index - i);
+    if (distance > 0) {
+      alpha /= (distance * 2);
+    }
+    p.setOpacity(alpha);
+    p.drawPixmap(x + (direction * (is_left ? -BLINKER_WIDTH : 0)), y, BLINKER_WIDTH, BLINKER_HEIGHT, blinker_img);
+    x += direction * BLINKER_WIDTH * 0.6;
+  }
 }

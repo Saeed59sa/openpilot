@@ -17,6 +17,7 @@ private:
   void drawText(QPainter &p, int x, int y, const QString &text, int alpha = 255);
   void drawTextColor(QPainter &p, int x, int y, const QString &text, const QColor &color);
   void drawTextColorLR(QPainter &p, int x, int y, const QString &text, const QColor &color, const QString &alignment);
+  void draw_blinker(QPainter& p, const QRect& surface_rect, bool is_left, const QPixmap& blinker_img);
 
   float speed = 0;
   float set_speed = 0;
@@ -42,6 +43,7 @@ private:
   bool longControl, mads_state = false;
   bool brake_press, gas_press = false;
   bool left_blinker, right_blinker = false;
+  bool lat_active = false;
 
   int autohold_state, nda_state = 0;
   int wifi_state = 0;
