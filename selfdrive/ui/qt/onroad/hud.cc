@@ -298,7 +298,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   // bottom right info
   QString infoNetworkAddress = QString("[%1]").arg(QString::fromStdString(params.get("NetworkAddress")));
 
-  x = surface_rect.right() - 30;
+  x = surface_rect.right() - 230;
   y = surface_rect.height() - 30;
 
   p.setFont(InterFont(30));
