@@ -150,6 +150,7 @@ class CarState(CarStateBase):
       ret.cruiseState.standstill = cp_cruise.vl["SCC11"]["SCCInfoDisplay"] == 4.
       ret.cruiseState.nonAdaptive = cp_cruise.vl["SCC11"]["SCCInfoDisplay"] == 2.  # Shows 'Cruise Control' on dash
       ret.cruiseState.speed = cp_cruise.vl["SCC11"]["VSetDis"] * speed_factor # if ret.cruiseState.enabled else 0
+      ret.cruiseState.leadDistanceBars = cp_cruise.vl["SCC11"]["ACC_ObjDist"]
 
     # TODO: Find brake pressure
     ret.brake = 0
@@ -227,7 +228,6 @@ class CarState(CarStateBase):
     self.cruise_buttons.extend(cruise_button)
 
     self.main_buttons.extend(cp.vl_all["CLU11"]["CF_Clu_CruiseSwMain"])
-    self.lead_distance = cp_cruise.vl["SCC11"]["ACC_ObjDist"]
 
     ret.buttonEvents = [*create_button_events(self.cruise_buttons[-1], prev_cruise_buttons, BUTTONS_DICT),
                         *create_button_events(self.main_buttons[-1], prev_main_buttons, {1: ButtonType.mainCruise})]
@@ -258,7 +258,7 @@ class CarState(CarStateBase):
       ret.cruiseState.available = self.main_enabled
 
     if self.CP.openpilotLongitudinalControl and CruiseStateManager.instance().cruise_state_control:
-      CruiseStateManager.instance().update(ret, self.main_buttons, self.cruise_buttons, BUTTONS_DICT)
+      CruiseStateManager.instance().update(ret, self.cruise_buttons, BUTTONS_DICT)
 
     return ret
 
@@ -344,6 +344,8 @@ class CarState(CarStateBase):
       ret.cruiseState.enabled = cp_cruise_info.vl["SCC_CONTROL"]["ACCMode"] in (1, 2)
       ret.cruiseState.standstill = cp_cruise_info.vl["SCC_CONTROL"]["CRUISE_STANDSTILL"] == 1
       ret.cruiseState.speed = cp_cruise_info.vl["SCC_CONTROL"]["VSetDis"] * speed_factor # if ret.cruiseState.enabled else 0
+      ret.cruiseState.leadDistanceBars = cp_cruise_info.vl["SCC_CONTROL"]["ACC_ObjDist"]
+
       self.cruise_info = copy.copy(cp_cruise_info.vl["SCC_CONTROL"])
       ret.brakeHoldActive = cp.vl["ESP_STATUS"]["AUTO_HOLD"] == 1 and cp_cruise_info.vl["SCC_CONTROL"]["ACCMode"] not in (1, 2)
 
@@ -435,8 +437,8 @@ class CarState(CarStateBase):
       self.main_enabled = not self.main_enabled
       ret.cruiseState.available = self.main_enabled
 
-    CruiseStateManager.instance().update(ret, self.main_buttons, self.cruise_buttons, BUTTONS_DICT,
-                                         cruise_state_control=self.CP.openpilotLongitudinalControl and CruiseStateManager.instance().cruise_state_control)
+    if self.CP.openpilotLongitudinalControl and CruiseStateManager.instance().cruise_state_control:
+      CruiseStateManager.instance().update(ret, self.cruise_buttons, BUTTONS_DICT)
 
     return ret
 

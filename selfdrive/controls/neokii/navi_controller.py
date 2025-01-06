@@ -314,18 +314,6 @@ def main():
       server.last_exception = e
 
 class SpeedLimiter:
-  __instance = None
-
-  @classmethod
-  def __getInstance(cls):
-    return cls.__instance
-
-  @classmethod
-  def instance(cls):
-    cls.__instance = cls()
-    cls.instance = cls.__getInstance
-    return cls.__instance
-
   def __init__(self):
     self.slowing_down = False
     self.started_dist = 0
@@ -335,6 +323,12 @@ class SpeedLimiter:
     self.naviData = None
     self.logMonoTime = 0
     self.active_cam = False
+
+  @classmethod
+  def instance(cls):
+    if not hasattr(cls, "_instance"):
+      cls._instance = cls()
+    return cls._instance
 
   def recv(self):
     try:
