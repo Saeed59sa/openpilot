@@ -115,12 +115,10 @@ struct OnroadEventDEPRECATED @0x9b1657f34caf3ad3 {
     personalityChanged @122;
     aeb @123;
 
-    cruiseOn @126;
-    cruiseOff @127;
-    ding @128;
-    dong @129;
-    turningIndicatorOn @130;
-    autoLaneChange @131;
+    ding @126;
+    dong @127;
+    turningIndicatorOn @128;
+    autoLaneChange @129;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -455,10 +453,8 @@ struct CarControl {
       promptRepeat @7;
       promptDistracted @8;
       ready @9;
-      cruiseOn @10;
-      cruiseOff @11;
-      ding @12;
-      dong @13;
+      ding @10;
+      dong @11;
     }
   }
 

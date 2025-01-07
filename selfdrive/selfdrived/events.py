@@ -1007,15 +1007,6 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.WARNING: auto_lane_change_alert,
   },
 
-  EventName.cruiseOn: {
-    ET.PERMANENT: Alert("", "", AlertStatus.normal, AlertSize.none,
-                        Priority.MID, VisualAlert.none, AudibleAlert.cruiseOn, 1.),
-  },
-
-  EventName.cruiseOff: {
-    ET.PERMANENT: Alert("", "", AlertStatus.normal, AlertSize.none,
-                        Priority.MID, VisualAlert.none, AudibleAlert.cruiseOff, 1.),
-  },
   EventName.ding: {
     ET.PERMANENT: Alert("", "", AlertStatus.normal, AlertSize.none,
                         Priority.MID, VisualAlert.none, AudibleAlert.ding, 1.),

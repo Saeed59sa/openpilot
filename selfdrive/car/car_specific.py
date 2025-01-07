@@ -254,9 +254,9 @@ class CarSpecificEvents:
     #    events.add(EventName.pcmDisable)
     #  else:
     #    if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled:
-    #      events.add(EventName.cruiseOn)
+    #      events.add(EventName.ding)
     #    elif not CS.cruiseState.enabled and CS_prev.cruiseState.enabled:
-    #      events.add(EventName.cruiseOff)
+    #      events.add(EventName.dong)
 
     if pcm_enable:
       if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled and CS.cruiseState.available and allow_enable:
