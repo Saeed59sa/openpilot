@@ -31,7 +31,7 @@ private:
   QPixmap wifi_img, wifi_l_img, wifi_m_img, wifi_h_img, wifi_f_img, wifi_ok_img;
   QPixmap gps_img, direction_img, tpms_img;
   QPixmap turnsignal_l_img, turnsignal_r_img;
-  QPixmap sign_go_img, sign_stop_img, sign_none_img;
+  QPixmap traffic_off_img, traffic_green_img, traffic_red_img;
   QPixmap lane_change_left_img, lane_change_right_img;
   QPixmap autohold_warning_img;
   QPixmap autohold_active_img;

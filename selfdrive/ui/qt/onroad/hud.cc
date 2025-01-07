@@ -35,9 +35,9 @@ HudRenderer::HudRenderer() {
   turnsignal_l_img = loadPixmap("../assets/img_turnsignal_l.png", {img_size, img_size});
   turnsignal_r_img = loadPixmap("../assets/img_turnsignal_r.png", {img_size, img_size});
   tpms_img = loadPixmap("../assets/img_tpms.png");
-  sign_none_img = loadPixmap("../assets/img_sign_none.png", {img_size, img_size});
-  sign_go_img = loadPixmap("../assets/img_sign_go.png", {img_size, img_size});
-  sign_stop_img = loadPixmap("../assets/img_sign_stop.png", {img_size, img_size});
+  traffic_off_img = loadPixmap("../assets/img_traffic_off.png", {img_size, img_size});
+  traffic_green_img = loadPixmap("../assets/img_traffic_green.png", {img_size, img_size});
+  traffic_red_img = loadPixmap("../assets/img_traffic_red.png", {img_size, img_size});
   mads_on_img = loadPixmap("../assets/img_mads_on.png", {img_size, img_size});
   mads_off_img = loadPixmap("../assets/img_mads_off.png", {img_size, img_size});
   lane_change_left_img = loadPixmap("../assets/lane_change_left.png");
@@ -159,16 +159,18 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     p.drawPixmap(x, y, w, h, nda_state == 1 ? nda_img : hda_img);
   }
 
-  // sign icon
-  if (traffic_state >= 0) {
-    x = (btn_size / 2) + (UI_BORDER_SIZE * 1.5) + (btn_size * 2);
-    y = (btn_size / 2) + (UI_BORDER_SIZE * 2);
+  // traffic icon
+  if (traffic_state >= 0 && is_cruise_set) {
+    w = 85;
+    h = 168;
+    x = (btn_size * 2) + 10;
+    y = (UI_BORDER_SIZE * 2);
     if (traffic_state == 1) {
-      drawIcon(p, QPoint(x, y), sign_stop_img, icon_bg, 0.8);
+      p.drawPixmap(x, y, w, h, traffic_red_img);
     } else if (traffic_state == 2) {
-      drawIcon(p, QPoint(x, y), sign_go_img, icon_bg, 0.8);
+      p.drawPixmap(x, y, w, h, traffic_green_img);
     } else {
-      drawIcon(p, QPoint(x, y), sign_none_img, icon_bg, 0.2);
+      p.drawPixmap(x, y, w, h, traffic_off_img);
     }
   }
 
