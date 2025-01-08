@@ -31,6 +31,8 @@ def create_button_event(cur_but: int, prev_but: int, buttons_dict: Dict[int, cap
 class CruiseStateManager:
   def __init__(self):
     self.params = Params()
+
+    self.available = False
     self.enabled = False
     self.speed = V_CRUISE_ENABLE_MIN * CV.KPH_TO_MS
     self.lead_distance_bars = self.get_lead_distance_bars()
@@ -38,8 +40,6 @@ class CruiseStateManager:
     self.prev_speed = 0
     self.prev_cruise_button = 0
     self.button_events = None
-
-    self.lat_enabled = True
 
     self.prev_btn = ButtonType.unknown
     self.btn_count = 0
@@ -61,13 +61,13 @@ class CruiseStateManager:
       cls._instance = cls()
     return cls._instance
 
-  def reset_lat_enabled(self):
-    threading.Timer(1.0, self.set_lat_enabled_true).start()
+  def reset_available(self):
+    threading.Timer(1.0, self.set_available_true).start()
 
-  def set_lat_enabled_true(self):
-    self.lat_enabled = True
+  def set_available_true(self):
+    self.available = True
 
-  def update(self, CS, cruise_buttons, buttons_dict):
+  def update(self, CS, cruise_buttons, buttons_dict, available, enabled):
     cruise_button = cruise_buttons[-1]
     if cruise_button != self.prev_cruise_button:
       self.button_events = [create_button_event(cruise_button, self.prev_cruise_button, buttons_dict)]
@@ -81,22 +81,25 @@ class CruiseStateManager:
     if button != ButtonType.unknown:
       self.update_cruise_state(CS, int(round(self.speed * CV.MS_TO_KPH)), button)
 
+    if not self.available:
+      self.enabled = False
+
     if self.prev_brake_pressed != CS.brakePressed and CS.brakePressed:
       self.enabled = False
     self.prev_brake_pressed = CS.brakePressed
 
-    CS.cruiseState.available = True if self.enabled else self.lat_enabled
-    CS.cruiseState.enabled = self.enabled
+    CS.cruiseState.available = available and self.available
+    CS.cruiseState.enabled = enabled and self.enabled
     CS.cruiseState.standstill = False
     CS.cruiseState.speed = self.speed
     CS.cruiseState.leadDistanceBars = self.lead_distance_bars
 
-    self.update_lat_enabled_state(CS)
+    self.update_available_state(CS)
 
-  def update_lat_enabled_state(self, CS):
+  def update_available_state(self, CS):
     if not CS.cruiseState.enabled:
       if CS.cruiseState.speed > 5:
-        self.lat_enabled = True
+        self.available = True
 
   def update_buttons(self):
     if self.button_events is None:
@@ -153,14 +156,14 @@ class CruiseStateManager:
     else:
       if not self.btn_long_pressed:
         if btn == ButtonType.decelCruise and not self.enabled:
-          if not self.lat_enabled:
+          if not self.available:
             events.add(EventName.wrongCarMode)
           else:
             self.enabled = True
 
           v_cruise_kph = max(clip(round(CS.vEgoCluster * CV.MS_TO_KPH, 1), V_CRUISE_MIN_CRUISE_STATE, V_CRUISE_MAX), V_CRUISE_ENABLE_MIN)
         elif btn == ButtonType.accelCruise and not self.enabled:
-          if not self.lat_enabled:
+          if not self.available:
             events.add(EventName.wrongCarMode)
           else:
             self.enabled = True
@@ -184,16 +187,16 @@ class CruiseStateManager:
         self.enabled = False
       else:
         self.enabled = False
-        self.lat_enabled = False
-        self.reset_lat_enabled()
+        self.available = False
+        self.reset_available()
 
     if btn == ButtonType.lfaButton:
       if not self.btn_long_pressed:
-        self.lat_enabled = not self.lat_enabled
+        self.available = not self.available
       else:
         self.enabled = False
-        self.lat_enabled = False
-        self.reset_lat_enabled()
+        self.available = False
+        self.reset_available()
 
     v_cruise_kph = clip(round(v_cruise_kph, 1), V_CRUISE_MIN_CRUISE_STATE, V_CRUISE_MAX)
     self.speed = v_cruise_kph * CV.KPH_TO_MS

@@ -247,22 +247,17 @@ class CarSpecificEvents:
     # we engage when pcm is active (rising edge)
     # enabling can optionally be blocked by the car interface
 
-    #if pcm_enable:
-    #  if CS.cruiseState.available and not CS_prev.cruiseState.available and allow_enable:
-    #    events.add(EventName.pcmEnable)
-    #  elif not CS.cruiseState.available:
-    #    events.add(EventName.pcmDisable)
-    #  else:
-    #    if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled:
-    #      events.add(EventName.ding)
-    #    elif not CS.cruiseState.enabled and CS_prev.cruiseState.enabled:
-    #      events.add(EventName.dong)
-
     if pcm_enable:
-      if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled and CS.cruiseState.available and allow_enable:
-        events.add(EventName.pcmEnable)
-      elif not CS.cruiseState.enabled and not CS.cruiseState.available:
-        events.add(EventName.pcmDisable)
+      if self.CP.openpilotLongitudinalControl:
+        if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled and allow_enable:
+          events.add(EventName.pcmEnable)
+        elif not CS.cruiseState.enabled and not CS.cruiseState.available:
+          events.add(EventName.pcmDisable)
+      else:
+        if CS.cruiseState.available and not CS_prev.cruiseState.available and allow_enable:
+          events.add(EventName.pcmEnable)
+        elif not CS.cruiseState.available:
+          events.add(EventName.pcmDisable)
 
     if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled and CS.cruiseState.speed > 0:
       events.add(EventName.ding)

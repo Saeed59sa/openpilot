@@ -149,7 +149,7 @@ class CarState(CarStateBase):
       ret.cruiseState.enabled = cp_cruise.vl["SCC12"]["ACCMode"] != 0
       ret.cruiseState.standstill = cp_cruise.vl["SCC11"]["SCCInfoDisplay"] == 4.
       ret.cruiseState.nonAdaptive = cp_cruise.vl["SCC11"]["SCCInfoDisplay"] == 2.  # Shows 'Cruise Control' on dash
-      ret.cruiseState.speed = cp_cruise.vl["SCC11"]["VSetDis"] * speed_factor # if ret.cruiseState.enabled else 0
+      ret.cruiseState.speed = cp_cruise.vl["SCC11"]["VSetDis"] * speed_factor
       ret.cruiseState.leadDistanceBars = cp_cruise.vl["SCC11"]["ACC_ObjDist"]
 
     # TODO: Find brake pressure
@@ -258,7 +258,7 @@ class CarState(CarStateBase):
       ret.cruiseState.available = self.main_enabled
 
     if self.CP.openpilotLongitudinalControl and CruiseStateManager.instance().cruise_state_control:
-      CruiseStateManager.instance().update(ret, self.cruise_buttons, BUTTONS_DICT)
+      CruiseStateManager.instance().update(ret, self.cruise_buttons, BUTTONS_DICT, available=ret.cruiseState.available, enabled=ret.cruiseState.enabled)
 
     return ret
 
@@ -343,7 +343,7 @@ class CarState(CarStateBase):
       ret.cruiseState.available = cp_cruise_info.vl["SCC_CONTROL"]["MainMode_ACC"] == 1
       ret.cruiseState.enabled = cp_cruise_info.vl["SCC_CONTROL"]["ACCMode"] in (1, 2)
       ret.cruiseState.standstill = cp_cruise_info.vl["SCC_CONTROL"]["CRUISE_STANDSTILL"] == 1
-      ret.cruiseState.speed = cp_cruise_info.vl["SCC_CONTROL"]["VSetDis"] * speed_factor # if ret.cruiseState.enabled else 0
+      ret.cruiseState.speed = cp_cruise_info.vl["SCC_CONTROL"]["VSetDis"] * speed_factor
       ret.cruiseState.leadDistanceBars = cp_cruise_info.vl["SCC_CONTROL"]["ACC_ObjDist"]
 
       self.cruise_info = copy.copy(cp_cruise_info.vl["SCC_CONTROL"])
@@ -430,15 +430,15 @@ class CarState(CarStateBase):
         self.lfa_enabled = not self.lfa_enabled
       ret.cruiseState.available = self.lfa_enabled
 
-    if self.CP.exFlags & HyundaiExFlags.LFA and self.CP.openpilotLongitudinalControl:
-      self.main_buttons.append(cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"])
+    #if self.CP.exFlags & HyundaiExFlags.LFA and self.CP.openpilotLongitudinalControl:
+    #  self.main_buttons.append(cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"])
 
     if self.main_buttons[-1] != prev_main_buttons and not self.main_buttons[-1]:
       self.main_enabled = not self.main_enabled
       ret.cruiseState.available = self.main_enabled
 
     if self.CP.openpilotLongitudinalControl and CruiseStateManager.instance().cruise_state_control:
-      CruiseStateManager.instance().update(ret, self.cruise_buttons, BUTTONS_DICT)
+      CruiseStateManager.instance().update(ret, self.cruise_buttons, BUTTONS_DICT, available=ret.cruiseState.available, enabled=ret.cruiseState.enabled)
 
     return ret
 
