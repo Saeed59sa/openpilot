@@ -315,7 +315,7 @@ def main():
 
 class SpeedLimiter:
   def __init__(self):
-    self.slowing_down = False
+    self.decelerating = False
     self.started_dist = 0
     self.last_limit_speed_left_dist = 0
 
@@ -391,17 +391,17 @@ class SpeedLimiter:
 
       if is_highway is not None:
         if is_highway:
-          MIN_LIMIT = 40
-          MAX_LIMIT = 120
+          min_limit = 40
+          max_limit = 120
         else:
-          MIN_LIMIT = 20
-          MAX_LIMIT = 100
+          min_limit = 20
+          max_limit = 100
       else:
-        MIN_LIMIT = 20
-        MAX_LIMIT = 120
+        min_limit = 20
+        max_limit = 120
 
       if cam_type == 22:  # speed bump
-        MIN_LIMIT = 10
+        min_limit = 10
 
       if cam_limit_speed_left_dist is not None and cam_limit_speed is not None and cam_limit_speed_left_dist > 0:
 
@@ -416,13 +416,13 @@ class SpeedLimiter:
           safe_dist = v_ego * 7.
           starting_dist = v_ego * 30.
 
-        if self.slowing_down and self.last_limit_speed_left_dist - cam_limit_speed_left_dist < -(v_ego * 5):
-          self.slowing_down = False
+        if self.decelerating and self.last_limit_speed_left_dist - cam_limit_speed_left_dist < -(v_ego * 5):
+          self.decelerating = False
 
-        if MIN_LIMIT <= cam_limit_speed <= MAX_LIMIT and (self.slowing_down or cam_limit_speed_left_dist < starting_dist):
-          if not self.slowing_down:
+        if min_limit <= cam_limit_speed <= max_limit and (self.decelerating or cam_limit_speed_left_dist < starting_dist):
+          if not self.decelerating:
             self.started_dist = cam_limit_speed_left_dist
-            self.slowing_down = True
+            self.decelerating = True
             first_started = True
           else:
             first_started = False
@@ -440,14 +440,14 @@ class SpeedLimiter:
           return cam_limit_speed * camSpeedFactor + int(pp * diff_speed), \
                  cam_limit_speed, cam_limit_speed_left_dist, first_started, cam_type, log
 
-        self.slowing_down = False
+        self.decelerating = False
         return 0, cam_limit_speed, cam_limit_speed_left_dist, False, cam_type, log
 
       elif section_left_dist is not None and section_limit_speed is not None and section_left_dist > 0:
-        if MIN_LIMIT <= section_limit_speed <= MAX_LIMIT:
+        if min_limit <= section_limit_speed <= max_limit:
 
-          if not self.slowing_down:
-            self.slowing_down = True
+          if not self.decelerating:
+            self.decelerating = True
             first_started = True
           else:
             first_started = False
@@ -459,14 +459,14 @@ class SpeedLimiter:
 
           return section_limit_speed * camSpeedFactor + speed_diff, section_limit_speed, section_left_dist, first_started, cam_type, log
 
-        self.slowing_down = False
+        self.decelerating = False
         return 0, section_limit_speed, section_left_dist, False, cam_type, log
 
     except Exception as e:
       log = "Ex: " + str(e)
       pass
 
-    self.slowing_down = False
+    self.decelerating = False
     return 0, 0, 0, False, 0, log
 
 def signal_handler(sig, frame):

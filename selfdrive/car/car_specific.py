@@ -259,9 +259,16 @@ class CarSpecificEvents:
         elif not CS.cruiseState.available:
           events.add(EventName.pcmDisable)
 
-    if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled and CS.cruiseState.speed > 0:
-      events.add(EventName.ding)
-    elif not CS.cruiseState.enabled and CS_prev.cruiseState.enabled:
-      events.add(EventName.dong)
+    if CS.cruiseState.available:
+      if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled:
+        events.add(EventName.ding)
+      elif not CS.cruiseState.enabled and CS_prev.cruiseState.enabled:
+        events.add(EventName.dong)
 
     return events
+
+# disengage events #
+# wrongCarMode,wrongCruiseMode,
+# use = parkBrake,doorOpen,pcmDisable
+# not hyundai = speedTooLow
+# not use = brakeHold,buttonCancel,pedalPressed

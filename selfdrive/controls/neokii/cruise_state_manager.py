@@ -1,55 +1,39 @@
-import capnp
 import threading
 
-from typing import Dict
-from cereal import car, log
+from cereal import car
 from openpilot.common.numpy_fast import clip
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
-from openpilot.selfdrive.car.cruise import V_CRUISE_ENABLE_MIN, V_CRUISE_MAX
+from openpilot.selfdrive.car.cruise import V_CRUISE_ENABLE_MIN, V_CRUISE_MIN, V_CRUISE_MAX
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
-from openpilot.selfdrive.selfdrived.events import Events
 
 V_CRUISE_MIN_CRUISE_STATE = 10
 V_CRUISE_DELTA_MI = 5 * CV.MPH_TO_KPH
 V_CRUISE_DELTA_KM = 10
 
 ButtonType = car.CarState.ButtonEvent.Type
-EventName = log.OnroadEvent.EventName
-
-def create_button_event(cur_but: int, prev_but: int, buttons_dict: Dict[int, capnp.lib.capnp._EnumModule],
-                        unpressed: int = 0) -> capnp.lib.capnp._DynamicStructBuilder:
-  if cur_but != unpressed:
-    be = car.CarState.ButtonEvent(pressed=True)
-    but = cur_but
-  else:
-    be = car.CarState.ButtonEvent(pressed=False)
-    but = prev_but
-  be.type = buttons_dict.get(but, ButtonType.unknown)
-  return be
 
 class CruiseStateManager:
   def __init__(self):
     self.params = Params()
 
-    self.available = False
+    self.available = True
     self.enabled = False
     self.speed = V_CRUISE_ENABLE_MIN * CV.KPH_TO_MS
     self.lead_distance_bars = self.get_lead_distance_bars()
 
     self.prev_speed = 0
     self.prev_cruise_button = 0
-    self.button_events = None
 
     self.prev_btn = ButtonType.unknown
     self.btn_count = 0
     self.btn_long_pressed = False
-    self.is_metric = self.params.get_bool('IsMetric')
     self.prev_brake_pressed = False
 
-    self.is_cruise_enabled = False
+    self.is_cruise_enabled = True  # V_CRUISE_MIN = 10
+
+    self.is_metric = self.params.get_bool('IsMetric')
     self.cruise_state_control = self.params.get_bool('CruiseStateControl')
-    self.events = Events()
 
   def get_lead_distance_bars(self):
     gap = self.params.get('SccGapAdjust')
@@ -68,48 +52,37 @@ class CruiseStateManager:
   def set_available_true(self):
     self.available = True
 
-  def update(self, CS, cruise_buttons, buttons_dict, available, enabled):
-    cruise_button = cruise_buttons[-1]
-    if cruise_button != self.prev_cruise_button:
-      self.button_events = [create_button_event(cruise_button, self.prev_cruise_button, buttons_dict)]
-      if cruise_button != 0 and self.prev_cruise_button != 0:
-        self.button_events.append(create_button_event(0, self.prev_cruise_button, buttons_dict))
-        self.prev_cruise_button = 0
-      else:
-        self.prev_cruise_button = cruise_button
-
-    button = self.update_buttons()
+  def update(self, CS, enabled):
+    button = self.update_buttons(CS)
     if button != ButtonType.unknown:
-      self.update_cruise_state(CS, int(round(self.speed * CV.MS_TO_KPH)), button, enabled)
+      self.update_cruise_state(CS, int(round(self.speed * CV.MS_TO_KPH)), button)
 
-    if self.prev_brake_pressed != CS.brakePressed and CS.brakePressed:
+    if not self.prev_brake_pressed and CS.brakePressed:
       self.enabled = False
     self.prev_brake_pressed = CS.brakePressed
 
-    CS.cruiseState.available = available and self.available
+    CS.cruiseState.available = self.available
     CS.cruiseState.enabled = enabled and self.enabled
     CS.cruiseState.standstill = False
     CS.cruiseState.speed = self.speed
     CS.cruiseState.leadDistanceBars = self.lead_distance_bars
 
     self.update_available_state(CS)
-    self.events = Events()
 
   def update_available_state(self, CS):
     if not CS.cruiseState.enabled:
-      if CS.cruiseState.speed > 5:
+      if CS.cruiseState.speed > V_CRUISE_MIN:
         self.available = True
 
-  def update_buttons(self):
-    if self.button_events is None:
-      return ButtonType.unknown
+  def update_buttons(self, CS):
+    buttonEvents = CS.buttonEvents
 
     btn = ButtonType.unknown
 
     if self.btn_count > 0:
       self.btn_count += 1
 
-    for b in self.button_events:
+    for b in buttonEvents:
       if (
         b.pressed and self.btn_count == 0 and b.type in
         [
@@ -136,7 +109,7 @@ class CruiseStateManager:
 
     return btn
 
-  def update_cruise_state(self, CS, v_cruise_kph, btn, enabled):
+  def update_cruise_state(self, CS, v_cruise_kph, btn):
     v_cruise_delta = V_CRUISE_DELTA_KM if self.is_metric else V_CRUISE_DELTA_MI
 
     if self.enabled:
@@ -153,18 +126,10 @@ class CruiseStateManager:
     else:
       if not self.btn_long_pressed:
         if btn == ButtonType.decelCruise:
-          if not enabled:
-            self.events.add(EventName.wrongCarMode)
-          else:
-            self.enabled = True
-
+          self.enabled = True
           v_cruise_kph = max(clip(round(CS.vEgoCluster * CV.MS_TO_KPH, 1), V_CRUISE_MIN_CRUISE_STATE, V_CRUISE_MAX), V_CRUISE_ENABLE_MIN)
         elif btn == ButtonType.accelCruise:
-          if not enabled:
-            self.events.add(EventName.wrongCarMode)
-          else:
-            self.enabled = True
-
+          self.enabled = True
           v_cruise_kph = clip(round(self.speed * CV.MS_TO_KPH, 1), V_CRUISE_ENABLE_MIN, V_CRUISE_MAX)
           v_cruise_kph = max(v_cruise_kph, round(CS.vEgoCluster * CV.MS_TO_KPH, 1))
           road_limit_speed = SpeedLimiter.instance().get_road_limit_speed()
