@@ -49,6 +49,7 @@ class CruiseStateManager:
 
     self.is_cruise_enabled = False
     self.cruise_state_control = self.params.get_bool('CruiseStateControl')
+    self.events = Events()
 
   def get_lead_distance_bars(self):
     gap = self.params.get('SccGapAdjust')
@@ -79,10 +80,7 @@ class CruiseStateManager:
 
     button = self.update_buttons()
     if button != ButtonType.unknown:
-      self.update_cruise_state(CS, int(round(self.speed * CV.MS_TO_KPH)), button)
-
-    if not self.available:
-      self.enabled = False
+      self.update_cruise_state(CS, int(round(self.speed * CV.MS_TO_KPH)), button, enabled)
 
     if self.prev_brake_pressed != CS.brakePressed and CS.brakePressed:
       self.enabled = False
@@ -95,6 +93,7 @@ class CruiseStateManager:
     CS.cruiseState.leadDistanceBars = self.lead_distance_bars
 
     self.update_available_state(CS)
+    self.events = Events()
 
   def update_available_state(self, CS):
     if not CS.cruiseState.enabled:
@@ -137,9 +136,7 @@ class CruiseStateManager:
 
     return btn
 
-  def update_cruise_state(self, CS, v_cruise_kph, btn):
-    events = Events()
-
+  def update_cruise_state(self, CS, v_cruise_kph, btn, enabled):
     v_cruise_delta = V_CRUISE_DELTA_KM if self.is_metric else V_CRUISE_DELTA_MI
 
     if self.enabled:
@@ -155,16 +152,16 @@ class CruiseStateManager:
           v_cruise_kph -= v_cruise_delta - -v_cruise_kph % v_cruise_delta
     else:
       if not self.btn_long_pressed:
-        if btn == ButtonType.decelCruise and not self.enabled:
-          if not self.available:
-            events.add(EventName.wrongCarMode)
+        if btn == ButtonType.decelCruise:
+          if not enabled:
+            self.events.add(EventName.wrongCarMode)
           else:
             self.enabled = True
 
           v_cruise_kph = max(clip(round(CS.vEgoCluster * CV.MS_TO_KPH, 1), V_CRUISE_MIN_CRUISE_STATE, V_CRUISE_MAX), V_CRUISE_ENABLE_MIN)
-        elif btn == ButtonType.accelCruise and not self.enabled:
-          if not self.available:
-            events.add(EventName.wrongCarMode)
+        elif btn == ButtonType.accelCruise:
+          if not enabled:
+            self.events.add(EventName.wrongCarMode)
           else:
             self.enabled = True
 
