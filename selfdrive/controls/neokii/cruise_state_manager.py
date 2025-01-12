@@ -22,9 +22,6 @@ class CruiseStateManager:
     self.speed = V_CRUISE_ENABLE_MIN * CV.KPH_TO_MS
     self.lead_distance_bars = self.get_lead_distance_bars()
 
-    self.prev_speed = 0
-    self.prev_cruise_button = 0
-
     self.prev_btn = ButtonType.unknown
     self.btn_count = 0
     self.btn_long_pressed = False
@@ -47,10 +44,7 @@ class CruiseStateManager:
     return cls._instance
 
   def reset_available(self):
-    threading.Timer(1.0, self.set_available_true).start()
-
-  def set_available_true(self):
-    self.available = True
+    threading.Timer(1.0, lambda: setattr(self, 'available', True)).start()
 
   def update(self, CS, enabled):
     button = self.update_buttons(CS)
@@ -67,16 +61,12 @@ class CruiseStateManager:
     CS.cruiseState.speed = self.speed
     CS.cruiseState.leadDistanceBars = self.lead_distance_bars
 
-    self.update_available_state(CS)
-
-  def update_available_state(self, CS):
     if not CS.cruiseState.enabled:
       if CS.cruiseState.speed > V_CRUISE_MIN:
         self.available = True
 
   def update_buttons(self, CS):
     buttonEvents = CS.buttonEvents
-
     btn = ButtonType.unknown
 
     if self.btn_count > 0:
@@ -95,7 +85,6 @@ class CruiseStateManager:
       ):
         self.btn_count = 1
         self.prev_btn = b.type
-
       elif not b.pressed and self.btn_count > 0:
         if not self.btn_long_pressed:
           btn = b.type

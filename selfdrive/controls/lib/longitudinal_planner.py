@@ -17,7 +17,7 @@ from openpilot.selfdrive.car.cruise import V_CRUISE_MAX, V_CRUISE_UNSET
 from openpilot.common.swaglog import cloudlog
 
 LON_MPC_STEP = 0.2  # first step is 0.2s
-A_CRUISE_MIN = -1.2
+A_CRUISE_MIN = -2.0 #-1.2
 A_CRUISE_MAX_VALS = [1.6, 1.2, 0.8, 0.6]
 A_CRUISE_MAX_BP = [0., 10.0, 25., 40.]
 CONTROL_N_T_IDX = ModelConstants.T_IDXS[:CONTROL_N]
@@ -86,7 +86,6 @@ class LongitudinalPlanner:
     self.j_desired_trajectory = np.zeros(CONTROL_N)
     self.solverExecutionTime = 0.0
 
-    self.vCluRatio = 1.0
     self.v_cruise_kph = 0.0
 
   @staticmethod
@@ -125,8 +124,8 @@ class LongitudinalPlanner:
     self.v_cruise_kph = sm['carState'].exState.vCruiseKph
     vCluRatio = sm['carState'].exState.vCluRatio
     if vCluRatio > 0.5:
-      self.vCluRatio = vCluRatio
       v_cruise *= vCluRatio
+      v_cruise = int(v_cruise * CV.MS_TO_KPH + 0.25) * CV.KPH_TO_MS
 
     long_control_off = sm['controlsState'].longControlState == LongCtrlState.off
     force_slow_decel = sm['controlsState'].forceDecel

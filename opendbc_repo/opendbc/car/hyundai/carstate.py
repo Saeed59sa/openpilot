@@ -19,7 +19,8 @@ CLUSTER_SAMPLE_RATE = 20  # frames
 STANDSTILL_THRESHOLD = 12 * 0.03125 * CV.KPH_TO_MS
 
 BUTTONS_DICT = {Buttons.RES_ACCEL: ButtonType.accelCruise, Buttons.SET_DECEL: ButtonType.decelCruise,
-                Buttons.GAP_DIST: ButtonType.gapAdjustCruise, Buttons.CANCEL: ButtonType.cancel, Buttons.LFA_BUTTON: ButtonType.lfaButton}
+                Buttons.GAP_DIST: ButtonType.gapAdjustCruise, Buttons.CANCEL: ButtonType.cancel,
+                Buttons.LFA_BUTTON: ButtonType.lfaButton}
 
 
 class CarState(CarStateBase):
@@ -365,7 +366,6 @@ class CarState(CarStateBase):
         self.adrv_info_1ea = copy.copy(cp_cam.vl.get("ADRV_0x1ea", {}))
       if "ADRV_0x160" in cp_cam.vl:
         self.adrv_info_160 = copy.copy(cp_cam.vl.get("ADRV_0x160", {}))
-
       if "HDA_INFO_4A3" in cp.vl:
         self.hda_info_4a3 = copy.copy(cp.vl.get("HDA_INFO_4A3", {}))
       if "NEW_MSG_4B4" in cp.vl:
