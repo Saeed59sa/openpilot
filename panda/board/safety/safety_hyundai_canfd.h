@@ -256,22 +256,6 @@ static int hyundai_canfd_fwd_hook(int bus_num, int addr) {
   static AddrList addr_list1 = {{0}, 0};
   static AddrList addr_list2 = {{0}, 0};
 
-  bool block_msg = false;
-
-  if (hyundai_canfd_hda2) {
-    // LKAS for HDA2
-    int hda2_lfa_block_addr = hyundai_canfd_hda2_alt_steering ? 0x362 : 0x2a4;
-    bool is_lkas_msg = (addr == hyundai_canfd_hda2_get_lkas_addr()) || (addr == hda2_lfa_block_addr);
-
-    block_msg = is_lkas_msg;
-  } else {
-    bool is_lfa_msg = (addr == 0x12a);                            // LFA for HDA1
-    bool is_lfahda_msg = (addr == 0x1e0);                         // HUD icons for HDA1
-    bool is_scc_msg = (addr == 0x1a0 && hyundai_longitudinal);    // CRUISE_INFO for non-HDA2
-
-    block_msg = is_lfa_msg || is_lfahda_msg || is_scc_msg;
-  }
-
   switch (bus_num) {
     case 0:
       bus_fwd = 2;
@@ -285,7 +269,7 @@ static int hyundai_canfd_fwd_hook(int bus_num, int addr) {
       if (add_addr_to_list(&addr_list2, addr)) {
         print_addr_list("@@@@ bus2_list=", &addr_list2);
       }
-      bus_fwd = block_msg ? -1 : 0;
+      bus_fwd = 0;
       for (int i = 0; canfd_tx_addr[i] > 0; i++) {
         if (addr == canfd_tx_addr[i] && (now - canfd_tx_time[i]) < OP_CAN_SEND_TIMEOUT) {
           bus_fwd = -1;
@@ -297,6 +281,25 @@ static int hyundai_canfd_fwd_hook(int bus_num, int addr) {
 
   return bus_fwd;
 }
+
+/*
+    // LKAS for HDA2, LFA for HDA1
+    int hda2_lfa_block_addr = hyundai_canfd_hda2_alt_steering ? 0x362 : 0x2a4;
+    bool is_lkas_msg = ((addr == hyundai_canfd_hda2_get_lkas_addr()) || (addr == hda2_lfa_block_addr)) && hyundai_canfd_hda2;
+    bool is_lfa_msg = ((addr == 0x12a) && !hyundai_canfd_hda2);
+
+    // HUD icons
+    bool is_lfahda_msg = ((addr == 0x1e0) && !hyundai_canfd_hda2);
+
+    // CRUISE_INFO for non-HDA2, we send our own longitudinal commands
+    bool is_scc_msg = ((addr == 0x1a0) && hyundai_longitudinal && !hyundai_canfd_hda2);
+
+    bool block_msg = is_lkas_msg || is_lfa_msg || is_lfahda_msg || is_scc_msg;
+    if (!block_msg) {
+      bus_fwd = 0;
+    }
+*/
+
 
 static safety_config hyundai_canfd_init(uint16_t param) {
   const int HYUNDAI_PARAM_CANFD_HDA2_ALT_STEERING = 128;
