@@ -198,17 +198,19 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
 
   // main toggle
   mainToggles = new ListWidget(this);
-  mainToggles->addItem(new ParamControl("IsHda2", tr("CANFD Car HDA2"), tr("Highway Drive Assist 2, turn it on."),
+  mainToggles->addItem(new ParamControl("IsHda2", tr("CANFD Car HDA2"), tr("Highway Drive Assist 2, turn it on"),
                                         "../assets/offroad/icon_hda.png", this));
-  mainToggles->addItem(new ParamControl("HyundaiCameraSCC", tr("HDA2 ADAS ECAN Modify"), tr("Connect the ADAS ECAN line to CAMERA, turn it on."),
+  mainToggles->addItem(new ParamControl("HyundaiCameraSCC", tr("HDA2 ADAS ECAN Modify"), tr("Connect the ADAS ECAN line to CAMERA, turn it on"),
                                         "../assets/offroad/icon_hda.png", this));
   mainToggles->addItem(new ParamControl("PcmCruise", tr("PcmCruise"), tr("Change the openpilot cruise engagement. use the PcmCruise method"),
                                         "../assets/offroad/icon_lat.png", this));
-  mainToggles->addItem(new ParamControl("CruiseStateControl", tr("Cruise State Controls"), tr("Openpilot controls cruise on/off, gap and set speed."),
+  mainToggles->addItem(new ParamControl("CruiseStateControl", tr("Cruise State Controls"), tr("Openpilot controls cruise on/off, gap and set speed"),
                                         "../assets/offroad/icon_lat.png", this));
-  mainToggles->addItem(new ParamControl("DriverCameraOnReverse", tr("Driver Camera On Reverse"), tr("Displays the driver camera when in reverse."),
+  mainToggles->addItem(new ParamControl("UseLanelines", tr("Use lane lines instead of e2e"), tr("Use lane lines instead of e2e"),
+                                        "../assets/offroad/icon_lat.png", this));
+  mainToggles->addItem(new ParamControl("DriverCameraOnReverse", tr("Driver Camera On Reverse"), tr("Displays the driver camera when in reverse"),
                                         "../assets/img_driver_face_static.png", this));
-  mainToggles->addItem(new ParamControl("DriverCameraHardwareMissing", tr("DriverCamera Hardware Missing"), tr("If there is a problem with the driver camera hardware, drive without the driver camera."),
+  mainToggles->addItem(new ParamControl("DriverCameraHardwareMissing", tr("DriverCamera Hardware Missing"), tr("If there is a problem with the driver camera hardware, drive without the driver camera"),
                                         "../assets/img_driver_face_static_x.png", this));
   mainToggles->addItem(new ParamControl("PrebuiltEnable", tr("Prebuilt Enable"), tr("Create prebuilt file to speed bootup"),
                                         "../assets/offroad/icon_prebuilt.png", this));

@@ -219,6 +219,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"CruiseStateControl", PERSISTENT},
     {"SccGapAdjust", PERSISTENT},
     {"PcmCruise", PERSISTENT},
+    {"UseLanelines", PERSISTENT},
 };
 
 } // namespace
