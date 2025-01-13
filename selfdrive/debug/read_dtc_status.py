@@ -2,10 +2,8 @@
 import sys
 import argparse
 from subprocess import check_output, CalledProcessError, run
+from opendbc.car.uds import UdsClient, SESSION_TYPE, DTC_REPORT_TYPE, DTC_STATUS_MASK_TYPE, get_dtc_num_as_str, get_dtc_status_names
 from panda import Panda
-from panda.python.uds import UdsClient, SESSION_TYPE, DTC_REPORT_TYPE, DTC_STATUS_MASK_TYPE
-from panda.python.uds import get_dtc_num_as_str, get_dtc_status_names
-
 
 def parse_arguments():
 	parser = argparse.ArgumentParser(description="Read DTC status")
@@ -13,7 +11,6 @@ def parse_arguments():
 	parser.add_argument("--bus", type=int, default=0, help="CAN bus number (default: 0)")
 	parser.add_argument('--debug', action='store_true', help="Enable debug mode")
 	return parser.parse_args()
-
 
 def check_and_kill_pandad():
 	try:
@@ -23,7 +20,6 @@ def check_and_kill_pandad():
 		print("  pandad process force terminated.\n")
 	except CalledProcessError:
 		pass  # pandad process not running
-
 
 def read_dtc(panda, addr, bus, debug):
 	uds_client = UdsClient(panda, addr, bus=bus, debug=debug)
@@ -41,7 +37,6 @@ def read_dtc(panda, addr, bus, debug):
 		dtc_status = " ".join(get_dtc_status_names(data[i + 3]))
 		print(dtc_num, dtc_status)
 
-
 def main():
 	args = parse_arguments()
 	check_and_kill_pandad()
@@ -49,7 +44,6 @@ def main():
 	panda = Panda()
 	panda.set_safety_mode(Panda.SAFETY_ELM327)
 	read_dtc(panda, args.addr, args.bus, args.debug)
-
 
 if __name__ == "__main__":
 	main()

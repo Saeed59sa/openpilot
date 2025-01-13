@@ -3,8 +3,8 @@ import sys
 import argparse
 import logging
 from subprocess import check_output, CalledProcessError, run
+from opendbc.car.uds import UdsClient, MessageTimeoutError, SESSION_TYPE, DTC_GROUP_TYPE
 from panda import Panda
-from panda.python.uds import UdsClient, MessageTimeoutError, SESSION_TYPE, DTC_GROUP_TYPE
 
 def parse_arguments():
   parser = argparse.ArgumentParser(description="Clear DTC status")
