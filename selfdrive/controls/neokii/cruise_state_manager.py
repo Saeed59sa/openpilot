@@ -47,9 +47,9 @@ class CruiseStateManager:
     threading.Timer(1.0, lambda: setattr(self, 'available', True)).start()
 
   def update(self, CS, enabled):
-    button = self.update_buttons(CS)
-    if button != ButtonType.unknown:
-      self.update_cruise_state(CS, int(round(self.speed * CV.MS_TO_KPH)), button)
+    btn = self.update_buttons(CS)
+    if btn != ButtonType.unknown:
+      self.update_cruise_state(CS, int(round(self.speed * CV.MS_TO_KPH)), btn)
 
     if not self.prev_brake_pressed and CS.brakePressed:
       self.enabled = False
