@@ -6,7 +6,16 @@ UNDERLINE='\033[4m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-pushd /data/openpilot
+set_time_settings() {
+  sudo mount -o remount,rw /
+  sudo timedatectl set-timezone "$1"
+  sudo timedatectl set-ntp true
+  sudo mount -o remount,ro /
+}
+
+if [ -d /data/openpilot ]; then
+  pushd /data/openpilot
+fi
 
 if [ -f /data/openpilot/prebuilt ]; then
   echo -n "0" > /data/params/d/PrebuiltEnable
@@ -16,15 +25,9 @@ fi
 if ping -c 3 8.8.8.8 > /dev/null 2>&1; then
   LANG=$(cat /data/params/d/LanguageSetting)
   if [ "${LANG}" = "main_ko" ]; then
-    sudo mount -o remount,rw /
-    sudo timedatectl set-timezone Asia/Seoul
-    sudo timedatectl set-ntp true
-    sudo mount -o remount,ro /
+    set_time_settings Asia/Seoul
   elif [ "${LANG}" = "main_en" ]; then
-    sudo mount -o remount,rw /
-    sudo timedatectl set-timezone America/New_York
-    sudo timedatectl set-ntp true
-    sudo mount -o remount,ro /
+    set_time_settings America/New_York
   fi
   SSL_VERIFY=$(git config --global http.sslVerify)
   BRANCH=$(git rev-parse --abbrev-ref HEAD)
