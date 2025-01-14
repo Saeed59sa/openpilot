@@ -580,6 +580,10 @@ void HudRenderer::draw_blinker(QPainter& p, const QRect& surface_rect, bool is_l
   int x = center_x;
   int direction = is_left ? -1 : 1;
 
+  if (is_left) {
+    x -= BLINKER_WIDTH;
+  }
+
   for (int i = 0; i < BLINKER_DRAW_COUNT; ++i) {
     float alpha = BLINKER_IMG_ALPHA;
     int distance = std::abs(blink_index - i);
@@ -587,7 +591,7 @@ void HudRenderer::draw_blinker(QPainter& p, const QRect& surface_rect, bool is_l
       alpha /= (distance * 2);
     }
     p.setOpacity(alpha);
-    p.drawPixmap(x + (direction * (is_left ? -BLINKER_WIDTH : 0)), y, BLINKER_WIDTH, BLINKER_HEIGHT, blinker_img);
+    p.drawPixmap(x, y, BLINKER_WIDTH, BLINKER_HEIGHT, blinker_img);
     x += direction * BLINKER_WIDTH * 0.6;
   }
 }
