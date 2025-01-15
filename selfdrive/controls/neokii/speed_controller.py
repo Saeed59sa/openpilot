@@ -2,7 +2,6 @@ import random
 import numpy as np
 
 from cereal import car
-from common.numpy_fast import clip, interp
 from opendbc.car.hyundai.values import Buttons
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
@@ -132,7 +131,7 @@ class SpeedController:
         d2y = np.gradient(dy, x)
         curv = d2y / (1 + dy ** 2) ** 1.5
 
-        start_index = int(interp(speed, [10.0, 27.0], [10, ModelConstants.IDX_N - 10]))
+        start_index = int(np.interp(speed, [10.0, 27.0], [10, ModelConstants.IDX_N - 10]))
         end_index = min(start_index + 10, ModelConstants.IDX_N)
         curv_segment = curv[start_index:end_index]
 
@@ -152,17 +151,17 @@ class SpeedController:
     if not self.long_control:
       if CS.gasPressed and not cruise_btn_pressed:
         if clu_speed + SYNC_MARGIN > self._kph_to_clu(v_cruise_kph):
-          set_speed = clip(clu_speed + SYNC_MARGIN, self.min_set_speed_stock, self.max_set_speed_clu)
+          set_speed = np.clip(clu_speed + SYNC_MARGIN, self.min_set_speed_stock, self.max_set_speed_clu)
           v_cruise_kph = int(round(set_speed * self.speed_conv_to_ms * CV.MS_TO_KPH))
           override_speed = v_cruise_kph
 
       self.target_speed = self._kph_to_clu(v_cruise_kph)
       if self.max_speed_clu > self.min_set_speed_stock:
-        self.target_speed = clip(self.target_speed, self.min_set_speed_stock, self.max_speed_clu)
+        self.target_speed = np.clip(self.target_speed, self.min_set_speed_stock, self.max_speed_clu)
 
     elif CS.cruiseState.enabled and CS.gasPressed and not cruise_btn_pressed:
       if clu_speed + SYNC_MARGIN > self._kph_to_clu(v_cruise_kph):
-        set_speed = clip(clu_speed + SYNC_MARGIN, self.min_set_speed_clu, self.max_set_speed_clu)
+        set_speed = np.clip(clu_speed + SYNC_MARGIN, self.min_set_speed_clu, self.max_set_speed_clu)
         self.target_speed = set_speed
         CruiseStateManager.instance().speed = set_speed * self.speed_conv_to_ms
 
@@ -209,7 +208,7 @@ class SpeedController:
     if CS.cruiseState.enabled:
       clu_speed = CS.vEgoCluster * self.speed_conv_to_clu
       self._cal_max_speed(CS, sm, clu_speed, v_cruise_kph)
-      self.cruise_speed_kph = float(clip(v_cruise_kph, V_CRUISE_MIN, self.max_speed_clu * self.speed_conv_to_ms * CV.MS_TO_KPH))
+      self.cruise_speed_kph = float(np.clip(v_cruise_kph, V_CRUISE_MIN, self.max_speed_clu * self.speed_conv_to_ms * CV.MS_TO_KPH))
 
       if CruiseStateManager.instance().cruise_state_control:
         self.cruise_speed_kph = min(self.cruise_speed_kph, max(self.real_set_speed_kph, V_CRUISE_MIN_CRUISE_STATE))
@@ -266,7 +265,7 @@ class SpeedController:
     if any(b.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for b in CS.buttonEvents) and self.v_cruise_kph_last < 250:
       self.v_cruise_kph = self.v_cruise_kph_last
     else:
-      self.v_cruise_kph = int(round(clip(CS.vEgo * CV.MS_TO_KPH, initial, V_CRUISE_MAX)))
+      self.v_cruise_kph = int(round(np.clip(CS.vEgo * CV.MS_TO_KPH, initial, V_CRUISE_MAX)))
 
     self.v_cruise_cluster_kph = self.v_cruise_kph
     return self.v_cruise_kph
@@ -295,7 +294,7 @@ class SpeedController:
         elif self.prev_btn == ButtonType.decelCruise:
           v_cruise_kph -= v_cruise_delta - -v_cruise_kph % v_cruise_delta
         self.btn_count %= 70
-      v_cruise_kph = clip(v_cruise_kph, V_CRUISE_ENABLE_MIN, V_CRUISE_MAX)
+      v_cruise_kph = np.clip(v_cruise_kph, V_CRUISE_ENABLE_MIN, V_CRUISE_MAX)
 
     return v_cruise_kph
 

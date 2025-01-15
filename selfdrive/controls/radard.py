@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import math
+import numpy as np
 from collections import deque
 from typing import Any
 
 import capnp
 from cereal import messaging, log, car
-from openpilot.common.numpy_fast import interp
 from openpilot.common.params import Params
 from openpilot.common.realtime import DT_MDL, Priority, config_realtime_process
 from openpilot.common.swaglog import cloudlog
@@ -44,7 +44,7 @@ class KalmanParams:
           0.28144091, 0.27958406, 0.27783249, 0.27617149, 0.27458948, 0.27307714,
           0.27162685, 0.27023228, 0.26888809, 0.26758976, 0.26633338, 0.26511557,
           0.26393339, 0.26278425]
-    self.K = [[interp(dt, dts, K0)], [interp(dt, dts, K1)]]
+    self.K = [[np.interp(dt, dts, K0)], [np.interp(dt, dts, K1)]]
 
 
 class Track:
@@ -144,7 +144,7 @@ def match_vision_to_track(v_ego: float, lead: capnp._DynamicStructReader, tracks
     prob_y = laplacian_pdf(c.yRel, -lead.y[0], lead.yStd[0])
     prob_v = laplacian_pdf(c.vRel + v_ego, lead.v[0], lead.vStd[0])
 
-    weight_v = interp(c.vRel + v_ego, [0, 10], [0.3, 1])
+    weight_v = np.interp(c.vRel + v_ego, [0, 10], [0.3, 1])
     # This isn't exactly right, but it's a good heuristic
     return prob_d * prob_y * prob_v * weight_v
 
@@ -179,22 +179,15 @@ def get_RadarState_from_vision(lead_msg: capnp._DynamicStructReader, v_ego: floa
     "radarTrackId": -1,
   }
 
-def get_lead_side(v_ego, tracks, md, lane_width, model_v_ego):
-  lead_msg = md.leadsV3[0]
+def get_lead_side(v_ego, tracks, model_msg, lane_width, model_v_ego):
+  lead_msg = model_msg.leadsV3[0]
   leadCenter = {'status': False}
   leadLeft = {'status': False}
   leadRight = {'status': False}
 
-  ## SCC레이더는 일단 보관하고 리스트에서 삭제...
-  track_scc = tracks.get(0)
-  #if track_scc is not None:
-  #  del tracks[0]
-
-  #if len(tracks) == 0:
-  #  return [[],[],[],leadLeft,leadRight]
-  if md is not None and len(md.position.x) == 33: #ModelConstants.IDX_N:
-    md_y = md.position.y
-    md_x = md.position.x
+  if model_msg is not None and len(model_msg.position.x) == 33: #ModelConstants.IDX_N:
+    y = model_msg.position.y
+    x = model_msg.position.x
   else:
     return [[],[],[],leadCenter,leadLeft,leadRight]
 
@@ -205,7 +198,7 @@ def get_lead_side(v_ego, tracks, md, lane_width, model_v_ego):
   for c in tracks.values():
     # d_y :  path_y - traks_y 의 diff값
     # yRel값은 왼쪽이 +값, lead.y[0]값은 왼쪽이 -값
-    d_y = c.yRel + interp(c.dRel, md_x, md_y)
+    d_y = c.yRel + np.interp(c.dRel, x, y)
     if abs(d_y) < lane_width/2:
       ld = c.get_RadarState(lead_msg.prob, float(-lead_msg.y[0]))
       leads_center[c.dRel] = ld
@@ -340,7 +333,7 @@ class VisionTrack:
       self.dRel = dRel
 
       self.yRel = float(-lead_msg.y[0])
-      dPath = self.yRel + interp(self.dRel, md.position.x, md.position.y)
+      dPath = self.yRel + np.interp(self.dRel, md.position.x, md.position.y)
       a_lead_vision = lead_msg.a[0]
       if self.cnt < 1 or self.prob < 0.99:
         self.vRel = lead_v_rel_pred
@@ -373,7 +366,7 @@ class VisionTrack:
     else:
       self.reset()
       self.cnt = 0
-      self.dPath = self.yRel + interp(v_ego ** 2 / (2 * 2.5), md.position.x, md.position.y)
+      self.dPath = self.yRel + np.interp(v_ego ** 2 / (2 * 2.5), md.position.x, md.position.y)
 
     self.dRel_last = self.dRel
     self.vLead_last = self.vLead
@@ -482,27 +475,12 @@ class RadarD:
 
     v_ego = self.v_ego
     ready = self.ready
-    ## SCC레이더는 일단 보관하고 리스트에서 삭제...
-    track_scc = tracks.get(0)
-    #if track_scc is not None:
-    #  del tracks[0]            ## tracks에서 삭제하면안됨... ㅠㅠ
 
     # Determine leads, this is where the essential logic happens
     if len(tracks) > 0 and ready and lead_msg.prob > .5:
       track = match_vision_to_track(v_ego, lead_msg, tracks)
     else:
       track = None
-
-    # vision match후 발견된 track이 없으면
-    #  track_scc 가 있는 지 확인하고
-    #    비전과의 차이가 35%(5M)이상 차이나면 scc가 발견못한것이기 때문에 비전것으로 처리함.
-
-    ### 240807, SCC레이더가 옆차선의것을 많이 가져옴... 사용하지 말아야겠다...
-    #if track_scc is not None and track is None:
-    #  track = track_scc
-    #  if self.vision_tracks[index].prob > .5:
-    #    if self.vision_tracks[index].dRel < track.dRel - 10.0: #끼어드는 차량이 있는 경우 처리..  5-> 10M바꿔보자... 240427
-    #      track = None
 
     lead_dict = {'status': False}
     if track is not None:

@@ -4,7 +4,6 @@ import time
 import numpy as np
 from cereal import log
 from opendbc.car.interfaces import ACCEL_MIN
-from openpilot.common.numpy_fast import clip, interp
 from openpilot.common.realtime import DT_MDL
 from openpilot.common.swaglog import cloudlog
 # WARNING: imports outside of constants will not trigger a rebuild
@@ -366,9 +365,9 @@ class LongitudinalMpc:
     # MPC will not converge if immediate crash is expected
     # Clip lead distance to what is still possible to brake for
     min_x_lead = ((v_ego + v_lead)/2) * (v_ego - v_lead) / (-ACCEL_MIN * 2)
-    x_lead = clip(x_lead, min_x_lead, 1e8)
-    v_lead = clip(v_lead, 0.0, 1e8)
-    a_lead = clip(a_lead, -10., 5.)
+    x_lead = np.clip(x_lead, min_x_lead, 1e8)
+    v_lead = np.clip(v_lead, 0.0, 1e8)
+    a_lead = np.clip(a_lead, -10., 5.)
     lead_xv = self.extrapolate_lead(x_lead, v_lead, a_lead, a_lead_tau)
     return lead_xv
 
@@ -562,8 +561,8 @@ class LongitudinalMpc:
         if self.trafficState == TrafficState.green:
           self.xState = XState.e2eCruise
         else:
-          self.trafficStopAdjustRatio = interp(v_ego_kph, [0, 100], [1.0, 0.7])
-          stop_dist = self.xStop * interp(self.xStop, [0, 100], [1.0, self.trafficStopAdjustRatio])
+          self.trafficStopAdjustRatio = np.interp(v_ego_kph, [0, 100], [1.0, 0.7])
+          stop_dist = self.xStop * np.interp(self.xStop, [0, 100], [1.0, self.trafficStopAdjustRatio])
           if stop_dist > 10.0:
             self.actual_stop_distance = stop_dist
           stop_model_x = 0
@@ -623,7 +622,7 @@ class LongitudinalMpc:
       stopSign = model_x < 20.0 and model_v < 10.0
     elif v_ego_kph < 82.0:
       stopSign = (model_x < d_rel - 3.0 and
-                  model_x < interp(v[0], [60/3.6, 80/3.6], [120.0, 150]) and
+                  model_x < np.interp(v[0], [60/3.6, 80/3.6], [120.0, 150]) and
                   ((model_v < 3.0) or (model_v < v[0]*0.7)) and
                   abs(y[-1]) < 5.0)
       # 정상주행중 감속하는 경우(카메라 감속등), 오감지가 많음.

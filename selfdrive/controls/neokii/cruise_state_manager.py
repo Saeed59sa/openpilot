@@ -1,7 +1,7 @@
 import threading
+import numpy as np
 
 from cereal import car
-from openpilot.common.numpy_fast import clip
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
 from openpilot.selfdrive.car.cruise import V_CRUISE_ENABLE_MIN, V_CRUISE_MIN, V_CRUISE_MAX
@@ -35,7 +35,7 @@ class CruiseStateManager:
   def get_lead_distance_bars(self):
     gap = self.params.get('SccGapAdjust')
     bars = int(gap) if gap is not None else 4
-    return clip(bars, 1, 4)
+    return np.clip(bars, 1, 4)
 
   @classmethod
   def instance(cls):
@@ -58,8 +58,8 @@ class CruiseStateManager:
     CS.cruiseState.available = self.available
     CS.cruiseState.enabled = enabled and self.enabled
     CS.cruiseState.standstill = False
-    CS.cruiseState.speed = self.speed
-    CS.cruiseState.leadDistanceBars = self.lead_distance_bars
+    CS.cruiseState.speed = float(self.speed)
+    CS.cruiseState.leadDistanceBars = int(self.lead_distance_bars)
 
     if not CS.cruiseState.enabled:
       if CS.cruiseState.speed > V_CRUISE_MIN:
@@ -116,10 +116,10 @@ class CruiseStateManager:
       if not self.btn_long_pressed:
         if btn == ButtonType.decelCruise:
           self.enabled = True
-          v_cruise_kph = max(clip(round(CS.vEgoCluster * CV.MS_TO_KPH, 1), V_CRUISE_MIN_CRUISE_STATE, V_CRUISE_MAX), V_CRUISE_ENABLE_MIN)
+          v_cruise_kph = max(np.clip(round(CS.vEgoCluster * CV.MS_TO_KPH, 1), V_CRUISE_MIN_CRUISE_STATE, V_CRUISE_MAX), V_CRUISE_ENABLE_MIN)
         elif btn == ButtonType.accelCruise:
           self.enabled = True
-          v_cruise_kph = clip(round(self.speed * CV.MS_TO_KPH, 1), V_CRUISE_ENABLE_MIN, V_CRUISE_MAX)
+          v_cruise_kph = np.clip(round(self.speed * CV.MS_TO_KPH, 1), V_CRUISE_ENABLE_MIN, V_CRUISE_MAX)
           v_cruise_kph = max(v_cruise_kph, round(CS.vEgoCluster * CV.MS_TO_KPH, 1))
           road_limit_speed = SpeedLimiter.instance().get_road_limit_speed()
           if V_CRUISE_ENABLE_MIN < road_limit_speed < V_CRUISE_MAX:
@@ -128,7 +128,7 @@ class CruiseStateManager:
     if btn == ButtonType.gapAdjustCruise:
       if not self.btn_long_pressed:
         self.lead_distance_bars -= 1
-        self.lead_distance_bars = clip(self.lead_distance_bars, 1, 4)
+        self.lead_distance_bars = np.clip(self.lead_distance_bars, 1, 4)
         self.params.put_nonblocking("SccGapAdjust", str(self.lead_distance_bars))
       else:
         self.params.put_bool("ExperimentalMode", not self.params.get_bool("ExperimentalMode"))
@@ -149,5 +149,5 @@ class CruiseStateManager:
         self.available = False
         self.reset_available()
 
-    v_cruise_kph = clip(round(v_cruise_kph, 1), V_CRUISE_MIN_CRUISE_STATE, V_CRUISE_MAX)
+    v_cruise_kph = np.clip(round(v_cruise_kph, 1), V_CRUISE_MIN_CRUISE_STATE, V_CRUISE_MAX)
     self.speed = v_cruise_kph * CV.KPH_TO_MS

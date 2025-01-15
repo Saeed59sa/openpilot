@@ -9,10 +9,11 @@ import time
 import socket
 import fcntl
 import struct
+import numpy as np
+
 from collections import deque
 from threading import Thread
 from cereal import messaging
-from openpilot.common.numpy_fast import clip, interp, mean
 from openpilot.common.realtime import Ratekeeper
 from openpilot.common.conversions import Conversions as CV
 
@@ -280,7 +281,7 @@ def publish_thread(server):
     if sm.updated['carState']:
       v_ego_q.append(sm['carState'].vEgo)
 
-    v_ego = mean(v_ego_q) if len(v_ego_q) > 0 else 0.
+    v_ego = np.mean(v_ego_q) if len(v_ego_q) > 0 else 0.
     t = (time.monotonic() - server.last_updated)
     s = t * v_ego
 
@@ -387,7 +388,7 @@ class SpeedLimiter:
       section_left_time = self.naviData.sectionLeftTime
       section_adjust_speed = self.naviData.sectionAdjustSpeed
 
-      camSpeedFactor = clip(self.naviData.camSpeedFactor, 1.0, 1.1)
+      camSpeedFactor = np.clip(self.naviData.camSpeedFactor, 1.0, 1.1)
 
       if is_highway is not None:
         if is_highway:
@@ -455,7 +456,7 @@ class SpeedLimiter:
           speed_diff = 0
           if section_adjust_speed is not None and section_adjust_speed:
             speed_diff = (section_limit_speed - section_avg_speed) / 2.
-            speed_diff *= interp(section_left_dist, [500, 1000], [0., 1.])
+            speed_diff *= np.interp(section_left_dist, [500, 1000], [0., 1.])
 
           return section_limit_speed * camSpeedFactor + speed_diff, section_limit_speed, section_left_dist, first_started, cam_type, log
 
