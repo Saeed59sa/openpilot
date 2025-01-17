@@ -358,8 +358,8 @@ class CarState(CarStateBase):
       if self.CP.exFlags & HyundaiExFlags.CANFD_161.value:
         if "ADRV_0x161" in cp_cam.vl:
           self.adrv_info_161 = copy.copy(cp_cam.vl.get("ADRV_0x161", {}))
-        if "CORNER_RADAR_HIGHWAY" in cp_cam.vl:
-          self.adrv_info_162 = copy.copy(cp_cam.vl.get("CORNER_RADAR_HIGHWAY", {}))
+        if "ADRV_0x162" in cp_cam.vl:
+          self.adrv_info_162 = copy.copy(cp_cam.vl.get("ADRV_0x162", {}))
       if "ADRV_0x200" in cp_cam.vl:
         self.adrv_info_200 = copy.copy(cp_cam.vl.get("ADRV_0x200", {}))
       if "ADRV_0x1ea" in cp_cam.vl:
@@ -524,7 +524,7 @@ class CarState(CarStateBase):
       if CP.exFlags & HyundaiExFlags.CANFD_161:
         cam_messages += [
           ("ADRV_0x161", 20),
-          ("CORNER_RADAR_HIGHWAY", 20),
+          ("ADRV_0x162", 20),
         ]
 
     #if not (CP.flags & HyundaiFlags.CANFD_HDA2) and CP.exFlags & HyundaiExFlags.NAVI:

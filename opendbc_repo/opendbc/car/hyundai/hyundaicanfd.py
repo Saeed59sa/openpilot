@@ -3,8 +3,6 @@ from opendbc.car.common.numpy_fast import clip
 from opendbc.car.hyundai.values import HyundaiFlags, HyundaiExFlags
 from openpilot.common.params import Params
 
-import copy
-
 class CanBus(CanBusBase):
   def __init__(self, CP, fingerprint=None, hda2=None) -> None:
     super().__init__(CP, fingerprint)
@@ -322,41 +320,70 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control):
           values["vSetDis"] = int(hud_control.setSpeed * 3.6 + 0.5)
           values["GAP_DIST_SET"] = hud_control.leadDistanceBars
 
-          values["WHEEL_ICON"] = 2 if CC.latActive else 1
+          #values["SETSPEED"] = 3 if cruise_enabled else 1
+          values["SETSPEED_HUD"] = 2 if cruise_enabled else 1
+          #values["SETSPEED_SPEED"] = 25 if (s := round(CS.out.vCruiseCluster * CV.KPH_TO_MPH)) > 100 else s
 
-          values["CRUISE_INFO6_SET3"] = 3 if cruise_enabled else 0
-          values["CRUISE_INFO1_SET2"] = 2 if cruise_enabled else 1 if main_enabled else 0
-          values["CRUISE_INFO2_SET2"] = 2 if cruise_enabled else 1 if main_enabled else 0
-          values["CRUISE_INFO4_SET3"] = 3 if cruise_enabled else 0
-          values["CRUISE_INFO8_SET1"] = 1 if main_enabled else 0
-          values["CRUISE_INFO5_SET1"] = 1 if cruise_enabled else 0
-          values["SET4_HWAY_ELSE_3"] = 3
+          values["DISTANCE_SPACING"] = 1 if cruise_enabled else 0
+          depart = hud_control.leadRelSpeed > -0.2 and cruise_enabled
+          values["DISTANCE_LEAD"] = 1 if depart else 1 if cruise_enabled and hud_control.leadVisible else 0
+          values["DISTANCE_CAR"] = 2 if cruise_enabled else 1
 
-          values["START_READY_INFO_MAYBE"] = 0
+          """
+          # DISTANCE
+          if 1 <= hud_control.leadDistanceBars <= 3:
+            values["DISTANCE"] = hud_control.leadDistanceBars
+            values["DISTANCE_SPACING"] = 1 if cruise_enabled else 0
+            values["DISTANCE_LEAD"] = 2 if cruise_enabled and hud_control.leadVisible else 1 if cruise_enabled else 0
+            values["DISTANCE_CAR"] = 2 if cruise_enabled else 1
+            values["ALERTS_3"] = hud_control.leadDistanceBars + 6
+          else:
+            values["DISTANCE"] = 0
+            values["DISTANCE_SPACING"] = 0
+            values["DISTANCE_LEAD"] = 0
+            values["DISTANCE_CAR"] = 0
+          """
 
-          values["NEW_SIGNAL_7"] = 0
-          values["NEW_SIGNAL_5"] = 0
-          values["LANE_ASSIST_CONCERNED"] = 0
-          values["LANE_ASSIST_GREEN"] = 0
+          # BACKGROUND
+          values["BACKGROUND"] = 1 if cruise_enabled else 7
 
-          #values["CRUISE_INFO10_SET1"] = 1
-          #values["CRUISE_INFO11_SET1"] = 1
+          values["LFA_ICON"] = 1 if CC.latActive else 0
+          values["LKA_ICON"] = 4 if CC.latActive else 3
+          values["NAV_ICON"] = 2 if CC.latActive else 0
+          values["HDA_ICON"] = 2 if main_enabled else 0
 
-          values["AUTO_LANE_CHANGE_MESSAGE_SET6"] = 0 # 1: 핸들잡아, 2: 빨리잡아, 6: 자동차선변경준비.
+          if values["MUTE"] == 3:
+            values["MUTE"] = 0
+          values["ALERTS_1"] = 0
+          values["ALERTS_2"] = 0
+          values["ALERTS_3"] = 0
+          values["ALERTS_4"] = 0
+          values["ALERTS_5"] = 0
+          values["SOUNDS_2"] = 0
+          values["FCA_ALT_ICON"] = 0
+          values["CENTERLINE"] = 1 if CC.latActive else 0
+          curvature = {
+            i: (31 if i == -1 else 13 - abs(i + 15)) if i < 0 else 15 + i
+            for i in range(-15, 16)
+          }
+          values["LANELINE_CURVATURE"] = curvature.get(max(-15, min(int(CS.out.steeringAngleDeg / 3), 15)), 14) if main_enabled else 15
+          if hud_control.leftLaneDepart:
+            values["LANELINE_LEFT"] = 4 if (frame // 50) % 2 == 0 else 1
+          else:
+            values["LANELINE_LEFT"] = 2 if hud_control.leftLaneVisible else 0
+          if hud_control.rightLaneDepart:
+            values["LANELINE_RIGHT"] = 4 if (frame // 50) % 2 == 0 else 1
+          else:
+            values["LANELINE_RIGHT"] =  2 if hud_control.rightLaneVisible else 0
+          values["LANELINE_LEFT_POSITION"] = 15
+          values["LANELINE_RIGHT_POSITION"] = 15
 
-          values["CRUISE_INFO7_HWAY_SET2_ELSE_0"] = 0
-          values["CRUISE_INFO9_HWAY_SET2_ELSE_0"] = 0
-          #values["NEW_SIGNAL_HWAY_SET1_ELSE_0"] = 1
-
-          values["CRUISE_INFO10_0_TO_4"] = 0 #4 if main_enabled else 0      # message
-          values["CRUISE_INFO11_0_TO_1"] = 0 #1 if cruise_enabled else 0    # message
-          values["143_SET_0"] = 0
-
-          #LANE_ASSIST_L,R: 0:OFF, 1: GREY, 2: GREEN, 4: WHITE
-          values["LANE_ASSIST_L"] = 2
-          values["LANE_ASSIST_R"] = 2
-
-          values["NEW_SIGNAL_12"] = 0   ## 띠링 경고
+          if main_enabled or True:
+            speed_below_threshold = CS.out.vEgo < 8.94
+            values["LCA_LEFT_ICON"] = 0 if CS.out.leftBlindspot or speed_below_threshold else 2 if CS.out.leftBlinker else 1
+            values["LCA_RIGHT_ICON"] = 0 if CS.out.rightBlindspot or speed_below_threshold else 2 if CS.out.rightBlinker else 1
+            values["LCA_LEFT_ARROW"] = 2 if CS.out.leftBlinker else 0
+            values["LCA_RIGHT_ARROW"] = 2 if CS.out.rightBlinker else 0
 
           ret.append(packer.make_can_msg("ADRV_0x161", CAN.ECAN, values))
         else:
@@ -383,14 +410,19 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control):
 
       if CS.adrv_info_162 is not None:
         values = CS.adrv_info_162
-        values["SIGNAL216"] = 0
-        values["SIGNAL219"] = 0   # steer temp.. 발생?
-        values["SIGNAL234"] = 0
-        values["SIGNAL240"] = 0
-        values["SIGNAL246"] = 0
-        ret.append(packer.make_can_msg("CORNER_RADAR_HIGHWAY", CAN.ECAN, values))
+        values["FAULT_FSS"] = 0
+        values["FAULT_LSS"] = 0
+        values["FAULT_SLA"] = 0
+        values["FAULT_LFA"] = 0
+        values["FAULT_HDA"] = 0
+        values["FAULT_LCA"] = 0
+        values["FAULT_HDP"] = 0
+        values["FAULT_SCC"] = 0
+        values["FAULT_DAS"] = 0
+        ret.append(packer.make_can_msg("ADRV_0x162", CAN.ECAN, values))
 
-    if frame % 20 == 0 and False: # 아직 시험중..
+    """
+    if frame % 20 == 0:
       if CS.hda_info_4a3 is not None:
         values = CS.hda_info_4a3
         # SIGNAL_4: 7, SIGNAL_0: 0 으로 해도 .. 옆두부는 나오기도 함.. 아오5
@@ -404,15 +436,17 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control):
         values["NEW_SIGNAL_6"] = 256
         values["NEW_SIGNAL_7"] = 0
         ret.append(packer.make_can_msg("HDA_INFO_4A3", CAN.CAM, values))
-    if frame % 10 == 0 and False:
-      if CS.new_msg_4b4 is not None:
+    if frame % 10 == 0:
+      if CS.new_msg_4b4 is not None: #G80 HDA2개조차량은 안나옴...
         values = CS.new_msg_4b4
+        values["NEW_SIGNAL_1"] = 8
+        values["NEW_SIGNAL_3"] = (frame / 100) % 10
         values["NEW_SIGNAL_4"] = 146
-        values["NEW_SIGNAL_5"] = 72
-        values["NEW_SIGNAL_6"] = 44
+        values["NEW_SIGNAL_5"] = 68
+        values["NEW_SIGNAL_6"] = 76
         ret.append(packer.make_can_msg("NEW_MSG_4B4", CAN.CAM, values))
+    """
     return ret
-
   else:
     values = {}
 

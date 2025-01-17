@@ -332,7 +332,7 @@ static safety_config hyundai_canfd_init(uint16_t param) {
     {0x160, 0, 16}, // ADRV_0x160
     {0x160, 1, 16}, // ADRV_0x160
     {0x161, 0, 32}, // ADRV_353
-    {0x162, 0, 32}, // CORNER_RADAR_HIGHWAY
+    {0x162, 0, 32}, // ADRV_0x162
     {0x1E0, 0, 16}, // LFAHDA_CLUSTER
     {0x1E0, 1, 16}, // LFAHDA_CLUSTER
     {0x1A0, 0, 32}, // CRUISE_INFO
