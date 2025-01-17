@@ -267,15 +267,9 @@ class CarController(CarControllerBase):
 
         # cruise standstill resume
         elif CC.cruiseControl.resume:
-          if self.CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS:
-            if CS.canfd_buttons:
-              for _ in range(20):
-                can_sends.append(hyundaicanfd.create_buttons_canfd_alt(self.packer, self.CP, self.CAN, Buttons.RES_ACCEL, CS.canfd_buttons))
-              self.last_button_frame = self.frame
-          else:
-            for _ in range(20):
-              can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.buttons_counter+1, Buttons.RES_ACCEL))
-            self.last_button_frame = self.frame
+          for _ in range(20):
+            can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.buttons_counter+1, Buttons.RES_ACCEL))
+          self.last_button_frame = self.frame
 
     return can_sends
 
