@@ -111,7 +111,7 @@ class HyundaiExFlags(IntFlag):
   NAVI = 2 ** 3
   TPMS = 2 ** 4
   LFA = 2 ** 5
-  CANFD_161 = 2 ** 6
+  CCNC = 2 ** 6
   BSM_IN_ADAS = 2 ** 7
 
 class Footnote(Enum):

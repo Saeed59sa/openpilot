@@ -61,7 +61,7 @@ class CarState(CarStateBase):
     self.adrv_info_160 = None
     self.adrv_info_162 = None
     self.hda_info_4a3 = None
-    self.new_msg_4b4 = None
+    self.hda_info_4b4 = None
 
     self.cruise_buttons_msg = None
     self.hda2_lfa_block_msg = None
@@ -355,21 +355,21 @@ class CarState(CarStateBase):
       self.cruise_info = copy.copy(cp_cam.vl["SCC_CONTROL"])
       self.lfa_info = copy.copy(cp_cam.vl["LFA"])
 
-      if self.CP.exFlags & HyundaiExFlags.CANFD_161.value:
+      if self.CP.exFlags & HyundaiExFlags.CCNC.value:
         if "ADRV_0x161" in cp_cam.vl:
           self.adrv_info_161 = copy.copy(cp_cam.vl.get("ADRV_0x161", {}))
         if "ADRV_0x162" in cp_cam.vl:
           self.adrv_info_162 = copy.copy(cp_cam.vl.get("ADRV_0x162", {}))
+      if "ADRV_0x160" in cp_cam.vl:
+        self.adrv_info_160 = copy.copy(cp_cam.vl.get("ADRV_0x160", {}))
       if "ADRV_0x200" in cp_cam.vl:
         self.adrv_info_200 = copy.copy(cp_cam.vl.get("ADRV_0x200", {}))
       if "ADRV_0x1ea" in cp_cam.vl:
         self.adrv_info_1ea = copy.copy(cp_cam.vl.get("ADRV_0x1ea", {}))
-      if "ADRV_0x160" in cp_cam.vl:
-        self.adrv_info_160 = copy.copy(cp_cam.vl.get("ADRV_0x160", {}))
-      if "HDA_INFO_4A3" in cp.vl:
-        self.hda_info_4a3 = copy.copy(cp.vl.get("HDA_INFO_4A3", {}))
-      if "NEW_MSG_4B4" in cp.vl:
-        self.new_msg_4b4 = copy.copy(cp.vl.get("NEW_MSG_4B4", {}))
+      if "HDA_INFO_0x4a3" in cp.vl:
+        self.hda_info_4a3 = copy.copy(cp.vl.get("HDA_INFO_0x4a3", {}))
+      if "HDA_INFO_0x4b4" in cp.vl:
+        self.hda_info_4b4 = copy.copy(cp.vl.get("HDA_INFO_0x4b4", {}))
 
     # Manual Speed Limit Assist is a feature that replaces non-adaptive cruise control on EV CAN FD platforms.
     # It limits the vehicle speed, overridable by pressing the accelerator past a certain point.
@@ -501,8 +501,8 @@ class CarState(CarStateBase):
 
     if CP.flags & HyundaiFlags.CANFD_HDA2 and CP.flags & HyundaiFlags.CAMERA_SCC:
       pt_messages += [
-        ("HDA_INFO_4A3", 5),
-        #("NEW_MSG_4B4", 10),
+        ("HDA_INFO_0x4a3", 5),
+        #("HDA_INFO_0x4b4", 10),
       ]
 
     cam_messages = []
@@ -521,7 +521,7 @@ class CarState(CarStateBase):
           ("ADRV_0x1ea", 20),
           ("ADRV_0x160", 20),
         ]
-      if CP.exFlags & HyundaiExFlags.CANFD_161:
+      if CP.exFlags & HyundaiExFlags.CCNC:
         cam_messages += [
           ("ADRV_0x161", 20),
           ("ADRV_0x162", 20),

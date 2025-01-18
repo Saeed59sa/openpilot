@@ -72,7 +72,7 @@ class CarInterface(CarInterfaceBase):
       if 0x1cf not in fingerprint[CAN.ECAN]:
         ret.flags |= HyundaiFlags.CANFD_ALT_BUTTONS.value
       if 0x161 in fingerprint[CAN.ECAN]:
-        ret.exFlags |= HyundaiExFlags.CANFD_161.value
+        ret.exFlags |= HyundaiExFlags.CCNC.value
         if hda2:
           ret.exFlags |= HyundaiExFlags.BSM_IN_ADAS.value
 
