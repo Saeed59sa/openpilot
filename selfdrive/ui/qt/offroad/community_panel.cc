@@ -4,6 +4,9 @@
 #include <QListView>
 #include <QListWidget>
 #include <QProcess>
+#include <QDir>
+#include <QFileInfoList>
+#include <QStringListModel>
 
 #include "common/watchdog.h"
 #include "common/util.h"
@@ -352,6 +355,66 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   funcWidget->setStyleSheet(buttonStyle);
 
   // upload btn
+  QString targetPath = "/data/media/0/realdata";
+  QString scriptPath = "/data/script/folder_upload.sh";
+
+  QPushButton* uploadFoler_btn = new QPushButton(tr("Realdata Folder Upload"));
+
+  connect(uploadFoler_btn, &QPushButton::clicked, [=]() {
+    QDir dir(targetPath);
+    if (!dir.exists()) {
+      ConfirmationDialog::alert(tr("Path does not exist."), this);
+      return;
+    }
+
+    QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    std::sort(fileInfoList.begin(), fileInfoList.end(), [](const QFileInfo &a, const QFileInfo &b) {
+      return a.lastModified() > b.lastModified();
+    });
+
+    QStringList folderNames;
+    QMap<QString, QString> folderPaths;
+
+    for (const QFileInfo &fileInfo : fileInfoList) {
+      folderNames.append(fileInfo.fileName());
+      folderPaths[fileInfo.fileName()] = fileInfo.absoluteFilePath();
+    }
+
+    if (folderNames.isEmpty()) {
+      ConfirmationDialog::alert(tr("No folders found."), this);
+      return;
+    }
+
+    QString selectedFolderName = MultiOptionDialog::getSelection(tr("Realdata Folder Upload"), folderNames, "", this);
+
+    if (!selectedFolderName.isEmpty()) {
+      QString selectedFolderPath = folderPaths[selectedFolderName];
+
+      if (ConfirmationDialog::confirm(tr("Are you sure you want to upload this folder?\n") + selectedFolderPath, tr("Upload"), this)) {
+        QProcess process;
+        QStringList arguments;
+        arguments << selectedFolderPath;
+
+        process.start(scriptPath, arguments);
+
+        if (!process.waitForStarted()) {
+          ConfirmationDialog::alert(tr("Failed to start script."), this);
+          return;
+        }
+
+        process.waitForFinished();
+
+        if (process.exitCode() != 0) {
+          ConfirmationDialog::alert(tr("Upload failed."), this);
+        } else {
+          ConfirmationDialog::alert(tr("Upload complete."), this);
+        }
+      }
+    }
+  });
+
+
   QPushButton* tmux_error_log_upload_btn = new QPushButton(tr("tmux log Upload"));
   tmux_error_log_upload_btn->setObjectName("tmux_error_log_upload_btn");
   QObject::connect(tmux_error_log_upload_btn, &QPushButton::clicked, this, [this]() {
@@ -430,14 +493,15 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   uploadLayout = new QGridLayout(uploadWidget);
   uploadLayout->setSpacing(20);
 
-  uploadLayout->addWidget(tmux_error_log_upload_btn, 0, 0);
-  uploadLayout->addWidget(tmux_console_upload_btn, 0, 1);
-  uploadLayout->addWidget(carparams_dump_upload_btn, 1, 0);
-  uploadLayout->addWidget(carstate_dump_upload_btn, 1, 1);
-  uploadLayout->addWidget(carcontrol_dump_upload_btn, 2, 0);
-  uploadLayout->addWidget(controlsstate_dump_upload_btn, 2, 1);
-  uploadLayout->addWidget(devicestate_dump_upload_btn, 3, 0);
-  uploadLayout->addWidget(pandastates_dump_upload_btn, 3, 1);
+  uploadLayout->addWidget(uploadFoler_btn, 0, 0);
+  uploadLayout->addWidget(tmux_error_log_upload_btn, 1, 0);
+  uploadLayout->addWidget(tmux_console_upload_btn, 1, 1);
+  uploadLayout->addWidget(carparams_dump_upload_btn, 2, 0);
+  uploadLayout->addWidget(carstate_dump_upload_btn, 2, 1);
+  uploadLayout->addWidget(carcontrol_dump_upload_btn, 3, 0);
+  uploadLayout->addWidget(controlsstate_dump_upload_btn, 3, 1);
+  uploadLayout->addWidget(devicestate_dump_upload_btn, 4, 0);
+  uploadLayout->addWidget(pandastates_dump_upload_btn, 4, 1);
 
   uploadWidget->setStyleSheet(buttonStyle);
 
