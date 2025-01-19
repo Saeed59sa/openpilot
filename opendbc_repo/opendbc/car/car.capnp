@@ -258,7 +258,7 @@ struct CarState {
     rr @3 :Float32;
   }
 
-  mads @58 :Bool;
+  accBtn @58 :Bool;
 
   struct WheelSpeeds {
     # optional wheel speeds

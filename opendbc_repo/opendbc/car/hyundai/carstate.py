@@ -436,6 +436,7 @@ class CarState(CarStateBase):
 
     if self.CP.openpilotLongitudinalControl and CruiseStateManager.instance().cruise_state_control:
       ret.cruiseState.available = self.get_main_cruise(ret)
+      ret.accBtn = self.get_main_cruise(ret)
       CruiseStateManager.instance().update(ret, enabled=ret.cruiseState.enabled)
     else:
       if self.main_buttons[-1] != prev_main_buttons and not self.main_buttons[-1]:

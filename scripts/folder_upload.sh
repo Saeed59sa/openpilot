@@ -11,14 +11,12 @@ exec &> "$LOG_FILE"
 
 echo "$(date) - Starting upload: ${LOG_FOLDER}"
 
-if [ -d "/data/${LOG_FOLDER}" ]; then
+if [ -d "/data/0/media/realdata/${LOG_FOLDER}" ]; then
   if ping -c 3 8.8.8.8 > /dev/null 2>&1; then
     lftp -u "openpilot:ruF3~Dt8" -e "
       set ftp:list-options -a;
       mirror -R \
-        --exclude '*.lock' \
-        --exclude-glob '*size 0' \
-        /data/${LOG_FOLDER} \
+        /data/0/media/realdata/${LOG_FOLDER} \
         /tmux_log/${TODAY}_${CAR}_${ID}_${LOG_FOLDER};
       quit
     " ftp://jmtechn.com:8022

@@ -351,7 +351,7 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control):
           values["LFA_ICON"] = 2 if CC.latActive else 1
           values["LKA_ICON"] = 4 if CC.latActive else 3
           values["NAV_ICON"] = 2 if nav_active else 0
-          values["HDA_ICON"] = 2 if cruise_enabled else 1 if main_enabled else 0
+          values["HDA_ICON"] = 2 if CS.out.accBtn else 0
           values["DAW_ICON"] = 0
           values["FCA_ICON"] = 0
           values["FCA_ALT_ICON"] = 0
