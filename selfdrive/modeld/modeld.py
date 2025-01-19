@@ -301,6 +301,7 @@ def main(demo=False):
 
       modelv2_send.modelV2.meta.autoLaneChangeEnabled = DH.auto_lane_change_enabled
       modelv2_send.modelV2.meta.autoLaneChangeTimer = int(ALC_START_TIME) - int(DH.auto_lane_change_timer)
+      modelv2_send.modelV2.meta.desire = DH.desire
 
       fill_pose_msg(posenet_send, model_output, meta_main.frame_id, vipc_dropped_frames, meta_main.timestamp_eof, live_calib_seen)
       pm.send('modelV2', modelv2_send)
