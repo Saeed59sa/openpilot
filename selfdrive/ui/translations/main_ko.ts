@@ -177,10 +177,6 @@
         <translation>운전자 카메라 비활성화</translation>
     </message>
     <message>
-        <source>If there is a problem with the driver camera hardware, drive without the driver camera.</source>
-        <translation>운전자 카메라 하드웨어 문제시 운전자 카메라 없이 주행합니다.</translation>
-    </message>
-    <message>
         <source>Enable Radar Track use</source>
         <translation>레이더 트랙 활성화</translation>
     </message>
@@ -197,16 +193,8 @@
         <translation>CANFD 차량 HDA2 옵션</translation>
     </message>
     <message>
-        <source>Highway Drive Assist 2, turn it on.</source>
-        <translation>HDA2 옵션이 있다면 이 옵션을 켜세요</translation>
-    </message>
-    <message>
         <source>Driver Camera On Reverse</source>
         <translation>후진시 운전자 카메라 표시</translation>
-    </message>
-    <message>
-        <source>Displays the driver camera when in reverse.</source>
-        <translation>후진시 운전자 감시 카메라를 보여줍니다</translation>
     </message>
     <message>
         <source>Scons Rebuild</source>
@@ -273,16 +261,8 @@
         <translation>업로드</translation>
     </message>
     <message>
-        <source>Connect the ADAS ECAN line to CAMERA, turn it on.</source>
-        <translation>ADAS ECAN 라인을 CAMERA ECAN으로 연결하여 개조한 차량은 활성화 하세요</translation>
-    </message>
-    <message>
         <source>Cruise State Controls</source>
         <translation>크루즈 상태 컨트롤</translation>
-    </message>
-    <message>
-        <source>Openpilot controls cruise on/off, gap and set speed.</source>
-        <translation>오픈파일럿이 크루즈 상태를 컨트롤합니다</translation>
     </message>
     <message>
         <source>tmux log View</source>
@@ -335,6 +315,76 @@
     <message>
         <source>pandaStates dump Upload</source>
         <translation>pandaStates 덤프 업로드</translation>
+    </message>
+    <message>
+        <source>Please Check Network Connection</source>
+        <translation>네트워크 상태를 확인하세요</translation>
+    </message>
+    <message>
+        <source>Highway Drive Assist 2, turn it on</source>
+        <translation>HDA2 차량은 활성화 하세요</translation>
+    </message>
+    <message>
+        <source>Connect the ADAS ECAN line to CAMERA, turn it on</source>
+        <translation>ADAS의 ECAN 라인을 카메라쪽으로 연결했다면 활성화 하세요</translation>
+    </message>
+    <message>
+        <source>PcmCruise</source>
+        <translation>PcmCruise</translation>
+    </message>
+    <message>
+        <source>Change the openpilot cruise engagement. use the PcmCruise method</source>
+        <translation>PcmCruise 방식을 사용하려면 활성화하세요</translation>
+    </message>
+    <message>
+        <source>Use lane lines instead of e2e</source>
+        <translation>차선인식 사용</translation>
+    </message>
+    <message>
+        <source>Displays the driver camera when in reverse.</source>
+        <translation type="vanished">후진시 운전자 감시 카메라를 보여줍니다</translation>
+    </message>
+    <message>
+        <source>If there is a problem with the driver camera hardware, drive without the driver camera</source>
+        <translation>운전자 카메라 하드웨어에 문제가 있는 경우 운전자 카메라 없이 사용합니다</translation>
+    </message>
+    <message>
+        <source>Realdata Files Upload</source>
+        <translation>주행데이터 업로드</translation>
+    </message>
+    <message>
+        <source>Path does not exist.</source>
+        <translation>경로가 존재하지 않습니다</translation>
+    </message>
+    <message>
+        <source>No data found.</source>
+        <translation>데이터가 없습니다</translation>
+    </message>
+    <message>
+        <source>Upload failed. Exit code: </source>
+        <translation>업로드 실패. 오류코드: </translation>
+    </message>
+    <message>
+        <source>Upload complete.</source>
+        <translation>업로드 성공</translation>
+    </message>
+    <message>
+        <source>Openpilot controls cruise on/off, set speed</source>
+        <translation>오픈파일럿이 크루즈 상태를 컨트롤합니다</translation>
+    </message>
+    <message>
+        <source>Displays the driver camera when in reverse</source>
+        <translation>후진시 운전자 감시 카메라를 보여줍니다</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to upload files from this folder?
+</source>
+        <translation>정말로 이 폴더에 파일을 업로드하시겠습니까?
+</translation>
+    </message>
+    <message>
+        <source>Use lane lines</source>
+        <translation>차선인식 사용</translation>
     </message>
 </context>
 <context>
@@ -518,7 +568,7 @@
     </message>
     <message>
         <source>Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer.</source>
-        <translation>장치를 comma connect (connect.comma.ai)에서 페어링하고 comma prime 무료 이용권을 사용하세요.</translation>
+        <translation>장치를 comma connect (connect.comma.ai)에서 동기화하고 comma prime 무료 이용권을 사용하세요.</translation>
     </message>
     <message>
         <source>Pair Device</source>
@@ -721,6 +771,10 @@
         <source>Bookmark connect.comma.ai to your home screen to use it like an app</source>
         <translation>connect.comma.ai를 앱처럼 사용하려면 홈 화면에 바로가기를 만드세요</translation>
     </message>
+    <message>
+        <source>Please connect to Wi-Fi to complete initial pairing</source>
+        <translation>초기 동기화를 완료하려면 Wi-Fi에 연결하세요.</translation>
+    </message>
 </context>
 <context>
     <name>ParamControl</name>
@@ -815,6 +869,10 @@
         <source>Git Reset -1</source>
         <translation>Git 리셋 -1</translation>
     </message>
+    <message>
+        <source>Git Pull</source>
+        <translation>Git Pull</translation>
+    </message>
 </context>
 <context>
     <name>Reset</name>
@@ -874,6 +932,10 @@ This may take up to a minute.</source>
     <message>
         <source>tmux log upload&lt;br&gt;&lt;br&gt;Process?</source>
         <translation>tmux 로그 업로드&lt;br&gt;&lt;br&gt;실행하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Please Check Network Connection</source>
+        <translation>네트워크 상태를 확인하세요</translation>
     </message>
 </context>
 <context>
@@ -1010,11 +1072,11 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer.</source>
-        <translation>장치를 comma connect (connect.comma.ai)에서 페어링하고 comma prime 무료 이용권을 사용하세요.</translation>
+        <translation>장치를 comma connect (connect.comma.ai)에서 동기화하고 comma prime 무료 이용권을 사용하세요.</translation>
     </message>
     <message>
         <source>Pair device</source>
-        <translation>장치 페어링</translation>
+        <translation>장치 동기화</translation>
     </message>
 </context>
 <context>

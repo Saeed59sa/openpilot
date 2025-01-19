@@ -206,9 +206,9 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
                                         "../assets/offroad/icon_hda.png", this));
   mainToggles->addItem(new ParamControl("PcmCruise", tr("PcmCruise"), tr("Change the openpilot cruise engagement. use the PcmCruise method"),
                                         "../assets/offroad/icon_lat.png", this));
-  mainToggles->addItem(new ParamControl("CruiseStateControl", tr("Cruise State Controls"), tr("Openpilot controls cruise on/off, gap and set speed"),
+  mainToggles->addItem(new ParamControl("CruiseStateControl", tr("Cruise State Controls"), tr("Openpilot controls cruise on/off, set speed"),
                                         "../assets/offroad/icon_lat.png", this));
-  mainToggles->addItem(new ParamControl("UseLanelines", tr("Use lane lines instead of e2e"), tr("Use lane lines instead of e2e"),
+  mainToggles->addItem(new ParamControl("UseLanelines", tr("Use lane lines"), tr("Use lane lines instead of e2e"),
                                         "../assets/offroad/icon_lat.png", this));
   mainToggles->addItem(new ParamControl("DriverCameraOnReverse", tr("Driver Camera On Reverse"), tr("Displays the driver camera when in reverse"),
                                         "../assets/img_driver_face_static.png", this));
