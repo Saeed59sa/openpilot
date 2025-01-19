@@ -356,7 +356,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
 
   // upload btn
   QString targetPath = "/data/media/0/realdata";
-  QString scriptPath = "/data/script/folder_upload.sh";
+  QString scriptPath = "/data/openpilot/scripts/folder_upload.sh";
 
   QPushButton* uploadFoler_btn = new QPushButton(tr("Realdata Folder Upload"));
 
@@ -392,21 +392,11 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
       QString selectedFolderPath = folderPaths[selectedFolderName];
 
       if (ConfirmationDialog::confirm(tr("Are you sure you want to upload this folder?\n") + selectedFolderPath, tr("Upload"), this)) {
-        QProcess process;
-        QStringList arguments;
-        arguments << selectedFolderPath;
+        QString command = scriptPath + " \"" + selectedFolderPath + "\"";
+        int exitCode = QProcess::execute(command);
 
-        process.start(scriptPath, arguments);
-
-        if (!process.waitForStarted()) {
-          ConfirmationDialog::alert(tr("Failed to start script."), this);
-          return;
-        }
-
-        process.waitForFinished();
-
-        if (process.exitCode() != 0) {
-          ConfirmationDialog::alert(tr("Upload failed."), this);
+        if (exitCode != 0) {
+          ConfirmationDialog::alert(tr("Upload failed. Exit code: ") + QString::number(exitCode), this);
         } else {
           ConfirmationDialog::alert(tr("Upload complete."), this);
         }
