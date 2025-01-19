@@ -143,10 +143,9 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     if (ConfirmationDialog::confirm(tr("Git Fetch and Reset<br><br>Process?"), tr("Process"), this)) {
       QProcess::execute("/data/openpilot/scripts/gitpull.sh");
     }
-    const QString file_path = "/data/check_network.log";
+    const QString file_path = "/data/check_network";
     if (QFile::exists(file_path)) {
-      const std::string txt = util::read_file(file_path.toStdString());
-      ConfirmationDialog::rich(QString::fromStdString(txt), this);
+      ConfirmationDialog::alert(tr("Please Check Network Connection"), this);
     }
   });
 
@@ -255,7 +254,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
       const std::string txt = util::read_file(file_path.toStdString());
       ConfirmationDialog::rich(QString::fromStdString(txt), this);
     } else {
-      ConfirmationDialog::rich(tr("log file not found"), this);
+      ConfirmationDialog::alert(tr("log file not found"), this);
     }
   });
 
@@ -267,7 +266,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
       const std::string txt = util::read_file(file_path.toStdString());
       ConfirmationDialog::rich(QString::fromStdString(txt), this);
     } else {
-      ConfirmationDialog::rich(tr("log file not found"), this);
+      ConfirmationDialog::alert(tr("log file not found"), this);
     }
   });
 
@@ -279,7 +278,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
       const std::string txt = util::read_file(file_path.toStdString());
       ConfirmationDialog::rich(QString::fromStdString(txt), this);
     } else {
-      ConfirmationDialog::rich(tr("log file not found"), this);
+      ConfirmationDialog::alert(tr("log file not found"), this);
     }
   });
 
@@ -356,10 +355,9 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
 
   // upload btn
   QString targetPath = "/data/media/0/realdata";
-  QString scriptPath = "/data/openpilot/scripts/folder_upload.sh";
+  QString scriptPath = "/data/openpilot/scripts/realdata_upload.sh";
 
-  QPushButton* uploadFoler_btn = new QPushButton(tr("Realdata Folder Upload"));
-
+  QPushButton* uploadFoler_btn = new QPushButton(tr("Realdata Files Upload"));
   connect(uploadFoler_btn, &QPushButton::clicked, [=]() {
     QDir dir(targetPath);
     if (!dir.exists()) {
@@ -368,7 +366,6 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     }
 
     QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-
     std::sort(fileInfoList.begin(), fileInfoList.end(), [](const QFileInfo &a, const QFileInfo &b) {
       return a.lastModified() > b.lastModified();
     });
@@ -382,19 +379,16 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     }
 
     if (folderNames.isEmpty()) {
-      ConfirmationDialog::alert(tr("No folders found."), this);
+      ConfirmationDialog::alert(tr("No data found."), this);
       return;
     }
 
-    QString selectedFolderName = MultiOptionDialog::getSelection(tr("Realdata Folder Upload"), folderNames, "", this);
-
+    QString selectedFolderName = MultiOptionDialog::getSelection(tr("Realdata Files Upload"), folderNames, "", this);
     if (!selectedFolderName.isEmpty()) {
       QString selectedFolderPath = folderPaths[selectedFolderName];
-
-      if (ConfirmationDialog::confirm(tr("Are you sure you want to upload this folder?\n") + selectedFolderPath, tr("Upload"), this)) {
+      if (ConfirmationDialog::confirm(tr("Are you sure you want to upload files from this folder?\n") + selectedFolderPath, tr("Upload"), this)) {
         QString command = scriptPath + " \"" + selectedFolderPath + "\"";
         int exitCode = QProcess::execute(command);
-
         if (exitCode != 0) {
           ConfirmationDialog::alert(tr("Upload failed. Exit code: ") + QString::number(exitCode), this);
         } else {
@@ -414,7 +408,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
         QProcess::execute("/data/openpilot/scripts/log_upload.sh tmux_error.log");
       }
     } else {
-      ConfirmationDialog::rich(tr("log file not found"), this);
+      ConfirmationDialog::alert(tr("log file not found"), this);
     }
   });
 
@@ -427,7 +421,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
         QProcess::execute("/data/openpilot/scripts/log_upload.sh tmux_console.log");
       }
     } else {
-      ConfirmationDialog::rich(tr("log file not found"), this);
+      ConfirmationDialog::alert(tr("log file not found"), this);
     }
   });
 

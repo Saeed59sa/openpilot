@@ -73,13 +73,11 @@ int main(int argc, char *argv[]) {
   btn2->setText(QObject::tr("Git Pull"));
   QObject::connect(btn2, &QPushButton::clicked, [=]() {
     QProcess::execute("sh /data/openpilot/scripts/gitpull.sh");
-    Hardware::reboot();
   });
 
   btn3->setText(QObject::tr("Git Reset -1"));
   QObject::connect(btn3, &QPushButton::clicked, [=]() {
     QProcess::execute("sh /data/openpilot/scripts/reset.sh");
-    Hardware::reboot();
   });
 
   button_layout->addWidget(btn);
