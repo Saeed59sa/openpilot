@@ -355,6 +355,7 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control):
           values["DAW_ICON"] = 0
           values["FCA_ICON"] = 0
           values["FCA_ALT_ICON"] = 0
+          values["FCA_IMAGE"] = 0
           # LFA_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 5 "CYAN";
           # LKA_ICON 0 "HIDDEN" 1 "ORANGE" 3 "GRAY" 4 "GREEN";
           # NAV_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 4 "WHITE";
@@ -362,6 +363,7 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control):
           # DAW_ICON 0 "HIDDEN" 1 "ORANGE";
           # FCA_ICON 0 "HIDDEN" 1 "ORANGE" 2 "RED";
           # FCA_ALT_ICON 0 "HIDDEN" 1 "ORANGE" 3 "RED";
+          # FCA_IMAGE 0 "HIDDEN" 2 "VISIBLE";
 
           if values["MUTE"] == 3:
             values["MUTE"] = 0
@@ -438,10 +440,6 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control):
       values["SET_ME_9"] = 17  # steer_temp관련없음, 계기판에러
       values["SET_ME_2"] = 0  # 커멘트해도 steer_temp에러남, 2값은 콤마에서 찾은거니...
       values["DATA102"] = 0  # steer_temp관련없음
-
-      values["AEB_SETTING"] = 1  # show AEB disabled icon
-      # AEB_SETTING 1 "off" 2 "warning only" 3 "active assist" ;
-
       ret.append(packer.make_can_msg("ADRV_0x160", CAN.ECAN, values))
 
     if CS.adrv_info_200 is not None:
