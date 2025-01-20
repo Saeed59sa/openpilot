@@ -325,6 +325,9 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control, disp_angle
           #values["SETSPEED_HUD"] = 2 if cruise_enabled else 1
           #values["SETSPEED_SPEED"] = 25 if (s := round(CS.out.vCruiseCluster * CV.KPH_TO_MPH)) > 100 else s
 
+          values["TARGET"] = 1 if cruise_enabled else 0
+          values["TARGET_POSITION"] = int(hud_control.leadDistance)
+
           values["DISTANCE_SPACING"] = 1 if cruise_enabled else 0
           values["DISTANCE_LEAD"] = 1 if cruise_enabled and (hud_control.leadRelSpeed > -0.2 or hud_control.leadVisible) else 0
           values["DISTANCE_CAR"] = 2 if cruise_enabled else 1
@@ -438,26 +441,25 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control, disp_angle
             values["HAPTIC_VIBRATE"] = 1
           ret.append(packer.make_can_msg("ADRV_0x162", CAN.ECAN, values))
 
-    if CS.adrv_info_160 is not None:
-      values = CS.adrv_info_160
-      values["NEW_SIGNAL_1"] = 0  # steer_temp관련없음, 계기판에러
-      values["SET_ME_9"] = 17  # steer_temp관련없음, 계기판에러
-      values["SET_ME_2"] = 0  # 커멘트해도 steer_temp에러남, 2값은 콤마에서 찾은거니...
-      values["DATA102"] = 0  # steer_temp관련없음
-      ret.append(packer.make_can_msg("ADRV_0x160", CAN.ECAN, values))
+      if CS.adrv_info_160 is not None:
+        values = CS.adrv_info_160
+        values["NEW_SIGNAL_1"] = 0  # steer_temp관련없음, 계기판에러
+        values["SET_ME_9"] = 17  # steer_temp관련없음, 계기판에러
+        values["SET_ME_2"] = 0  # 커멘트해도 steer_temp에러남, 2값은 콤마에서 찾은거니...
+        values["DATA102"] = 0  # steer_temp관련없음
+        ret.append(packer.make_can_msg("ADRV_0x160", CAN.ECAN, values))
 
-    if CS.adrv_info_200 is not None:
-      values = CS.adrv_info_200
-      values["TauGapSet"] = hud_control.leadDistanceBars
-      ret.append(packer.make_can_msg("ADRV_0x200", CAN.ECAN, values))
+      if CS.adrv_info_200 is not None:
+        values = CS.adrv_info_200
+        values["TauGapSet"] = hud_control.leadDistanceBars
+        ret.append(packer.make_can_msg("ADRV_0x200", CAN.ECAN, values))
 
-    if CS.adrv_info_1ea is not None:
-      values = CS.adrv_info_1ea
-      values["HDA_MODE1"] = 8
-      values["HDA_MODE2"] = 1
-      ret.append(packer.make_can_msg("ADRV_0x1ea", CAN.ECAN, values))
+      if CS.adrv_info_1ea is not None:
+        values = CS.adrv_info_1ea
+        values["HDA_MODE1"] = 8
+        values["HDA_MODE2"] = 1
+        ret.append(packer.make_can_msg("ADRV_0x1ea", CAN.ECAN, values))
 
-    """
     if frame % 20 == 0:
       if CS.hda_info_4a3 is not None:
         values = CS.hda_info_4a3
@@ -481,7 +483,6 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control, disp_angle
         values["NEW_SIGNAL_5"] = 68
         values["NEW_SIGNAL_6"] = 76
         ret.append(packer.make_can_msg("HDA_INFO_0x4b4", CAN.CAM, values))
-    """
     return ret
   else:
     values = {}
