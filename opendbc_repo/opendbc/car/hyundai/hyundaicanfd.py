@@ -355,9 +355,9 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control, disp_angle
           values["LKA_ICON"] = 4 if CC.latActive else 3
           values["NAV_ICON"] = 2 if nav_active else 0
           values["HDA_ICON"] = 2 if CS.out.accBtn else 0
-          values["FCA_ICON"] = 0
-          values["FCA_ALT_ICON"] = 0
-          values["FCA_IMAGE"] = 0
+          #values["FCA_ICON"] = 0
+          #values["FCA_ALT_ICON"] = 0
+          #values["FCA_IMAGE"] = 0
           # LFA_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 5 "CYAN";
           # LKA_ICON 0 "HIDDEN" 1 "ORANGE" 3 "GRAY" 4 "GREEN";
           # NAV_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 4 "WHITE";
@@ -414,8 +414,8 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control, disp_angle
 
         if CS.adrv_info_162 is not None:
           values = CS.adrv_info_162
-          #values["FAULT_FSS"] = 0
-          #values["FAULT_FCA"] = 0
+          values["FAULT_FSS"] = 0
+          values["FAULT_FCA"] = 0
 
           values["FAULT_LSS"] = 0
           values["FAULT_HDA"] = 0
@@ -460,6 +460,7 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control, disp_angle
         values["HDA_MODE2"] = 1
         ret.append(packer.make_can_msg("ADRV_0x1ea", CAN.ECAN, values))
 
+    """
     if frame % 20 == 0:
       if CS.hda_info_4a3 is not None:
         values = CS.hda_info_4a3
@@ -483,6 +484,7 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control, disp_angle
         values["NEW_SIGNAL_5"] = 68
         values["NEW_SIGNAL_6"] = 76
         ret.append(packer.make_can_msg("HDA_INFO_0x4b4", CAN.CAM, values))
+        """
     return ret
   else:
     values = {}
