@@ -7,7 +7,6 @@ ALC_START_TIME = 3.
 
 LaneChangeState = log.LaneChangeState
 LaneChangeDirection = log.LaneChangeDirection
-TurnDirection = log.Desire
 
 LANE_CHANGE_SPEED_MIN = 50 * CV.KPH_TO_MS
 LANE_CHANGE_TIME_MAX = 10.
@@ -32,11 +31,7 @@ DESIRES = {
     LaneChangeState.laneChangeFinishing: log.Desire.laneChangeRight,
   },
 }
-TURN_DESIRES = {
-  TurnDirection.none: log.Desire.none,
-  TurnDirection.turnLeft: log.Desire.turnLeft,
-  TurnDirection.turnRight: log.Desire.turnRight,
-}
+
 
 class DesireHelper:
   def __init__(self):
@@ -48,7 +43,6 @@ class DesireHelper:
     self.lane_change_pulse_timer = 0.0
     self.prev_one_blinker = False
     self.desire = log.Desire.none
-    self.turn_direction = TurnDirection.none
 
     self.auto_lane_change_enabled = Params().get_bool('AutoLaneChangeEnabled')
     self.auto_lane_change_timer = 0.0
@@ -56,21 +50,13 @@ class DesireHelper:
 
   def update(self, carstate, lateral_active, lane_change_prob):
     v_ego = carstate.vEgo
-    leftBlinker = carstate.leftBlinker
-    rightBlinker = carstate.rightBlinker
-    one_blinker = leftBlinker != rightBlinker
+    one_blinker = carstate.leftBlinker != carstate.rightBlinker
     below_lane_change_speed = v_ego < LANE_CHANGE_SPEED_MIN
 
-    if not lateral_active or self.lane_change_timer > LANE_CHANGE_TIME_MAX:
+    if not lateral_active or self.lane_change_timer > LANE_CHANGE_TIME_MAX or not one_blinker:
       self.lane_change_state = LaneChangeState.off
       self.lane_change_direction = LaneChangeDirection.none
-      self.turn_direction = TurnDirection.none
-    elif one_blinker and below_lane_change_speed and not carstate.standstill:
-      self.lane_change_state = LaneChangeState.off
-      self.turn_direction = TurnDirection.turnLeft if leftBlinker else TurnDirection.turnRight
-      self.lane_change_direction = self.turn_direction  # LaneChangeDirection.none
     else:
-      self.turn_direction = TurnDirection.none
       # LaneChangeState.off
       if self.lane_change_state == LaneChangeState.off and one_blinker and not self.prev_one_blinker and not below_lane_change_speed:
         self.lane_change_state = LaneChangeState.preLaneChange
@@ -81,7 +67,7 @@ class DesireHelper:
         self.lane_change_pulse_timer += DT_MDL
         # Set lane change direction
         self.lane_change_direction = LaneChangeDirection.left if \
-          leftBlinker else LaneChangeDirection.right
+          carstate.leftBlinker else LaneChangeDirection.right
         torque_applied = carstate.steeringPressed and\
                          ((carstate.steeringTorque > 0 and self.lane_change_direction == LaneChangeDirection.left) or
                           (carstate.steeringTorque < 0 and self.lane_change_direction == LaneChangeDirection.right)) or \
@@ -133,17 +119,7 @@ class DesireHelper:
       self.auto_lane_change_timer += DT_MDL
 
     self.prev_one_blinker = one_blinker
-    steering_pressed = carstate.steeringPressed and \
-                     ((carstate.steeringTorque < 0 and leftBlinker) or (carstate.steeringTorque > 0 and rightBlinker))
-    if steering_pressed and self.lane_change_state != LaneChangeState.off:
-      self.lane_change_direction = LaneChangeDirection.none
-      self.lane_change_state = LaneChangeState.off
-
-    if self.turn_direction != TurnDirection.none:
-      self.desire = TURN_DESIRES[self.turn_direction]
-      self.lane_change_direction = self.turn_direction
-    else:
-      self.desire = DESIRES[self.lane_change_direction][self.lane_change_state]
+    self.desire = DESIRES[self.lane_change_direction][self.lane_change_state]
 
     # Send keep pulse once per second during LaneChangeStart.preLaneChange
     if self.lane_change_state in (LaneChangeState.off, LaneChangeState.laneChangeStarting):
