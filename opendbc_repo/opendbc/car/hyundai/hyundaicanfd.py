@@ -304,7 +304,7 @@ def create_fca_warning_light(CP, packer, CAN, frame):
   return ret
 
 
-def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control):
+def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control, disp_angle, left_lane_warning, right_lane_warning):
   # messages needed to car happy after disabling
   # the ADAS Driving ECU to do longitudinal control
 
@@ -386,7 +386,7 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control):
             i: (31 if i == -1 else 13 - abs(i + 15)) if i < 0 else 15 + i
             for i in range(-15, 16)
           }
-          values["LANELINE_CURVATURE"] = curvature.get(max(-15, min(int(CS.out.steeringAngleDeg / 3), 15)), 14) if main_enabled else 15
+          values["LANELINE_CURVATURE"] = curvature.get(max(-15, min(int(disp_angle / 3), 15)), 14) if main_enabled else 15
 
           if hud_control.leftLaneDepart:
             values["LANELINE_LEFT"] = 4 if (frame // 50) % 2 == 0 else 1
@@ -434,6 +434,8 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control):
           # FAULT_SCC 0 "HIDDEN" 1 "CHECK_SMART_CRUISE_CONTROL_SYSTEM" 2 "SMART_CRUISE_CONTROL_DISABLED_RADAR_BLOCKED";
           # FAULT_LFA 0 "HIDDEN" 1 "CHECK_LANE_FOLLOWING_SYSTEM_ASSIST_SYSTEM";
           # FAULT_LCA 0 "HIDDEN" 1 "CHECK_LANE_CHANGE_ASSIST_FUNCTION" 2 "LANE_CHANGE_ASSIST_FUNCTION_DISABLED_CAMERA_OBSCURED" 3 "LANE_CHANGE_ASSIST_FUNCTION_DISABLED_RADAR_BLOCKED";
+          if left_lane_warning or right_lane_warning:
+            values["HAPTIC_VIBRATE"] = 1
           ret.append(packer.make_can_msg("ADRV_0x162", CAN.ECAN, values))
 
     if CS.adrv_info_160 is not None:
