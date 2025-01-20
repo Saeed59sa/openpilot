@@ -75,9 +75,6 @@ class CarState(CarStateBase):
     self.lfa_btn = 0
     self.lfa_enabled = False
 
-    self.acc_btn = 0
-    self.acc_enabled = False
-
     self.main_enabled = False
     self.main_cruise_enabled = False
 
@@ -440,12 +437,7 @@ class CarState(CarStateBase):
     if self.CP.openpilotLongitudinalControl and CruiseStateManager.instance().cruise_state_control:
       ret.cruiseState.available = self.get_main_cruise(ret)
       CruiseStateManager.instance().update(ret, enabled=ret.cruiseState.enabled)
-
-      prev_acc_btn = self.acc_btn
-      self.acc_btn = cp.vl[self.cruise_btns_msg_canfd]["ADAPTIVE_CRUISE_MAIN_BTN"]
-      if prev_acc_btn != 1 and self.acc_btn == 1:
-        self.acc_enabled = not self.acc_enabled
-      ret.accBtn = self.acc_enabled
+      ret.accBtn = cp.vl["TCS"]["ACCEnable"] == 0
 
     else:
       if self.main_buttons[-1] != prev_main_buttons and not self.main_buttons[-1]:

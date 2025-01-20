@@ -322,7 +322,7 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control, disp_angle
           values["GAP_DIST_SET"] = hud_control.leadDistanceBars
 
           #values["SETSPEED"] = 3 if cruise_enabled else 1
-          #values["SETSPEED_HUD"] = 2 if cruise_enabled else 1
+          values["SETSPEED_HUD"] = 2 if cruise_enabled else 1
           #values["SETSPEED_SPEED"] = 25 if (s := round(CS.out.vCruiseCluster * CV.KPH_TO_MPH)) > 100 else s
 
           values["TARGET"] = 1 if cruise_enabled else 0
@@ -331,21 +331,6 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control, disp_angle
           values["DISTANCE_SPACING"] = 1 if cruise_enabled else 0
           values["DISTANCE_LEAD"] = 1 if cruise_enabled and (hud_control.leadRelSpeed > -0.2 or hud_control.leadVisible) else 0
           values["DISTANCE_CAR"] = 2 if cruise_enabled else 1
-
-          """
-          # DISTANCE
-          if 1 <= hud_control.leadDistanceBars <= 3:
-            values["DISTANCE"] = hud_control.leadDistanceBars
-            values["DISTANCE_SPACING"] = 1 if cruise_enabled else 0
-            values["DISTANCE_LEAD"] = 2 if cruise_enabled and hud_control.leadVisible else 1 if cruise_enabled else 0
-            values["DISTANCE_CAR"] = 2 if cruise_enabled else 1
-            values["ALERTS_3"] = hud_control.leadDistanceBars + 6
-          else:
-            values["DISTANCE"] = 0
-            values["DISTANCE_SPACING"] = 0
-            values["DISTANCE_LEAD"] = 0
-            values["DISTANCE_CAR"] = 0
-          """
 
           values["BACKGROUND"] = 1 if cruise_enabled else 7
           # BACKGROUND 0 "HIDDEN" 1 "BLUE" 3 "ORANGE" 4 "FLASHING ORANGE" 6 "FLASHING RED" 7 "GRAY";
