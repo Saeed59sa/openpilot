@@ -357,8 +357,6 @@ BO_ 353 ADRV_0x161: 32 ADRV
  SG_ ZEROS_8 : 246|3@1+ (1,0) [0|7] "" XXX
  SG_ ZEROS_9 : 227|3@1+ (1,0) [0|7] "" XXX
  SG_ vSetDis : 207|8@0+ (1,0) [0|255] "" XXX
- SG_ TARGET : 68|3@0+ (1,0) [0|7] "" XXX
- SG_ TARGET_POSITION : 69|11@1+ (0.1,0) [0|2047] "" XXX
 
 BO_ 354 ADRV_0x162: 32 CCNC
  SG_ CHECKSUM : 0|16@1+ (1,0) [0|65535] "" XXX
