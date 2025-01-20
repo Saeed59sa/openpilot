@@ -61,11 +61,11 @@ def create_steering_messages_camera_scc(packer, CP, CS, CAN, enabled, lat_active
     values["LKAS_ANGLE_ACTIVE"] = 0  # 2 if lat_active else 1,
     values["LKAS_ANGLE_MAX_TORQUE"] = 0  # max_torque if lat_active else 0,
     values["LKAS_SIGNAL_1"] = 10
-    values["NEW_SIGNAL_3"] = 9
-    values["LKAS_SIGNAL_2"] = 1
-    values["LKAS_SIGNAL_3"] = 1
-    values["LKAS_SIGNAL_4"] = 1
-    values["LKAS_SIGNAL_5"] = 1
+    #values["NEW_SIGNAL_3"] = 9
+    #values["LKAS_SIGNAL_2"] = 1
+    #values["LKAS_SIGNAL_3"] = 1
+    #values["LKAS_SIGNAL_4"] = 1
+    #values["LKAS_SIGNAL_5"] = 1
   else:
     values = {}
     values["LKA_MODE"] = 2
@@ -340,6 +340,8 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control, disp_angle
           values["LKA_ICON"] = 4 if CC.latActive else 3
           values["NAV_ICON"] = 2 if nav_active else 0
           values["HDA_ICON"] = 2 if cruise_enabled else 0
+          values["WHEEL_ICON"] = 2 if CC.latActive else 1
+
           #values["FCA_ICON"] = 0
           #values["FCA_ALT_ICON"] = 0
           #values["FCA_IMAGE"] = 0
@@ -389,43 +391,59 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control, disp_angle
           values["LANELINE_LEFT_POSITION"] = 15
           values["LANELINE_RIGHT_POSITION"] = 15
 
-          speed_below_threshold = CS.out.vEgo < 8.94
-          values["LCA_LEFT_ICON"] = 0 if CS.out.leftBlindspot or speed_below_threshold else 2 if CS.out.leftBlinker else 1
-          values["LCA_RIGHT_ICON"] = 0 if CS.out.rightBlindspot or speed_below_threshold else 2 if CS.out.rightBlinker else 1
           values["LCA_LEFT_ARROW"] = 2 if CS.out.leftBlinker else 0
           values["LCA_RIGHT_ARROW"] = 2 if CS.out.rightBlinker else 0
 
+          values["LANE_ASSIST_L"] = 2
+          values["LANE_ASSIST_R"] = 2
+
+          values["CRUISE_INFO1_SET2"] = 2 if cruise_enabled else 1 if main_enabled else 0
+          values["CRUISE_INFO2_SET2"] = 2 if cruise_enabled else 1 if main_enabled else 0
+          values["CRUISE_INFO4_SET3"] = 3 if cruise_enabled else 0
+          values["CRUISE_INFO8_SET1"] = 1 if main_enabled else 0
+          values["CRUISE_INFO5_SET1"] = 1 if cruise_enabled else 0
+          values["SET4_HWAY_ELSE_3"] = 3
+          values["START_READY_INFO_MAYBE"] = 0
+          values["NEW_SIGNAL_7"] = 0
+          values["AUTO_LANE_CHANGE_MESSAGE_SET6"] = 0 # 1: 핸들잡아, 2: 빨리잡아, 6: 자동차선변경준비.
+
+          values["CRUISE_INFO10_0_TO_4"] = 0 #4 if main_enabled else 0      # message
+          values["CRUISE_INFO11_0_TO_1"] = 0 #1 if cruise_enabled else 0    # message
+          values["143_SET_0"] = 0
+
+          values["NEW_SIGNAL_12"] = 0   ## 띠링 경고
+
           ret.append(packer.make_can_msg("ADRV_0x161", CAN.ECAN, values))
 
-        if CS.adrv_info_162 is not None:
-          values = CS.adrv_info_162
-          values["FAULT_FSS"] = 0
-          values["FAULT_FCA"] = 0
+          if CS.adrv_info_162 is not None:
+            values = CS.adrv_info_162
+            values["FAULT_FCA"] = 0
+            values["FAULT_LSS"] = 0
+            values["FAULT_LFA"] = 0
+            values["FAULT_LCA"] = 0
+            values["FAULT_DAS"] = 0
 
-          values["FAULT_LSS"] = 0
-          values["FAULT_HDA"] = 0
-          values["FAULT_DAS"] = 0
+            #values["FAULT_FSS"] = 0
+            #values["FAULT_HDA"] = 0
+            #values["FAULT_SLA"] = 0
+            #values["FAULT_DAW"] = 0
+            #values["FAULT_SCC"] = 0
 
-          values["FAULT_SLA"] = 0
-          values["FAULT_DAW"] = 0
-          values["FAULT_SCC"] = 0
-          values["FAULT_LFA"] = 0
-          values["FAULT_LCA"] = 0
+            # FAULT_FSS 0 "HIDDEN" 1 "CHECK_FORWARD_SAFETY_SYSTEM" 2 "FORWARD_SAFETY_SYSTEM_LIMITED_CAMERA_OBSCURED" 3 "FORWARD_SAFETY_SYSTEM_LIMITED_RADAR_BLOCKED";
+            # FAULT_FCA 0 "HIDDEN" 1 "CHECK_FORWARD_SIDE_SAFETY_SYSTEM" 2 "FORWARD_SIDE_SAFETY_SYSTEM_LIMITED_CAMERA_OBSCURED" 3 "FORWARD_SIDE_SAFETY_SYSTEM_LIMITED_RADAR_BLOCKED";
+            # FAULT_LSS 0 "HIDDEN" 1 "CHECK_LANE_SAFETY_SYSTEM" 2 "LANE_SAFETY_SYSTEM_DISABLED_CAMERA_OBSCURED";
+            # FAULT_HDA 0 "HIDDEN" 1 "CHECK_HIGHWAY_DRIVING_ASSIST_SYSTEM";
+            # FAULT_DAS 0 "HIDDEN" 1 "CHECK_DRIVER_ASSISTANCE_SYSTEM" 2 "DRIVER_ASSISTANCE_SYSTEM_LIMITED_CAMERA_OBSCURED" 3 "DRIVER_ASSISTANCE_SYSTEM_LIMITED_RADAR_BLOCKED" 4 "DRIVER_ASSISTANCE_SYSTEM_LIMITED_CAMERA_OBSCURED_AND_RADAR_BLOCKED";
+            # FAULT_SLA 0 "HIDDEN" 1 "CHECK_SPEED_LIMIT_SYSTEM" 2 "SPEED_LIMIT_SYSTEM_DISABLED_CAMERA_OBSCURED";
+            # FAULT_DAW 0 "HIDDEN" 1 "CHECK_INATTENTIVE_DRIVING_WARNING_SYSTEM" 2 "INATTENTIVE_DRIVING_WARNING_SYSTEM_DISABLED_CAMERA_OBSCURED";
+            # FAULT_SCC 0 "HIDDEN" 1 "CHECK_SMART_CRUISE_CONTROL_SYSTEM" 2 "SMART_CRUISE_CONTROL_DISABLED_RADAR_BLOCKED";
+            # FAULT_LFA 0 "HIDDEN" 1 "CHECK_LANE_FOLLOWING_SYSTEM_ASSIST_SYSTEM";
+            # FAULT_LCA 0 "HIDDEN" 1 "CHECK_LANE_CHANGE_ASSIST_FUNCTION" 2 "LANE_CHANGE_ASSIST_FUNCTION_DISABLED_CAMERA_OBSCURED" 3 "LANE_CHANGE_ASSIST_FUNCTION_DISABLED_RADAR_BLOCKED";
+            if left_lane_warning or right_lane_warning:
+              values["HAPTIC_VIBRATE"] = 1
+            ret.append(packer.make_can_msg("ADRV_0x162", CAN.ECAN, values))
 
-          # FAULT_FSS 0 "HIDDEN" 1 "CHECK_FORWARD_SAFETY_SYSTEM" 2 "FORWARD_SAFETY_SYSTEM_LIMITED_CAMERA_OBSCURED" 3 "FORWARD_SAFETY_SYSTEM_LIMITED_RADAR_BLOCKED";
-          # FAULT_FCA 0 "HIDDEN" 1 "CHECK_FORWARD_SIDE_SAFETY_SYSTEM" 2 "FORWARD_SIDE_SAFETY_SYSTEM_LIMITED_CAMERA_OBSCURED" 3 "FORWARD_SIDE_SAFETY_SYSTEM_LIMITED_RADAR_BLOCKED";
-          # FAULT_LSS 0 "HIDDEN" 1 "CHECK_LANE_SAFETY_SYSTEM" 2 "LANE_SAFETY_SYSTEM_DISABLED_CAMERA_OBSCURED";
-          # FAULT_HDA 0 "HIDDEN" 1 "CHECK_HIGHWAY_DRIVING_ASSIST_SYSTEM";
-          # FAULT_DAS 0 "HIDDEN" 1 "CHECK_DRIVER_ASSISTANCE_SYSTEM" 2 "DRIVER_ASSISTANCE_SYSTEM_LIMITED_CAMERA_OBSCURED" 3 "DRIVER_ASSISTANCE_SYSTEM_LIMITED_RADAR_BLOCKED" 4 "DRIVER_ASSISTANCE_SYSTEM_LIMITED_CAMERA_OBSCURED_AND_RADAR_BLOCKED";
-          # FAULT_SLA 0 "HIDDEN" 1 "CHECK_SPEED_LIMIT_SYSTEM" 2 "SPEED_LIMIT_SYSTEM_DISABLED_CAMERA_OBSCURED";
-          # FAULT_DAW 0 "HIDDEN" 1 "CHECK_INATTENTIVE_DRIVING_WARNING_SYSTEM" 2 "INATTENTIVE_DRIVING_WARNING_SYSTEM_DISABLED_CAMERA_OBSCURED";
-          # FAULT_SCC 0 "HIDDEN" 1 "CHECK_SMART_CRUISE_CONTROL_SYSTEM" 2 "SMART_CRUISE_CONTROL_DISABLED_RADAR_BLOCKED";
-          # FAULT_LFA 0 "HIDDEN" 1 "CHECK_LANE_FOLLOWING_SYSTEM_ASSIST_SYSTEM";
-          # FAULT_LCA 0 "HIDDEN" 1 "CHECK_LANE_CHANGE_ASSIST_FUNCTION" 2 "LANE_CHANGE_ASSIST_FUNCTION_DISABLED_CAMERA_OBSCURED" 3 "LANE_CHANGE_ASSIST_FUNCTION_DISABLED_RADAR_BLOCKED";
-          if left_lane_warning or right_lane_warning:
-            values["HAPTIC_VIBRATE"] = 1
-          ret.append(packer.make_can_msg("ADRV_0x162", CAN.ECAN, values))
-
+    if frame % 5 == 0:
       if CS.adrv_info_160 is not None:
         values = CS.adrv_info_160
         values["NEW_SIGNAL_1"] = 0  # steer_temp관련없음, 계기판에러
@@ -434,11 +452,13 @@ def create_adrv_messages(CP, packer, CAN, frame, CC, CS, hud_control, disp_angle
         values["DATA102"] = 0  # steer_temp관련없음
         ret.append(packer.make_can_msg("ADRV_0x160", CAN.ECAN, values))
 
+    if frame % 5 == 0:
       if CS.adrv_info_200 is not None:
         values = CS.adrv_info_200
         values["TauGapSet"] = hud_control.leadDistanceBars
         ret.append(packer.make_can_msg("ADRV_0x200", CAN.ECAN, values))
 
+    if frame % 5 == 0:
       if CS.adrv_info_1ea is not None:
         values = CS.adrv_info_1ea
         values["HDA_MODE1"] = 8
