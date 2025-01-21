@@ -379,7 +379,7 @@ static safety_config hyundai_canfd_init(uint16_t param) {
     if (hyundai_canfd_hda2) {
       if (hyundai_canfd_alt_buttons) {
         // HDA2 Longitudinal with Alternate Buttons
-        static RxCheck hyundai_canfd_hda2_long_alt_buttons_rx_checks_scc2[] = {
+        static RxCheck hyundai_canfd_hda2_long_alt_buttons_rx_checks_camera_scc[] = {
           HYUNDAI_CANFD_COMMON_RX_CHECKS(0)
           HYUNDAI_CANFD_ALT_BUTTONS_ADDR_CHECK(0)
         };
@@ -389,11 +389,11 @@ static safety_config hyundai_canfd_init(uint16_t param) {
         };
 
         ret = hyundai_camera_scc ?
-          BUILD_SAFETY_CFG(hyundai_canfd_hda2_long_alt_buttons_rx_checks_scc2, HYUNDAI_CANFD_HDA2_LONG_TX_MSGS) :
+          BUILD_SAFETY_CFG(hyundai_canfd_hda2_long_alt_buttons_rx_checks_camera_scc, HYUNDAI_CANFD_HDA2_LONG_TX_MSGS) :
           BUILD_SAFETY_CFG(hyundai_canfd_hda2_long_alt_buttons_rx_checks, HYUNDAI_CANFD_HDA2_LONG_TX_MSGS);
       } else {
         // HDA2 Longitudinal without Alternate Buttons
-        static RxCheck hyundai_canfd_hda2_long_rx_checks_scc2[] = {
+        static RxCheck hyundai_canfd_hda2_long_rx_checks_camera_scc[] = {
           HYUNDAI_CANFD_COMMON_RX_CHECKS(0)
           HYUNDAI_CANFD_BUTTONS_ADDR_CHECK(0)
         };
@@ -403,7 +403,7 @@ static safety_config hyundai_canfd_init(uint16_t param) {
         };
 
         ret = hyundai_camera_scc ?
-          BUILD_SAFETY_CFG(hyundai_canfd_hda2_long_rx_checks_scc2, HYUNDAI_CANFD_HDA2_LONG_TX_MSGS) :
+          BUILD_SAFETY_CFG(hyundai_canfd_hda2_long_rx_checks_camera_scc, HYUNDAI_CANFD_HDA2_LONG_TX_MSGS) :
           BUILD_SAFETY_CFG(hyundai_canfd_hda2_long_rx_checks, HYUNDAI_CANFD_HDA2_LONG_TX_MSGS);
       }
     } else {
