@@ -12,14 +12,14 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : ListWidget(parent) {
   addItem(new SshToggle());
   addItem(new SshControl());
 
-  joystickToggle = new ParamControl("JoystickDebugMode", tr("Joystick Debug Mode"), "", "");
+  joystickToggle = new ParamControl("JoystickDebugMode", tr("Joystick Debug Mode"), "", "../assets/offroad/icon_joystick.png");
   QObject::connect(joystickToggle, &ParamControl::toggleFlipped, [=](bool state) {
     params.putBool("LongitudinalManeuverMode", false);
     longManeuverToggle->refresh();
   });
   addItem(joystickToggle);
 
-  longManeuverToggle = new ParamControl("LongitudinalManeuverMode", tr("Longitudinal Maneuver Mode"), "", "");
+  longManeuverToggle = new ParamControl("LongitudinalManeuverMode", tr("Longitudinal Maneuver Mode"), "", "../assets/offroad/icon_long.png");
   QObject::connect(longManeuverToggle, &ParamControl::toggleFlipped, [=](bool state) {
     params.putBool("JoystickDebugMode", false);
     joystickToggle->refresh();
@@ -33,7 +33,7 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : ListWidget(parent) {
   addItem(alphaLongToggle);
   alphaLongToggle->setConfirmation(true, false);
 
-  adbToggle = new ParamControl("Adb", tr("Android Debug Bridge"), tr("Enable ADB"), "");
+  adbToggle = new ParamControl("Adb", tr("Android Debug Bridge"), "", "../assets/offroad/icon_adb.png");
   QObject::connect(adbToggle, &ParamControl::toggleFlipped, [=](bool state) {
     if (state) {
       QProcess::startDetached("sh", {"-c", "setprop service.adb.tcp.port 5555 && sudo systemctl start adbd"});
