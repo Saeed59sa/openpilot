@@ -76,7 +76,6 @@ class CarState(CarStateBase):
     self.lfa_enabled = False
 
     self.main_enabled = False
-    self.main_cruise_enabled = False
 
     self.canfd_buttons = None
 
@@ -255,12 +254,12 @@ class CarState(CarStateBase):
         self.lfa_enabled = not self.lfa_enabled
       ret.cruiseState.available = self.lfa_enabled
 
+    if prev_main_buttons == 0 and self.main_buttons[-1] != 0:
+      self.main_enabled = not self.main_enabled
+      ret.cruiseState.available = self.main_enabled
+
     if self.CP.openpilotLongitudinalControl and CruiseStateManager.instance().cruise_state_control:
-      CruiseStateManager.instance().update(ret, enabled=ret.cruiseState.enabled)
-    else:
-      if prev_main_buttons == 0 and self.main_buttons[-1] != 0:
-        self.main_enabled = not self.main_enabled
-        ret.cruiseState.available = self.main_enabled
+      CruiseStateManager.instance().update(ret, available=ret.cruiseState.available, enabled=ret.cruiseState.enabled)
 
     return ret
 
@@ -431,26 +430,15 @@ class CarState(CarStateBase):
         self.lfa_enabled = not self.lfa_enabled
       ret.cruiseState.available = self.lfa_enabled
 
-    #if self.CP.exFlags & HyundaiExFlags.LFA and self.CP.openpilotLongitudinalControl:
-    #  self.main_buttons.append(cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"])
+    if self.main_buttons[-1] != prev_main_buttons and not self.main_buttons[-1]:
+      self.main_enabled = not self.main_enabled
+      ret.cruiseState.available = self.main_enabled
 
     if self.CP.openpilotLongitudinalControl and CruiseStateManager.instance().cruise_state_control:
-      ret.cruiseState.available = self.get_main_cruise(ret)
-      CruiseStateManager.instance().update(ret, enabled=ret.cruiseState.enabled)
-      ret.accEnable = cp.vl["TCS"]["ACCEnable"] == 0
-
-    else:
-      if self.main_buttons[-1] != prev_main_buttons and not self.main_buttons[-1]:
-        self.main_enabled = not self.main_enabled
-        ret.cruiseState.available = self.main_enabled
+      CruiseStateManager.instance().update(ret, available=ret.cruiseState.available, enabled=ret.cruiseState.enabled)
+      ret.accEnable = cp.vl["TCS"]["ACC_REQ"] == 1
 
     return ret
-
-  def get_main_cruise(self, ret: structs.CarState) -> bool:
-    if any(be.type == ButtonType.mainCruise and be.pressed for be in ret.buttonEvents):
-      self.main_cruise_enabled = not self.main_cruise_enabled
-
-    return self.main_cruise_enabled if ret.cruiseState.available else False
 
   def get_can_parsers_canfd(self, CP):
     pt_messages = [
