@@ -1,7 +1,7 @@
 import numpy as np
+
 from cereal import log
 from common.filter_simple import FirstOrderFilter
-from common.numpy_fast import interp, clip, mean
 from common.realtime import DT_MDL
 from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, MAX_LATERAL_JERK
 from openpilot.selfdrive.modeld.constants import ModelConstants
@@ -54,14 +54,14 @@ class LanePlanner:
     width_pts = self.rll_y - self.lll_y
     prob_mods = []
     for t_check in (0.0, 1.5, 3.0):
-      width_at_t = interp(t_check * (v_ego + 7), self.ll_x, width_pts)
-      prob_mods.append(interp(width_at_t, [4.0, 5.0], [1.0, 0.0]))
+      width_at_t = np.interp(t_check * (v_ego + 7), self.ll_x, width_pts)
+      prob_mods.append(np.interp(width_at_t, [4.0, 5.0], [1.0, 0.0]))
     mod = min(prob_mods)
     l_prob *= mod
     r_prob *= mod
 
-    l_std_mod = interp(self.lll_std, [.15, .3], [1.0, 0.0])
-    r_std_mod = interp(self.rll_std, [.15, .3], [1.0, 0.0])
+    l_std_mod = np.interp(self.lll_std, [.15, .3], [1.0, 0.0])
+    r_std_mod = np.interp(self.rll_std, [.15, .3], [1.0, 0.0])
     l_prob *= l_std_mod
     r_prob *= r_std_mod
 
@@ -69,14 +69,14 @@ class LanePlanner:
       self.frame += 1
       if self.frame > 20:
         self.frame = 0
-        current_lane_width = clip(abs(self.rll_y[0] - self.lll_y[0]), 2.5, 3.5)
+        current_lane_width = np.clip(abs(self.rll_y[0] - self.lll_y[0]), 2.5, 3.5)
         self.readings.append(current_lane_width)
-        self.lane_width = mean(self.readings)
+        self.lane_width = np.mean(self.readings)
         if len(self.readings) >= 30:
           self.readings.pop(0)
 
     if abs(self.rll_y[0] - self.lll_y[0]) > self.lane_width:
-      r_prob = r_prob / interp(l_prob, [0, 1], [1, 3])
+      r_prob = r_prob / np.interp(l_prob, [0, 1], [1, 3])
 
     clipped_lane_width = min(4.0, self.lane_width)
     path_from_left_lane = self.lll_y + clipped_lane_width / 2.0
@@ -110,15 +110,15 @@ class LanePlanner:
     # in high delay cases some corrections never even get commanded. So just use
     # psi to calculate a simple linearization of desired curvature
     current_curvature_desired = curvatures[0]
-    psi = interp(delay, ModelConstants.T_IDXS[:CONTROL_N], psis)
-    distance = max(interp(delay, ModelConstants.T_IDXS[:CONTROL_N], distances), 0.001)
+    psi = np.interp(delay, ModelConstants.T_IDXS[:CONTROL_N], psis)
+    distance = max(np.interp(delay, ModelConstants.T_IDXS[:CONTROL_N], distances), 0.001)
     average_curvature_desired = psi / distance
     desired_curvature = 2 * average_curvature_desired - current_curvature_desired
 
     # This is the "desired rate of the setpoint" not an actual desired rate
     max_curvature_rate = MAX_LATERAL_JERK / (v_ego ** 2)  # inexact calculation, check https://github.com/commaai/openpilot/pull/24755
-    safe_desired_curvature = clip(desired_curvature,
-                                  current_curvature_desired - max_curvature_rate * DT_MDL,
-                                  current_curvature_desired + max_curvature_rate * DT_MDL)
+    safe_desired_curvature = np.clip(desired_curvature,
+                                     current_curvature_desired - max_curvature_rate * DT_MDL,
+                                     current_curvature_desired + max_curvature_rate * DT_MDL)
 
     return safe_desired_curvature * path_factor

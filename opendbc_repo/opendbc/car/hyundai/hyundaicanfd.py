@@ -1,5 +1,6 @@
+import numpy as np
+
 from opendbc.car import CanBusBase
-from opendbc.car.common.numpy_fast import clip
 from opendbc.car.hyundai.values import HyundaiFlags, HyundaiExFlags
 from openpilot.common.params import Params
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
@@ -41,7 +42,7 @@ def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, ap
 
   if CP.flags & HyundaiFlags.CANFD_CAMERA_SCC.value:
     if angle_control:
-      apply_angle = clip(apply_angle, -119, 119)
+      apply_angle = np.clip(apply_angle, -119, 119)
 
       values = {
         "LKAS_ANGLE_ACTIVE": 2 if abs(CS.out.steeringAngleDeg) < 110.0 and lat_active else 1,
@@ -223,7 +224,7 @@ def create_acc_control(packer, CP, CC, CS, CAN, accel_last, accel, stopping, set
     a_val, a_raw = 0, 0
   else:
     a_raw = accel
-    a_val = clip(accel, accel_last - jn, accel_last + jn)
+    a_val = np.clip(accel, accel_last - jn, accel_last + jn)
 
   if CP.flags & HyundaiFlags.CANFD_CAMERA_SCC.value:
     values = CS.cruise_info

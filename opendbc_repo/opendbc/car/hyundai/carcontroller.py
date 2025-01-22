@@ -1,8 +1,9 @@
+import numpy as np
+
 from opendbc.can.packer import CANPacker
 from opendbc.car import (Bus, DT_CTRL, apply_driver_steer_torque_limits, common_fault_avoidance, make_tester_present_msg, structs,
                                      apply_std_steer_angle_limits)
 from opendbc.car.common.conversions import Conversions as CV
-from opendbc.car.common.numpy_fast import clip, interp
 from opendbc.car.hyundai import hyundaicanfd, hyundaican
 from opendbc.car.hyundai.carstate import CarState
 from opendbc.car.hyundai.hyundaicanfd import CanBus
@@ -93,7 +94,7 @@ class CarController(CarControllerBase):
     vEgo_safe = max(0, min(CS.out.vEgoCluster, 20))
 
     # Interpolate a weight based on vehicle speed (vEgoCluster in m/s)
-    speed_weight = interp(vEgo_safe, [0, 5, 10, 20], [0.2, 0.3, 0.5, 1.0])
+    speed_weight = np.interp(vEgo_safe, [0, 5, 10, 20], [0.2, 0.3, 0.5, 1.0])
 
     # Adjust the torque reducer directly in this block
     if abs(CS.out.steeringTorque) > TORQUE_THRESHOLD:
@@ -125,7 +126,7 @@ class CarController(CarControllerBase):
     torque_fault = CC.latActive and not apply_steer_req
 
     # accel + longitudinal
-    accel = clip(actuators.accel, ACCEL_MIN, ACCEL_MAX)
+    accel = float(np.clip(actuators.accel, ACCEL_MIN, ACCEL_MAX))
     stopping = actuators.longControlState == LongCtrlState.stopping
     set_speed_in_units = hud_control.setSpeed * (CV.MS_TO_KPH if CS.is_metric else CV.MS_TO_MPH)
 
@@ -296,5 +297,5 @@ class HyundaiJerk:
       else:
         self.jerk_u = min(max(self.jerk_u_min, self.jerk * 2.0), jerk_max_u)
         self.jerk_l = min(max(1.0, -self.jerk * 2.0), jerk_max_l)
-        self.cb_upper = clip(0.9 + accel * 0.2, 0, 1.2)
-        self.cb_lower = clip(0.8 + accel * 0.2, 0, 1.2)
+        self.cb_upper = np.clip(0.9 + accel * 0.2, 0, 1.2)
+        self.cb_lower = np.clip(0.8 + accel * 0.2, 0, 1.2)

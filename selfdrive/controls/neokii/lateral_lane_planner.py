@@ -1,9 +1,9 @@
 import time
 import numpy as np
 import cereal.messaging as messaging
+
 from cereal import log
 from openpilot.common.realtime import DT_MDL
-from openpilot.common.numpy_fast import interp
 from openpilot.common.swaglog import cloudlog
 from openpilot.common.params import Params
 from openpilot.selfdrive.controls.lib.lateral_mpc_lib.lat_mpc import LateralMpc
@@ -105,7 +105,7 @@ class LateralLanePlanner:
     # mpc.u_sol is the desired second derivative of psi given x0 curv state.
     # with x0[3] = measured_yaw_rate, this would be the actual desired yaw rate.
     # instead, interpolate x_sol so that x0[3] is the desired yaw rate for lat_control.
-    self.x0[3] = interp(DT_MDL, self.t_idxs[:LAT_MPC_N + 1], self.lat_mpc.x_sol[:, 3])
+    self.x0[3] = np.interp(DT_MDL, self.t_idxs[:LAT_MPC_N + 1], self.lat_mpc.x_sol[:, 3])
 
     #  Check for infeasible MPC solution
     mpc_nans = np.isnan(self.lat_mpc.x_sol[:, 3]).any()
