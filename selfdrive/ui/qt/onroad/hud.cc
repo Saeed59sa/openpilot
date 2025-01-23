@@ -38,8 +38,8 @@ HudRenderer::HudRenderer() {
   traffic_off_img = loadPixmap("../assets/img_traffic_off.png", {img_size, img_size});
   traffic_green_img = loadPixmap("../assets/img_traffic_green.png", {img_size, img_size});
   traffic_red_img = loadPixmap("../assets/img_traffic_red.png", {img_size, img_size});
-  lka_on_img = loadPixmap("../assets/img_lat_on.png", {img_size, img_size});
-  lka_off_img = loadPixmap("../assets/img_lat_off.png", {img_size, img_size});
+  lka_on_img = loadPixmap("../assets/img_lka_on.png", {img_size, img_size});
+  lka_off_img = loadPixmap("../assets/img_lka_off.png", {img_size, img_size});
   acc_on_img = loadPixmap("../assets/img_acc_on.png", {img_size, img_size});
   acc_off_img = loadPixmap("../assets/img_acc_off.png", {img_size, img_size});
 
@@ -257,17 +257,17 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     // lka icon
     x = (btn_size / 2) + (UI_BORDER_SIZE * 1.5) + (btn_size * 2);
     if (lat_active) {
-      drawIcon(p, QPoint(x, y), lka_on_img, icon_bg, lka_state == 1 ? 0.8 : 0.2);
+      drawIcon(p, QPoint(x, y), lka_on_img, icon_bg, lka_state ? 0.8 : 0.2);
     } else {
-      drawIcon(p, QPoint(x, y), lka_off_img, icon_bg, lka_state == 1 ? 0.8 : 0.2);
+      drawIcon(p, QPoint(x, y), lka_off_img, icon_bg, lka_state ? 0.8 : 0.2);
     }
 
     // acc icon
     x = (btn_size / 2) + (UI_BORDER_SIZE * 1.5) + (btn_size * 3);
     if (lat_active) {
-      drawIcon(p, QPoint(x, y), acc_on_img, icon_bg, acc_state == 1 ? 0.8 : 0.2);
+      drawIcon(p, QPoint(x, y), acc_on_img, icon_bg, acc_state ? 0.8 : 0.2);
     } else {
-      drawIcon(p, QPoint(x, y), acc_off_img, icon_bg, acc_state == 1 ? 0.8 : 0.2);
+      drawIcon(p, QPoint(x, y), acc_off_img, icon_bg, acc_state ? 0.8 : 0.2);
     }
 
     // gaspress icon

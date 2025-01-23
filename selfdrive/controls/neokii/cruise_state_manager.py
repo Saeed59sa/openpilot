@@ -46,7 +46,7 @@ class CruiseStateManager:
   def reset_available(self):
     threading.Timer(5.0, lambda: setattr(self, 'available', True)).start()
 
-  def update(self, CS, available, enabled):
+  def update(self, CS, enabled):
     btn = self.update_buttons(CS)
     if btn != ButtonType.unknown:
       self.update_cruise_state(CS, int(round(self.speed * CV.MS_TO_KPH)), btn)
@@ -54,8 +54,6 @@ class CruiseStateManager:
     if not self.prev_brake_pressed and CS.brakePressed:
       self.enabled = False
     self.prev_brake_pressed = CS.brakePressed
-
-    self.available = available
 
     CS.cruiseState.available = self.available
     CS.cruiseState.enabled = enabled and self.enabled
