@@ -259,6 +259,7 @@ struct CarState {
   }
 
   accEnable @58 :Bool;
+  accActive @59 :Bool;
 
   struct WheelSpeeds {
     # optional wheel speeds

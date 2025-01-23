@@ -32,18 +32,18 @@ private:
   QPixmap gps_img, direction_img, tpms_img;
   QPixmap turnsignal_l_img, turnsignal_r_img;
   QPixmap traffic_off_img, traffic_green_img, traffic_red_img;
-  QPixmap lane_change_left_img, lane_change_right_img;
   QPixmap autohold_warning_img;
   QPixmap autohold_active_img;
-  QPixmap nda_img, hda_img, mads_on_img, mads_off_img;
+  QPixmap nda_img, hda_img;
+  QPixmap acc_on_img, acc_off_img, lka_on_img, lka_off_img;
 
   QString leftDistStr, sa_str, sa_direction, altitudeStr, accuracyStr, infoGps;
 
   bool hideBottomIcons = false;
-  bool longControl, mads_state = false;
+  bool longControl = false;
   bool brake_press, gas_press = false;
   bool left_blinker, right_blinker = false;
-  bool lat_active = false;
+  bool lat_active, lka_state, acc_state = false;
 
   int autohold_state, nda_state = 0;
   int wifi_state = 0;

@@ -433,10 +433,11 @@ class CarState(CarStateBase):
     if self.main_buttons[-1] != prev_main_buttons and not self.main_buttons[-1]:
       self.main_enabled = not self.main_enabled
       ret.cruiseState.available = self.main_enabled
+      ret.accEnable = self.main_enabled
 
     if self.CP.openpilotLongitudinalControl and CruiseStateManager.instance().cruise_state_control:
       CruiseStateManager.instance().update(ret, available=ret.cruiseState.available, enabled=ret.cruiseState.enabled)
-      ret.accEnable = cp.vl["TCS"]["ACC_REQ"] == 1
+      ret.accActive = cp.vl["TCS"]["ACC_REQ"] == 1
 
     return ret
 

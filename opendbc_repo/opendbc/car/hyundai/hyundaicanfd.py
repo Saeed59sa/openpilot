@@ -346,7 +346,7 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       #values["LFA_ICON"] = 2 if lat_active else 1
       #values["LKA_ICON"] = 4 if lat_active else 3
       values["NAV_ICON"] = 2 if nav_active else 0
-      values["HDA_ICON"] = 2 if CS.out.accEnable else 0
+      values["HDA_ICON"] = 2 if CS.out.accActive else 0
 
       # LFA_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 5 "CYAN";
       # LKA_ICON 0 "HIDDEN" 1 "ORANGE" 3 "GRAY" 4 "GREEN";
