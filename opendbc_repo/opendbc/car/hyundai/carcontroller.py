@@ -174,7 +174,7 @@ class CarController(CarControllerBase):
         can_sends.extend(hyundaicanfd.create_spas_messages(self.packer, CC, self.CAN))
 
       if self.CP.openpilotLongitudinalControl:
-        self.hyundai_jerk.make_jerk(self.CP, CS, accel, actuators, hud_control)
+        self.hyundai_jerk.make_jerk(self.CP, CS, accel, actuators)
 
         if hda2:
           can_sends.extend(hyundaicanfd.create_adrv_messages(self.packer, self.CP, CC, CS, self.CAN, self.frame,
@@ -275,7 +275,7 @@ class HyundaiJerk:
     self.cb_upper = self.cb_lower = 0.0
     self.jerk_u_min = 0.5
 
-  def make_jerk(self, CP, CS, accel, actuators, hud_control):
+  def make_jerk(self, CP, CS, accel, actuators):
     if actuators.longControlState == LongCtrlState.stopping:
       self.jerk = self.jerk_u_min / 2 - CS.out.aEgo
     else:

@@ -71,7 +71,7 @@ class LanePlanner:
         self.frame = 0
         current_lane_width = np.clip(abs(self.rll_y[0] - self.lll_y[0]), 2.5, 3.5)
         self.readings.append(current_lane_width)
-        self.lane_width = np.mean(self.readings)
+        self.lane_width = float(np.mean(self.readings))
         if len(self.readings) >= 30:
           self.readings.pop(0)
 
