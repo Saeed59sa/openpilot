@@ -42,6 +42,7 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
   AudibleAlert.ready: ("ready.wav", 1, MAX_VOLUME),
   AudibleAlert.ding: ("ding.wav", 1, MAX_VOLUME),
   AudibleAlert.dong: ("dong.wav", 1, MAX_VOLUME),
+  AudibleAlert.enable: ("enable.wav", 1, MAX_VOLUME),
 }
 
 def check_selfdrive_timeout_alert(sm):

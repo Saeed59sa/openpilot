@@ -421,15 +421,11 @@
     </message>
     <message>
         <source>Longitudinal Maneuver Mode</source>
-        <translation>롱컨 기동 모드</translation>
+        <translation>롱컨 제어 모드</translation>
     </message>
     <message>
         <source>Android Debug Bridge</source>
         <translation>안드로이드 디버그 브릿지</translation>
-    </message>
-    <message>
-        <source>Enable ADB</source>
-        <translation>ADB 활성화</translation>
     </message>
 </context>
 <context>
@@ -1386,11 +1382,15 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Standard</source>
-        <translation>표준</translation>
+        <translation>보통</translation>
     </message>
     <message>
         <source>Relaxed</source>
         <translation>편안한</translation>
+    </message>
+    <message>
+        <source>MoreRelaxed</source>
+        <translation>더욱 편안한</translation>
     </message>
     <message>
         <source>Driving Personality</source>

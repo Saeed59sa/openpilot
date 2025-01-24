@@ -461,6 +461,7 @@ struct CarControl {
       ready @9;
       ding @10;
       dong @11;
+      enable @12;
     }
   }
 

@@ -317,7 +317,7 @@ def wrong_car_mode_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
   if CP.carName == "honda":
     text = "메인 스위치로 활성화됩니다"
   if CP.carName == "hyundai":
-    text = "크루즈 와 SET 버튼으로 활성화됩니다"
+    text = "크루즈와 SET 버튼으로 활성화됩니다"
   return NoEntryAlert(text)
 
 
@@ -340,7 +340,14 @@ def longitudinal_maneuver_alert(CP: car.CarParams, CS: car.CarState, sm: messagi
 
 def personality_changed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
   personality = str(personality).title()
-  return NormalPermanentAlert(f"Driving Personality: {personality}", duration=1.5)
+  personality_map = {
+    "aggressive": "공격적",
+    "standard": "보통",
+    "relaxed": "편안한",
+    "morerealaxed": "더욱 편안한",
+  }
+  personality_kr = personality_map.get(personality)
+  return NormalPermanentAlert(f"운전 성향: {personality_kr}", duration=1.5)
 
 def auto_lane_change_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
   alc_timer = sm['modelV2'].meta.autoLaneChangeTimer
@@ -391,7 +398,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.longitudinalManeuver: {
     ET.WARNING: longitudinal_maneuver_alert,
-    ET.PERMANENT: NormalPermanentAlert("롱컨 가동 모드",
+    ET.PERMANENT: NormalPermanentAlert("롱컨 제어 모드",
                                        "전방 도로에 장애물이 없는지 확인하세요"),
   },
 
@@ -430,7 +437,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   EventName.invalidLkasSetting: {
     ET.PERMANENT: NormalPermanentAlert("잘못된 LKAS 설정",
                                        "활성화 하려면 차량의 LKAS를 켜거나 끄세요."),
-    ET.NO_ENTRY: NoEntryAlert("Invalid LKAS setting"),
+    ET.NO_ENTRY: NoEntryAlert("잘못된 LKAS 설정"),
   },
 
   EventName.cruiseMismatch: {
@@ -668,8 +675,11 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.brakeHold: {
-    ET.USER_DISABLE: EngagementAlert(AudibleAlert.disengage),
-    ET.NO_ENTRY: NoEntryAlert("브레이크 감지됨"),
+    ET.WARNING: Alert(
+      "브레이크 홀드를 해제하려면 RES를 누르세요",
+      "",
+      AlertStatus.userPrompt, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, .2),
   },
 
   EventName.parkBrake: {
@@ -1017,6 +1027,11 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   EventName.dong: {
     ET.PERMANENT: Alert("", "", AlertStatus.normal, AlertSize.none,
                         Priority.MID, VisualAlert.none, AudibleAlert.dong, 1.),
+  },
+
+  EventName.enable: {
+    ET.PERMANENT: Alert("", "", AlertStatus.normal, AlertSize.none,
+                        Priority.MID, VisualAlert.none, AudibleAlert.enable, 1.),
   },
 }
 
