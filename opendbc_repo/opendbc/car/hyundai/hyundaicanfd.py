@@ -157,22 +157,19 @@ def create_suppress_lfa(packer, CP, CC, CS, CAN):
 
 
 def create_buttons(packer, CP, CAN, cnt, btn):
+  canfd_msg = "CRUISE_BUTTONS_ALT" if CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS else \
+              "CRUISE_BUTTONS"
+  # If we discover cars use different values for this in the future, echoing back
+  # what's read from the car would also work.
+  SET_ME_2 = 6
   values = {
     "COUNTER": cnt,
-    "SET_ME_1": 1,
     "CRUISE_BUTTONS": btn,
-  }
+    "SET_ME_1": 1,
+  } | {"SET_ME_2": SET_ME_2} if CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS else {}
 
   bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_HDA2 else CAN.CAM
-  return packer.make_can_msg("CRUISE_BUTTONS", bus, values)
-
-
-## carrot
-def alt_cruise_buttons(packer, CP, CAN, buttons, cruise_btns_msg, cnt):
-  cruise_btns_msg["CRUISE_BUTTONS"] = buttons
-  cruise_btns_msg["COUNTER"] = (cruise_btns_msg["COUNTER"] + 1 + cnt) % 256
-  bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_HDA2 else CAN.CAM
-  return packer.make_can_msg("CRUISE_BUTTONS_ALT", bus, cruise_btns_msg)
+  return packer.make_can_msg(canfd_msg, bus, values)
 
 
 def create_acc_cancel(packer, CP, CS, CAN):
