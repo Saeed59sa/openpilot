@@ -89,6 +89,7 @@ private:
 
 std::unordered_map<std::string, uint32_t> keys = {
     {"AccessToken", CLEAR_ON_MANAGER_START | DONT_LOG},
+    {"AdbEnabled", PERSISTENT},
     {"AlwaysOnDM", PERSISTENT},
     {"ApiCache_Device", PERSISTENT},
     {"AssistNowToken", PERSISTENT},
@@ -213,7 +214,6 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"DriverCameraHardwareMissing", PERSISTENT},
     {"DriverCameraOnReverse", PERSISTENT},
     {"CarName", CLEAR_ON_MANAGER_START},
-    {"Adb", PERSISTENT},
     {"HyundaiCameraSCC", PERSISTENT},
     {"NetworkAddress", CLEAR_ON_MANAGER_START},
     {"CruiseStateControl", PERSISTENT},

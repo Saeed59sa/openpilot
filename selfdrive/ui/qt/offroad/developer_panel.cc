@@ -33,7 +33,7 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : ListWidget(parent) {
   addItem(alphaLongToggle);
   alphaLongToggle->setConfirmation(true, false);
 
-  adbToggle = new ParamControl("Adb", tr("Android Debug Bridge"), "", "../assets/offroad/icon_adb.png");
+  adbToggle = new ParamControl("AdbEnabled", tr("Android Debug Bridge"), "", "../assets/offroad/icon_adb.png");
   QObject::connect(adbToggle, &ParamControl::toggleFlipped, [=](bool state) {
     if (state) {
       QProcess::startDetached("sh", {"-c", "setprop service.adb.tcp.port 5555 && sudo systemctl start adbd"});
