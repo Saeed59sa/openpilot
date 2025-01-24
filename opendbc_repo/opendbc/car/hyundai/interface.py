@@ -155,7 +155,7 @@ class CarInterface(CarInterfaceBase):
     # Common longitudinal control setup
 
     ret.experimentalLongitudinalAvailable = True  # candidate not in (CANFD_UNSUPPORTED_LONGITUDINAL_CAR | CANFD_RADAR_SCC_CAR)
-    ret.pcmCruise = not ret.openpilotLongitudinalControl or Params().get_bool("PcmCruise")
+    ret.pcmCruise = Params().get_bool("PcmCruise")
 
     ret.radarUnavailable = RADAR_START_ADDR not in fingerprint[1] or Bus.radar not in DBC[ret.carFingerprint]
     ret.openpilotLongitudinalControl = (experimental_long and ret.experimentalLongitudinalAvailable) or camera_scc

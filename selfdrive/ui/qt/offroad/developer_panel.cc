@@ -87,6 +87,7 @@ void DeveloperPanel::updateToggles(bool _offroad) {
     alphaLongToggle->setVisible(false);
     longManeuverToggle->setEnabled(false);
   }
+
   adbToggle->setEnabled(_offroad);
 
   offroad = _offroad;

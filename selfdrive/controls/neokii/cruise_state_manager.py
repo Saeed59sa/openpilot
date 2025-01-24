@@ -17,7 +17,7 @@ class CruiseStateManager:
   def __init__(self):
     self.params = Params()
 
-    self.available = False
+    self.available = True
     self.enabled = False
     self.speed = V_CRUISE_ENABLE_MIN * CV.KPH_TO_MS
     self.lead_distance_bars = self.get_lead_distance_bars()
@@ -44,7 +44,7 @@ class CruiseStateManager:
     return cls._instance
 
   def reset_available(self):
-    threading.Timer(5.0, lambda: setattr(self, 'available', True)).start()
+    threading.Timer(3.0, lambda: setattr(self, 'available', True)).start()
 
   def update(self, CS, enabled):
     btn = self.update_buttons(CS)
@@ -108,7 +108,7 @@ class CruiseStateManager:
           v_cruise_kph += v_cruise_delta - v_cruise_kph % v_cruise_delta
         elif btn == ButtonType.decelCruise:
           v_cruise_kph -= v_cruise_delta - -v_cruise_kph % v_cruise_delta
-    else:
+    elif not self.enabled and self.available:
       if not self.btn_long_pressed:
         if btn == ButtonType.decelCruise:
           self.enabled = True
@@ -126,8 +126,8 @@ class CruiseStateManager:
         self.lead_distance_bars -= 1
         self.lead_distance_bars = np.clip(self.lead_distance_bars, 1, 4)
         self.params.put_nonblocking("SccGapAdjust", str(self.lead_distance_bars))
-      else:
-        self.params.put_bool("ExperimentalMode", not self.params.get_bool("ExperimentalMode"))
+      #else:
+      #  self.params.put_bool("ExperimentalMode", not self.params.get_bool("ExperimentalMode"))
 
     if btn == ButtonType.cancel:
       if not self.btn_long_pressed:
@@ -139,9 +139,6 @@ class CruiseStateManager:
 
     if btn == ButtonType.lfaButton:
       if not self.btn_long_pressed:
-        self.enabled = False
-        self.available = not self.available
-      else:
         self.enabled = False
         self.available = False
         self.reset_available()
