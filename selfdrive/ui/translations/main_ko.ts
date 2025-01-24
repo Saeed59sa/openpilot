@@ -341,32 +341,12 @@
         <translation>차선인식 사용</translation>
     </message>
     <message>
-        <source>Displays the driver camera when in reverse.</source>
-        <translation type="vanished">후진시 운전자 감시 카메라를 보여줍니다</translation>
-    </message>
-    <message>
         <source>If there is a problem with the driver camera hardware, drive without the driver camera</source>
         <translation>운전자 카메라 하드웨어에 문제가 있는 경우 운전자 카메라 없이 사용합니다</translation>
     </message>
     <message>
         <source>Realdata Files Upload</source>
         <translation>주행데이터 업로드</translation>
-    </message>
-    <message>
-        <source>Path does not exist.</source>
-        <translation>경로가 존재하지 않습니다</translation>
-    </message>
-    <message>
-        <source>No data found.</source>
-        <translation>데이터가 없습니다</translation>
-    </message>
-    <message>
-        <source>Upload failed. Exit code: </source>
-        <translation>업로드 실패. 오류코드: </translation>
-    </message>
-    <message>
-        <source>Upload complete.</source>
-        <translation>업로드 성공</translation>
     </message>
     <message>
         <source>Openpilot controls cruise on/off, set speed</source>
@@ -385,6 +365,38 @@
     <message>
         <source>Use lane lines</source>
         <translation>차선인식 사용</translation>
+    </message>
+    <message>
+        <source>Path does not exist</source>
+        <translation>경로가 존재하지 않습니다</translation>
+    </message>
+    <message>
+        <source>Files does not exist</source>
+        <translation>파일이 존재하지 않습니다</translation>
+    </message>
+    <message>
+        <source>Upload complete</source>
+        <translation>업로드 성공</translation>
+    </message>
+    <message>
+        <source>Network connection failed</source>
+        <translation>네트워크 연결 실패</translation>
+    </message>
+    <message>
+        <source>Files not found</source>
+        <translation>파일이 없습니다</translation>
+    </message>
+    <message>
+        <source>FTP connection failed</source>
+        <translation>FTP 연결 실패</translation>
+    </message>
+    <message>
+        <source>FTP folder creation failed</source>
+        <translation>FTP 폴더 생성 실패</translation>
+    </message>
+    <message>
+        <source>Failed to upload files</source>
+        <translation>업로드 실패</translation>
     </message>
 </context>
 <context>
