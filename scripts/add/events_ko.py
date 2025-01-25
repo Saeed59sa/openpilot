@@ -314,9 +314,9 @@ def modeld_lagging_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
 
 def wrong_car_mode_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
   text = "크루즈 버튼으로 활성화됩니다"
-  if CP.carName == "honda":
+  if CP.brand == "honda":
     text = "메인 스위치로 활성화됩니다"
-  if CP.carName == "hyundai":
+  if CP.brand == "hyundai":
     text = "크루즈와 SET 버튼으로 활성화됩니다"
   return NoEntryAlert(text)
 

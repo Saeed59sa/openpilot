@@ -23,7 +23,7 @@ SteerControlType = structs.CarParams.SteerControlType
 class CarInterface(CarInterfaceBase):
   @staticmethod
   def _get_params(ret: structs.CarParams, candidate, fingerprint, car_fw, experimental_long, docs) -> structs.CarParams:
-    ret.carName = "hyundai"
+    ret.brand = "hyundai"
 
     camera_scc = Params().get_bool("HyundaiCameraSCC")
 
