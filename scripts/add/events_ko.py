@@ -342,7 +342,7 @@ def personality_changed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging
   personality = str(personality).title()
   personality_map = {
     "aggressive": "공격적",
-    "standard": "보통",
+    "standard": "표준",
     "relaxed": "편안한",
     "morerealaxed": "더욱 편안한",
   }

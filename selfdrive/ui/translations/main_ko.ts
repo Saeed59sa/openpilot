@@ -448,8 +448,12 @@
         <translation>이 차량은 openpilot 가감속 제어 대신 기본적으로 차량의 ACC로 가감속을 제어합니다. openpilot의 가감속 제어로 전환하려면 이 기능을 활성화하세요. openpilot 가감속 제어 알파를 활성화하는 경우 실험 모드 활성화를 권장합니다.</translation>
     </message>
     <message>
-        <source>Android Debug Bridge</source>
-        <translation>안드로이드 디버그 브릿지</translation>
+        <source>Enable ADB</source>
+        <translation>ADB 사용</translation>
+    </message>
+    <message>
+        <source>ADB (Android Debug Bridge) allows connecting to your device over USB or over the network. See https://docs.comma.ai/how-to/connect-to-comma for more info.</source>
+        <translation>ADB (안드로이드 디버그 브릿지) USB 또는 네트워크를 통해 장치에 연결할 수 있습니다. 자세한 내용은 https://docs.comma.ai/how-to/connect-to-comma를 참조하세요.</translation>
     </message>
 </context>
 <context>
@@ -1394,7 +1398,7 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Standard</source>
-        <translation>보통</translation>
+        <translation>표준</translation>
     </message>
     <message>
         <source>Relaxed</source>

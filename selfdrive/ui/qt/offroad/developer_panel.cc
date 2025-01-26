@@ -8,6 +8,10 @@
 #include "common/util.h"
 
 DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : ListWidget(parent) {
+  adbToggle = new ParamControl("AdbEnabled", tr("Enable ADB"),
+            tr("ADB (Android Debug Bridge) allows connecting to your device over USB or over the network. See https://docs.comma.ai/how-to/connect-to-comma for more info."), "../assets/offroad/icon_adb.png");
+  addItem(adbToggle);
+
   // SSH keys
   addItem(new SshToggle());
   addItem(new SshControl());
@@ -40,16 +44,6 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : ListWidget(parent) {
     updateToggles(offroad);
   });
   addItem(experimentalLongitudinalToggle);
-
-  adbToggle = new ParamControl("AdbEnabled", tr("Android Debug Bridge"), "", "../assets/offroad/icon_adb.png");
-  QObject::connect(adbToggle, &ParamControl::toggleFlipped, [=](bool state) {
-    if (state) {
-      QProcess::startDetached("sh", {"-c", "setprop service.adb.tcp.port 5555 && sudo systemctl start adbd"});
-    } else {
-      QProcess::startDetached("sh", {"-c", "sudo systemctl stop adbd"});
-    }
-  });
-  addItem(adbToggle);
 
   // Joystick and longitudinal maneuvers should be hidden on release branches
   is_release = params.getBool("IsReleaseBranch");
