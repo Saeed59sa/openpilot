@@ -379,24 +379,8 @@
         <translation>업로드 성공</translation>
     </message>
     <message>
-        <source>Network connection failed</source>
-        <translation>네트워크 연결 실패</translation>
-    </message>
-    <message>
-        <source>Files not found</source>
-        <translation>파일이 없습니다</translation>
-    </message>
-    <message>
-        <source>FTP connection failed</source>
-        <translation>FTP 연결 실패</translation>
-    </message>
-    <message>
-        <source>FTP folder creation failed</source>
-        <translation>FTP 폴더 생성 실패</translation>
-    </message>
-    <message>
-        <source>Failed to upload files</source>
-        <translation>업로드 실패</translation>
+        <source>Upload failed. Exit code: </source>
+        <translation>업로드 실패. 종료 코드: </translation>
     </message>
 </context>
 <context>

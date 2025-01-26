@@ -366,8 +366,14 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     }
 
     QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-    std::sort(fileInfoList.begin(), fileInfoList.end(), [](const QFileInfo &a, const QFileInfo &b) {
-      return a.lastModified() > b.lastModified();
+    // Exclude "boot" folder
+    fileInfoList.erase(std::remove_if(fileInfoList.begin(), fileInfoList.end(),
+                                     [](const QFileInfo& info) { return info.fileName() == "boot"; }),
+                       fileInfoList.end());
+
+    // Sort by last modified date (descending)
+    std::sort(fileInfoList.begin(), fileInfoList.end(), [](const QFileInfo& a, const QFileInfo& b) {
+        return a.lastModified() > b.lastModified();
     });
 
     QStringList folderNames;
@@ -389,11 +395,15 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
       if (ConfirmationDialog::confirm(tr("Are you sure you want to upload files from this folder?\n") + selectedFolderPath, tr("Upload"), this)) {
         QString command = scriptPath + " \"" + selectedFolderPath + "\"";
 
-        int exitCode = QProcess::execute(command);
+        QProcess *process = new QProcess(this);
+        process->startDetached(command);
+        int exitCode = process->waitForFinished();
+        QString message;
         if (exitCode != 0) {
           ConfirmationDialog::alert(tr("Upload failed. Exit code: ") + QString::number(exitCode), this);
         } else {
-          ConfirmationDialog::alert(tr("Upload complete."), this);
+          ConfirmationDialog::alert(tr("Upload complete"), this);
+        process->deleteLater();
         }
       }
     }
