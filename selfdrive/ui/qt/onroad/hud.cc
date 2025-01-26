@@ -40,8 +40,6 @@ HudRenderer::HudRenderer() {
   traffic_red_img = loadPixmap("../assets/img_traffic_red.png", {img_size, img_size});
   lka_on_img = loadPixmap("../assets/img_lka_on.png", {img_size, img_size});
   lka_off_img = loadPixmap("../assets/img_lka_off.png", {img_size, img_size});
-  acc_on_img = loadPixmap("../assets/img_acc_on.png", {img_size, img_size});
-  acc_off_img = loadPixmap("../assets/img_acc_off.png", {img_size, img_size});
 
   // neokii add
   autohold_warning_img = loadPixmap("../assets/img_autohold_warning.png", {img_size, img_size});
@@ -130,7 +128,6 @@ void HudRenderer::updateState(const UIState &s) {
   sectionLeftDist = nd.getSectionLeftDist();
   traffic_state = lo.getTrafficState();
   lka_state = ce.getCruiseState().getAvailable();
-  acc_state = ce.getAccEnable();
   lat_active = cc.getLatActive();
 }
 
@@ -260,14 +257,6 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
       drawIcon(p, QPoint(x, y), lka_on_img, icon_bg, lka_state ? 0.8 : 0.2);
     } else {
       drawIcon(p, QPoint(x, y), lka_off_img, icon_bg, lka_state ? 0.8 : 0.2);
-    }
-
-    // acc icon
-    x = (btn_size / 2) + (UI_BORDER_SIZE * 1.5) + (btn_size * 3);
-    if (lat_active) {
-      drawIcon(p, QPoint(x, y), acc_on_img, icon_bg, acc_state ? 0.8 : 0.2);
-    } else {
-      drawIcon(p, QPoint(x, y), acc_off_img, icon_bg, acc_state ? 0.8 : 0.2);
     }
 
     // gaspress icon

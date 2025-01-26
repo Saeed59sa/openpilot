@@ -126,8 +126,8 @@ class CruiseStateManager:
         self.lead_distance_bars -= 1
         self.lead_distance_bars = np.clip(self.lead_distance_bars, 1, 4)
         self.params.put_nonblocking("SccGapAdjust", str(self.lead_distance_bars))
-      #else:
-      #  self.params.put_bool("ExperimentalMode", not self.params.get_bool("ExperimentalMode"))
+      else:
+        self.params.put_bool("ExperimentalMode", not self.params.get_bool("ExperimentalMode"))
 
     if btn == ButtonType.cancel:
       if not self.btn_long_pressed:

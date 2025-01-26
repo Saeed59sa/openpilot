@@ -1022,7 +1022,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
                         Priority.MID, VisualAlert.none, AudibleAlert.dong, 1.),
   },
 
-  EventName.enable: {
+  EventName.mainEnable: {
     ET.PERMANENT: Alert("", "", AlertStatus.normal, AlertSize.none,
                         Priority.MID, VisualAlert.none, AudibleAlert.enable, 1.),
   },

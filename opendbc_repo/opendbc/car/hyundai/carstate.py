@@ -216,9 +216,8 @@ class CarState(CarStateBase):
 
     self.steer_state = cp.vl["MDPS12"]["CF_Mdps_ToiActive"]  # 0 NOT ACTIVE, 1 ACTIVE
     prev_cruise_buttons = self.cruise_buttons[-1]
-    prev_main_buttons = self.main_buttons[-1]
     #self.cruise_buttons.extend(cp.vl_all["CLU11"]["CF_Clu_CruiseSwState"])
-    cruise_button = [Buttons.NONE]
+
     if self.CP.exFlags & HyundaiExFlags.LFA:
       if cp.vl["BCM_PO_11"]["LFA_Pressed"]:
         cruise_button = [Buttons.LFA_BUTTON]
@@ -228,6 +227,7 @@ class CarState(CarStateBase):
       cruise_button = cp.vl_all["CLU11"]["CF_Clu_CruiseSwState"]
     self.cruise_buttons.extend(cruise_button)
 
+    prev_main_buttons = self.main_buttons[-1]
     self.main_buttons.extend(cp.vl_all["CLU11"]["CF_Clu_CruiseSwMain"])
 
     ret.buttonEvents = [*create_button_events(self.cruise_buttons[-1], prev_cruise_buttons, BUTTONS_DICT),
@@ -380,7 +380,6 @@ class CarState(CarStateBase):
     prev_cruise_buttons = self.cruise_buttons[-1]
     #self.cruise_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["CRUISE_BUTTONS"])
 
-    #carrot
     if cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"]:
       cruise_button = [Buttons.LFA_BUTTON]
     else:
@@ -433,7 +432,6 @@ class CarState(CarStateBase):
     if self.main_buttons[-1] != prev_main_buttons and not self.main_buttons[-1]:
       self.main_enabled = not self.main_enabled
       ret.cruiseState.available = self.main_enabled
-      ret.accEnable = self.main_enabled
 
     if self.CP.openpilotLongitudinalControl and CruiseStateManager.instance().cruise_state_control:
       CruiseStateManager.instance().update(ret, enabled=ret.cruiseState.enabled)

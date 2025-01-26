@@ -119,6 +119,7 @@ struct OnroadEventDEPRECATED @0x9b1657f34caf3ad3 {
     dong @127;
     turningIndicatorOn @128;
     autoLaneChange @129;
+    mainEnable @130;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -258,8 +259,7 @@ struct CarState {
     rr @3 :Float32;
   }
 
-  accEnable @58 :Bool;
-  accActive @59 :Bool;
+  accActive @58 :Bool;
 
   struct WheelSpeeds {
     # optional wheel speeds
