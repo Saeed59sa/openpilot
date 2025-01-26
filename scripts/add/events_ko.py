@@ -341,10 +341,9 @@ def longitudinal_maneuver_alert(CP: car.CarParams, CS: car.CarState, sm: messagi
 def personality_changed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
   personality = str(personality).title()
   personality_map = {
-    "aggressive": "공격적",
-    "standard": "표준",
-    "relaxed": "편안한",
-    "morerealaxed": "더욱 편안한",
+    "Aggressive": "공격적",
+    "Standard": "표준",
+    "Relaxed": "편안한",
   }
   personality_kr = personality_map.get(personality)
   return NormalPermanentAlert(f"운전 성향: {personality_kr}", duration=1.5)
