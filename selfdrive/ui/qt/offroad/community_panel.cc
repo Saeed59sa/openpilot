@@ -390,28 +390,11 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
         QString command = scriptPath + " \"" + selectedFolderPath + "\"";
 
         int exitCode = QProcess::execute(command);
-        QString message;
-        switch (exitCode) {
-          case 0:
-            message = tr("Upload complete");
-            break;
-          case 1:
-            message = tr("Network connection failed");
-            break;
-          case 2:
-            message = tr("Files not found");
-            break;
-          case 3:
-            message = tr("FTP connection failed");
-            break;
-          case 4:
-            message = tr("FTP folder creation failed");
-            break;
-          case 5:
-            message = tr("Failed to upload files");
-            break;
-          }
-        ConfirmationDialog::alert(message, this);
+        if (exitCode != 0) {
+          ConfirmationDialog::alert(tr("Upload failed. Exit code: ") + QString::number(exitCode), this);
+        } else {
+          ConfirmationDialog::alert(tr("Upload complete."), this);
+        }
       }
     }
   });
