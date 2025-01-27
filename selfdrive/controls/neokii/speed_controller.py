@@ -300,4 +300,4 @@ class SpeedController:
 
   def _update_message(self, CS):
     exState = CS.exState
-    exState.vCruiseKph = self.v_cruise_kph
+    exState.vCruiseKph = float(self.v_cruise_kph)
