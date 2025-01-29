@@ -325,7 +325,7 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
     if frame % 5 == 0 and CS.adrv_info_161 is not None and ccnc:
       values = CS.adrv_info_161
 
-      values["SETSPEED"] = 1 if main_enabled else 0
+      values["SETSPEED"] = 3 if main_enabled else 0
       values["SETSPEED_HUD"] = 2 if cruise_enabled else 1
       values["vSetDis"] = int(hud_control.setSpeed * 3.6 + 0.5)
 
@@ -386,8 +386,8 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       values["LCA_LEFT_ARROW"] = 2 if CS.out.leftBlinker else 0
       values["LCA_RIGHT_ARROW"] = 2 if CS.out.rightBlinker else 0
 
-      values["LCA_LEFT_ICON"] = 2
-      values["LCA_RIGHT_ICON"] = 2
+      values["LCA_LEFT_ICON"] = 2 if hud_control.leftLaneVisible else 1
+      values["LCA_RIGHT_ICON"] = 2 if hud_control.rightLaneVisible else 1
 
       # LCA_LEFT_ARROW 0 "HIDDEN" 1 "VISIBLE";
       # LCA_RIGHT_ARROW 0 "HIDDEN" 1 "VISIBLE";

@@ -261,17 +261,6 @@ class CarSpecificEvents:
           events.add(EventName.pcmEnable)
         elif not CS.cruiseState.available:
           events.add(EventName.pcmDisable)
-    else:
-      if self.CP.openpilotLongitudinalControl:
-        if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled and allow_enable:
-          events.add(EventName.buttonEnable)
-        elif not CS.cruiseState.enabled and not CS.cruiseState.available:
-          events.add(EventName.buttonCancel)
-      else:
-        if CS.cruiseState.available and not CS_prev.cruiseState.available and allow_enable:
-          events.add(EventName.buttonEnable)
-        elif not CS.cruiseState.available:
-          events.add(EventName.buttonCancel)
 
     if CS.cruiseState.available:
       if CS.cruiseState.enabled and not CS_prev.cruiseState.enabled:

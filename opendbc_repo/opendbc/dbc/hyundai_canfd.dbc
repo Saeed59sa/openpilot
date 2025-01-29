@@ -294,7 +294,7 @@ BO_ 353 ADRV_0x161: 32 ADRV
  SG_ DISTANCE_LEAD : 184|5@1+ (1,0) [0|31] "" XXX
  SG_ DISTANCE_CAR : 189|3@1+ (1,0) [0|7] "" XXX
  SG_ DISTANCE_SPACING : 192|4@1+ (1,0) [0|15] "" XXX
- SG_ DISTANCE : 196|3@0+ (1,0) [0|7] "" XXX
+ SG_ DISTANCE : 198|3@0+ (1,0) [0|7] "" XXX
  SG_ vSetDis : 207|8@0+ (1,0) [0|255] "" XXX
  SG_ SETSPEED : 208|4@1+ (1,0) [0|3] "" XXX
  SG_ HDA_ICON : 212|2@1+ (1,0) [0|3] "" XXX
