@@ -119,7 +119,6 @@ struct OnroadEventDEPRECATED @0x9b1657f34caf3ad3 {
     dong @127;
     turningIndicatorOn @128;
     autoLaneChange @129;
-    mainEnable @130;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -461,7 +460,6 @@ struct CarControl {
       ready @9;
       ding @10;
       dong @11;
-      enable @12;
     }
   }
 

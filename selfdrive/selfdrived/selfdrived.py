@@ -373,9 +373,6 @@ class SelfdriveD:
         self.params.put_nonblocking('LongitudinalPersonality', str(self.personality))
         self.events.add(EventName.personalityChanged)
 
-    if any(not be.pressed and be.type == ButtonType.mainCruise for be in CS.buttonEvents):
-      self.events.add(EventName.mainEnable)
-
   def data_sample(self):
     car_state = messaging.recv_one(self.car_state_sock)
     CS = car_state.carState if car_state else self.CS_prev

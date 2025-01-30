@@ -5,6 +5,8 @@ from opendbc.car.hyundai.values import HyundaiFlags, HyundaiExFlags
 from openpilot.common.params import Params
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 
+import copy
+
 class CanBus(CanBusBase):
   def __init__(self, CP, fingerprint=None, hda2=None) -> None:
     super().__init__(CP, fingerprint)
@@ -149,19 +151,25 @@ def create_suppress_lfa(packer, CP, CC, CS, CAN):
 
 
 def create_buttons(packer, CP, CAN, cnt, btn):
-  canfd_msg = "CRUISE_BUTTONS_ALT" if CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS else \
-              "CRUISE_BUTTONS"
-  # If we discover cars use different values for this in the future, echoing back
-  # what's read from the car would also work.
-  SET_ME_2 = 6
   values = {
     "COUNTER": cnt,
-    "CRUISE_BUTTONS": btn,
     "SET_ME_1": 1,
-  } | {"SET_ME_2": SET_ME_2} if CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS else {}
+    "CRUISE_BUTTONS": btn,
+  }
 
   bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_HDA2 else CAN.CAM
-  return packer.make_can_msg(canfd_msg, bus, values)
+  return packer.make_can_msg("CRUISE_BUTTONS", bus, values)
+
+
+def create_buttons_canfd_alt(packer, CP, CAN, button, canfd_buttons):
+  try:
+    values = copy.copy(canfd_buttons)
+    values["CRUISE_BUTTONS"] = button
+    values["COUNTER"] = (values["COUNTER"] + 1) % 256
+    bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_HDA2 else CAN.CAM
+    return packer.make_can_msg("CRUISE_BUTTONS_ALT", bus, values)
+  except:
+    return None
 
 
 def create_acc_cancel(packer, CP, CS, CAN):
@@ -332,22 +340,25 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       values["DISTANCE"] = hud_control.leadDistanceBars
       values["DISTANCE_CAR"] = 2 if cruise_enabled else 1 if main_enabled else 0
       values["DISTANCE_SPACING"] = 1 if cruise_enabled else 0
+      values["DISTANCE_LEAD"] = 1 if cruise_enabled and hud_control.leadVisible else 0
 
       values["TARGET"] = 1 if cruise_enabled else 0
       values["TARGET_POSITION"] = int(hud_control.leadDistance)
 
       values["BACKGROUND"] = 1 if cruise_enabled else 3 if main_enabled else 7
       values["CENTERLINE"] = 1 if lat_active else 0
+      values["CAR_CIRCLE"] = 2 if cruise_enabled and nav_active else 1 if lat_active else 0
 
       values["NAV_ICON"] = 2 if nav_active else 0
-      values["HDA_ICON"] = 2 if CS.out.accActive else 0
-      values["LFA_ICON"] = 2 if lat_active else 1
+      values["HDA_ICON"] = 5 if cruise_enabled and nav_active else 2 if CS.out.accActive else 0
+      values["LFA_ICON"] = 5 if cruise_enabled and nav_active else 2 if lat_active else 1
       values["LKA_ICON"] = 4 if lat_active else 3
       values["FCA_ALT_ICON"] = 0
 
       # SETSPEED 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 6 "CYAN";
       # SETSPEED_HUD 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 5 "CYAN";
       # BACKGROUND 0 "HIDDEN" 1 "BLUE" 3 "ORANGE" 4 "FLASHING ORANGE" 6 "FLASHING RED" 7 "GRAY";
+      # CAR_CIRCLE 0 "HIDDEN" 1 "GRAY" 2 "CYAN";
       # NAV_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 4 "WHITE";
       # HDA_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 5 "CYAN HDP";
       # LFA_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 5 "CYAN";

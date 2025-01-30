@@ -344,7 +344,7 @@ def personality_changed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging
     "Aggressive": "공격적",
     "Standard": "표준",
     "Relaxed": "편안한",
-    "MoreRealaxed": "더욱 편안한",
+    "MoreRelaxed": "더욱 편안한",
   }
   personality_kr = personality_map.get(personality)
   return NormalPermanentAlert(f"운전 성향: {personality_kr}", duration=1.5)
@@ -1027,11 +1027,6 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   EventName.dong: {
     ET.PERMANENT: Alert("", "", AlertStatus.normal, AlertSize.none,
                         Priority.MID, VisualAlert.none, AudibleAlert.dong, 1.),
-  },
-
-  EventName.mainEnable: {
-    ET.PERMANENT: Alert("", "", AlertStatus.normal, AlertSize.none,
-                        Priority.MID, VisualAlert.none, AudibleAlert.enable, 1.),
   },
 }
 

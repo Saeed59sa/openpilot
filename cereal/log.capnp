@@ -131,7 +131,6 @@ struct OnroadEvent @0xc4fa6047f024e718 {
 
     turningIndicatorOn @95;
     autoLaneChange @96;
-    mainEnable @97;
 
     soundsUnavailableDEPRECATED @47;
   }
@@ -141,7 +140,7 @@ enum LongitudinalPersonality {
   aggressive @0;
   standard @1;
   relaxed @2;
-  morerelaxed @3;
+  moreRelaxed @3;
 }
 
 struct InitData {
