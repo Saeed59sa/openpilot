@@ -62,6 +62,20 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
       "../assets/offroad/icon_disengage_on_accelerator.svg",
     },
     {
+      "FirehoseMode",
+      tr("FIREHOSE Mode"),
+      tr("Enable <b>FIREHOSE Mode</b> to get your driving data in the training set.<br><br>"
+         "Follow these steps to get your device ready:<br>"
+         "  1. Bring your device inside and connect to a good USB-C adapter<br>"
+         "  2. Connect to Wi-Fi<br>"
+         "  3. Enable this toggle<br>"
+         "  4. Leave it connected for at least 30 minutes<br>"
+         "<br>"
+         "This toggle turns off once you restart your device. Repeat once a week for maximum effectiveness."
+         ""),
+      "../assets/offroad/icon_warning.png",
+    },
+    {
       "IsMetric",
       tr("Use Metric System"),
       tr("Display speed in km/h instead of mph."),
