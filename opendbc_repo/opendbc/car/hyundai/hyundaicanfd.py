@@ -323,6 +323,7 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
   lat_active = CC.latActive
   ccnc = CP.exFlags & HyundaiExFlags.CCNC.value
   nav_active = SpeedLimiter.instance().get_active()
+  hdp_active = cruise_enabled and nav_active
 
   # messages needed to car happy after disabling
   # the ADAS Driving ECU to do longitudinal control
@@ -333,34 +334,38 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
     if frame % 5 == 0 and CS.adrv_info_161 is not None and ccnc:
       values = CS.adrv_info_161
 
-      values["SETSPEED"] = 3 if main_enabled else 0
-      values["SETSPEED_HUD"] = 2 if cruise_enabled else 1
+      values["SETSPEED"] = 6 if hdp_active else 3 if main_enabled else 0
+      values["SETSPEED_HUD"] = 6 if hdp_active else 2 if cruise_enabled else 1
       values["vSetDis"] = int(hud_control.setSpeed * 3.6 + 0.5)
 
       values["DISTANCE"] = hud_control.leadDistanceBars
-      values["DISTANCE_CAR"] = 2 if cruise_enabled else 1 if main_enabled else 0
-      values["DISTANCE_SPACING"] = 1 if cruise_enabled else 0
       values["DISTANCE_LEAD"] = 1 if cruise_enabled and hud_control.leadVisible else 0
+      values["DISTANCE_CAR"] = 3 if hdp_active else 2 if cruise_enabled else 1 if main_enabled else 0
+      values["DISTANCE_SPACING"] = 5 if hdp_active else 1 if cruise_enabled else 0
 
       values["TARGET"] = 1 if cruise_enabled else 0
       values["TARGET_POSITION"] = int(hud_control.leadDistance)
 
       values["BACKGROUND"] = 1 if cruise_enabled else 3 if main_enabled else 7
       values["CENTERLINE"] = 1 if lat_active else 0
-      values["CAR_CIRCLE"] = 2 if cruise_enabled and nav_active else 1 if lat_active else 0
+      values["CAR_CIRCLE"] = 2 if hdp_active else 1 if lat_active else 0
 
-      values["NAV_ICON"] = 2 if nav_active else 0
-      values["HDA_ICON"] = 5 if cruise_enabled and nav_active else 2 if CS.out.accActive else 0
-      values["LFA_ICON"] = 5 if cruise_enabled and nav_active else 2 if lat_active else 1
+      values["NAV_ICON"] = 2 if nav_active else 1
+      values["HDA_ICON"] = 5 if hdp_active else 2 if lat_active else 1
+      values["LFA_ICON"] = 5 if hdp_active else 2 if lat_active else 1
       values["LKA_ICON"] = 4 if lat_active else 3
       values["FCA_ALT_ICON"] = 0
 
       # SETSPEED 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 6 "CYAN";
       # SETSPEED_HUD 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 5 "CYAN";
+      # DISTANCE_LEAD 0 "HIDDEN" 1 "GRAY" 2 "WHITE";
+      # DISTANCE_CAR 0 "HIDDEN" 1 "GRAY" 2 "WHITE" 3 "CYAN";
+      # DISTANCE_SPACING 0 "HIDDEN" 1 "BLUE" 3 "WHITE" 5 "CYAN";
+      # TARGET 0 "HIDDEN" 1 "BLUE" 3 "WHITE";
       # BACKGROUND 0 "HIDDEN" 1 "BLUE" 3 "ORANGE" 4 "FLASHING ORANGE" 6 "FLASHING RED" 7 "GRAY";
       # CAR_CIRCLE 0 "HIDDEN" 1 "GRAY" 2 "CYAN";
       # NAV_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 4 "WHITE";
-      # HDA_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 5 "CYAN HDP";
+      # HDA_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 5 "CYAN";
       # LFA_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 5 "CYAN";
       # LKA_ICON 0 "HIDDEN" 1 "ORANGE" 3 "GRAY" 4 "GREEN";
       # FCA_ALT_ICON 0 "HIDDEN" 1 "ORANGE" 3 "RED";
@@ -397,9 +402,8 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       values["LCA_LEFT_ARROW"] = 2 if CS.out.leftBlinker else 0
       values["LCA_RIGHT_ARROW"] = 2 if CS.out.rightBlinker else 0
 
-      speed_below_threshold = CS.out.vEgo < 8.94
-      values["LCA_LEFT_ICON"] = 0 if CS.out.leftBlindspot or speed_below_threshold else 2 if CS.out.leftBlinker else 1
-      values["LCA_RIGHT_ICON"] = 0 if CS.out.rightBlindspot or speed_below_threshold else 2 if CS.out.rightBlinker else 1
+      values["LCA_LEFT_ICON"] = 1 if CS.out.leftBlindspot else 2
+      values["LCA_RIGHT_ICON"] = 1 if CS.out.rightBlindspot else 2
 
       # LCA_LEFT_ARROW 0 "HIDDEN" 2 "VISIBLE";
       # LCA_RIGHT_ARROW 0 "HIDDEN" 2 "VISIBLE";

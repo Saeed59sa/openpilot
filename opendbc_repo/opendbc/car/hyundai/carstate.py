@@ -74,7 +74,6 @@ class CarState(CarStateBase):
 
     self.lfa_btn = 0
     self.lfa_enabled = False
-
     self.main_enabled = False
 
     self.canfd_buttons = None
@@ -435,7 +434,6 @@ class CarState(CarStateBase):
 
     if self.CP.openpilotLongitudinalControl and CruiseStateManager.instance().cruise_state_control:
       CruiseStateManager.instance().update(ret, self.main_buttons)
-      ret.accActive = cp.vl["TCS"]["ACC_REQ"] == 1
 
     return ret
 

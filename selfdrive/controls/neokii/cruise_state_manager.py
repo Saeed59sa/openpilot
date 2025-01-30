@@ -2,6 +2,7 @@ import threading
 import numpy as np
 
 from cereal import car
+from opendbc.car import structs
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
 from openpilot.selfdrive.car.cruise import V_CRUISE_INITIAL, V_CRUISE_MIN, V_CRUISE_MAX
@@ -10,7 +11,8 @@ from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 V_CRUISE_DELTA_MI = 5 * CV.MPH_TO_KPH
 V_CRUISE_DELTA_KM = 10
 
-ButtonType = car.CarState.ButtonEvent.Type
+ButtonType = structs.CarState.ButtonEvent.Type
+GearShifter = structs.CarState.GearShifter
 
 class CruiseStateManager:
   def __init__(self):
@@ -61,6 +63,9 @@ class CruiseStateManager:
     if not self.prev_brake_pressed and CS.brakePressed:
       self.enabled = False
     self.prev_brake_pressed = CS.brakePressed
+
+    if CS.gearShifter == GearShifter.park:
+      self.enabled = False
 
     CS.cruiseState.available = self.available
     CS.cruiseState.enabled = self.enabled
@@ -114,7 +119,7 @@ class CruiseStateManager:
           v_cruise_kph += v_cruise_delta - v_cruise_kph % v_cruise_delta
         elif btn == ButtonType.decelCruise:
           v_cruise_kph -= v_cruise_delta - -v_cruise_kph % v_cruise_delta
-    elif not self.enabled and self.available:
+    elif not self.enabled and self.available and CS.gearShifter != GearShifter.park:
       if not self.btn_long_pressed:
         if btn == ButtonType.decelCruise:
           self.enabled = True

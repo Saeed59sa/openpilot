@@ -258,8 +258,6 @@ struct CarState {
     rr @3 :Float32;
   }
 
-  accActive @58 :Bool;
-
   struct WheelSpeeds {
     # optional wheel speeds
     fl @0 :Float32;
