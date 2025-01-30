@@ -401,8 +401,8 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
         QString message;
         if (exitCode != 0) {
           ConfirmationDialog::alert(tr("Upload failed. Exit code: ") + QString::number(exitCode), this);
-        } else {
-          ConfirmationDialog::alert(tr("Upload complete"), this);
+        //} else {
+        //  ConfirmationDialog::alert(tr("Upload complete"), this);
         process->deleteLater();
         }
       }

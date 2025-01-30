@@ -1389,6 +1389,10 @@ This may take up to a minute.</source>
         <translation>편안한</translation>
     </message>
     <message>
+        <source>MoreRelaxed</source>
+        <translation>더욱 편안한</translation>
+    </message>
+    <message>
         <source>Driving Personality</source>
         <translation>주행 모드</translation>
     </message>

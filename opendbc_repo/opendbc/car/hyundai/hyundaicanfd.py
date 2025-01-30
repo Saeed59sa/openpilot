@@ -386,30 +386,14 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       values["LCA_LEFT_ARROW"] = 2 if CS.out.leftBlinker else 0
       values["LCA_RIGHT_ARROW"] = 2 if CS.out.rightBlinker else 0
 
-      values["LCA_LEFT_ICON"] = 2 if hud_control.leftLaneVisible else 1
-      values["LCA_RIGHT_ICON"] = 2 if hud_control.rightLaneVisible else 1
+      speed_below_threshold = CS.out.vEgo < 8.94
+      values["LCA_LEFT_ICON"] = 0 if CS.out.leftBlindspot or speed_below_threshold else 2 if CS.out.leftBlinker else 1
+      values["LCA_RIGHT_ICON"] = 0 if CS.out.rightBlindspot or speed_below_threshold else 2 if CS.out.rightBlinker else 1
 
-      # LCA_LEFT_ARROW 0 "HIDDEN" 1 "VISIBLE";
-      # LCA_RIGHT_ARROW 0 "HIDDEN" 1 "VISIBLE";
+      # LCA_LEFT_ARROW 0 "HIDDEN" 2 "VISIBLE";
+      # LCA_RIGHT_ARROW 0 "HIDDEN" 2 "VISIBLE";
       # LCA_LEFT_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 4 "WHITE";
       # LCA_RIGHT_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 4 "WHITE";
-
-      # carrot
-      # SET4_HWAY_ELSE_3 -> LKA_ICON
-      # WHEEL_ICON -> LFA_ICON
-      # NEW_SIGNAL_7 -> FCA_ALT_ICON
-      # GAP_DIST_SET -> DISTANCE
-      # CRUISE_INFO2_SET2 -> DISTANCE_CAR
-      # CRUISE_INFO4_SET3 -> DISTANCE_SPACING
-      # CRUISE_INFO5_SET1, CRUISE_INFO8_SET1 -> SETSPEED
-      # CRUISE_INFO1_SET2 -> SETSPEED_HUD
-      # 126_SET_ME_1 -> ALERTS_1
-      # AUTO_LANE_CHANGE_MESSAGE_SET6 -> ALERTS_2
-      # CRUISE_INFO10_0_TO_4 -> ALERTS_3
-      # 143_SET_0, CRUISE_INFO11_0_TO_1 -> ALERTS_4
-      # START_READY_INFO_MAYBE -> ALERTS_5
-      # NEW_SIGNAL_11 -> SOUNDS_4
-      # NEW_SIGNAL_12 -> SOUNDS_2
 
       ret.append(packer.make_can_msg("ADRV_0x161", CAN.ECAN, values))
 
