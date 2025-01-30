@@ -4,10 +4,9 @@ import numpy as np
 from cereal import car
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
-from openpilot.selfdrive.car.cruise import V_CRUISE_ENABLE_MIN, V_CRUISE_MAX
+from openpilot.selfdrive.car.cruise import V_CRUISE_INITIAL, V_CRUISE_MIN, V_CRUISE_MAX
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 
-V_CRUISE_MIN_CRUISE_STATE = 10
 V_CRUISE_DELTA_MI = 5 * CV.MPH_TO_KPH
 V_CRUISE_DELTA_KM = 10
 
@@ -17,9 +16,9 @@ class CruiseStateManager:
   def __init__(self):
     self.params = Params()
 
-    self.available = True
+    self.available = False
     self.enabled = False
-    self.speed = V_CRUISE_ENABLE_MIN * CV.KPH_TO_MS
+    self.speed = V_CRUISE_INITIAL * CV.KPH_TO_MS
     self.lead_distance_bars = self.get_lead_distance_bars()
 
     self.prev_btn = ButtonType.unknown
@@ -27,7 +26,7 @@ class CruiseStateManager:
     self.btn_long_pressed = False
     self.prev_brake_pressed = False
 
-    self.is_cruise_enabled = False
+    self.prev_main_buttons = 0
 
     self.is_metric = self.params.get_bool('IsMetric')
     self.cruise_state_control = self.params.get_bool('CruiseStateControl')
@@ -46,29 +45,36 @@ class CruiseStateManager:
   def reset_available(self):
     threading.Timer(3.0, lambda: setattr(self, 'available', True)).start()
 
-  def update(self, CS, enabled):
+  def update(self, CS, main_buttons):
     btn = self.update_buttons(CS)
     if btn != ButtonType.unknown:
       self.update_cruise_state(CS, int(round(self.speed * CV.MS_TO_KPH)), btn)
+
+    if main_buttons[-1] != self.prev_main_buttons and main_buttons[-1]:
+      self.available = not self.available
+
+    self.prev_main_buttons = main_buttons[-1]
+
+    if not self.available:
+      self.enabled = False
 
     if not self.prev_brake_pressed and CS.brakePressed:
       self.enabled = False
     self.prev_brake_pressed = CS.brakePressed
 
     CS.cruiseState.available = self.available
-    CS.cruiseState.enabled = enabled and self.enabled
+    CS.cruiseState.enabled = self.enabled
     CS.cruiseState.standstill = False
     CS.cruiseState.speed = float(self.speed)
     CS.cruiseState.leadDistanceBars = int(self.lead_distance_bars)
 
   def update_buttons(self, CS):
-    buttonEvents = CS.buttonEvents
     btn = ButtonType.unknown
 
     if self.btn_count > 0:
       self.btn_count += 1
 
-    for b in buttonEvents:
+    for b in CS.buttonEvents:
       if (
         b.pressed and self.btn_count == 0 and b.type in
         [
@@ -112,13 +118,13 @@ class CruiseStateManager:
       if not self.btn_long_pressed:
         if btn == ButtonType.decelCruise:
           self.enabled = True
-          v_cruise_kph = max(np.clip(round(CS.vEgoCluster * CV.MS_TO_KPH, 1), V_CRUISE_MIN_CRUISE_STATE, V_CRUISE_MAX), V_CRUISE_ENABLE_MIN)
+          v_cruise_kph = max(np.clip(round(CS.vEgoCluster * CV.MS_TO_KPH, 1), V_CRUISE_MIN, V_CRUISE_MAX), V_CRUISE_INITIAL)
         elif btn == ButtonType.accelCruise:
           self.enabled = True
-          v_cruise_kph = np.clip(round(self.speed * CV.MS_TO_KPH, 1), V_CRUISE_ENABLE_MIN, V_CRUISE_MAX)
+          v_cruise_kph = np.clip(round(self.speed * CV.MS_TO_KPH, 1), V_CRUISE_INITIAL, V_CRUISE_MAX)
           v_cruise_kph = max(v_cruise_kph, round(CS.vEgoCluster * CV.MS_TO_KPH, 1))
           road_limit_speed = SpeedLimiter.instance().get_road_limit_speed()
-          if V_CRUISE_ENABLE_MIN < road_limit_speed < V_CRUISE_MAX:
+          if V_CRUISE_INITIAL < road_limit_speed < V_CRUISE_MAX:
             v_cruise_kph = max(v_cruise_kph, road_limit_speed)
 
     if btn == ButtonType.gapAdjustCruise:
@@ -143,5 +149,5 @@ class CruiseStateManager:
         self.available = False
         self.reset_available()
 
-    v_cruise_kph = np.clip(round(v_cruise_kph, 1), V_CRUISE_MIN_CRUISE_STATE, V_CRUISE_MAX)
+    v_cruise_kph = np.clip(round(v_cruise_kph, 1), V_CRUISE_MIN, V_CRUISE_MAX)
     self.speed = v_cruise_kph * CV.KPH_TO_MS
