@@ -671,6 +671,14 @@ class CAR(Platforms):
     CarSpecs(mass=2087, wheelbase=3.09, steerRatio=14.23),
     flags=HyundaiFlags.RADAR_SCC,
   )
+  KIA_CARNIVAL_KA4_HEV = HyundaiCanFDPlatformConfig(
+    [
+      HyundaiCarDocs("KIA CARNIVAL HYBRID (KA4)", car_parts=CarParts.common([CarHarness.hyundai_k])),
+      HyundaiCarDocs("Kia Carnival 2022-24", car_parts=CarParts.common([CarHarness.hyundai_a])),
+    ],
+    CarSpecs(mass=2087, wheelbase=3.09, steerRatio=14.23),
+    flags=HyundaiFlags.RADAR_SCC,
+  )
   KIA_NIRO_SG2_EV = HyundaiCanFDPlatformConfig(
     [
       HyundaiCarDocs("KIA NIRO EV (SG2)", car_parts=CarParts.common([CarHarness.hyundai_a])),
@@ -725,7 +733,7 @@ class CAR(Platforms):
     CarSpecs(mass=2035, wheelbase=3.01, steerRatio=16.5),
     flags=HyundaiFlags.LEGACY,
   )
-  GENESIS_G80_FL = HyundaiCanFDPlatformConfig(
+  GENESIS_G80_PE = HyundaiCanFDPlatformConfig(
     [
       HyundaiCarDocs("GENESIS G80 FL (RG3)", car_parts=CarParts.common([CarHarness.hyundai_p])),
       HyundaiCarDocs("Genesis G80 (2.5T Advanced Trim, with HDA II) 2024", "Highway Driving Assist II", car_parts=CarParts.common([CarHarness.hyundai_p]))
@@ -766,6 +774,14 @@ class CAR(Platforms):
     CarSpecs(mass=1950, wheelbase=2.87, steerRatio=15.2, tireStiffnessFactor=0.65),
     flags=HyundaiFlags.EV,
   )
+  GENESIS_GV70_PE = HyundaiCanFDPlatformConfig(
+    [
+      HyundaiCarDocs("Genesis GV70 PE (JK1)", car_parts=CarParts.common([CarHarness.hyundai_a])),
+      HyundaiCarDocs("Genesis GV70 Facelift (with HDA II) 2025", "All", car_parts=CarParts.common([CarHarness.hyundai_a])),
+    ],
+    CarSpecs(mass=1950, wheelbase=2.87, steerRatio=14.6),
+    flags=HyundaiFlags.CAMERA_SCC | HyundaiFlags.ANGLE_CONTROL,
+  )
   GENESIS_GV80 = HyundaiCanFDPlatformConfig(
     [
       HyundaiCarDocs("GENESIS GV80 (JX1)", car_parts=CarParts.common([CarHarness.hyundai_m])),
@@ -774,7 +790,14 @@ class CAR(Platforms):
     CarSpecs(mass=2258, wheelbase=2.95, steerRatio=14.14),
     flags=HyundaiFlags.RADAR_SCC,
   )
-
+  GENESIS_GV80_PE = HyundaiCanFDPlatformConfig(
+    [
+      HyundaiCarDocs("Genesis GV80 PE (JX1)", car_parts=CarParts.common([CarHarness.hyundai_q])),
+      HyundaiCarDocs("Genesis GV80 2025", "All", car_parts=CarParts.common([CarHarness.hyundai_q])),
+    ],
+    CarSpecs(mass=2258, wheelbase=2.95, steerRatio=14.14),
+    flags=HyundaiFlags.ANGLE_CONTROL,
+  )
 
 class Buttons:
   NONE = 0
@@ -873,7 +896,7 @@ PART_NUMBER_FW_PATTERN = re.compile(b'(?<=[0-9][.,][0-9]{2} )([0-9]{5}[-/]?[A-Z]
 
 # We've seen both ICE and hybrid for these platforms, and they have hybrid descriptors (e.g. MQ4 vs MQ4H)
 CANFD_FUZZY_WHITELIST = {CAR.KIA_SORENTO_MQ4, CAR.KIA_SORENTO_MQ4_HEV,
-                         CAR.KIA_K8_GL3_HEV, CAR.KIA_CARNIVAL_KA4}
+                         CAR.KIA_K8_GL3_HEV, CAR.KIA_CARNIVAL_KA4, CAR.KIA_CARNIVAL_KA4_HEV}
 
 # List of ECUs expected to have platform codes, camera and radar should exist on all cars
 # TODO: use abs, it has the platform code and part number on many platforms

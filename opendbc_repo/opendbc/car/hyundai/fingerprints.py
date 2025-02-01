@@ -502,6 +502,7 @@ FW_VERSIONS = {
     ],
     (Ecu.fwdCamera, 0x7c4, None): [
       b'\xf1\x00FE  MFC  AT KOR LHD 1.00 1.04 99211-M5000 180918',
+      b'\xf1\x00FE  MFC  AT KOR LHD 1.00 1.00 99211-M5100 201218',
     ],
   },
   CAR.HYUNDAI_GRANDEUR: {  # (IG)
@@ -567,8 +568,6 @@ FW_VERSIONS = {
   CAR.HYUNDAI_IONIQ5: {  # (NE1)
     (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00NE1_ RDR -----      1.00 1.00 99110-GI000         ',
-      # 5N
-      b'\xf1\x00NE1N RDR -----      1.00 1.00 99110-NI000         ',
     ],
     (Ecu.fwdCamera, 0x7c4, None): [
       b'\xf1\x00NE1 MFC  AT CAN LHD 1.00 1.01 99211-GI010 211007',
@@ -589,15 +588,16 @@ FW_VERSIONS = {
       b'\xf1\x00NE1 MFC  AT USA LHD 1.00 1.06 99211-GI010 230110',
       b'\xf1\x00NE1 MFC  AT USA LHD 1.00 1.00 99211-GI100 230915',
       b'\xf1\x00NE1 MFC  AT EUR LHD 1.00 1.00 99211-GI100 230915',
-      # 5N
-      b'\xf1\x00NE1NMFC  AT KOR LHD 1.00 1.04 99211-NI000 231219',
     ],
   },
   CAR.HYUNDAI_IONIQ5_PE: {  # (NE1)
     (Ecu.fwdRadar, 0x7d0, None): [
+      b'\xf1\x00NE__ RDR -----      1.00 1.00 99110-PI000         ',
       b'\xf1\x00NE__ RDR -----      1.00 1.00 99110-GI500         ',
     ],
     (Ecu.fwdCamera, 0x7c4, None): [
+      b'\xf1\x00NE  MFC  AT USA LHD 1.00 1.01 99211-PI000 240905',
+      b'\xf1\x00NE  MFC  AT EUR LHD 1.00 1.03 99211-GI500 240809',
       b'\xf1\x00NE  MFC  AT KOR LHD 1.00 1.02 99211-GI500 240221',
     ],
   },
@@ -1035,12 +1035,14 @@ FW_VERSIONS = {
       b'\xf1\x00MQ4 MFC  AT USA LHD 1.00 1.03 99210-R5000 200903',
       b'\xf1\x00MQ4 MFC  AT USA LHD 1.00 1.05 99210-R5000 210623',
       b'\xf1\x00MQ4 MFC  AT USA LHD 1.00 1.06 99210-R5000 211216',
+      b'\xf1\x00MQ4 MFC  AT AUS RHD 1.01 1.04 99210-P2550 231127',
     ],
     (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00MQ4_ SCC F-CUP      1.00 1.06 99110-P2000         ',
       b'\xf1\x00MQ4_ SCC FHCUP      1.00 1.00 99110-R5000         ',
       b'\xf1\x00MQ4_ SCC FHCUP      1.00 1.06 99110-P2000         ',
       b'\xf1\x00MQ4_ SCC FHCUP      1.00 1.08 99110-P2000         ',
+      b'\xf1\x00MQ4_ RDR -----      1.00 1.01 99110-P2500         ',
     ],
   },
   CAR.KIA_SORENTO_MQ4_HEV: {  # (MQ4)
@@ -1049,7 +1051,6 @@ FW_VERSIONS = {
       b'\xf1\x00MQ4HMFC  AT KOR LHD 1.00 1.12 99210-P2000 230331',
       b'\xf1\x00MQ4HMFC  AT USA LHD 1.00 1.10 99210-P2000 210406',
       b'\xf1\x00MQ4HMFC  AT USA LHD 1.00 1.11 99210-P2000 211217',
-      #
       b'\xf1\x00MQ4HMFC  AT KOR LHD 1.01 1.03 99210-P2500 230914',
     ],
     (Ecu.fwdRadar, 0x7d0, None): [
@@ -1079,6 +1080,7 @@ FW_VERSIONS = {
   CAR.KIA_CARNIVAL_KA4: {  # (KA4)
     (Ecu.fwdCamera, 0x7c4, None): [
       b'\xf1\x00KA4 MFC  AT EUR LHD 1.00 1.06 99210-R0000 220221',
+      b'\xf1\x00KA4 MFC  AT KOR LHD 1.00 1.05 99210-R0000 201221',
       b'\xf1\x00KA4 MFC  AT KOR LHD 1.00 1.06 99210-R0000 220221',
       b'\xf1\x00KA4 MFC  AT USA LHD 1.00 1.00 99210-R0100 230105',
       b'\xf1\x00KA4 MFC  AT USA LHD 1.00 1.01 99210-R0100 230710',
@@ -1094,7 +1096,15 @@ FW_VERSIONS = {
       b'\xf1\x00KA4c SCC FHCUP      1.00 1.01 99110-I4000         ',
     ],
   },
-  CAR.KIA_K8_GL3: {  # (GL3)
+  CAR.KIA_CARNIVAL_KA4_HEV: {  # (KA4)
+    (Ecu.fwdCamera, 0x7c4, None): [
+      b'\xf1\x00KA4HMFC  AT USA LHD 1.00 1.05 99210-R0500 240305',
+    ],
+    (Ecu.fwdRadar, 0x7d0, None): [
+      b'\xf1\x00KAhe RDR -----      1.00 1.01 99110-ES500         ',
+    ],
+  },
+    CAR.KIA_K8_GL3: {  # (GL3)
     (Ecu.fwdCamera, 0x7c4, None): [
       b'\xf1\x00GL3 MFC  AT MES LHD 1.00 1.03 99211-L8000 210907',
     ],
@@ -1114,12 +1124,14 @@ FW_VERSIONS = {
   CAR.KIA_EV9: {  # (MV)
     (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00MV__ RDR -----      1.00 1.02 99110-DO700         ',
-      b'\xf1\x00MV__ RDR -----      1.00 1.02 99110-DO000         '
+      b'\xf1\x00MV__ RDR -----      1.00 1.02 99110-DO000         ',
+      b'\xf1\x00MV__ RDR -----      1.00 1.03 99110-DO000         ',
     ],
     (Ecu.fwdCamera, 0x7c4, None): [
       b'\xf1\x00MV  MFC  AT KOR LHD 1.00 1.01 99211-DO000 230419',
       b'\xf1\x00MV  MFC  AT USA LHD 1.00 1.02 99211-DO000 230616',
       b'\xf1\x00MV  MFC  AT EUR LHD 1.00 1.02 99211-DO000 230616',
+      b'\xf1\x00MV  MFC  AT CAN LHD 1.00 1.00 99211-DO100 240403',
     ],
   },
   CAR.KIA_K5_DL3_24_HEV: {  # (DL3)
@@ -1216,35 +1228,54 @@ FW_VERSIONS = {
       b'\xf1\x00JK1 MFC  AT USA LHD 1.00 1.01 99211-AR200 220125',
       b'\xf1\x00JK1 MFC  AT USA LHD 1.00 1.01 99211-AR300 220125',
       b'\xf1\x00JK1 MFC  AT USA LHD 1.00 1.04 99211-AR000 210204',
+      b'\xf1\x00JK1 MFC  AT CAN LHD 1.00 1.04 99211-AR100 210204',
     ],
     (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00JK1_ SCC FHCUP      1.00 1.00 99110-AR200         ',
       b'\xf1\x00JK1_ SCC FHCUP      1.00 1.00 99110-AR300         ',
       b'\xf1\x00JK1_ SCC FHCUP      1.00 1.02 99110-AR000         ',
+      b'\xf1\x00JK1_ SCC -----      1.00 1.02 99110-AR100         ',
     ],
   },
   CAR.GENESIS_GV70_EV: {  # (JK1)
     (Ecu.fwdCamera, 0x7c4, None): [
+      b'\xf1\x00JK1EMFC  AT AUS RHD 1.00 1.01 99211-DS100 220125',
       b'\xf1\x00JK1EMFC  AT USA LHD 1.00 1.00 99211-IT100 220919',
+      b'\xf1\x00JK1EMFC  AT USA LHD 1.00 1.02 99211-IT100 240123',
     ],
     (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00JKev SCC -----      1.00 1.01 99110-DS000         ',
+      b'\xf1\x00JKev SCC -----      1.00 1.00 99110-DS100         ',
+    ],
+  },
+  CAR.GENESIS_GV70_PE: {  # (JK1)
+    (Ecu.fwdCamera, 0x7c4, None): [
+      b'\xf1\x00JK  MFC  AT KOR LHD 1.00 1.00 99211-AR500 240311',
+    ],
+    (Ecu.fwdRadar, 0x7d0, None): [
+      b'\xf1\x00JK__ RDR -----      1.00 1.01 99110-AR500         ',
     ],
   },
   CAR.GENESIS_GV80: {  # (JX1)
     (Ecu.fwdCamera, 0x7c4, None): [
       b'\xf1\x00JX1 MFC  AT USA LHD 1.00 1.02 99211-T6110 220513',
-      #
       b'\xf1\x00JX1 MFC  AT KOR LHD 1.00 1.02 99211-T6110 220513',
       b'\xf1\x00JX1 MFC  AT MES LHD 1.00 1.04 99211-T6010 200514',
     ],
     (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00JX1_ SCC FHCUP      1.00 1.01 99110-T6100         ',
-      #
       b'\xf1\x00JX1_ SCC -----      1.00 1.03 99110-T6000         ',
     ],
   },
-  CAR.GENESIS_G80_FL: {  # (RG3)
+  CAR.GENESIS_GV80_PE: {  # (JX1)
+    (Ecu.fwdCamera, 0x7c4, None): [
+      b'\xf1\x00JX  MFC  AT USA LHD 1.00 1.03 99211-T6510 240124',
+    ],
+    (Ecu.fwdRadar, 0x7d0, None): [
+      b'\xf1\x00JX__ RDR -----      1.00 1.03 99110-T6500         ',
+    ],
+  },
+  CAR.GENESIS_G80_PE: {  # (RG3)
     (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00RG3_ SCC -----      1.00 1.02 99110-T1120         ',
     ],
