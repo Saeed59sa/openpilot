@@ -25,7 +25,6 @@ legend = ["LAT_ACCEL_FACTOR", "MAX_LAT_ACCEL_MEASURED", "FRICTION"]
 "FORD_F_150_LIGHTNING_MK1" = [nan, 1.5, nan]
 "FORD_MUSTANG_MACH_E_MK1" = [nan, 1.5, nan]
 "FORD_RANGER_MK2" = [nan, 1.5, nan]
-###
 
 # No steering wheel
 "COMMA_BODY" = [nan, 1000, nan]
@@ -53,3 +52,10 @@ legend = ["LAT_ACCEL_FACTOR", "MAX_LAT_ACCEL_MEASURED", "FRICTION"]
 # Manually checked
 "HONDA_CIVIC_2022" = [2.5, 1.2, 0.15]
 "HONDA_HRV_3G" = [2.5, 1.2, 0.2]
+
+# Hyundai/Kia/Genesis angle control
+"HYUNDAI_SANTAFE_MX5" = [nan, 3.0, nan]
+"HYUNDAI_SANTAFE_MX5_HEV" = [nan, 3.0, nan]
+"HYUNDAI_IONIQ5_PE" = [nan, 3.0, nan]
+"KIA_EV9" = [nan, 3.0, nan]
+"KIA_EV6_PE" = [nan, 3.0, nan]
