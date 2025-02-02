@@ -398,7 +398,7 @@ class CarState(CarStateBase):
     self.buttons_counter = cp.vl[self.cruise_btns_msg_canfd]["COUNTER"]
     ret.accFaulted = cp.vl["TCS"]["ACCEnable"] != 0  # 0 ACC CONTROL ENABLED, 1-3 ACC CONTROL DISABLED
 
-    if self.CP.flags & HyundaiFlags.CANFD_HDA2 and not (self.CP.flags & HyundaiFlags.CAMERA_SCC):
+    if self.CP.flags & HyundaiFlags.CANFD_HDA2 and not self.CP.flags & HyundaiFlags.CAMERA_SCC:
       self.hda2_lfa_block_msg = copy.copy(cp_cam.vl["CAM_0x362"] if self.CP.flags & HyundaiFlags.CANFD_HDA2_ALT_STEERING
                                           else cp_cam.vl["CAM_0x2a4"])
 
@@ -459,20 +459,20 @@ class CarState(CarStateBase):
         (self.accelerator_msg_canfd, 100),
       ]
 
-    if not (CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS):
+    if not CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS:
       pt_messages += [
         ("CRUISE_BUTTONS", 50)
       ]
 
     if CP.enableBsm:
-      if (CP.flags & HyundaiFlags.CAMERA_SCC.value and CP.exFlags & HyundaiExFlags.BSM_IN_ADAS.value):
+      if CP.flags & HyundaiFlags.CAMERA_SCC.value and CP.exFlags & HyundaiExFlags.BSM_IN_ADAS.value:
         pass
       else:
         pt_messages += [
           ("BLINDSPOTS_REAR_CORNERS", 20),
         ]
 
-    if not (CP.flags & HyundaiFlags.CANFD_CAMERA_SCC.value) and not CP.openpilotLongitudinalControl:
+    if not CP.flags & HyundaiFlags.CANFD_CAMERA_SCC.value and not CP.openpilotLongitudinalControl:
       pt_messages += [
         ("SCC_CONTROL", 50),
       ]
@@ -493,7 +493,7 @@ class CarState(CarStateBase):
       ]
 
     cam_messages = []
-    if CP.flags & HyundaiFlags.CANFD_HDA2 and not (CP.flags & HyundaiFlags.CAMERA_SCC.value):
+    if CP.flags & HyundaiFlags.CANFD_HDA2 and not CP.flags & HyundaiFlags.CAMERA_SCC.value:
       block_lfa_msg = "CAM_0x362" if CP.flags & HyundaiFlags.CANFD_HDA2_ALT_STEERING else "CAM_0x2a4"
       cam_messages += [(block_lfa_msg, 20)]
 
@@ -514,11 +514,11 @@ class CarState(CarStateBase):
           ("ADRV_0x162", 20),
         ]
 
-    #if not (CP.flags & HyundaiFlags.CANFD_HDA2) and CP.exFlags & HyundaiExFlags.NAVI:
+    #if not CP.flags & HyundaiFlags.CANFD_HDA2 and CP.exFlags & HyundaiExFlags.NAVI:
     #  cam_messages.append(("CLUSTER_SPEED_LIMIT", 10))
 
     if CP.enableBsm:
-      if (CP.flags & HyundaiFlags.CAMERA_SCC.value and CP.exFlags & HyundaiExFlags.BSM_IN_ADAS.value):
+      if CP.flags & HyundaiFlags.CAMERA_SCC.value and CP.exFlags & HyundaiExFlags.BSM_IN_ADAS.value:
         cam_messages += [
           ("BLINDSPOTS_REAR_CORNERS", 20),
         ]

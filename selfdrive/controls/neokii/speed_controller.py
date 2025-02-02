@@ -1,20 +1,17 @@
 import random
 import numpy as np
 
-from cereal import car
 from opendbc.car.hyundai.values import Buttons
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
-from openpilot.selfdrive.car.cruise import V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_INITIAL, V_CRUISE_UNSET, V_CRUISE_INITIAL_EXPERIMENTAL_MODE, V_CRUISE_INITIAL
+from openpilot.selfdrive.car.cruise import V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_INITIAL, V_CRUISE_UNSET, V_CRUISE_INITIAL_EXPERIMENTAL_MODE, VCruiseHelper
 from openpilot.selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager, V_CRUISE_DELTA_KM, V_CRUISE_DELTA_MI
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 from openpilot.selfdrive.modeld.constants import ModelConstants
-from openpilot.selfdrive.car.cruise import VCruiseHelper
 
 MIN_CURVE_SPEED = 32. * CV.KPH_TO_MS
 SYNC_MARGIN = 3.
 
-ButtonType = car.CarState.ButtonEvent.Type
 
 class SpeedController:
   def __init__(self, CP, CI):
@@ -40,14 +37,9 @@ class SpeedController:
     self.real_set_speed_kph = 0.
     self.v_cruise_kph_last = 0
     self.v_cruise_kph = V_CRUISE_UNSET
-    self.v_cruise_cluster_kph = V_CRUISE_UNSET
 
     self.active_cam = False
     self.prev_cruise_enabled = False
-
-    self.prev_btn = ButtonType.unknown
-    self.btn_count = 0
-    self.long_pressed = False
 
     self.wait_timer = 0
     self.alive_timer = 0
@@ -258,45 +250,6 @@ class SpeedController:
         self.target_speed = 0.
     elif self.long_control:
       self.target_speed = 0.
-
-  def _initialize_v_cruise(self, CS):
-    initial = V_CRUISE_INITIAL_EXPERIMENTAL_MODE if self.experimental_mode else V_CRUISE_INITIAL
-
-    if any(b.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for b in CS.buttonEvents) and self.v_cruise_kph_last < 250:
-      self.v_cruise_kph = self.v_cruise_kph_last
-    else:
-      self.v_cruise_kph = int(round(np.clip(CS.vEgo * CV.MS_TO_KPH, initial, V_CRUISE_MAX)))
-
-    self.v_cruise_cluster_kph = self.v_cruise_kph
-    return self.v_cruise_kph
-
-  def _update_cruise_button(self, v_cruise_kph, buttonEvents, enabled):
-    v_cruise_delta = V_CRUISE_DELTA_KM if self.is_metric else V_CRUISE_DELTA_MI
-
-    if enabled:
-      if self.btn_count:
-        self.btn_count += 1
-      for b in buttonEvents:
-        if b.pressed and not self.btn_count and b.type in (ButtonType.accelCruise, ButtonType.decelCruise):
-          self.btn_count = 1
-          self.prev_btn = b.type
-        elif not b.pressed and self.btn_count:
-          if not self.long_pressed and b.type == ButtonType.accelCruise:
-            v_cruise_kph += 1 if self.is_metric else 1 * CV.MPH_TO_KPH
-          elif not self.long_pressed and b.type == ButtonType.decelCruise:
-            v_cruise_kph -= 1 if self.is_metric else 1 * CV.MPH_TO_KPH
-          self.long_pressed = False
-          self.btn_count = 0
-      if self.btn_count > 70:
-        self.long_pressed = True
-        if self.prev_btn == ButtonType.accelCruise:
-          v_cruise_kph += v_cruise_delta - v_cruise_kph % v_cruise_delta
-        elif self.prev_btn == ButtonType.decelCruise:
-          v_cruise_kph -= v_cruise_delta - -v_cruise_kph % v_cruise_delta
-        self.btn_count %= 70
-      v_cruise_kph = np.clip(v_cruise_kph, V_CRUISE_INITIAL, V_CRUISE_MAX)
-
-    return v_cruise_kph
 
   def _update_message(self, CS):
     exState = CS.exState

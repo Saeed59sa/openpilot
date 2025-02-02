@@ -1,7 +1,6 @@
 import threading
 import numpy as np
 
-from cereal import car
 from opendbc.car import structs
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params

@@ -3,14 +3,12 @@ import numpy as np
 import time
 import wave
 
-
 from cereal import car, messaging
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.realtime import Ratekeeper
 from openpilot.common.retry import retry
 from openpilot.common.swaglog import cloudlog
-
 from openpilot.system import micd
 
 SAMPLE_RATE = 48000
