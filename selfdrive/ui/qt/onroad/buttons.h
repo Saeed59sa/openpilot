@@ -29,3 +29,8 @@ private:
 
 void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity);
 void drawIconRotate(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity, float angle);
+void drawIconGradient(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity, float angle);
+
+inline QColor limeColor(int alpha = 255) { return QColor(120, 255, 120, alpha); }
+inline QColor orangeColor(int alpha = 255) { return QColor(255, 149, 0, alpha); }
+inline QColor redColor(int alpha = 255) { return QColor(201, 34, 49, alpha); }

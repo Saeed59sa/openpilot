@@ -37,7 +37,7 @@ private:
   QPixmap nda_img, hda_img;
   QPixmap lka_on_img, lka_off_img;
 
-  QString leftDistStr, sa_str, sa_direction, altitudeStr, accuracyStr, infoGps;
+  QString leftDistStr, altitudeStr, accuracyStr, infoGps;
 
   bool hideBottomIcons = false;
   bool longControl = false;

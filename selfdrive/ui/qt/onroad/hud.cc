@@ -229,7 +229,8 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     // steer img
     x = (btn_size / 2) + (UI_BORDER_SIZE * 1.5) + (btn_size);
     y = surface_rect.bottom() - (UI_FOOTER_HEIGHT / 2);
-    drawIconRotate(p, QPoint(x, y), steer_img, icon_bg, 0.8, steerAngle);
+    QPoint iconCenter(x, y);  // Icon center point
+    drawIconGradient(p, iconCenter, steer_img, icon_bg, 0.8, steerAngle);
 
     QColor sa_color = limeColor(200);
     if (std::fabs(steerAngle) > 90) {
@@ -238,18 +239,14 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
       sa_color = orangeColor(200);
     }
 
-    if (steerAngle > 0) {
-      sa_direction = QString("◀");
-    } else if (steerAngle < 0) {
-      sa_direction = QString("▶");
-    } else {
-      sa_direction = QString("●");
-    }
+  QString sa_str = QString::asprintf("%.0f °", steerAngle);
 
-    sa_str = QString::asprintf("%.0f °", steerAngle);
-    p.setFont(InterFont(30, QFont::Bold));
-    drawTextColor(p, x - 30, y + 95, sa_str, sa_color);
-    drawTextColor(p, x + 30, y + 95, sa_direction, whiteColor(200));
+  p.setFont(InterFont(30, QFont::Bold));
+  QRect textRect = p.fontMetrics().boundingRect(sa_str);  // Get text size
+  int textX = iconCenter.x() - textRect.width() / 2;      // Center horizontally
+  int textY = iconCenter.y() + btn_size / 2 + 20;         // Place below the icon (20px margin)
+
+  drawTextColor(p, textX, textY, sa_str, sa_color);
 
     // lka icon
     x = (btn_size / 2) + (UI_BORDER_SIZE * 1.5) + (btn_size * 2);
