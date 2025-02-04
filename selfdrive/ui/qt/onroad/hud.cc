@@ -233,9 +233,9 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     drawIconGradient(p, iconCenter, steer_img, icon_bg, 0.8, steerAngle);
 
     QColor sa_color = limeColor(200);
-    if (std::fabs(steerAngle) > 90) {
+    if (std::fabs(steerAngle) > 360) {
       sa_color = redColor(200);
-    } else if (std::fabs(steerAngle) > 30) {
+    } else if (std::fabs(steerAngle) > 180) {
       sa_color = orangeColor(200);
     }
 
