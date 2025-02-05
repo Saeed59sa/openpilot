@@ -35,10 +35,25 @@ optional arguments:
   --values VALUES  values to monitor (instead of entire event)
 ```
 
-```
-To print Openpilot live data:
-python selfdrive/debug/dump.py <services>
+## [vw_mqb_config.py](vw_mqb_config.py)
 
-- replace `<services>` with any one of these:
-  services list in cereal/services.py
+```
+usage: vw_mqb_config.py [-h] [--debug] {enable,show,disable}
+
+Shows Volkswagen EPS software and coding info, and enables or disables Heading Control
+Assist (Lane Assist). Useful for enabling HCA on cars without factory Lane Assist that want
+to use openpilot integrated at the CAN gateway (J533).
+
+positional arguments:
+  {enable,show,disable}
+                        show or modify current EPS HCA config
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --debug               enable ISO-TP/UDS stack debugging output
+
+This tool is meant to run directly on a vehicle-installed comma three, with
+the openpilot/tmux processes stopped. It should also work on a separate PC with a USB-
+attached comma panda. Vehicle ignition must be on. Recommend engine not be running when
+making changes. Must turn ignition off and on again for any changes to take effect.
 ```
