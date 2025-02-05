@@ -104,18 +104,10 @@ void UIState::updateStatus() {
       } else {
         status = STATUS_ACTIVE;
       }
-    } else if (cc.getLongActive()) {
-      if (ce.getSteeringPressed()) {
-        status = STATUS_STEERING;
-      } else if (ce.getBrakePressed()) {
-        status = STATUS_RED;
-      } else if (ce.getLeftBlinker() || ce.getRightBlinker()) {
-        status = STATUS_BLINKER;
-      } else {
-        status = STATUS_LONG;
-      }
     } else if (ce.getGearShifter() == cereal::CarState::GearShifter::REVERSE) {
       status = STATUS_RED;
+    } else if (ce.getCruiseState().getAvailable()) {
+      status = STATUS_READY;
     } else {
       status = STATUS_DISENGAGED;
     }

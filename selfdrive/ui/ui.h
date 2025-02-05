@@ -49,7 +49,7 @@ typedef enum UIStatus {
   STATUS_STEERING,
   STATUS_BLINKER,
   STATUS_ACTIVE,
-  STATUS_LONG,
+  STATUS_READY,
 } UIStatus;
 
 const QColor bg_colors [] = {
@@ -60,7 +60,7 @@ const QColor bg_colors [] = {
   [STATUS_STEERING] = QColor(0x00, 0xbf, 0xff, 0x64),
   [STATUS_BLINKER] = QColor(0xff, 0x95, 0x00, 0x64),
   [STATUS_ACTIVE] = QColor(0x6f, 0xc0, 0xc9, 0x64),
-  [STATUS_LONG] = QColor(0x8f, 0xc9, 0xc0, 0x64),
+  [STATUS_READY] = QColor(0x8f, 0xc9, 0xc0, 0x64),
 };
 
 typedef struct UIScene {
