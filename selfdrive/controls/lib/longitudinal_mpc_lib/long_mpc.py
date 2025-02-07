@@ -59,7 +59,7 @@ X_EGO_COST = 0.
 V_EGO_COST = 0.
 A_EGO_COST = 0.
 J_EGO_COST = 5.0
-A_CHANGE_COST = 200.
+A_CHANGE_COST = 250.
 DANGER_ZONE_COST = 100.
 CRASH_DISTANCE = .25
 LEAD_DANGER_FACTOR = 0.75
@@ -90,7 +90,6 @@ def get_jerk_factor(personality=log.LongitudinalPersonality.standard):
     return 0.5
   else:
     raise NotImplementedError("Longitudinal personality not supported")
-
 
 def get_T_FOLLOW(personality=log.LongitudinalPersonality.standard):
   if personality==log.LongitudinalPersonality.morerelaxed:
@@ -425,7 +424,6 @@ class LongitudinalMpc:
       x2 = stop_x * np.ones(N+1) + adjust_dist
 
       x_obstacles = np.column_stack([lead_0_obstacle, lead_1_obstacle, cruise_obstacle, x2])
-
       self.source = SOURCES[np.argmin(x_obstacles[0])]
 
       # These are not used in ACC mode
@@ -532,11 +530,9 @@ class LongitudinalMpc:
     y = model.position.y
     v = model.velocity.x
 
-    ## 모델의 정지거리 필터링
     self.xStop = self._update_stop_dist(x[31])
     stop_model_x = self.xStop
 
-    ## 모델의 신호정지 검사
     lead_detected = radarstate.leadOne.status
     d_rel = radarstate.leadOne.dRel if lead_detected else 1000
     self._check_model_stopping(v, v_ego, a_ego, x[-1], y, d_rel)
