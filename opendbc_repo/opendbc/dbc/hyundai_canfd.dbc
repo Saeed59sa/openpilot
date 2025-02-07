@@ -62,13 +62,13 @@ BO_ 80 LKAS: 16 XXX
  SG_ CHECKSUM : 0|16@1+ (1,0) [0|65535] "" XXX
  SG_ COUNTER : 16|8@1+ (1,0) [0|255] "" XXX
  SG_ LKA_MODE : 24|3@1+ (1,0) [0|7] "" XXX
- SG_ LKA_ACTIVE : 27|2@1+ (1,0) [0|255] "" XXX
+ SG_ LKA_ACTIVE : 27|2@1+ (1,0) [0|3] "" XXX
  SG_ LKA_WARNING : 32|1@1+ (1,0) [0|1] "" XXX
- SG_ LKA_ICON : 38|2@1+ (1,0) [0|255] "" XXX
+ SG_ LKA_ICON : 38|2@1+ (1,0) [0|3] "" XXX
  SG_ FCA_SYSWARN : 40|1@0+ (1,0) [0|1] "" XXX
  SG_ TORQUE_REQUEST : 41|11@1+ (1,-1024) [0|4095] "" XXX
  SG_ STEER_REQ : 52|1@1+ (1,0) [0|1] "" XXX
- SG_ LFA_BUTTON : 56|1@1+ (1,0) [0|255] "" XXX
+ SG_ LFA_BUTTON : 56|1@1+ (1,0) [0|1] "" XXX
  SG_ LKA_ASSIST : 62|1@1+ (1,0) [0|1] "" XXX
  SG_ STEER_MODE : 65|3@1+ (1,0) [0|1] "" XXX
  SG_ NEW_SIGNAL_2 : 70|2@0+ (1,0) [0|3] "" XXX
@@ -151,13 +151,13 @@ BO_ 272 LKAS_ALT: 32 XXX
  SG_ CHECKSUM : 0|16@1+ (1,0) [0|65535] "" XXX
  SG_ COUNTER : 16|8@1+ (1,0) [0|255] "" XXX
  SG_ LKA_MODE : 24|3@1+ (1,0) [0|7] "" XXX
- SG_ LKA_ACTIVE : 27|2@1+ (1,0) [0|255] "" XXX
+ SG_ LKA_ACTIVE : 27|2@1+ (1,0) [0|3] "" XXX
  SG_ LKA_WARNING : 32|1@1+ (1,0) [0|1] "" XXX
- SG_ LKA_ICON : 38|2@1+ (1,0) [0|255] "" XXX
+ SG_ LKA_ICON : 38|2@1+ (1,0) [0|3] "" XXX
  SG_ FCA_SYSWARN : 40|1@0+ (1,0) [0|1] "" XXX
  SG_ TORQUE_REQUEST : 41|11@1+ (1,-1024) [0|4095] "" XXX
  SG_ STEER_REQ : 52|1@1+ (1,0) [0|1] "" XXX
- SG_ LFA_BUTTON : 56|1@1+ (1,0) [0|255] "" XXX
+ SG_ LFA_BUTTON : 56|1@1+ (1,0) [0|1] "" XXX
  SG_ LKA_ASSIST : 62|1@1+ (1,0) [0|1] "" XXX
  SG_ STEER_MODE : 65|3@1+ (1,0) [0|1] "" XXX
  SG_ LKAS_SIGNAL_1 : 75|4@0+ (1,0) [0|15] "" XXX
@@ -176,20 +176,20 @@ BO_ 272 LKAS_ALT: 32 XXX
 BO_ 293 STEERING_SENSORS: 16 XXX
  SG_ CHECKSUM : 0|16@1+ (1,0) [0|65535] "" XXX
  SG_ COUNTER : 16|8@1+ (1,0) [0|255] "" XXX
- SG_ STEERING_ANGLE : 24|16@1- (-0.1,0) [0|255] "deg" XXX
+ SG_ STEERING_ANGLE : 24|16@1- (-0.1,0) [0|511] "deg" XXX
  SG_ STEERING_RATE : 40|8@1+ (4,0) [0|1016] "deg/s" XXX
 
 BO_ 298 LFA: 16 ADRV
  SG_ CHECKSUM : 0|16@1+ (1,0) [0|65535] "" XXX
  SG_ COUNTER : 16|8@1+ (1,0) [0|255] "" XXX
  SG_ LKA_MODE : 24|3@1+ (1,0) [0|7] "" XXX
- SG_ LKA_ACTIVE : 27|2@1+ (1,0) [0|255] "" XXX
+ SG_ LKA_ACTIVE : 27|2@1+ (1,0) [0|3] "" XXX
  SG_ LKA_WARNING : 32|1@1+ (1,0) [0|1] "" XXX
  SG_ LKA_ICON : 38|2@1+ (1,0) [0|3] "" XXX
  SG_ FCA_SYSWARN : 40|1@0+ (1,0) [0|1] "" XXX
  SG_ TORQUE_REQUEST : 41|11@1+ (1,-1024) [0|4095] "" XXX
  SG_ STEER_REQ : 52|1@1+ (1,0) [0|1] "" XXX
- SG_ LFA_BUTTON : 56|1@1+ (1,0) [0|255] "" XXX
+ SG_ LFA_BUTTON : 56|1@1+ (1,0) [0|1] "" XXX
  SG_ LKA_ASSIST : 62|1@1+ (1,0) [0|1] "" XXX
  SG_ STEER_MODE : 65|3@1+ (1,0) [0|1] "" XXX
  SG_ LKAS_SIGNAL_1 : 75|4@0+ (1,0) [0|15] "" XXX
@@ -246,13 +246,13 @@ BO_ 373 TCS: 24 XXX
 BO_ 352 ADRV_0x160: 16 ADRV
  SG_ CHECKSUM : 0|16@1+ (1,0) [0|65535] "" XXX
  SG_ COUNTER : 16|8@1+ (1,0) [0|255] "" XXX
- SG_ AEB_SETTING : 24|2@1+ (1,0) [0|255] "" XXX
+ SG_ AEB_SETTING : 24|2@1+ (1,0) [0|3] "" XXX
  SG_ NEW_SIGNAL_1 : 28|3@0+ (1,0) [0|7] "" XXX
  SG_ SET_ME_2 : 56|8@1+ (1,0) [0|1] "" XXX
  SG_ SET_ME_FF : 64|8@1+ (1,0) [0|255] "" XXX
  SG_ SET_ME_FC : 72|8@1+ (1,0) [0|255] "" XXX
  SG_ SET_ME_9 : 80|8@1+ (1,0) [0|255] "" XXX
- SG_ DATA102 : 102|1@1+ (1,0) [0|255] "" XXX
+ SG_ DATA102 : 102|1@1+ (1,0) [0|1] "" XXX
 
 BO_ 353 ADRV_0x161: 32 ADRV
  SG_ CHECKSUM : 0|16@1+ (1,0) [0|65535] "" XXX
@@ -371,9 +371,7 @@ BO_ 416 SCC_CONTROL: 32 ADRV
  SG_ CHECKSUM : 0|16@1+ (1,0) [0|65535] "" XXX
  SG_ COUNTER : 16|8@1+ (1,0) [0|255] "" XXX
  SG_ ACC_ObjDist : 24|11@1+ (0.1,0) [0|204.7] "m" XXX
- SG_ ACC_ObjRelSpd : 35|9@1+ (0.1,-170) [-16.4|34.7] "m/s" XXX
- SG_ SET_ME_3 : 45|2@0+ (1,0) [0|3] "" XXX
- SG_ ObjValid : 46|1@0+ (1,0) [0|3] "" XXX
+ SG_ ACC_ObjRelSpd : 35|11@1+ (0.1,-170) [-16.4|34.7] "m/s" XXX
  SG_ SET_ME_TMP_64 : 55|8@0+ (1,0) [0|63] "" XXX
  SG_ ZEROS_7 : 63|8@0+ (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_1 : 64|2@1+ (1,0) [0|3] "" XXX
@@ -788,8 +786,8 @@ BO_ 485 BLINDSPOTS_FRONT_CORNER_1: 16 XXX
  SG_ NEW_SIGNAL_1 : 108|2@0+ (1,0) [0|3] "" XXX
 
 BO_ 506 CLUSTER_SPEED_LIMIT: 32 XXX
- SG_ SPEED_LIMIT_1 : 39|7@0+ (1,0) [0|255] "" XXX
- SG_ SPEED_LIMIT_2 : 47|7@0+ (1,0) [0|255] "" XXX
+ SG_ SPEED_LIMIT_1 : 39|8@0+ (1,0) [0|255] "" XXX
+ SG_ SPEED_LIMIT_2 : 47|8@0+ (1,0) [0|255] "" XXX
  SG_ SECONDARY_LIMIT_1 : 79|8@0+ (1,0) [0|127] "" XXX
  SG_ SECONDARY_LIMIT_2 : 103|8@0+ (1,0) [0|127] "" XXX
  SG_ SPEED_LIMIT_3 : 119|8@0+ (1,0) [0|255] "" XXX

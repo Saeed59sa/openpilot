@@ -241,11 +241,7 @@ def create_acc_control(packer, CP, CC, CS, CAN, accel_last, accel, stopping, set
     values["JerkUpperLimit"] = jerk_u
     values["DISTANCE_SETTING"] = hud_control.leadDistanceBars # + 5
 
-    #values["ACC_ObjDist"] = 1
-    #values["ObjValid"] = 0
-    #values["OBJ_STATUS"] =  2
     values["SET_ME_2"] = 4
-    #values["SET_ME_3"] = 3  # objRelsped와 충돌
     values["SET_ME_TMP_64"] = 100
     values["NEW_SIGNAL_3"] = 1 if hud_control.leadVisible else 0 #0  # 1이되면 차선이탈방지 알람이 뜬다고...  => 앞에 차가 있으면, 1또는 2가 됨. 전방두부?
     values["ZEROS_5"] = 0
@@ -267,10 +263,7 @@ def create_acc_control(packer, CP, CC, CS, CAN, accel_last, accel, stopping, set
       "JerkUpperLimit": jerk_u,
 
       "ACC_ObjDist": 1,
-      #"ObjValid": 0,
-      #"OBJ_STATUS": 2,
       "SET_ME_2": 4,
-      #"SET_ME_3": 3,
       "SET_ME_TMP_64": 100,
       "DISTANCE_SETTING": hud_control.leadDistanceBars, # + 5,
       "CRUISE_STANDSTILL": 1 if stopping and CS.out.cruiseState.standstill else 0,
