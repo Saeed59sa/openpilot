@@ -158,18 +158,16 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   }
 
   // traffic icon
-  if (traffic_state >= 0 && is_cruise_set) {
-    w = 85;
-    h = 168;
-    x = (btn_size * 2) + 10;
-    y = (UI_BORDER_SIZE * 2);
-    if (traffic_state == 1) {
-      p.drawPixmap(x, y, w, h, traffic_red_img);
-    } else if (traffic_state == 2) {
-      p.drawPixmap(x, y, w, h, traffic_green_img);
-    } else {
-      p.drawPixmap(x, y, w, h, traffic_off_img);
-    }
+  w = 85;
+  h = 168;
+  x = (btn_size * 2) + 10;
+  y = (UI_BORDER_SIZE * 2);
+  if (traffic_state == 1 && is_cruise_set) {
+    p.drawPixmap(x, y, w, h, traffic_red_img);
+  } else if (traffic_state == 2 && is_cruise_set) {
+    p.drawPixmap(x, y, w, h, traffic_green_img);
+  } else {
+    p.drawPixmap(x, y, w, h, traffic_off_img);
   }
 
   // N direction icon

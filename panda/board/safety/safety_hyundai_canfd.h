@@ -355,6 +355,7 @@ static safety_config hyundai_canfd_init(uint16_t param) {
     {0x160, 0, 16}, // ADRV_0x160
     {0x7D0, 0, 8},  // tester present for radar ECU disable
     {0x1AA, 2, 16}, // CRUISE_ALT_BUTTONS , carrot
+    {203, 0, 24},   // CB
   };
 
 

@@ -687,8 +687,10 @@ FW_VERSIONS = {
   },
   CAR.HYUNDAI_SANTAFE_MX5_HEV: {  # (MX5)
     (Ecu.fwdRadar, 0x7d0, None): [
+      b'\xf1\x00MX5_ RDR -----      1.00 1.01 99110-P6000         ',
     ],
     (Ecu.fwdCamera, 0x7c4, None): [
+      b'\xf1\x00MX5HMFC  AT KOR LHD 1.00 1.07 99211-P6000 231218',
     ],
   },
   CAR.HYUNDAI_GRANDEUR_GN7: {  # (GN7)
