@@ -106,9 +106,7 @@ def get_T_FOLLOW(personality=log.LongitudinalPersonality.standard):
 def get_stopped_equivalence_factor(v_lead):
   return (v_lead**2) / (2 * COMFORT_BRAKE)
 
-def get_safe_obstacle_distance(v_ego, t_follow=None, comfort_brake=COMFORT_BRAKE, stop_distance=STOP_DISTANCE):
-  if t_follow is None:
-    t_follow = get_T_FOLLOW()
+def get_safe_obstacle_distance(v_ego, t_follow, comfort_brake=COMFORT_BRAKE, stop_distance=STOP_DISTANCE):
   return (v_ego**2) / (2 * comfort_brake) + t_follow * v_ego + stop_distance
 
 def desired_follow_distance(v_ego, v_lead, t_follow=None):
@@ -194,7 +192,7 @@ def gen_long_ocp():
   # from an obstacle at every timestep. This obstacle can be a lead car
   # or other object. In e2e mode we can use x_position targets as a cost
   # instead.
-  costs = [((x_obstacle - x_ego) - (desired_dist_comfort)) / (v_ego + 10.),
+  costs = [((x_obstacle - x_ego) - desired_dist_comfort) / (v_ego + 10.),
            x_ego,
            v_ego,
            a_ego,
@@ -209,7 +207,7 @@ def gen_long_ocp():
   constraints = vertcat(v_ego,
                         (a_ego - a_min),
                         (a_max - a_ego),
-                        ((x_obstacle - x_ego) - lead_danger_factor * (desired_dist_comfort)) / (v_ego + 10.))
+                        ((x_obstacle - x_ego) - lead_danger_factor * desired_dist_comfort) / (v_ego + 10.))
   ocp.model.con_h_expr = constraints
 
   x0 = np.zeros(X_DIM)
@@ -328,9 +326,9 @@ class LongitudinalMpc:
       cost_weights = [X_EGO_OBSTACLE_COST, X_EGO_COST, V_EGO_COST, A_EGO_COST, jerk_factor * a_change_cost, jerk_factor * J_EGO_COST]
       constraint_cost_weights = [LIMIT_COST, LIMIT_COST, LIMIT_COST, DANGER_ZONE_COST]
     elif self.mode == 'blended':
-      a_change_cost = 50.0 if prev_accel_constraint else 0
+      a_change_cost = 40.0 if prev_accel_constraint else 0
       cost_weights = [0., 0.1, 0.2, 5.0, a_change_cost, 1.0]
-      constraint_cost_weights = [LIMIT_COST, LIMIT_COST, LIMIT_COST, DANGER_ZONE_COST]
+      constraint_cost_weights = [LIMIT_COST, LIMIT_COST, LIMIT_COST, 50.0]
     else:
       raise NotImplementedError(f'Planner mode {self.mode} not recognized in planner cost set')
     self.set_cost_weights(cost_weights, constraint_cost_weights)
@@ -403,10 +401,10 @@ class LongitudinalMpc:
     # negative accel constraint causes problems because negative speed is not allowed
     self.params[:,1] = max(0.0, self.max_a if not reset_state else a_ego)
 
-    v_cruise, stop_x = self._update_carrot(sm, v_cruise)
+    v_cruise, stop_dist, mode = self._update_carrot(sm, v_cruise)
 
     # Update in ACC mode or ACC/e2e blend
-    if self.mode == 'acc':
+    if mode == 'acc':
       self.params[:,5] = LEAD_DANGER_FACTOR
       # Fake an obstacle for cruise, this ensures smooth acceleration to set speed
       # when the leads are no factor.
@@ -419,9 +417,9 @@ class LongitudinalMpc:
       cruise_obstacle = np.cumsum(T_DIFFS * v_cruise_clipped) + get_safe_obstacle_distance(v_cruise_clipped, t_follow, comfort_brake, stop_distance)
 
       adjust_dist = 1.0 if v_ego > 0.1 else -2.0
-      if 50 < stop_x + adjust_dist < cruise_obstacle[0]:
-        stop_x = cruise_obstacle[0] - adjust_dist
-      x2 = stop_x * np.ones(N+1) + adjust_dist
+      if 50 < stop_dist + adjust_dist < cruise_obstacle[0]:
+        stop_dist = cruise_obstacle[0] - adjust_dist
+      x2 = stop_dist * np.ones(N+1) + adjust_dist
 
       x_obstacles = np.column_stack([lead_0_obstacle, lead_1_obstacle, cruise_obstacle, x2])
       self.source = SOURCES[np.argmin(x_obstacles[0])]
@@ -429,7 +427,7 @@ class LongitudinalMpc:
       # These are not used in ACC mode
       x[:], v[:], a[:], j[:] = 0.0, 0.0, 0.0, 0.0
 
-    elif self.mode == 'blended':
+    elif mode == 'blended':
       self.params[:,5] = 1.0
 
       x_obstacles = np.column_stack([lead_0_obstacle,
@@ -598,20 +596,25 @@ class LongitudinalMpc:
 
     self.actual_stop_distance = max(0, self.actual_stop_distance - (v_ego * DT_MDL))
 
+    mode = 'blended' if self.xState in [XState.e2ePrepare] else 'acc'
+
     if stop_model_x == 1000.0: ##  e2eCruise, lead
       self.actual_stop_distance = 0.0
     elif self.actual_stop_distance > 0: ## e2eStop, e2eStopped
       stop_model_x = 0.0
 
-    stop_dist = stop_model_x + self.actual_stop_distance
-    stop_dist = max(stop_dist, v_ego ** 2 / (COMFORT_BRAKE * 2))
+    if mode == 'blended':
+      stop_dist = 1000.0
+    else:
+      stop_dist = stop_model_x + self.actual_stop_distance
+      stop_dist = max(stop_dist, v_ego ** 2 / (COMFORT_BRAKE * 2))
 
-    return v_cruise, stop_dist
+    return v_cruise, stop_dist, mode
 
-  def _update_stop_dist(self, stop_x):
-    stop_x = self.xStopFilter.process(stop_x, median = True)
-    stop_x = self.xStopFilter2.process(stop_x)
-    return stop_x
+  def _update_stop_dist(self, stop_dist):
+    stop_dist = self.xStopFilter.process(stop_dist, median = True)
+    stop_dist = self.xStopFilter2.process(stop_dist)
+    return stop_dist
 
   def _check_model_stopping(self, v, v_ego, a_ego, model_x, y, d_rel):
     v_ego_kph = v_ego * CV.MS_TO_KPH
@@ -640,6 +643,7 @@ class LongitudinalMpc:
       self.trafficState = TrafficState.green
     else:
       self.trafficState = TrafficState.off
+
 
 if __name__ == "__main__":
   ocp = gen_long_ocp()
