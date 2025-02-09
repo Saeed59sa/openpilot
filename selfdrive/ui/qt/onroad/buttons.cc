@@ -39,28 +39,34 @@ void drawIconGradient(QPainter &p, const QPoint &center, const QPixmap &img, con
   p.setBrush(bg);
   p.drawEllipse(center, btn_size / 2, btn_size / 2);
 
-  // Draw the arc (border) with gradient based on angle
   int borderThickness = 10;
   int adjustedRadius = btn_size / 2 - borderThickness / 2;
+  int startAngle = 90 * 16;
+  int spanAngle = qMin(qAbs(angle), 360.0f) * 16;
+  int extraAngle = (qAbs(angle) - 360) * 16;
 
-  QConicalGradient gradient(center, 90);
-  if (angle > 0) {
-    gradient.setColorAt(0.0f, limeColor(200));
-    gradient.setColorAt(0.5f, orangeColor(200));
-    gradient.setColorAt(1.0f, redColor(200));
-  } else {
-    gradient.setColorAt(0.0f, redColor(200));
-    gradient.setColorAt(0.5f, orangeColor(200));
-    gradient.setColorAt(1.0f, limeColor(200));
-  }
-
-  p.setPen(QPen(QBrush(gradient), borderThickness));
   p.setBrush(Qt::NoBrush);
 
-  int startAngle = 90 * 16;
-  int spanAngle = angle * 16;
+  if (angle != 0) {
+    QConicalGradient gradient(center, 90);
+    if (angle > 0) {
+      gradient.setColorAt(0.0f, limeColor(200));
+      gradient.setColorAt(0.5f, orangeColor(200));
+      gradient.setColorAt(1.0f, redColor(200));
+    } else {
+      gradient.setColorAt(0.0f, redColor(200));
+      gradient.setColorAt(0.5f, orangeColor(200));
+      gradient.setColorAt(1.0f, limeColor(200));
+    }
 
-  p.drawArc(QRect(center.x() - adjustedRadius, center.y() - adjustedRadius, adjustedRadius * 2, adjustedRadius * 2), startAngle, spanAngle);
+    p.setPen(QPen(QBrush(gradient), borderThickness));
+    p.drawArc(QRect(center.x() - adjustedRadius, center.y() - adjustedRadius, adjustedRadius * 2, adjustedRadius * 2), startAngle, spanAngle);
+  }
+
+  if (qAbs(angle) > 360) {
+    p.setPen(QPen(QBrush(darkRedColor(200)), borderThickness));
+    p.drawArc(QRect(center.x() - adjustedRadius, center.y() - adjustedRadius, adjustedRadius * 2, adjustedRadius * 2), startAngle, extraAngle);
+  }
 
   p.setOpacity(opacity);
   p.save();

@@ -71,4 +71,5 @@ protected:
   inline QColor overrideColor(int alpha = 255) { return QColor(145, 155, 149, alpha); }
   inline QColor greenColor(int alpha = 255) { return QColor(128, 216, 166, alpha); }
   inline QColor pinkColor(int alpha = 255) { return QColor(255, 191, 191, alpha); }
+  inline QColor darkRedColor(int alpha = 255) { return QColor(139, 0, 0, alpha); }
 };

@@ -232,8 +232,10 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
 
     QColor sa_color = limeColor(200);
     if (std::fabs(steerAngle) > 360) {
+      sa_color = darkRedColor(200);
+    } else if (std::fabs(steerAngle) > 240) {
       sa_color = redColor(200);
-    } else if (std::fabs(steerAngle) > 180) {
+    } else if (std::fabs(steerAngle) > 120) {
       sa_color = orangeColor(200);
     }
 
