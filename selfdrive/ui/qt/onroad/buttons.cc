@@ -41,14 +41,14 @@ void drawIconGradient(QPainter &p, const QPoint &center, const QPixmap &img, con
 
   int borderThickness = 10;
   int adjustedRadius = btn_size / 2 - borderThickness / 2;
-  int startAngle = 90 * 16;
-  int spanAngle = qMin(qAbs(angle), 360.0f) * 16;
-  int extraAngle = (qAbs(angle) - 360) * 16;
 
-  p.setBrush(Qt::NoBrush);
+  int startAngle = 90 * 16;
+  int spanAngle = angle * 16;
+  int extraAngle = angle > 0 ? (angle - 360) * 16 : (angle + 360) * 16;
 
   if (angle != 0) {
     QConicalGradient gradient(center, 90);
+
     if (angle > 0) {
       gradient.setColorAt(0.0f, limeColor(200));
       gradient.setColorAt(0.5f, orangeColor(200));
@@ -60,11 +60,13 @@ void drawIconGradient(QPainter &p, const QPoint &center, const QPixmap &img, con
     }
 
     p.setPen(QPen(QBrush(gradient), borderThickness));
+    p.setBrush(Qt::NoBrush);
     p.drawArc(QRect(center.x() - adjustedRadius, center.y() - adjustedRadius, adjustedRadius * 2, adjustedRadius * 2), startAngle, spanAngle);
   }
 
   if (qAbs(angle) > 360) {
     p.setPen(QPen(QBrush(darkRedColor(200)), borderThickness));
+    p.setBrush(Qt::NoBrush);
     p.drawArc(QRect(center.x() - adjustedRadius, center.y() - adjustedRadius, adjustedRadius * 2, adjustedRadius * 2), startAngle, extraAngle);
   }
 
