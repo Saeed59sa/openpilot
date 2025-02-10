@@ -287,7 +287,6 @@ class LongitudinalMpc:
     self.startSignCount = 0
     self.stopSignCount = 0
     self.actual_stop_distance = 0.0
-    self.user_stop_distance = -1
 
     for i in range(N+1):
       self.solver.set(i, 'x', np.zeros(X_DIM))
@@ -401,10 +400,10 @@ class LongitudinalMpc:
     # negative accel constraint causes problems because negative speed is not allowed
     self.params[:,1] = max(0.0, self.max_a if not reset_state else a_ego)
 
-    v_cruise, stop_dist, mode = self._update_carrot(sm, v_cruise)
+    v_cruise, stop_dist = self._update_carrot(sm, v_cruise)
 
     # Update in ACC mode or ACC/e2e blend
-    if mode == 'acc':
+    if self.mode == 'acc':
       self.params[:,5] = LEAD_DANGER_FACTOR
       # Fake an obstacle for cruise, this ensures smooth acceleration to set speed
       # when the leads are no factor.
@@ -427,7 +426,7 @@ class LongitudinalMpc:
       # These are not used in ACC mode
       x[:], v[:], a[:], j[:] = 0.0, 0.0, 0.0, 0.0
 
-    elif mode == 'blended':
+    elif self.mode == 'blended':
       self.params[:,5] = 1.0
 
       x_obstacles = np.column_stack([lead_0_obstacle,
@@ -535,9 +534,6 @@ class LongitudinalMpc:
     d_rel = radarstate.leadOne.dRel if lead_detected else 1000
     self._check_model_stopping(v, v_ego, a_ego, x[-1], y, d_rel)
 
-    if carstate.gasPressed or carstate.brakePressed:
-      self.user_stop_distance = -1
-
     if self.xState == XState.e2eStopped:
       if carstate.gasPressed:
         self.xState = XState.e2ePrepare
@@ -547,7 +543,7 @@ class LongitudinalMpc:
         if self.trafficState == TrafficState.green and not carstate.leftBlinker:
           self.xState = XState.e2ePrepare
       self.stopping_count = max(0, self.stopping_count - 1)
-      v_cruise = 0
+      #v_cruise = 0
     elif self.xState == XState.e2eStop:
       self.stopping_count = 0
       if carstate.gasPressed:  # Stop detecting traffic signal for 10 seconds
@@ -564,7 +560,6 @@ class LongitudinalMpc:
           if stop_dist > 10.0:
             self.actual_stop_distance = stop_dist
           stop_model_x = 0
-          self.fakeCruiseDistance = 0 if self.actual_stop_distance > 10.0 else 10.0
           if v_ego < 0.3:
             self.stopping_count = 0.5 / DT_MDL
             self.xState = XState.e2eStopped
@@ -589,27 +584,17 @@ class LongitudinalMpc:
     if self.trafficState in [TrafficState.off, TrafficState.green] or self.xState not in [XState.e2eStop, XState.e2eStopped]:
       stop_model_x = 1000.0
 
-    if self.user_stop_distance >= 0:
-      self.user_stop_distance = max(0, self.user_stop_distance - v_ego * DT_MDL)
-      self.actual_stop_distance = self.user_stop_distance
-      self.xState = XState.e2eStop if self.user_stop_distance > 0 else XState.e2eStopped
-
     self.actual_stop_distance = max(0, self.actual_stop_distance - (v_ego * DT_MDL))
-
-    mode = 'blended' if self.xState in [XState.e2ePrepare] else 'acc'
 
     if stop_model_x == 1000.0: ##  e2eCruise, lead
       self.actual_stop_distance = 0.0
     elif self.actual_stop_distance > 0: ## e2eStop, e2eStopped
       stop_model_x = 0.0
 
-    if mode == 'blended':
-      stop_dist = 1000.0
-    else:
-      stop_dist = stop_model_x + self.actual_stop_distance
-      stop_dist = max(stop_dist, v_ego ** 2 / (COMFORT_BRAKE * 2))
+    stop_dist = stop_model_x + self.actual_stop_distance
+    stop_dist = max(stop_dist, v_ego ** 2 / (COMFORT_BRAKE * 2))
 
-    return v_cruise, stop_dist, mode
+    return v_cruise, stop_dist
 
   def _update_stop_dist(self, stop_dist):
     stop_dist = self.xStopFilter.process(stop_dist, median = True)
