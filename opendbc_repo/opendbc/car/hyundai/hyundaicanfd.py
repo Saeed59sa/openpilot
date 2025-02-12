@@ -304,7 +304,6 @@ def create_fca_warning_light(packer, CP, CAN, frame):
       'SET_ME_FF': 255,
       'SET_ME_FC': 252,
       'SET_ME_9': 9,
-      #'DATA102': 1,
     }
     ret.append(packer.make_can_msg("ADRV_0x160", CAN.ECAN, values))
   return ret
@@ -337,7 +336,7 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       values["DISTANCE_SPACING"] = 5 if hdp_active else 1 if cruise_enabled else 0
 
       values["TARGET"] = 1 if cruise_enabled else 0
-      values["TARGET_POSITION"] = int(hud_control.leadDistance)
+      values["TARGET_DISTANCE"] = int(hud_control.leadDistance)
 
       values["BACKGROUND"] = 1 if cruise_enabled else 3 if main_enabled else 7
       values["CENTERLINE"] = 1 if lat_active else 0
@@ -436,7 +435,7 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
         values["VIBRATE"] = 1
       ret.append(packer.make_can_msg("ADRV_0x162", CAN.ECAN, values))
 
-    if frame % 5 == 0 and CS.adrv_info_160 is not None:
+    if frame % 2 == 0 and CS.adrv_info_160 is not None:
       values = CS.adrv_info_160
       values["NEW_SIGNAL_1"] = 0  # steer_temp관련없음, 계기판에러
       values["SET_ME_9"] = 17  # steer_temp관련없음, 계기판에러
@@ -489,18 +488,12 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       values = {
         'HDA_MODE1': 8,
         'HDA_MODE2': 1,
-        #'SET_ME_1C': 28,
         'SET_ME_FF': 255,
-        #'SET_ME_TMP_F': 15,
-        #'SET_ME_TMP_F_2': 15,
-        #'DATA26': 1,
-        #'DATA32': 5,
       }
       ret.append(packer.make_can_msg("ADRV_0x1ea", CAN.ECAN, values))
 
       values = {
         'SET_ME_E1': 225,
-        #'SET_ME_3A': 58,
         'TauGapSet' : 1,
         'NEW_SIGNAL_2': 3,
       }
