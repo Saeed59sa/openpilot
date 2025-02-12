@@ -3,7 +3,7 @@ import os
 import time
 import numpy as np
 from cereal import log
-from opendbc.car.interfaces import ACCEL_MIN
+from opendbc.car.interfaces import ACCEL_MIN, ACCEL_MAX
 from openpilot.common.realtime import DT_MDL
 from openpilot.common.swaglog import cloudlog
 # WARNING: imports outside of constants will not trigger a rebuild
@@ -78,6 +78,8 @@ FCW_IDXS = T_IDXS < 5.0
 T_DIFFS = np.diff(T_IDXS, prepend=[0.])
 COMFORT_BRAKE = 2.5
 STOP_DISTANCE = 6.0
+CRUISE_MIN_ACCEL = -1.2
+CRUISE_MAX_ACCEL = 1.6
 
 def get_jerk_factor(personality=log.LongitudinalPersonality.standard):
   if personality==log.LongitudinalPersonality.morerelaxed:
@@ -192,7 +194,7 @@ def gen_long_ocp():
   # from an obstacle at every timestep. This obstacle can be a lead car
   # or other object. In e2e mode we can use x_position targets as a cost
   # instead.
-  costs = [((x_obstacle - x_ego) - desired_dist_comfort) / (v_ego + 10.),
+  costs = [((x_obstacle - x_ego) - (desired_dist_comfort)) / (v_ego + 10.),
            x_ego,
            v_ego,
            a_ego,
@@ -207,7 +209,7 @@ def gen_long_ocp():
   constraints = vertcat(v_ego,
                         (a_ego - a_min),
                         (a_max - a_ego),
-                        ((x_obstacle - x_ego) - lead_danger_factor * desired_dist_comfort) / (v_ego + 10.))
+                        ((x_obstacle - x_ego) - lead_danger_factor * (desired_dist_comfort)) / (v_ego + 10.))
   ocp.model.con_h_expr = constraints
 
   x0 = np.zeros(X_DIM)
@@ -327,7 +329,7 @@ class LongitudinalMpc:
     elif self.mode == 'blended':
       a_change_cost = 40.0 if prev_accel_constraint else 0
       cost_weights = [0., 0.1, 0.2, 5.0, a_change_cost, 1.0]
-      constraint_cost_weights = [LIMIT_COST, LIMIT_COST, LIMIT_COST, 50.0]
+      constraint_cost_weights = [LIMIT_COST, LIMIT_COST, LIMIT_COST, DANGER_ZONE_COST]
     else:
       raise NotImplementedError(f'Planner mode {self.mode} not recognized in planner cost set')
     self.set_cost_weights(cost_weights, constraint_cost_weights)
@@ -371,12 +373,6 @@ class LongitudinalMpc:
     lead_xv = self.extrapolate_lead(x_lead, v_lead, a_lead, a_lead_tau)
     return lead_xv
 
-  def set_accel_limits(self, min_a, max_a):
-    # TODO this sets a max accel limit, but the minimum limit is only for cruise decel
-    # needs refactor
-    self.cruise_min_a = min_a
-    self.max_a = max_a
-
   def update(self, sm, reset_state, v_cruise, x, v, a, j, personality=log.LongitudinalPersonality.standard):
     radarstate = sm['radarState']
     t_follow = get_T_FOLLOW(personality)
@@ -397,19 +393,19 @@ class LongitudinalMpc:
     stop_distance = STOP_DISTANCE
 
     self.params[:,0] = ACCEL_MIN if not reset_state else a_ego
-    # negative accel constraint causes problems because negative speed is not allowed
-    self.params[:,1] = max(0.0, self.max_a if not reset_state else a_ego)
+    self.params[:,1] = ACCEL_MAX if not reset_state else a_ego
 
     v_cruise, stop_dist = self._update_carrot(sm, v_cruise)
 
     # Update in ACC mode or ACC/e2e blend
     if self.mode == 'acc':
       self.params[:,5] = LEAD_DANGER_FACTOR
+
       # Fake an obstacle for cruise, this ensures smooth acceleration to set speed
       # when the leads are no factor.
-      v_lower = v_ego + (T_IDXS * self.cruise_min_a * 1.05)
+      v_lower = v_ego + (T_IDXS * CRUISE_MIN_ACCEL * 1.05)
       # TODO does this make sense when max_a is negative?
-      v_upper = v_ego + (T_IDXS * self.max_a * 1.05)
+      v_upper = v_ego + (T_IDXS * CRUISE_MAX_ACCEL * 1.05)
       v_cruise_clipped = np.clip(v_cruise * np.ones(N+1),
                                  v_lower,
                                  v_upper)
