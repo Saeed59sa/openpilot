@@ -37,8 +37,8 @@ upload_file() {
 }
 
 upload_file "${LOG_FOLDER}/qcamera.ts" "qcamera.ts"
-upload_file "${LOG_FOLDER}/rlog" "rlog"
-upload_file "${LOG_FOLDER}/qlog" "qlog"
+upload_file "${LOG_FOLDER}/rlog.zst" "rlog.zst"
+upload_file "${LOG_FOLDER}/qlog.zst" "qlog.zst"
 
 echo "$(date) - Upload complete"
 exit 0
