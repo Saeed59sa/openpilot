@@ -19,7 +19,6 @@ from openpilot.selfdrive.controls.lib.longcontrol import LongControl
 from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
 
-from selfdrive.controls.neokii.lane_planner import LanePlanner
 
 State = log.SelfdriveState.OpenpilotState
 LaneChangeState = log.LaneChangeState
@@ -38,8 +37,7 @@ class Controls:
 
     self.sm = messaging.SubMaster(['liveParameters', 'liveTorqueParameters', 'modelV2', 'selfdriveState',
                                    'liveCalibration', 'livePose', 'longitudinalPlan', 'carState', 'carOutput',
-                                   'driverMonitoringState', 'onroadEvents', 'driverAssistance', 'radarState',
-                                   'lateralPlan'], poll='selfdriveState')
+                                   'driverMonitoringState', 'onroadEvents', 'driverAssistance', 'radarState'], poll='selfdriveState')
     self.pm = messaging.PubMaster(['carControl', 'controlsState'])
 
     self.steer_limited = False
@@ -108,23 +106,16 @@ class Controls:
 
     # accel PID loop
     pid_accel_limits = self.CI.get_pid_accel_limits(self.CP, CS.vEgo, CS.vCruise * CV.KPH_TO_MS)
-    actuators.accel = float(self.LoC.update(CC.longActive, CS, long_plan, pid_accel_limits, self.sm))
-
-    lat_plan = self.sm['lateralPlan']
+    actuators.accel = float(self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop, pid_accel_limits))
 
     # Steering PID loop and lateral MPC
-    if lat_plan.useLaneLines:
-      self.desired_curvature = LanePlanner.get_lag_adjusted_curvature(CS.vEgo, lat_plan.psis, lat_plan.curvatures, lat_plan.distances)
-    else:
-      self.desired_curvature = clip_curvature(CS.vEgo, self.desired_curvature, model_v2.action.desiredCurvature)
-
+    self.desired_curvature = clip_curvature(CS.vEgo, self.desired_curvature, model_v2.action.desiredCurvature)
     actuators.curvature = float(self.desired_curvature)
     steer, steeringAngleDeg, lac_log = self.LaC.update(CC.latActive, CS, self.VM, lp,
                                                        self.steer_limited, self.desired_curvature,
                                                        self.calibrated_pose) # TODO what if not available
     actuators.steer = float(steer)
     actuators.steeringAngleDeg = float(steeringAngleDeg)
-
     # Ensure no NaNs/Infs
     for p in ACTUATOR_FIELDS:
       attr = getattr(actuators, p)
@@ -160,10 +151,6 @@ class Controls:
     hudControl.leadVisible = self.sm['longitudinalPlan'].hasLead
     hudControl.leadDistanceBars = self.sm['selfdriveState'].personality.raw + 1
     hudControl.visualAlert = self.sm['selfdriveState'].alertHudVisual
-
-    leadOne = self.sm['radarState'].leadOne
-    hudControl.leadDistance = leadOne.dRel if leadOne.status else 0
-    hudControl.leadRelSpeed = leadOne.vRel if leadOne.status else 0
 
     hudControl.rightLaneVisible = True
     hudControl.leftLaneVisible = True

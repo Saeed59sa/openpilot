@@ -208,8 +208,6 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
                                         "../assets/offroad/icon_hda.png", this));
   mainToggles->addItem(new ParamControl("HyundaiCameraSCC", tr("HDA2 ADAS ECAN Modify"), tr("Connect the ADAS ECAN line to CAMERA, turn it on"),
                                         "../assets/offroad/icon_hda.png", this));
-  mainToggles->addItem(new ParamControl("UseLanelines", tr("Use lane lines"), tr("Use lane lines instead of e2e"),
-                                        "../assets/offroad/icon_hda.png", this));
   mainToggles->addItem(new ParamControl("DriverCameraOnReverse", tr("Driver Camera On Reverse"), tr("Displays the driver camera when in reverse"),
                                         "../assets/img_driver_face_static.png", this));
   mainToggles->addItem(new ParamControl("DriverCameraHardwareMissing", tr("DriverCamera Hardware Missing"), tr("If there is a problem with the driver camera hardware, drive without the driver camera"),

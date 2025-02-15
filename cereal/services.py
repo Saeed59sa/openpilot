@@ -76,7 +76,6 @@ _services: dict[str, tuple] = {
 
   # add
   "naviData": (False, 0.),
-  "lateralPlan": (True, 20., 5),
 
   # debug
   "uiDebug": (True, 0., 1),
