@@ -418,8 +418,11 @@ class CarState(CarStateBase):
     if self.CP.exFlags & HyundaiExFlags.AUTOHOLD:
       ret.exState.autoHold = cp.vl["ESP_STATUS"]["AUTO_HOLD"]
 
-    #if self.CP.exFlags & HyundaiExFlags.NAVI:
-    #  ret.exState.navLimitSpeed = cp.vl["CLUSTER_SPEED_LIMIT"]["SPEED_LIMIT_1"]
+    if self.CP.exFlags & HyundaiExFlags.NAVI:
+      if self.CP.flags & HyundaiFlags.CAMERA_SCC and self.CP.exFlags & HyundaiExFlags.CCNC.value:
+        ret.exState.navLimitSpeed = cp.vl["ADRV_0x162"]["SPEEDLIMIT"]
+      else:
+        ret.exState.navLimitSpeed = cp.vl["CLUSTER_SPEED_LIMIT"]["SPEED_LIMIT_1"]
 
     self.canfd_buttons = cp.vl[self.cruise_btns_msg_canfd]
 
@@ -485,14 +488,14 @@ class CarState(CarStateBase):
     if CP.exFlags & HyundaiExFlags.AUTOHOLD:
       pt_messages.append(("ESP_STATUS", 0))
 
-    #if CP.flags & HyundaiFlags.CANFD_HDA2 and CP.exFlags & HyundaiExFlags.NAVI:
-    #  pt_messages.append(("CLUSTER_SPEED_LIMIT", 10))
+    if CP.flags & HyundaiFlags.CANFD_HDA2 and CP.exFlags & HyundaiExFlags.NAVI and not CP.flags & HyundaiFlags.CAMERA_SCC:
+      pt_messages.append(("CLUSTER_SPEED_LIMIT", 10))
 
-    if CP.flags & HyundaiFlags.CANFD_HDA2 and CP.flags & HyundaiFlags.CAMERA_SCC:
-      pt_messages += [
-        ("HDA_INFO_0x4a3", 5),
-        #("HDA_INFO_0x4b4", 10),
-      ]
+    #if CP.flags & HyundaiFlags.CANFD_HDA2 and CP.flags & HyundaiFlags.CAMERA_SCC:
+    #  pt_messages += [
+    #    ("HDA_INFO_0x4a3", 5),
+    #    ("HDA_INFO_0x4b4", 10),
+    #  ]
 
     cam_messages = []
     if CP.flags & HyundaiFlags.CANFD_HDA2 and not CP.flags & HyundaiFlags.CAMERA_SCC.value:
@@ -516,8 +519,8 @@ class CarState(CarStateBase):
           ("ADRV_0x162", 20),
         ]
 
-    #if not CP.flags & HyundaiFlags.CANFD_HDA2 and CP.exFlags & HyundaiExFlags.NAVI:
-    #  cam_messages.append(("CLUSTER_SPEED_LIMIT", 10))
+    if not CP.flags & HyundaiFlags.CANFD_HDA2 and CP.exFlags & HyundaiExFlags.NAVI:
+      cam_messages.append(("CLUSTER_SPEED_LIMIT", 10))
 
     if CP.enableBsm:
       if CP.flags & HyundaiFlags.CAMERA_SCC.value and CP.exFlags & HyundaiExFlags.BSM_IN_ADAS.value:
