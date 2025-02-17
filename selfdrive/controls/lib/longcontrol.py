@@ -56,7 +56,20 @@ class LongControl:
   def reset(self):
     self.pid.reset()
 
-  def update(self, active, CS, a_target, should_stop, accel_limits):
+  def update(self, active, CS, long_plan, accel_limits, t_since_plan):
+    a_target = long_plan.aTarget
+    v_target = long_plan.vTarget
+    j_target = long_plan.jTarget
+    should_stop = long_plan.shouldStop
+
+    speeds = long_plan.speeds
+    if len(speeds) == CONTROL_N:
+      v_target_now = np.interp(t_since_plan, ModelConstants.T_IDXS[:CONTROL_N], long_plan.speeds)
+      a_target_now = np.interp(t_since_plan, ModelConstants.T_IDXS[:CONTROL_N], long_plan.accels)
+      j_target_now = long_plan.jerks[0] #np.interp(t_since_plan, ModelConstants.T_IDXS[:CONTROL_N], long_plan.jerks)
+    else:
+      v_target_now = a_target_now = j_target_now = 0.0
+
     """Update longitudinal control. This updates the state machine and runs a PID loop"""
     self.pid.neg_limit = accel_limits[0]
     self.pid.pos_limit = accel_limits[1]
@@ -80,7 +93,8 @@ class LongControl:
       self.reset()
 
     else:  # LongCtrlState.pid
-      error = a_target - CS.aEgo
+      #error = a_target_now - CS.aEgo
+      error = v_target_now - CS.vEgo
       output_accel = self.pid.update(error, speed=CS.vEgo,
                                      feedforward=a_target)
 
