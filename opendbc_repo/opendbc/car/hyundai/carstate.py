@@ -421,6 +421,8 @@ class CarState(CarStateBase):
     if self.CP.exFlags & HyundaiExFlags.NAVI:
       if self.CP.flags & HyundaiFlags.CAMERA_SCC and self.CP.exFlags & HyundaiExFlags.CCNC.value:
         ret.exState.navLimitSpeed = cp_cam.vl["ADRV_0x162"]["SPEEDLIMIT"]
+      elif self.CP.flags & HyundaiFlags.CAMERA_SCC:
+        ret.exState.navLimitSpeed = cp_cam.vl["CLUSTER_SPEED_LIMIT"]["SPEED_LIMIT_1"]
       else:
         ret.exState.navLimitSpeed = cp.vl["CLUSTER_SPEED_LIMIT"]["SPEED_LIMIT_1"]
 
