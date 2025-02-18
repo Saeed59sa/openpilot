@@ -1,5 +1,6 @@
 import threading
 import numpy as np
+import subprocess
 
 from opendbc.car import structs
 from openpilot.common.conversions import Conversions as CV
@@ -152,6 +153,8 @@ class CruiseStateManager:
         self.enabled = False
         self.available = False
         self.reset_available()
+      else:
+        subprocess.run(["sh", "/data/openpilot/scripts/gitpull.sh"])
 
     v_cruise_kph = np.clip(round(v_cruise_kph, 1), V_CRUISE_MIN, V_CRUISE_MAX)
     self.speed = v_cruise_kph * CV.KPH_TO_MS

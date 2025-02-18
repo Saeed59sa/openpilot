@@ -137,18 +137,6 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     selectBranch_btn->setText(selectedBranch.length() ? selectedBranch : tr("Select Branch"));
   });
 
-  QPushButton* gitpull_btn = new QPushButton("Git Pull");
-  gitpull_btn->setObjectName("gitpull_btn");
-  QObject::connect(gitpull_btn, &QPushButton::clicked, this, [this]() {
-    if (ConfirmationDialog::confirm(tr("Git Fetch and Reset<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/scripts/gitpull.sh");
-    }
-    const QString file_path = "/data/check_network";
-    if (QFile::exists(file_path)) {
-      ConfirmationDialog::alert(tr("Please Check Network Connection"), this);
-    }
-  });
-
   QPushButton* toggle_btn = new QPushButton(tr("Toggle"));
   toggle_btn->setObjectName("toggle_btn");
   QObject::connect(toggle_btn, &QPushButton::clicked, this, [this]() {
@@ -165,9 +153,9 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     updateButtonStyles();
   });
 
-  QPushButton* upload_btn = new QPushButton(tr("Upload"));
-  upload_btn->setObjectName("upload_btn");
-  QObject::connect(upload_btn, &QPushButton::clicked, this, [this]() {
+  QPushButton* log_btn = new QPushButton(tr("Log"));
+  log_btn->setObjectName("log_btn");
+  QObject::connect(log_btn, &QPushButton::clicked, this, [this]() {
     this->currentCommunityIndex = 2;
     this->togglesCommunity(2);
     updateButtonStyles();
@@ -183,10 +171,9 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
 
   QHBoxLayout* row2Layout = new QHBoxLayout();
   row2Layout->setSpacing(30);
-  row2Layout->addWidget(gitpull_btn);
   row2Layout->addWidget(toggle_btn);
   row2Layout->addWidget(func_btn);
-  row2Layout->addWidget(upload_btn);
+  row2Layout->addWidget(log_btn);
 
   QVBoxLayout* mainLayout = new QVBoxLayout();
   mainLayout->setSpacing(30);
@@ -220,6 +207,18 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
                                         "../assets/offroad/icon_warning.png", this));
 
   // func
+  QPushButton* gitpull_btn = new QPushButton("Git Pull");
+  gitpull_btn->setObjectName("gitpull_btn");
+  QObject::connect(gitpull_btn, &QPushButton::clicked, this, [this]() {
+    if (ConfirmationDialog::confirm(tr("Git Fetch and Reset<br><br>Process?"), tr("Process"), this)) {
+      QProcess::execute("/data/openpilot/scripts/gitpull.sh");
+    }
+    const QString file_path = "/data/check_network";
+    if (QFile::exists(file_path)) {
+      ConfirmationDialog::alert(tr("Please Check Network Connection"), this);
+    }
+  });
+
   QPushButton* cleardtc_btn = new QPushButton(tr("Clear DTC"));
   cleardtc_btn->setObjectName("cleardtc_btn");
   QObject::connect(cleardtc_btn, &QPushButton::clicked, this, [this]() {
@@ -242,54 +241,6 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     if (ConfirmationDialog::confirm(tr("Git Reset<br><br>Process?"), tr("Process"), this)) {
       QProcess::execute("/data/openpilot/scripts/reset.sh");
     }
-  });
-
-  QPushButton* can_missing_error_log_btn = new QPushButton(tr("can missing log View"));
-  can_missing_error_log_btn->setObjectName("can_missing_error_log_btn");
-  QObject::connect(can_missing_error_log_btn, &QPushButton::clicked, this, [this]() {
-    const QString file_path = "/data/can_missing.log";
-    if (QFile::exists(file_path)) {
-      const std::string txt = util::read_file(file_path.toStdString());
-      ConfirmationDialog::rich(QString::fromStdString(txt), this);
-    } else {
-      ConfirmationDialog::alert(tr("log file not found"), this);
-    }
-  });
-
-  QPushButton* can_timeout_error_log_btn = new QPushButton(tr("can timeout log View"));
-  can_timeout_error_log_btn->setObjectName("can_timeout_error_log_btn");
-  QObject::connect(can_timeout_error_log_btn, &QPushButton::clicked, this, [this]() {
-    const QString file_path = "/data/can_timeout.log";
-    if (QFile::exists(file_path)) {
-      const std::string txt = util::read_file(file_path.toStdString());
-      ConfirmationDialog::rich(QString::fromStdString(txt), this);
-    } else {
-      ConfirmationDialog::alert(tr("log file not found"), this);
-    }
-  });
-
-  QPushButton* tmux_error_log_btn = new QPushButton(tr("tmux log View"));
-  tmux_error_log_btn->setObjectName("tmux_error_log_btn");
-  QObject::connect(tmux_error_log_btn, &QPushButton::clicked, this, [this]() {
-    const QString file_path = "/data/tmux_error.log";
-    if (QFile::exists(file_path)) {
-      const std::string txt = util::read_file(file_path.toStdString());
-      ConfirmationDialog::rich(QString::fromStdString(txt), this);
-    } else {
-      ConfirmationDialog::alert(tr("log file not found"), this);
-    }
-  });
-
-  QPushButton* tmux_console_btn = new QPushButton(tr("tmux console View"));
-  tmux_console_btn->setObjectName("tmux_console_btn");
-  QObject::connect(tmux_console_btn, &QPushButton::clicked, this, [this]() {
-    QProcess process;
-    QStringList arguments;
-    arguments << "capture-pane" << "-p" << "-t" << "0" << "-S" << "-250";
-    process.start("tmux", arguments);
-    process.waitForFinished();
-    QString output = process.readAllStandardOutput();
-    ConfirmationDialog::rich(output, this);
   });
 
   QPushButton* pandaflash_btn = new QPushButton(tr("Panda Flash"));
@@ -322,41 +273,12 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     QProcess::execute("/data/openpilot/selfdrive/ui/watch3");
   });
 
-  QString buttonStyle = R"(
-    QPushButton {
-      height: 120px;
-      border-radius: 15px;
-      background-color: #393939;
-    }
-    QPushButton:pressed {
-      background-color: #4a4a4a;
-    }
-  )";
-
-  funcWidget = new QWidget(this);
-  funcLayout = new QGridLayout(funcWidget);
-  funcLayout->setSpacing(20);
-
-  funcLayout->addWidget(tmux_error_log_btn, 0, 0);
-  funcLayout->addWidget(tmux_console_btn, 0, 1);
-  funcLayout->addWidget(can_missing_error_log_btn, 1, 0);
-  funcLayout->addWidget(can_timeout_error_log_btn, 1, 1);
-  funcLayout->addWidget(gitcheckout_btn, 2, 0);
-  funcLayout->addWidget(gitreset_btn, 2, 1);
-  funcLayout->addWidget(scons_rebuild_btn, 3, 0);
-  funcLayout->addWidget(cleardtc_btn, 3, 1);
-  funcLayout->addWidget(pandaflash_btn, 4, 0);
-  funcLayout->addWidget(pandarecover_btn, 4, 1);
-  funcLayout->addWidget(cameraview_btn, 5, 0);
-
-  funcWidget->setStyleSheet(buttonStyle);
-
-  // upload btn
+  // realdata upload btn
   QString targetPath = "/data/media/0/realdata";
   QString scriptPath = "/data/openpilot/scripts/realdata_upload.sh";
 
-  QPushButton* uploadFoler_btn = new QPushButton(tr("Realdata Files Upload"));
-  connect(uploadFoler_btn, &QPushButton::clicked, [=]() {
+  QPushButton* realdate_upload_btn = new QPushButton(tr("Realdata Files Upload"));
+  connect(realdate_upload_btn, &QPushButton::clicked, [=]() {
     QDir dir(targetPath);
     if (!dir.exists()) {
       ConfirmationDialog::alert(tr("Path does not exist"), this);
@@ -407,6 +329,80 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     }
   });
 
+  QString buttonStyle = R"(
+    QPushButton {
+      height: 120px;
+      border-radius: 15px;
+      background-color: #393939;
+    }
+    QPushButton:pressed {
+      background-color: #4a4a4a;
+    }
+  )";
+
+  funcWidget = new QWidget(this);
+  funcLayout = new QGridLayout(funcWidget);
+  funcLayout->setSpacing(20);
+
+  funcLayout->addWidget(realdate_upload_btn, 0, 1);
+  funcLayout->addWidget(gitpull_btn, 1, 0);
+  funcLayout->addWidget(gitcheckout_btn, 1, 1);
+  funcLayout->addWidget(gitreset_btn, 2, 0);
+  funcLayout->addWidget(scons_rebuild_btn, 2, 1);
+  funcLayout->addWidget(pandaflash_btn, 3, 0);
+  funcLayout->addWidget(pandarecover_btn, 3, 1);
+  funcLayout->addWidget(cameraview_btn, 4, 0);
+  funcLayout->addWidget(cleardtc_btn, 4, 1);
+
+  funcWidget->setStyleSheet(buttonStyle);
+
+  QPushButton* can_missing_error_log_btn = new QPushButton(tr("can missing log View"));
+  can_missing_error_log_btn->setObjectName("can_missing_error_log_btn");
+  QObject::connect(can_missing_error_log_btn, &QPushButton::clicked, this, [this]() {
+    const QString file_path = "/data/can_missing.log";
+    if (QFile::exists(file_path)) {
+      const std::string txt = util::read_file(file_path.toStdString());
+      ConfirmationDialog::rich(QString::fromStdString(txt), this);
+    } else {
+      ConfirmationDialog::alert(tr("log file not found"), this);
+    }
+  });
+
+  QPushButton* can_timeout_error_log_btn = new QPushButton(tr("can timeout log View"));
+  can_timeout_error_log_btn->setObjectName("can_timeout_error_log_btn");
+  QObject::connect(can_timeout_error_log_btn, &QPushButton::clicked, this, [this]() {
+    const QString file_path = "/data/can_timeout.log";
+    if (QFile::exists(file_path)) {
+      const std::string txt = util::read_file(file_path.toStdString());
+      ConfirmationDialog::rich(QString::fromStdString(txt), this);
+    } else {
+      ConfirmationDialog::alert(tr("log file not found"), this);
+    }
+  });
+
+  QPushButton* tmux_error_log_btn = new QPushButton(tr("tmux log View"));
+  tmux_error_log_btn->setObjectName("tmux_error_log_btn");
+  QObject::connect(tmux_error_log_btn, &QPushButton::clicked, this, [this]() {
+    const QString file_path = "/data/tmux_error.log";
+    if (QFile::exists(file_path)) {
+      const std::string txt = util::read_file(file_path.toStdString());
+      ConfirmationDialog::rich(QString::fromStdString(txt), this);
+    } else {
+      ConfirmationDialog::alert(tr("log file not found"), this);
+    }
+  });
+
+  QPushButton* tmux_console_btn = new QPushButton(tr("tmux console View"));
+  tmux_console_btn->setObjectName("tmux_console_btn");
+  QObject::connect(tmux_console_btn, &QPushButton::clicked, this, [this]() {
+    QProcess process;
+    QStringList arguments;
+    arguments << "capture-pane" << "-p" << "-t" << "0" << "-S" << "-250";
+    process.start("tmux", arguments);
+    process.waitForFinished();
+    QString output = process.readAllStandardOutput();
+    ConfirmationDialog::rich(output, this);
+  });
 
   QPushButton* tmux_error_log_upload_btn = new QPushButton(tr("tmux log Upload"));
   tmux_error_log_upload_btn->setObjectName("tmux_error_log_upload_btn");
@@ -486,15 +482,18 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   uploadLayout = new QGridLayout(uploadWidget);
   uploadLayout->setSpacing(20);
 
-  uploadLayout->addWidget(uploadFoler_btn, 0, 0);
-  uploadLayout->addWidget(tmux_error_log_upload_btn, 1, 0);
+  uploadLayout->addWidget(tmux_error_log_btn, 0, 0);
+  uploadLayout->addWidget(tmux_error_log_upload_btn, 0, 1);
+  uploadLayout->addWidget(tmux_console_btn, 1, 0);
   uploadLayout->addWidget(tmux_console_upload_btn, 1, 1);
-  uploadLayout->addWidget(carparams_dump_upload_btn, 2, 0);
-  uploadLayout->addWidget(carstate_dump_upload_btn, 2, 1);
-  uploadLayout->addWidget(carcontrol_dump_upload_btn, 3, 0);
-  uploadLayout->addWidget(controlsstate_dump_upload_btn, 3, 1);
-  uploadLayout->addWidget(devicestate_dump_upload_btn, 4, 0);
-  uploadLayout->addWidget(pandastates_dump_upload_btn, 4, 1);
+  uploadLayout->addWidget(can_missing_error_log_btn, 2, 0);
+  uploadLayout->addWidget(can_timeout_error_log_btn, 2, 1);
+  uploadLayout->addWidget(carparams_dump_upload_btn, 3, 0);
+  uploadLayout->addWidget(carstate_dump_upload_btn, 3, 1);
+  uploadLayout->addWidget(carcontrol_dump_upload_btn, 4, 0);
+  uploadLayout->addWidget(controlsstate_dump_upload_btn, 4, 1);
+  uploadLayout->addWidget(devicestate_dump_upload_btn, 5, 0);
+  uploadLayout->addWidget(pandastates_dump_upload_btn, 5, 1);
 
   uploadWidget->setStyleSheet(buttonStyle);
 
@@ -522,8 +521,7 @@ void CommunityPanel::togglesCommunity(int widgetIndex) {
 void CommunityPanel::blueButtonStyle(QPushButton* button) {
   button->setStyleSheet(R"(
     QPushButton {
-      font-size: 50px; margin: 0px; padding: 15px; border-width: 0; border-radius: 15px;
-      color: #FFFFFF; background-color: #2C2CE2;
+      height: 120px; border-radius: 15px; background-color: #2C2CE2;
     }
     QPushButton:pressed {
       background-color: #2424FF;
@@ -549,7 +547,7 @@ void CommunityPanel::updateButtonStyles() {
     styleSheet += "#func_btn { background-color: #33ab4c; }";
     break;
   case 2:
-    styleSheet += "#upload_btn { background-color: #33ab4c; }";
+    styleSheet += "#log_btn { background-color: #33ab4c; }";
     break;
   }
 

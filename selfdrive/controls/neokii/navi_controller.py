@@ -376,18 +376,14 @@ class SpeedLimiter:
     try:
       road_limit_speed = self.naviData.roadLimitSpeed
       is_highway = self.naviData.isHighway
-
       cam_type = int(self.naviData.camType)
-
       cam_limit_speed_left_dist = self.naviData.camLimitSpeedLeftDist
       cam_limit_speed = self.naviData.camLimitSpeed
-
       section_limit_speed = self.naviData.sectionLimitSpeed
       section_left_dist = self.naviData.sectionLeftDist
       section_avg_speed = self.naviData.sectionAvgSpeed
       section_left_time = self.naviData.sectionLeftTime
       section_adjust_speed = self.naviData.sectionAdjustSpeed
-
       camSpeedFactor = np.clip(self.naviData.camSpeedFactor, 1.0, 1.1)
 
       if is_highway is not None:
@@ -439,10 +435,10 @@ class SpeedLimiter:
           self.last_limit_speed_left_dist = cam_limit_speed_left_dist
 
           return cam_limit_speed * camSpeedFactor + int(pp * diff_speed), \
-                 cam_limit_speed, cam_limit_speed_left_dist, first_started, cam_type, log
+                 cam_limit_speed, cam_limit_speed_left_dist, first_started
 
         self.decelerating = False
-        return 0, cam_limit_speed, cam_limit_speed_left_dist, False, cam_type, log
+        return 0, cam_limit_speed, cam_limit_speed_left_dist, False
 
       elif section_left_dist is not None and section_limit_speed is not None and section_left_dist > 0:
         if min_limit <= section_limit_speed <= max_limit:
@@ -458,10 +454,10 @@ class SpeedLimiter:
             speed_diff = (section_limit_speed - section_avg_speed) / 2.
             speed_diff *= np.interp(section_left_dist, [500, 1000], [0., 1.])
 
-          return section_limit_speed * camSpeedFactor + speed_diff, section_limit_speed, section_left_dist, first_started, cam_type, log
+          return section_limit_speed * camSpeedFactor + speed_diff, section_limit_speed, section_left_dist, first_started
 
         self.decelerating = False
-        return 0, section_limit_speed, section_left_dist, False, cam_type, log
+        return 0, section_limit_speed, section_left_dist, False
 
     except Exception as e:
       log = "Ex: " + str(e)

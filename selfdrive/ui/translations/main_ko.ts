@@ -257,8 +257,8 @@
         <translation>추가기능</translation>
     </message>
     <message>
-        <source>Upload</source>
-        <translation>업로드</translation>
+        <source>Log</source>
+        <translation>로그</translation>
     </message>
     <message>
         <source>Cruise State Controls</source>
@@ -337,10 +337,6 @@
         <translation>PcmCruise 방식을 사용하려면 활성화하세요</translation>
     </message>
     <message>
-        <source>Use lane lines instead of e2e</source>
-        <translation>차선인식 사용</translation>
-    </message>
-    <message>
         <source>If there is a problem with the driver camera hardware, drive without the driver camera</source>
         <translation>운전자 카메라 하드웨어에 문제가 있는 경우 운전자 카메라 없이 사용합니다</translation>
     </message>
@@ -363,20 +359,12 @@
 </translation>
     </message>
     <message>
-        <source>Use lane lines</source>
-        <translation>차선인식 사용</translation>
-    </message>
-    <message>
         <source>Path does not exist</source>
         <translation>경로가 존재하지 않습니다</translation>
     </message>
     <message>
         <source>Files does not exist</source>
         <translation>파일이 존재하지 않습니다</translation>
-    </message>
-    <message>
-        <source>Upload complete</source>
-        <translation>업로드 성공</translation>
     </message>
     <message>
         <source>Upload failed. Exit code: </source>
@@ -1240,8 +1228,8 @@ This may take up to a minute.</source>
 <context>
     <name>SshControl</name>
     <message>
-        <source>SSH Keys</source>
-        <translation>SSH 키</translation>
+        <source> ▶  SSH Keys</source>
+        <translation> ▶  SSH 키</translation>
     </message>
     <message>
         <source>Warning: This grants SSH access to all public keys in your GitHub settings. Never enter a GitHub username other than your own. A comma employee will NEVER ask you to add their GitHub username.</source>

@@ -74,7 +74,7 @@ class SpeedController:
     self.curve_speed_ms = 0.
 
   def _cal_max_speed(self, CS, sm, clu_speed, v_cruise_kph):
-    apply_limit_speed, road_limit_speed, left_dist, first_started, cam_type, max_speed_log = SpeedLimiter.instance().get_max_speed(clu_speed, self.is_metric)
+    apply_limit_speed, road_limit_speed, left_dist, first_started = SpeedLimiter.instance().get_max_speed(clu_speed, self.is_metric)
     self._cal_curve_speed(sm, CS.vEgo, sm.frame)
 
     if self.curve_speed_ms >= MIN_CURVE_SPEED:
