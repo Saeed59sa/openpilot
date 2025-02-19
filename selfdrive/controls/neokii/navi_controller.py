@@ -464,7 +464,7 @@ class SpeedLimiter:
       pass
 
     self.decelerating = False
-    return 0, 0, 0, False, 0, log
+    return 0, 0, 0, False
 
 def signal_handler(sig, frame):
   print('Ctrl+C pressed, exiting.')
