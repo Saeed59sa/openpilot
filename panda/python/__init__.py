@@ -9,6 +9,8 @@ import binascii
 from functools import wraps, partial
 from itertools import accumulate
 
+from opendbc.safety import Safety
+
 from .base import BaseHandle
 from .constants import FW_PATH, McuType
 from .dfu import PandaDFU

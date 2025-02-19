@@ -152,7 +152,6 @@ class CarState(CarStateBase):
       ret.cruiseState.standstill = cp_cruise.vl["SCC11"]["SCCInfoDisplay"] == 4.
       ret.cruiseState.nonAdaptive = cp_cruise.vl["SCC11"]["SCCInfoDisplay"] == 2.  # Shows 'Cruise Control' on dash
       ret.cruiseState.speed = cp_cruise.vl["SCC11"]["VSetDis"] * speed_factor
-      ret.cruiseState.leadDistanceBars = cp_cruise.vl["SCC11"]["ACC_ObjDist"]
 
     # TODO: Find brake pressure
     ret.brake = 0
@@ -346,7 +345,6 @@ class CarState(CarStateBase):
       ret.cruiseState.enabled = cp_cruise_info.vl["SCC_CONTROL"]["ACCMode"] in (1, 2)
       ret.cruiseState.standstill = cp_cruise_info.vl["SCC_CONTROL"]["CRUISE_STANDSTILL"] == 1
       ret.cruiseState.speed = cp_cruise_info.vl["SCC_CONTROL"]["VSetDis"] * speed_factor
-      ret.cruiseState.leadDistanceBars = cp_cruise_info.vl["SCC_CONTROL"]["ACC_ObjDist"]
 
       self.cruise_info = copy.copy(cp_cruise_info.vl["SCC_CONTROL"])
       ret.brakeHoldActive = cp.vl["ESP_STATUS"]["AUTO_HOLD"] == 1 and cp_cruise_info.vl["SCC_CONTROL"]["ACCMode"] not in (1, 2)

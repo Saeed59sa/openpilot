@@ -21,7 +21,6 @@ class CruiseStateManager:
     self.available = False
     self.enabled = False
     self.speed = V_CRUISE_INITIAL * CV.KPH_TO_MS
-    self.lead_distance_bars = self.get_lead_distance_bars()
 
     self.prev_btn = ButtonType.unknown
     self.btn_count = 0
@@ -32,11 +31,6 @@ class CruiseStateManager:
 
     self.is_metric = self.params.get_bool('IsMetric')
     self.cruise_state_control = self.params.get_bool('CruiseStateControl')
-
-  def get_lead_distance_bars(self):
-    gap = self.params.get('SccGapAdjust')
-    bars = int(gap) if gap is not None else 4
-    return np.clip(bars, 1, 4)
 
   @classmethod
   def instance(cls):
@@ -71,7 +65,6 @@ class CruiseStateManager:
     CS.cruiseState.enabled = self.enabled
     CS.cruiseState.standstill = False
     CS.cruiseState.speed = float(self.speed)
-    CS.cruiseState.leadDistanceBars = int(self.lead_distance_bars)
 
   def update_buttons(self, CS):
     btn = ButtonType.unknown
@@ -133,11 +126,8 @@ class CruiseStateManager:
             v_cruise_kph = max(v_cruise_kph, road_limit_speed)
 
     if btn == ButtonType.gapAdjustCruise:
-      if not self.btn_long_pressed:
-        self.lead_distance_bars -= 1
-        self.lead_distance_bars = np.clip(self.lead_distance_bars, 1, 4)
-        self.params.put_nonblocking("SccGapAdjust", str(self.lead_distance_bars))
-      else:
+      #if not self.btn_long_pressed:
+      if self.btn_long_pressed:
         self.params.put_bool("ExperimentalMode", not self.params.get_bool("ExperimentalMode"))
 
     if btn == ButtonType.cancel:
