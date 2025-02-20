@@ -245,7 +245,7 @@ def create_acc_control(packer, CP, CC, CS, CAN, accel_last, accel, stopping, set
     values["SET_ME_TMP_64"] = 100
     values["NEW_SIGNAL_3"] = 1 if hud_control.leadVisible else 0 #0  # 1이되면 차선이탈방지 알람이 뜬다고...  => 앞에 차가 있으면, 1또는 2가 됨. 전방두부?
     values["ZEROS_5"] = 0
-    values["NEW_SIGNAL_15_DESIRE_DIST"] = CS.out.vEgo * 1.0 + 4.0
+    values["TARGET_DISTANCE"] = CS.out.vEgo * 1.0 + 4.0
     values["CRUISE_STANDSTILL"] = 1 if stopping and CS.out.aEgo > -0.1 else 0
     values["NEW_SIGNAL_2"] = 0  # 이것이 켜지면 가속을 안하는듯함.
 
