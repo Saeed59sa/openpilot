@@ -8,9 +8,6 @@ from openpilot.common.params import Params
 from openpilot.selfdrive.car.cruise import V_CRUISE_INITIAL, V_CRUISE_MIN, V_CRUISE_MAX
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 
-V_CRUISE_DELTA_MI = 5 * CV.MPH_TO_KPH
-V_CRUISE_DELTA_KM = 10
-
 ButtonType = structs.CarState.ButtonEvent.Type
 GearShifter = structs.CarState.GearShifter
 
@@ -99,7 +96,7 @@ class CruiseStateManager:
     return btn
 
   def update_cruise_state(self, CS, v_cruise_kph, btn):
-    v_cruise_delta = V_CRUISE_DELTA_KM if self.is_metric else V_CRUISE_DELTA_MI
+    v_cruise_delta = 10 if self.is_metric else 5 * CV.MPH_TO_KPH
 
     if self.enabled:
       if not self.btn_long_pressed:
@@ -144,7 +141,9 @@ class CruiseStateManager:
         self.available = False
         self.reset_available()
       else:
-        subprocess.run(["sh", "/data/openpilot/scripts/gitpull.sh"])
+        self.enabled = False
+        self.available = False
+        subprocess.Popen(["sh", "/data/openpilot/scripts/gitpull.sh"])
 
     v_cruise_kph = np.clip(round(v_cruise_kph, 1), V_CRUISE_MIN, V_CRUISE_MAX)
     self.speed = v_cruise_kph * CV.KPH_TO_MS

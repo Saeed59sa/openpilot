@@ -4,8 +4,8 @@ import numpy as np
 from opendbc.car.hyundai.values import Buttons
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
-from openpilot.selfdrive.car.cruise import V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_INITIAL, V_CRUISE_UNSET, V_CRUISE_INITIAL_EXPERIMENTAL_MODE, VCruiseHelper
-from openpilot.selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager, V_CRUISE_DELTA_KM, V_CRUISE_DELTA_MI
+from openpilot.selfdrive.car.cruise import V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_INITIAL, V_CRUISE_UNSET, VCruiseHelper
+from openpilot.selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 from openpilot.selfdrive.modeld.constants import ModelConstants
 

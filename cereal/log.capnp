@@ -2585,8 +2585,8 @@ struct Event {
     # DON'T change the ID (e.g. @107)
     # DON'T change which struct it points to
     naviData @107 :Custom.NaviData;
-    customReserved1 @108 :Custom.CustomReserved1;
-    customReserved2 @109 :Custom.CustomReserved2;
+    naviGps @108 :Custom.NaviGps;
+    naviObstacles @109 :Custom.NaviObstacles;
     customReserved3 @110 :Custom.CustomReserved3;
     customReserved4 @111 :Custom.CustomReserved4;
     customReserved5 @112 :Custom.CustomReserved5;
