@@ -16,8 +16,10 @@ class CarControllerParams:
   # seen changing at 0.2 deg/frame down, 0.1 deg/frame up at 100Hz
   #ANGLE_RATE_LIMIT_UP = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[5., .8, .15])
   #ANGLE_RATE_LIMIT_DOWN = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[5., 3.5, 0.4])
-  ANGLE_RATE_LIMIT_UP = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[7.0, 1.12, 0.21]) # 40%
-  ANGLE_RATE_LIMIT_DOWN = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[7.0, 4.9, 0.56]) # 40%
+  #ANGLE_RATE_LIMIT_UP = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[7.5, 1.2, 0.225]) # 50%
+  #ANGLE_RATE_LIMIT_DOWN = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[7.5, 5.25, 0.6]) # 50%
+  ANGLE_RATE_LIMIT_UP = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[10., 1.6, .3]) # 100% tesla value
+  ANGLE_RATE_LIMIT_DOWN = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[10., 7.0, 0.8]) # 100% tesla value
 
   def __init__(self, CP):
     self.STEER_DELTA_UP = 3
@@ -123,7 +125,7 @@ class HyundaiExFlags(IntFlag):
   TPMS = 2 ** 4
   LFA = 2 ** 5
   CCNC = 2 ** 6
-  BSM_IN_ADAS = 2 ** 7
+  CCNC_HDA2 = 2 ** 7
 
 class Footnote(Enum):
   CANFD = CarFootnote(

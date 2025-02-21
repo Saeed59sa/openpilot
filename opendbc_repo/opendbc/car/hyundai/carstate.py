@@ -313,21 +313,15 @@ class CarState(CarStateBase):
     ret.steeringPressed = self.update_steering_pressed(abs(ret.steeringTorque) > self.params.STEER_THRESHOLD, 5)
     ret.steerFaultTemporary = cp.vl["MDPS"]["LKA_FAULT"] != 0 or cp.vl["MDPS"]["LFA2_FAULT"] != 0
 
-    # TODO: alt signal usage may be described by cp.vl['BLINKERS']['USE_ALT_LAMP']
-    #left_blinker_sig, right_blinker_sig = "LEFT_LAMP", "RIGHT_LAMP"
-    #if self.CP.carFingerprint in CAR.HYUNDAI_KONA_SX2_EV or self.CP.flags & HyundaiFlags.ANGLE_CONTROL:
-    #  left_blinker_sig, right_blinker_sig = "LEFT_LAMP_ALT", "RIGHT_LAMP_ALT"
-    #ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_lamp(50, cp.vl["BLINKERS"][left_blinker_sig], cp.vl["BLINKERS"][right_blinker_sig])
-
     left_blinker_sig = cp.vl["BLINKERS"]["LEFT_LAMP"] or cp.vl["BLINKERS"]["LEFT_LAMP_ALT"]
     right_blinker_sig = cp.vl["BLINKERS"]["RIGHT_LAMP"] or cp.vl["BLINKERS"]["RIGHT_LAMP_ALT"]
     ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_lamp(50, left_blinker_sig, right_blinker_sig)
 
     if self.CP.enableBsm:
-      cp_bsm_info = cp_cam if (self.CP.flags & HyundaiFlags.CAMERA_SCC and self.CP.exFlags & HyundaiExFlags.BSM_IN_ADAS.value) else cp
-      if self.CP.exFlags & HyundaiExFlags.BSM_IN_ADAS.value:
-        ret.leftBlindspot = cp_bsm_info.vl["BLINDSPOTS_REAR_CORNERS"]["INDICATOR_LEFT_FOUR"] != 0
-        ret.rightBlindspot = cp_bsm_info.vl["BLINDSPOTS_REAR_CORNERS"]["INDICATOR_RIGHT_FOUR"] != 0
+      cp_bsm_info = cp_cam if (self.CP.flags & HyundaiFlags.CAMERA_SCC and self.CP.exFlags & HyundaiExFlags.CCNC_HDA2.value) else cp
+      if self.CP.exFlags & HyundaiExFlags.CCNC_HDA2.value:
+        ret.leftBlindspot = cp_bsm_info.vl["BLINDSPOTS_REAR_CORNERS"]["FL_INDICATOR_ALT"] != 0
+        ret.rightBlindspot = cp_bsm_info.vl["BLINDSPOTS_REAR_CORNERS"]["FR_INDICATOR_ALT"] != 0
       else:
         ret.leftBlindspot = cp_bsm_info.vl["BLINDSPOTS_REAR_CORNERS"]["FL_INDICATOR"] != 0
         ret.rightBlindspot = cp_bsm_info.vl["BLINDSPOTS_REAR_CORNERS"]["FR_INDICATOR"] != 0
@@ -470,7 +464,7 @@ class CarState(CarStateBase):
       ]
 
     if CP.enableBsm:
-      if CP.flags & HyundaiFlags.CAMERA_SCC.value and CP.exFlags & HyundaiExFlags.BSM_IN_ADAS.value:
+      if CP.flags & HyundaiFlags.CAMERA_SCC.value and CP.exFlags & HyundaiExFlags.CCNC_HDA2.value:
         pass
       else:
         pt_messages += [
@@ -523,7 +517,7 @@ class CarState(CarStateBase):
       cam_messages.append(("CLUSTER_SPEED_LIMIT", 10))
 
     if CP.enableBsm:
-      if CP.flags & HyundaiFlags.CAMERA_SCC.value and CP.exFlags & HyundaiExFlags.BSM_IN_ADAS.value:
+      if CP.flags & HyundaiFlags.CAMERA_SCC.value and CP.exFlags & HyundaiExFlags.CCNC_HDA2.value:
         cam_messages += [
           ("BLINDSPOTS_REAR_CORNERS", 20),
         ]

@@ -69,20 +69,33 @@ class CarController(CarControllerBase):
   def update(self, CC, CS, now_nanos):
     actuators = CC.actuators
     hud_control = CC.hudControl
+    lat_active = CC.latActive
 
     # steering torque
     new_steer = int(round(actuators.steer * self.params.STEER_MAX))
     apply_steer = apply_driver_steer_torque_limits(new_steer, self.apply_steer_last, CS.out.steeringTorque, self.params)
 
     # >90 degree steering fault prevention
-    self.angle_limit_counter, apply_steer_req = common_fault_avoidance(abs(CS.out.steeringAngleDeg) >= MAX_ANGLE, CC.latActive,
+    self.angle_limit_counter, apply_steer_req = common_fault_avoidance(abs(CS.out.steeringAngleDeg) >= MAX_ANGLE, lat_active,
                                                                        self.angle_limit_counter, MAX_ANGLE_FRAMES,
                                                                        MAX_ANGLE_CONSECUTIVE_FRAMES)
 
-    apply_angle = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_angle_last, CS.out.vEgoRaw, self.params)
+    #apply_angle = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_angle_last, CS.out.vEgoRaw, self.params)
 
-    if abs(CS.out.steeringTorqueEps) >= 100.0: # carrot. fault avoidance, test code
-      apply_angle = CS.out.steeringAngleDeg
+    #if abs(CS.out.steeringTorqueEps) >= 100.0: # carrot. fault avoidance, test code
+    #  apply_angle = CS.out.steeringAngleDeg
+
+    if self.frame % 2 == 0:
+      if lat_active:
+        # Angular rate limit based on speed
+        apply_angle = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_angle_last, CS.out.vEgoRaw, self.params)
+
+        # To not fault the EPS
+        apply_angle = float(np.clip(apply_angle, CS.out.steeringAngleDeg - 20, CS.out.steeringAngleDeg + 20))
+      else:
+        apply_angle = CS.out.steeringAngleDeg
+        apply_steer = 0
+        self.lkas_max_torque = 0
 
     # Constants
     TORQUE_THRESHOLD = 200  # Driver-applied torque threshold (absolute value)
@@ -99,7 +112,12 @@ class CarController(CarControllerBase):
     # Adjust the torque reducer directly in this block
     if abs(CS.out.steeringTorque) > TORQUE_THRESHOLD:
       # Driver is applying torque: reduce the reducer value to fight less
-      self.torque_reducer = max(REDUCER_MIN, self.torque_reducer - 1)
+      #self.torque_reducer = max(REDUCER_MIN, self.torque_reducer - 1)
+
+      # Driver is applying torque: reduce the reducer value more aggressively
+      torque_diff = abs(CS.out.steeringTorque) - TORQUE_THRESHOLD
+      reduction_factor = max(1, torque_diff / 10)  # Adjust factor based on torque difference
+      self.torque_reducer = max(REDUCER_MIN, self.torque_reducer - reduction_factor)
     else:
       # Driver is not applying torque: gradually restore the reducer value
       self.torque_reducer = min(REDUCER_MAX, self.torque_reducer + 1)
@@ -114,16 +132,11 @@ class CarController(CarControllerBase):
     if self.turningSignalTimer > 0:
       self.turningSignalTimer -= 1
 
-    if not CC.latActive:
-      apply_angle = CS.out.steeringAngleDeg
-      apply_steer = 0
-      self.lkas_max_torque = 0
-
     self.apply_angle_last = apply_angle
     self.apply_steer_last = apply_steer
 
     # Hold torque with induced temporary fault when cutting the actuation bit
-    torque_fault = CC.latActive and not apply_steer_req
+    torque_fault = lat_active and not apply_steer_req
 
     # accel + longitudinal
     accel = float(np.clip(actuators.accel, ACCEL_MIN, ACCEL_MAX))

@@ -14,10 +14,10 @@ private:
 
   ListWidget* mainToggles;
   QWidget* funcWidget;
-  QWidget* uploadWidget;
+  QWidget* logWidget;
 
   QGridLayout* funcLayout;
-  QGridLayout* uploadLayout;
+  QGridLayout* logLayout;
 
   void togglesCommunity(int widgetIndex);
   void blueButtonStyle(QPushButton* button);

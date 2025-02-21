@@ -229,24 +229,12 @@
         <translation>Git 리셋&lt;br&gt;&lt;br&gt;실행할까요?</translation>
     </message>
     <message>
-        <source>carControl dump upload&lt;br&gt;&lt;br&gt;Process?</source>
-        <translation>carControl 덤프 업로드&lt;br&gt;&lt;br&gt;실행할까요?</translation>
-    </message>
-    <message>
-        <source>controlsState dump upload&lt;br&gt;&lt;br&gt;Process?</source>
-        <translation>controlsState 덤프 업로드&lt;br&gt;&lt;br&gt;실행할까요?</translation>
-    </message>
-    <message>
         <source>log file not found</source>
         <translation>로그 파일이 없습니다</translation>
     </message>
     <message>
         <source>tmux console log upload&lt;br&gt;&lt;br&gt;Process?</source>
         <translation>tmux 콘솔 로그 업로드&lt;br&gt;&lt;br&gt;실행할까요?</translation>
-    </message>
-    <message>
-        <source>HDA2 ADAS ECAN Modify</source>
-        <translation>HDA2 ADAS ECAN 개조차량</translation>
     </message>
     <message>
         <source>Toggle</source>
@@ -297,36 +285,12 @@
         <translation>carParams 덤프 업로드</translation>
     </message>
     <message>
-        <source>carState dump Upload</source>
-        <translation>carState 덤프 업로드</translation>
-    </message>
-    <message>
-        <source>carControl dump Upload</source>
-        <translation>carControl 덤프 업로드</translation>
-    </message>
-    <message>
-        <source>controlsState dump Upload</source>
-        <translation>controlsState 덤프 업로드</translation>
-    </message>
-    <message>
-        <source>deviceState dump Upload</source>
-        <translation>deviceState 덤프 업로드</translation>
-    </message>
-    <message>
-        <source>pandaStates dump Upload</source>
-        <translation>pandaStates 덤프 업로드</translation>
-    </message>
-    <message>
         <source>Please Check Network Connection</source>
         <translation>네트워크 상태를 확인하세요</translation>
     </message>
     <message>
         <source>Highway Drive Assist 2, turn it on</source>
         <translation>HDA2 차량은 활성화 하세요</translation>
-    </message>
-    <message>
-        <source>Connect the ADAS ECAN line to CAMERA, turn it on</source>
-        <translation>ADAS의 ECAN 라인을 카메라쪽으로 연결했다면 활성화 하세요</translation>
     </message>
     <message>
         <source>PcmCruise</source>
@@ -369,6 +333,18 @@
     <message>
         <source>Upload failed. Exit code: </source>
         <translation>업로드 실패. 종료 코드: </translation>
+    </message>
+    <message>
+        <source>CameraSCC</source>
+        <translation>CameraSCC</translation>
+    </message>
+    <message>
+        <source>HDA1 CameraSCC CAR, HDA2 Connect the ADAS ECAN line to CAMERA modify, turn it on</source>
+        <translation>HDA1 CameraSCC 차량 또는 HDA2 차량중 ADAS ECAN 라인을 카메라쪽에 연결한 차량의경우 활성화 하세요</translation>
+    </message>
+    <message>
+        <source>Upload</source>
+        <translation>업로드</translation>
     </message>
 </context>
 <context>
@@ -1414,11 +1390,11 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>FIREHOSE Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>FIREHOSE 모드</translation>
     </message>
     <message>
         <source>Enable &lt;b&gt;FIREHOSE Mode&lt;/b&gt; to get your driving data in the training set.&lt;br&gt;&lt;br&gt;Follow these steps to get your device ready:&lt;br&gt;  1. Bring your device inside and connect to a good USB-C adapter&lt;br&gt;  2. Connect to Wi-Fi&lt;br&gt;  3. Enable this toggle&lt;br&gt;  4. Leave it connected for at least 30 minutes&lt;br&gt;&lt;br&gt;This toggle turns off once you restart your device. Repeat once a week for maximum effectiveness.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Firehose 모드&lt;/b&gt;를 활성화하여 트레이닝 세트에서 운전 데이터를 얻으려면 &lt;br&gt;&lt;br&gt;다음 단계를 따라 장치를 준비하려면 다음 단계를 수행하세요:&lt;br&gt; 1. 장치를 가져 와서 좋은 USB-C 어댑터에 연결합니다&lt;br&gt; 2. Wi-Fi에 연결하십시오.&lt;br&gt; 3. 이 토글을 활성화하고&lt;br&gt; 4. 최소 30분 동안 연결 상태를 유지합니다.&lt;br&gt;&lt;br&gt; 이 토글은 장치를 다시 시작하면 사라집니다. 효과를 극대화하려면 일주일에 한 번씩 반복하세요.</translation>
     </message>
 </context>
 <context>

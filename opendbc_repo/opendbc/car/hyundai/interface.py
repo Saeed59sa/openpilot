@@ -74,7 +74,7 @@ class CarInterface(CarInterfaceBase):
       if 0x161 in fingerprint[CAN.ECAN]:
         ret.exFlags |= HyundaiExFlags.CCNC.value
         if hda2:
-          ret.exFlags |= HyundaiExFlags.BSM_IN_ADAS.value
+          ret.exFlags |= HyundaiExFlags.CCNC_HDA2.value
 
       # Some HDA2 cars have alternative messages for gear checks
       # ICE cars do not have 0x130; GEARS message on 0x40 or 0x70 instead

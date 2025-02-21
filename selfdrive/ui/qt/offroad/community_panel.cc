@@ -193,7 +193,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
                                         "../assets/offroad/icon_lat.png", this));
   mainToggles->addItem(new ParamControl("IsHda2", tr("CANFD Car HDA2"), tr("Highway Drive Assist 2, turn it on"),
                                         "../assets/offroad/icon_hda.png", this));
-  mainToggles->addItem(new ParamControl("HyundaiCameraSCC", tr("HDA2 ADAS ECAN Modify"), tr("Connect the ADAS ECAN line to CAMERA, turn it on"),
+  mainToggles->addItem(new ParamControl("HyundaiCameraSCC", tr("CameraSCC"), tr("HDA1 CameraSCC CAR, HDA2 Connect the ADAS ECAN line to CAMERA modify, turn it on"),
                                         "../assets/offroad/icon_hda.png", this));
   mainToggles->addItem(new ParamControl("DriverCameraOnReverse", tr("Driver Camera On Reverse"), tr("Displays the driver camera when in reverse"),
                                         "../assets/img_driver_face_static.png", this));
@@ -273,62 +273,6 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     QProcess::execute("/data/openpilot/selfdrive/ui/watch3");
   });
 
-  // realdata upload btn
-  QString targetPath = "/data/media/0/realdata";
-  QString scriptPath = "/data/openpilot/scripts/realdata_upload.sh";
-
-  QPushButton* realdate_upload_btn = new QPushButton(tr("Realdata Files Upload"));
-  connect(realdate_upload_btn, &QPushButton::clicked, [=]() {
-    QDir dir(targetPath);
-    if (!dir.exists()) {
-      ConfirmationDialog::alert(tr("Path does not exist"), this);
-      return;
-    }
-
-    QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-    // Exclude "boot" folder
-    fileInfoList.erase(std::remove_if(fileInfoList.begin(), fileInfoList.end(),
-                                     [](const QFileInfo& info) { return info.fileName() == "boot"; }),
-                       fileInfoList.end());
-
-    // Sort by last modified date (descending)
-    std::sort(fileInfoList.begin(), fileInfoList.end(), [](const QFileInfo& a, const QFileInfo& b) {
-        return a.lastModified() > b.lastModified();
-    });
-
-    QStringList folderNames;
-    QMap<QString, QString> folderPaths;
-
-    for (const QFileInfo &fileInfo : fileInfoList) {
-      folderNames.append(fileInfo.fileName());
-      folderPaths[fileInfo.fileName()] = fileInfo.absoluteFilePath();
-    }
-
-    if (folderNames.isEmpty()) {
-      ConfirmationDialog::alert(tr("Files does not exist"), this);
-      return;
-    }
-
-    QString selectedFolderName = MultiOptionDialog::getSelection(tr("Realdata Files Upload"), folderNames, "", this);
-    if (!selectedFolderName.isEmpty()) {
-      QString selectedFolderPath = folderPaths[selectedFolderName];
-      if (ConfirmationDialog::confirm(tr("Are you sure you want to upload files from this folder?\n") + selectedFolderPath, tr("Upload"), this)) {
-        QString command = scriptPath + " \"" + selectedFolderPath + "\"";
-
-        QProcess *process = new QProcess(this);
-        process->startDetached(command);
-        int exitCode = process->waitForFinished();
-        QString message;
-        if (exitCode != 0) {
-          ConfirmationDialog::alert(tr("Upload failed. Exit code: ") + QString::number(exitCode), this);
-        //} else {
-        //  ConfirmationDialog::alert(tr("Upload complete"), this);
-        process->deleteLater();
-        }
-      }
-    }
-  });
-
   QString buttonStyle = R"(
     QPushButton {
       height: 120px;
@@ -344,15 +288,14 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   funcLayout = new QGridLayout(funcWidget);
   funcLayout->setSpacing(20);
 
-  funcLayout->addWidget(realdate_upload_btn, 0, 1);
-  funcLayout->addWidget(gitpull_btn, 1, 0);
-  funcLayout->addWidget(gitcheckout_btn, 1, 1);
-  funcLayout->addWidget(gitreset_btn, 2, 0);
-  funcLayout->addWidget(scons_rebuild_btn, 2, 1);
-  funcLayout->addWidget(pandaflash_btn, 3, 0);
-  funcLayout->addWidget(pandarecover_btn, 3, 1);
-  funcLayout->addWidget(cameraview_btn, 4, 0);
-  funcLayout->addWidget(cleardtc_btn, 4, 1);
+  funcLayout->addWidget(gitpull_btn, 0, 0);
+  funcLayout->addWidget(gitcheckout_btn, 0, 1);
+  funcLayout->addWidget(gitreset_btn, 1, 0);
+  funcLayout->addWidget(scons_rebuild_btn, 1, 1);
+  funcLayout->addWidget(pandaflash_btn, 2, 0);
+  funcLayout->addWidget(pandarecover_btn, 2, 1);
+  funcLayout->addWidget(cameraview_btn, 3, 0);
+  funcLayout->addWidget(cleardtc_btn, 3, 1);
 
   funcWidget->setStyleSheet(buttonStyle);
 
@@ -438,68 +381,80 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     }
   });
 
-  QPushButton* carstate_dump_upload_btn = new QPushButton(tr("carState dump Upload"));
-  carstate_dump_upload_btn->setObjectName("carstate_dump_upload_btn");
-  QObject::connect(carstate_dump_upload_btn, &QPushButton::clicked, this, [this]() {
-    if (ConfirmationDialog::confirm(tr("carState dump upload<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/scripts/dump_upload.sh carState");
+  // realdata upload btn
+  QString targetPath = "/data/media/0/realdata";
+  QString scriptPath = "/data/openpilot/scripts/realdata_upload.sh";
+
+  QPushButton* realdate_upload_btn = new QPushButton(tr("Realdata Files Upload"));
+  connect(realdate_upload_btn, &QPushButton::clicked, [=]() {
+    QDir dir(targetPath);
+    if (!dir.exists()) {
+      ConfirmationDialog::alert(tr("Path does not exist"), this);
+      return;
+    }
+
+    QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+    // Exclude "boot" folder
+    fileInfoList.erase(std::remove_if(fileInfoList.begin(), fileInfoList.end(),
+                                     [](const QFileInfo& info) { return info.fileName() == "boot"; }),
+                       fileInfoList.end());
+
+    // Sort by last modified date (descending)
+    std::sort(fileInfoList.begin(), fileInfoList.end(), [](const QFileInfo& a, const QFileInfo& b) {
+        return a.lastModified() > b.lastModified();
+    });
+
+    QStringList folderNames;
+    QMap<QString, QString> folderPaths;
+
+    for (const QFileInfo &fileInfo : fileInfoList) {
+      folderNames.append(fileInfo.fileName());
+      folderPaths[fileInfo.fileName()] = fileInfo.absoluteFilePath();
+    }
+
+    if (folderNames.isEmpty()) {
+      ConfirmationDialog::alert(tr("Files does not exist"), this);
+      return;
+    }
+
+    QString selectedFolderName = MultiOptionDialog::getSelection(tr("Realdata Files Upload"), folderNames, "", this);
+    if (!selectedFolderName.isEmpty()) {
+      QString selectedFolderPath = folderPaths[selectedFolderName];
+      if (ConfirmationDialog::confirm(tr("Are you sure you want to upload files from this folder?\n") + selectedFolderPath, tr("Upload"), this)) {
+        QString command = scriptPath + " \"" + selectedFolderPath + "\"";
+
+        QProcess *process = new QProcess(this);
+        process->startDetached(command);
+        int exitCode = process->waitForFinished();
+        QString message;
+        if (exitCode != 0) {
+          ConfirmationDialog::alert(tr("Upload failed. Exit code: ") + QString::number(exitCode), this);
+        //} else {
+        //  ConfirmationDialog::alert(tr("Upload complete"), this);
+        process->deleteLater();
+        }
+      }
     }
   });
 
-  QPushButton* carcontrol_dump_upload_btn = new QPushButton(tr("carControl dump Upload"));
-  carcontrol_dump_upload_btn->setObjectName("carcontrol_dump_upload_btn");
-  QObject::connect(carcontrol_dump_upload_btn, &QPushButton::clicked, this, [this]() {
-    if (ConfirmationDialog::confirm(tr("carControl dump upload<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/scripts/dump_upload.sh carControl");
-    }
-  });
+  logWidget = new QWidget(this);
+  logLayout = new QGridLayout(logWidget);
+  logLayout->setSpacing(20);
 
-  QPushButton* controlsstate_dump_upload_btn = new QPushButton(tr("controlsState dump Upload"));
-  controlsstate_dump_upload_btn->setObjectName("controlsstate_dump_upload_btn");
-  QObject::connect(controlsstate_dump_upload_btn, &QPushButton::clicked, this, [this]() {
-    if (ConfirmationDialog::confirm(tr("controlsState dump upload<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/scripts/dump_upload.sh controlsState");
-    }
-  });
+  logLayout->addWidget(tmux_error_log_btn, 0, 0);
+  logLayout->addWidget(tmux_error_log_upload_btn, 0, 1);
+  logLayout->addWidget(tmux_console_btn, 1, 0);
+  logLayout->addWidget(tmux_console_upload_btn, 1, 1);
+  logLayout->addWidget(can_missing_error_log_btn, 2, 0);
+  logLayout->addWidget(can_timeout_error_log_btn, 2, 1);
+  logLayout->addWidget(carparams_dump_upload_btn, 3, 0);
+  logLayout->addWidget(realdate_upload_btn, 3, 1);
 
-  QPushButton* devicestate_dump_upload_btn = new QPushButton(tr("deviceState dump Upload"));
-  devicestate_dump_upload_btn->setObjectName("devicestate_dump_upload_btn");
-  QObject::connect(devicestate_dump_upload_btn, &QPushButton::clicked, this, [this]() {
-    if (ConfirmationDialog::confirm(tr("deviceState dump upload<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/scripts/dump_upload.sh deviceState");
-    }
-  });
-
-  QPushButton* pandastates_dump_upload_btn = new QPushButton(tr("pandaStates dump Upload"));
-  pandastates_dump_upload_btn->setObjectName("pandastates_dump_upload_btn");
-  QObject::connect(pandastates_dump_upload_btn, &QPushButton::clicked, this, [this]() {
-    if (ConfirmationDialog::confirm(tr("pandaStates dump upload<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/scripts/dump_upload.sh pandaStates");
-    }
-  });
-
-  uploadWidget = new QWidget(this);
-  uploadLayout = new QGridLayout(uploadWidget);
-  uploadLayout->setSpacing(20);
-
-  uploadLayout->addWidget(tmux_error_log_btn, 0, 0);
-  uploadLayout->addWidget(tmux_error_log_upload_btn, 0, 1);
-  uploadLayout->addWidget(tmux_console_btn, 1, 0);
-  uploadLayout->addWidget(tmux_console_upload_btn, 1, 1);
-  uploadLayout->addWidget(can_missing_error_log_btn, 2, 0);
-  uploadLayout->addWidget(can_timeout_error_log_btn, 2, 1);
-  uploadLayout->addWidget(carparams_dump_upload_btn, 3, 0);
-  uploadLayout->addWidget(carstate_dump_upload_btn, 3, 1);
-  uploadLayout->addWidget(carcontrol_dump_upload_btn, 4, 0);
-  uploadLayout->addWidget(controlsstate_dump_upload_btn, 4, 1);
-  uploadLayout->addWidget(devicestate_dump_upload_btn, 5, 0);
-  uploadLayout->addWidget(pandastates_dump_upload_btn, 5, 1);
-
-  uploadWidget->setStyleSheet(buttonStyle);
+  logWidget->setStyleSheet(buttonStyle);
 
   toggles_layout->addWidget(mainToggles);
   toggles_layout->addWidget(funcWidget);
-  toggles_layout->addWidget(uploadWidget);
+  toggles_layout->addWidget(logWidget);
 
   ScrollView* toggles_view = new ScrollView(toggles, this);
   communityLayout->addWidget(toggles_view, 1);
@@ -515,7 +470,7 @@ void CommunityPanel::togglesCommunity(int widgetIndex) {
   currentCommunityIndex = widgetIndex;
   mainToggles->setVisible(widgetIndex == 0);
   funcWidget->setVisible(widgetIndex == 1);
-  uploadWidget->setVisible(widgetIndex == 2);
+  logWidget->setVisible(widgetIndex == 2);
 }
 
 void CommunityPanel::blueButtonStyle(QPushButton* button) {
