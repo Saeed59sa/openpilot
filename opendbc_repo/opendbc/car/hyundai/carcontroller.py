@@ -85,17 +85,16 @@ class CarController(CarControllerBase):
     #if abs(CS.out.steeringTorqueEps) >= 100.0: # carrot. fault avoidance, test code
     #  apply_angle = CS.out.steeringAngleDeg
 
-    if self.frame % 2 == 0:
-      if lat_active:
-        # Angular rate limit based on speed
-        apply_angle = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_angle_last, CS.out.vEgoRaw, self.params)
+    if lat_active:
+      # Angular rate limit based on speed
+      apply_angle = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_angle_last, CS.out.vEgoRaw, self.params)
 
-        # To not fault the EPS
-        apply_angle = float(np.clip(apply_angle, CS.out.steeringAngleDeg - 20, CS.out.steeringAngleDeg + 20))
-      else:
-        apply_angle = CS.out.steeringAngleDeg
-        apply_steer = 0
-        self.lkas_max_torque = 0
+      # To not fault the EPS
+      apply_angle = float(np.clip(apply_angle, CS.out.steeringAngleDeg - 20, CS.out.steeringAngleDeg + 20))
+    else:
+      apply_angle = CS.out.steeringAngleDeg
+      apply_steer = 0
+      self.lkas_max_torque = 0
 
     # Constants
     TORQUE_THRESHOLD = 200  # Driver-applied torque threshold (absolute value)
@@ -154,7 +153,7 @@ class CarController(CarControllerBase):
     if self.frame % 100 == 0 and not (self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC) and self.CP.openpilotLongitudinalControl:
       # for longitudinal control, either radar or ADAS driving ECU
       addr, bus = 0x7d0, self.CAN.ECAN if self.CP.flags & HyundaiFlags.CANFD else 0
-      if self.CP.flags & HyundaiFlags.CANFD_HDA2.value:
+      if self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING.value:
         addr, bus = 0x730, self.CAN.ECAN
       can_sends.append(make_tester_present_msg(addr, bus, suppress_response=True))
 
@@ -165,8 +164,8 @@ class CarController(CarControllerBase):
     camera_scc = self.CP.flags & HyundaiFlags.CAMERA_SCC
     # CAN-FD platforms
     if self.CP.flags & HyundaiFlags.CANFD:
-      hda2 = self.CP.flags & HyundaiFlags.CANFD_HDA2 or Params().get_bool("IsHda2")
-      hda2_long = hda2 and self.CP.openpilotLongitudinalControl
+      lka_steering = self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING or Params().get_bool("IsHda2")
+      lka_steering_long = lka_steering and self.CP.openpilotLongitudinalControl
 
       # steering control
       angle_control = self.CP.flags & HyundaiFlags.ANGLE_CONTROL
@@ -174,22 +173,22 @@ class CarController(CarControllerBase):
       can_sends.extend(hyundaicanfd.create_steering_messages(self.packer, self.CP, CC, CS, self.CAN, self.lkas_max_torque,
                                                              apply_steer_req, apply_steer, apply_angle, angle_control))
 
-      # prevent LFA from activating on HDA2 by sending "no lane lines detected" to ADAS ECU
-      if self.frame % 5 == 0 and (hda2 and not camera_scc):
+      # prevent LFA from activating on LKA steering cars by sending "no lane lines detected" to ADAS ECU
+      if self.frame % 5 == 0 and (lka_steering and not camera_scc):
         can_sends.append(hyundaicanfd.create_suppress_lfa(self.packer, self.CP, CC, CS, self.CAN))
 
       # LFA and HDA icons
-      if self.frame % 5 == 0 and (not hda2 or hda2_long):
+      if self.frame % 5 == 0 and (not lka_steering or lka_steering_long):
         can_sends.append(hyundaicanfd.create_lfahda_cluster(self.packer, CC, self.CAN))
 
       # blinkers
-      if hda2 and self.CP.flags & HyundaiFlags.ENABLE_BLINKERS:
+      if lka_steering and self.CP.flags & HyundaiFlags.ENABLE_BLINKERS:
         can_sends.extend(hyundaicanfd.create_spas_messages(self.packer, CC, self.CAN))
 
       if self.CP.openpilotLongitudinalControl:
         self.hyundai_jerk.make_jerk(self.CP, CS, accel, actuators)
 
-        if hda2:
+        if lka_steering:
           can_sends.extend(hyundaicanfd.create_adrv_messages(self.packer, self.CP, CC, CS, self.CAN, self.frame,
                                                              hud_control, apply_angle, left_lane_warning, right_lane_warning))
         else:

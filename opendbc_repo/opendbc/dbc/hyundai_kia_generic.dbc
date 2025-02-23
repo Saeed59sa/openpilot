@@ -1498,7 +1498,7 @@ BO_ 1157 LFAHDA_MFC: 8 XXX
 BO_ 913 BCM_PO_11: 8 Vector__XXX
  SG_ BCM_Door_Dri_Status : 5|1@0+ (1,0) [0|1] "" PT_ESC_ABS
  SG_ BCM_Shift_R_MT_SW_Status : 39|2@0+ (1,0) [0|3] "" PT_ESC_ABS
- SG_ LFA_Pressed : 4|1@0+ (1,0) [0|1] "" XXX
+ SG_ LDA_BTN : 4|1@0+ (1,0) [0|1] "" XXX
 
 BO_ 1426 LABEL11: 8 XXX
  SG_ CC_React : 34|1@1+ (1,0) [0|1] "" XXX
@@ -1522,9 +1522,9 @@ BO_ 865 ADAS_PRK_11: 8 ADAS_PRK
  SG_ PCA_CHECK_SUM : 48|8@1+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 882 ELECT_GEAR: 8 XXX
- SG_ Elect_Gear_Shifter : 16|4@1+ (1,0) [0|7] ""  CLU
- SG_ Elect_Gear_Step : 22|3@0+ (1,0) [0|7] "" XXX
- SG_ Elect_Motor_Speed : 0|8@1+ (1,0) [0|255] "" XXX
+ SG_ Elect_Gear_Shifter : 16|4@1+ (1,0) [0|7] "" CLU
+ SG_ SLC_ON : 31|1@0+ (1,0) [0|1] "" CLU
+ SG_ SLC_SET_SPEED : 32|8@1+ (1,0) [0|255] "" CLU
 
 BO_ 881 E_EMS11: 8 XXX
  SG_ Brake_Pedal_Pos : 0|8@1+ (1,0) [0|127] "" XXX
@@ -1582,7 +1582,7 @@ BO_ 352 AHB1: 8 iBAU
  SG_ CF_Ahb_Bzzr : 26|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ CF_Ahb_ChkSum : 56|8@1+ (1,0) [0|255] "" Vector__XXX
 
-BO_ 1191 MFC_4a7: 2 XXX
+BO_ 1191 MFC_4a7: 8 XXX
  SG_ PAINT1 : 0|1@0+ (1,0) [0|1] "" XXX
 
 BO_ 1162 BCA11: 8 BCW
