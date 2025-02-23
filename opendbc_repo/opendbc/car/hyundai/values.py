@@ -47,6 +47,11 @@ class CarControllerParams:
       self.STEER_DELTA_UP = 2
       self.STEER_DELTA_DOWN = 3
 
+    elif CP.flags & HyundaiFlags.ALT_LIMITS_2:
+      self.STEER_MAX = 170
+      self.STEER_DELTA_UP = 2
+      self.STEER_DELTA_DOWN = 3
+
     # Default for most HKG
     else:
       self.STEER_MAX = 384
@@ -62,7 +67,8 @@ class HyundaiSafetyFlags(IntFlag):
   ALT_LIMITS = 64
   CANFD_LKA_STEERING_ALT = 128
   FCEV_GAS = 256
-  CANFD_ANGLE_STEERING = 512
+  ALT_LIMITS_2 = 512
+  CANFD_ANGLE_STEERING = 1024
 
 
 class HyundaiFlags(IntFlag):
@@ -121,7 +127,9 @@ class HyundaiFlags(IntFlag):
 
   FCEV = 2 ** 25
 
-  CANFD_ANGLE_STEERING = 2 ** 26
+  ALT_LIMITS_2 = 2 ** 26
+
+  CANFD_ANGLE_STEERING = 2 ** 27
 
 class HyundaiExFlags(IntFlag):
   AUTOHOLD = 1
@@ -162,7 +170,7 @@ class HyundaiPlatformConfig(PlatformConfig):
 
 @dataclass
 class HyundaiCanFDPlatformConfig(PlatformConfig):
-  dbc_dict: DbcDict = field(default_factory=lambda: {Bus.pt: "hyundai_canfd"})
+  dbc_dict: DbcDict = field(default_factory=lambda: {Bus.pt: "hyundai_canfd_generated"})
 
   def init(self):
     self.flags |= HyundaiFlags.CANFD
