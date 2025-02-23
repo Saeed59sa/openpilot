@@ -60,11 +60,11 @@ class CarState(CarStateBase):
 
     self.cruise_info = {}
     self.lfa_info = {}
-    self.adrv_info_161 = None
+    self.ccnc_info_161 = None
+    self.ccnc_info_162 = None
     self.adrv_info_200 = None
     self.adrv_info_1ea = None
     self.adrv_info_160 = None
-    self.adrv_info_162 = None
     self.hda_info_4a3 = None
     self.hda_info_4b4 = None
 
@@ -354,10 +354,10 @@ class CarState(CarStateBase):
       self.lfa_info = copy.copy(cp_cam.vl["LFA"])
 
       if self.CP.exFlags & HyundaiExFlags.CCNC.value:
-        if "ADRV_0x161" in cp_cam.vl:
-          self.adrv_info_161 = copy.copy(cp_cam.vl.get("ADRV_0x161", {}))
-        if "ADRV_0x162" in cp_cam.vl:
-          self.adrv_info_162 = copy.copy(cp_cam.vl.get("ADRV_0x162", {}))
+        if "CCNC_0x161" in cp_cam.vl:
+          self.ccnc_info_161 = copy.copy(cp_cam.vl.get("CCNC_0x161", {}))
+        if "CCNC_0x162" in cp_cam.vl:
+          self.ccnc_info_162 = copy.copy(cp_cam.vl.get("CCNC_0x162", {}))
       if "ADRV_0x160" in cp_cam.vl:
         self.adrv_info_160 = copy.copy(cp_cam.vl.get("ADRV_0x160", {}))
       if "ADRV_0x200" in cp_cam.vl:
@@ -421,7 +421,7 @@ class CarState(CarStateBase):
 
     if self.CP.exFlags & HyundaiExFlags.NAVI:
       if self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC and self.CP.exFlags & HyundaiExFlags.CCNC.value:
-        ret.exState.navLimitSpeed = cp_cam.vl["ADRV_0x162"]["SPEEDLIMIT"]
+        ret.exState.navLimitSpeed = cp_cam.vl["CCNC_0x162"]["SPEEDLIMIT"]
       elif self.CP.flags & HyundaiFlags.CANFD_CAMERA_SCC:
         ret.exState.navLimitSpeed = cp_cam.vl["CLUSTER_SPEED_LIMIT"]["SPEED_LIMIT_1"]
       else:
@@ -518,8 +518,8 @@ class CarState(CarStateBase):
         ]
       if CP.exFlags & HyundaiExFlags.CCNC:
         cam_messages += [
-          ("ADRV_0x161", 20),
-          ("ADRV_0x162", 20),
+          ("CCNC_0x161", 20),
+          ("CCNC_0x162", 20),
         ]
 
     if not CP.flags & HyundaiFlags.CANFD_LKA_STEERING and CP.exFlags & HyundaiExFlags.NAVI:

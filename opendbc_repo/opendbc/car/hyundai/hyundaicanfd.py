@@ -51,7 +51,7 @@ def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, ap
         "LKAS_ANGLE_CMD": -apply_angle,
         "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0,
       }
-      ret.append(packer.make_can_msg("LFA_ANGLE_MAYBE_CB", CAN.ECAN, values))
+      ret.append(packer.make_can_msg("LFA_ALT", CAN.ECAN, values))
 
       values = CS.lfa_info
       values["LKA_MODE"] = 0
@@ -323,8 +323,8 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
   ret = []
   values = {}
   if CP.flags & HyundaiFlags.CANFD_CAMERA_SCC:
-    if frame % 5 == 0 and CS.adrv_info_161 is not None and ccnc:
-      values = CS.adrv_info_161
+    if frame % 5 == 0 and CS.ccnc_info_161 is not None and ccnc:
+      values = CS.ccnc_info_161
 
       values["SETSPEED"] = 6 if hdp_active else 3 if main_enabled else 0
       values["SETSPEED_HUD"] = 5 if hdp_active else 2 if cruise_enabled else 1
@@ -402,10 +402,10 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       # LCA_LEFT_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 4 "WHITE";
       # LCA_RIGHT_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 4 "WHITE";
 
-      ret.append(packer.make_can_msg("ADRV_0x161", CAN.ECAN, values))
+      ret.append(packer.make_can_msg("CCNC_0x161", CAN.ECAN, values))
 
-    if frame % 5 == 0 and CS.adrv_info_162 is not None and ccnc:
-      values = CS.adrv_info_162
+    if frame % 5 == 0 and CS.ccnc_info_162 is not None and ccnc:
+      values = CS.ccnc_info_162
       values["FAULT_FCA"] = 0
       values["FAULT_LSS"] = 0
       values["FAULT_LFA"] = 0
@@ -433,7 +433,7 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
 
       if left_lane_warning or right_lane_warning:
         values["VIBRATE"] = 1
-      ret.append(packer.make_can_msg("ADRV_0x162", CAN.ECAN, values))
+      ret.append(packer.make_can_msg("CCNC_0x162", CAN.ECAN, values))
 
     if frame % 2 == 0 and CS.adrv_info_160 is not None:
       values = CS.adrv_info_160

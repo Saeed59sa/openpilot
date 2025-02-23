@@ -14,12 +14,8 @@ Ecu = CarParams.Ecu
 class CarControllerParams:
 
   # seen changing at 0.2 deg/frame down, 0.1 deg/frame up at 100Hz
-  #ANGLE_RATE_LIMIT_UP = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[5., .8, .15])
-  #ANGLE_RATE_LIMIT_DOWN = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[5., 3.5, 0.4])
-  #ANGLE_RATE_LIMIT_UP = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[7.5, 1.2, 0.225]) # 50%
-  #ANGLE_RATE_LIMIT_DOWN = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[7.5, 5.25, 0.6]) # 50%
-  ANGLE_RATE_LIMIT_UP = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[10., 1.6, .3]) # 100% tesla value
-  ANGLE_RATE_LIMIT_DOWN = AngleRateLimit(speed_bp=[0., 5., 15.], angle_v=[10., 7.0, 0.8]) # 100% tesla value
+  ANGLE_RATE_LIMIT_UP = AngleRateLimit(speed_bp=[0., 5., 25.], angle_v=[2.5, 1.5, 0.2])
+  ANGLE_RATE_LIMIT_DOWN = AngleRateLimit(speed_bp=[0., 5., 25.], angle_v=[5., 2.0, 0.3])
 
   def __init__(self, CP):
     self.STEER_DELTA_UP = 3
@@ -66,6 +62,7 @@ class HyundaiSafetyFlags(IntFlag):
   ALT_LIMITS = 64
   CANFD_LKA_STEERING_ALT = 128
   FCEV_GAS = 256
+  CANFD_ANGLE_STEERING = 512
 
 
 class HyundaiFlags(IntFlag):
@@ -124,8 +121,7 @@ class HyundaiFlags(IntFlag):
 
   FCEV = 2 ** 25
 
-  # LFA2 car angle steer type
-  ANGLE_CONTROL = 2 ** 26
+  CANFD_ANGLE_STEERING = 2 ** 26
 
 class HyundaiExFlags(IntFlag):
   AUTOHOLD = 1
@@ -413,7 +409,7 @@ class CAR(Platforms):
       HyundaiCarDocs("Hyundai Ioniq 5 PE (with HDA II) 2024", "Highway Driving Assist II", car_parts=CarParts.common([CarHarness.hyundai_q])),
     ],
     CarSpecs(mass=2012, wheelbase=3.0, steerRatio=14.26, tireStiffnessFactor=0.65),
-    flags=HyundaiFlags.EV | HyundaiFlags.ANGLE_CONTROL,
+    flags=HyundaiFlags.EV | HyundaiFlags.CANFD_ANGLE_STEERING,
   )
   HYUNDAI_IONIQ5_N = HyundaiCanFDPlatformConfig(
     [
@@ -458,14 +454,14 @@ class CAR(Platforms):
       HyundaiCarDocs("HYUNDAI SANTAFE (MX5)", car_parts=CarParts.common([CarHarness.hyundai_k])),
     ],
     CarSpecs(mass=1910, wheelbase=2.76, steerRatio=15.8, tireStiffnessFactor=0.82),
-    flags=HyundaiFlags.ANGLE_CONTROL,
+    flags=HyundaiFlags.CANFD_ANGLE_STEERING,
   )
   HYUNDAI_SANTAFE_MX5_HEV = HyundaiPlatformConfig(
     [
       HyundaiCarDocs("HYUNDAI SANTAFE HYBRID (MX5)", car_parts=CarParts.common([CarHarness.hyundai_k])),
     ],
     HYUNDAI_SANTAFE_MX5.specs,
-    flags=HyundaiFlags.ANGLE_CONTROL,
+    flags=HyundaiFlags.CANFD_ANGLE_STEERING,
   )
   HYUNDAI_GRANDEUR_GN7 = HyundaiCanFDPlatformConfig(
     [HyundaiCarDocs("Hyundai Azera 2023-2024", "All", car_parts=CarParts.common([CarHarness.hyundai_a]))],
@@ -624,7 +620,7 @@ class CAR(Platforms):
       HyundaiCarDocs("Kia EV6 PE (with HDA II) 2025", "Highway Driving Assist II", car_parts=CarParts.common([CarHarness.hyundai_p]))
     ],
     CarSpecs(mass=2055, wheelbase=2.9, steerRatio=16, tireStiffnessFactor=0.65),
-    flags=HyundaiFlags.EV | HyundaiFlags.ANGLE_CONTROL,
+    flags=HyundaiFlags.EV | HyundaiFlags.CANFD_ANGLE_STEERING,
   )
   KIA_K5_DL3_24 = HyundaiCanFDPlatformConfig(
     [
@@ -719,7 +715,7 @@ class CAR(Platforms):
       HyundaiCarDocs("KIA EV9 (MV)", car_parts=CarParts.common([CarHarness.hyundai_k])),
     ],
     CarSpecs(mass=2625, wheelbase=3.1, steerRatio=16.02),
-    flags=HyundaiFlags.EV | HyundaiFlags.ANGLE_CONTROL,
+    flags=HyundaiFlags.EV | HyundaiFlags.CANFD_ANGLE_STEERING,
   )
   KIA_EV3 = HyundaiCanFDPlatformConfig(
     [
@@ -802,7 +798,7 @@ class CAR(Platforms):
       HyundaiCarDocs("Genesis GV70 Facelift (with HDA II) 2025", "All", car_parts=CarParts.common([CarHarness.hyundai_a])),
     ],
     CarSpecs(mass=1950, wheelbase=2.87, steerRatio=14.6),
-    flags=HyundaiFlags.CAMERA_SCC | HyundaiFlags.ANGLE_CONTROL,
+    flags=HyundaiFlags.CAMERA_SCC | HyundaiFlags.CANFD_ANGLE_STEERING,
   )
   GENESIS_GV80 = HyundaiCanFDPlatformConfig(
     [
@@ -818,7 +814,7 @@ class CAR(Platforms):
       HyundaiCarDocs("Genesis GV80 2025", "All", car_parts=CarParts.common([CarHarness.hyundai_q])),
     ],
     CarSpecs(mass=2258, wheelbase=2.95, steerRatio=14.14),
-    flags=HyundaiFlags.ANGLE_CONTROL,
+    flags=HyundaiFlags.CANFD_ANGLE_STEERING,
   )
 
 class Buttons:
@@ -1026,7 +1022,7 @@ EV_CAR = CAR.with_flags(HyundaiFlags.EV)
 
 LEGACY_SAFETY_MODE_CAR = CAR.with_flags(HyundaiFlags.LEGACY)
 
-ANGLE_CONTROL_CAR = CAR.with_flags(HyundaiFlags.ANGLE_CONTROL)
+ANGLE_CONTROL_CAR = CAR.with_flags(HyundaiFlags.CANFD_ANGLE_STEERING)
 
 UNSUPPORTED_LONGITUDINAL_CAR = CAR.with_flags(HyundaiFlags.UNSUPPORTED_LONGITUDINAL) #| CAR.with_flags(HyundaiFlags.LEGACY)
 
