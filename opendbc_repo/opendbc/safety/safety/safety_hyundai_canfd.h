@@ -14,7 +14,6 @@
   {.msg = {{0xea, (pt_bus), 24, .check_checksum = true, .max_counter = 0xffU, .frequency = 100U}, { 0 }, { 0 }}},   \
   {.msg = {{0x1cf, (pt_bus), 8, .check_checksum = false, .max_counter = 0xfU, .frequency = 50U},                    \
            {0x1aa, (pt_bus), 16, .check_checksum = false, .max_counter = 0xffU, .frequency = 50U}, { 0 }}},         \
-  {.msg = {{0x125, (pt_bus), 16, .check_checksum = true, .max_counter = 0xffU, .frequency = 100U}, { 0 }, { 0 }}},  \
 
 // SCC_CONTROL (from ADAS unit or camera)
 #define HYUNDAI_CANFD_SCC_ADDR_CHECK(scc_bus)                                                                                 \
@@ -62,12 +61,12 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *to_push) {
     }
 
     // steering angle
-    if (addr == 0x125) {
-      int angle_meas_new = ((GET_BYTE(to_push, 3) << 8) | GET_BYTE(to_push, 4));
-      // Multiply by -10 to apply the DBC scaling factor of -0.1 for STEERING_ANGLE
-      angle_meas_new = to_signed(angle_meas_new, 16) * -10;
-      update_sample(&angle_meas, angle_meas_new);
-    }
+    //if (addr == 0x125) {
+    //  int angle_meas_new = ((GET_BYTE(to_push, 3) << 8) | GET_BYTE(to_push, 4));
+    //  // Multiply by -10 to apply the DBC scaling factor of -0.1 for STEERING_ANGLE
+    //  angle_meas_new = to_signed(angle_meas_new, 16) * -10;
+    //  update_sample(&angle_meas, angle_meas_new);
+    //}
 
     // cruise buttons
     const int button_addr = hyundai_canfd_alt_buttons ? 0x1aa : 0x1cf;

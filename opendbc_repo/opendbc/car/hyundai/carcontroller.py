@@ -168,7 +168,7 @@ class CarController(CarControllerBase):
       lka_steering_long = lka_steering and self.CP.openpilotLongitudinalControl
 
       # steering control
-      angle_control = self.CP.flags & HyundaiFlags.ANGLE_CONTROL
+      angle_control = self.CP.flags & HyundaiFlags.CANFD_ANGLE_STEERING
 
       can_sends.extend(hyundaicanfd.create_steering_messages(self.packer, self.CP, CC, CS, self.CAN, self.lkas_max_torque,
                                                              apply_steer_req, apply_steer, apply_angle, angle_control))

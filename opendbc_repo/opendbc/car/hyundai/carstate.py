@@ -380,7 +380,7 @@ class CarState(CarStateBase):
     #self.cruise_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["CRUISE_BUTTONS"])
     prev_lda_button = self.lda_button
 
-    if cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"]:
+    if cp.vl[self.cruise_btns_msg_canfd]["LDA_BTN"]:
       cruise_button = [Buttons.LFA_BUTTON]
     else:
       cruise_button = cp.vl_all[self.cruise_btns_msg_canfd]["CRUISE_BUTTONS"]
@@ -431,7 +431,7 @@ class CarState(CarStateBase):
 
     if self.CP.flags & HyundaiFlags.HAS_LDA_BUTTON and not self.CP.openpilotLongitudinalControl:
       prev_lfa_btn = self.lfa_btn
-      self.lfa_btn = cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"]
+      self.lfa_btn = cp.vl[self.cruise_btns_msg_canfd]["LDA_BTN"]
       if prev_lfa_btn != 1 and self.lfa_btn == 1:
         self.lfa_enabled = not self.lfa_enabled
       ret.cruiseState.available = self.lfa_enabled
