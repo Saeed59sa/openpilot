@@ -414,7 +414,6 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       values["FAULT_HDA"] = 0
 
       #values["FAULT_FSS"] = 0
-      #values["FAULT_HDA"] = 0
       #values["FAULT_SLA"] = 0
       #values["FAULT_DAW"] = 0
       #values["FAULT_SCC"] = 0
