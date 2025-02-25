@@ -48,7 +48,7 @@ def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, ap
 
       values = {
         "LKAS_ANGLE_ACTIVE": 2 if abs(CS.out.steeringAngleDeg) < 110.0 and lat_active else 1,
-        "LKAS_ANGLE_CMD": -apply_angle,
+        "LKAS_ANGLE_CMD": apply_angle,
         "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0,
       }
       ret.append(packer.make_can_msg("LFA_ALT", CAN.ECAN, values))
@@ -62,7 +62,7 @@ def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, ap
       values["HAS_LANE_SAFETY"] = 0  # hide LKAS settings
       values["LKA_ACTIVE"] = 3 if lat_active else 0  # this changes sometimes, 3 seems to indicate engaged
       values["STEER_MODE"] = 0
-      values["LKAS_ANGLE_CMD"] = -25.6  # -apply_angle if lat_active else 0,
+      values["LKAS_ANGLE_CMD"] = apply_angle if lat_active else 0,
       values["LKAS_ANGLE_ACTIVE"] = 0  # 2 if lat_active else 1,
       values["LKAS_ANGLE_MAX_TORQUE"] = 0  # max_torque if lat_active else 0,
       values["LKAS_SIGNAL_1"] = 10
@@ -98,7 +98,7 @@ def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, ap
         "STEER_MODE": 0,
         "HAS_LANE_SAFETY": 0,  # hide LKAS settings
         "LKA_ACTIVE": 3 if lat_active else 0,  # this changes sometimes, 3 seems to indicate engaged
-        "LKAS_ANGLE_CMD": -apply_angle if lat_active else 0,
+        "LKAS_ANGLE_CMD": apply_angle if lat_active else 0,
         "LKAS_ANGLE_ACTIVE": 2 if lat_active else 1,
         "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0,
         "LKAS_SIGNAL_1": 10,
