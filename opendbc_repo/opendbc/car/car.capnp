@@ -373,11 +373,12 @@ struct CarControl {
 
   orientationNED @13 :List(Float32);
   angularVelocity @14 :List(Float32);
+  currentCurvature @17 :Float32;  # From vehicle model
 
   cruiseControl @4 :CruiseControl;
   hudControl @5 :HUDControl;
 
-  turningSignalTimer @17 :List(Float32);
+  turningSignalTimer @18 :List(Float32);
 
   struct Actuators {
     # lateral commands, mutually exclusive

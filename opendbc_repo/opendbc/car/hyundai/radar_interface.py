@@ -18,7 +18,7 @@ def get_radar_can_parser(CP, radar_tracks):
     return None
 
   print("\nRadarInterface: RadarTracks...\n")
-  messages = [(f"RADAR_TRACK_{addr:x}", 20) for addr in range(RADAR_START_ADDR, RADAR_START_ADDR + RADAR_MSG_COUNT)]
+  messages = [(f"RADAR_TRACK_{addr:x}", 50) for addr in range(RADAR_START_ADDR, RADAR_START_ADDR + RADAR_MSG_COUNT)]
   return CANParser(DBC[CP.carFingerprint][Bus.radar], messages, 1)
 
 def get_radar_can_parser_scc(CP):
