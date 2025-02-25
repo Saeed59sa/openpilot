@@ -371,7 +371,7 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       if values["ALERTS_3"] in [17, 26]:
         values["ALERTS_3"] = 0
 
-      if values["ALERTS_5"] in [4, 5]:
+      if values["ALERTS_5"] in [1, 4, 5]:
         values["ALERTS_5"] = 0
 
       curvature = {
