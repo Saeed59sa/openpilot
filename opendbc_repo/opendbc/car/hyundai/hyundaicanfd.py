@@ -56,7 +56,7 @@ def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, ap
       values = CS.lfa_info
       values["LKA_MODE"] = 0
       values["LKA_ICON"] = 2 if enabled else 1
-      values["TORQUE_REQUEST"] = -1024  # apply_steer,
+      values["TORQUE_REQUEST"] = 0  # apply_steer,
       values["LKA_ASSIST"] = 0
       values["STEER_REQ"] = 0  # 1 if lat_active else 0,
       values["HAS_LANE_SAFETY"] = 0  # hide LKAS settings
