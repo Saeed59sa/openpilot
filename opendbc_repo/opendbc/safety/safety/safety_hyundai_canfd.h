@@ -89,7 +89,7 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *to_push) {
 
     // steering angle
     if (addr == 0x125) {
-      int angle_meas_new = (GET_BYTE(to_push, 3) | (GET_BYTE(to_push, 4) << 8));
+      int angle_meas_new = (GET_BYTE(to_push, 4) << 8) | GET_BYTE(to_push, 3);
       // Multiply by 10 to apply the DBC scaling factor of -0.1 for STEERING_ANGLE
       angle_meas_new = to_signed(angle_meas_new, 16);
       update_sample(&angle_meas, angle_meas_new);
@@ -127,15 +127,16 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *to_push) {
 
     // vehicle moving
     if (addr == 0xa0) {
-      uint32_t fl = (GET_BYTES(to_push, 8, 2)) & 0x3FFFU;
-      uint32_t fr = (GET_BYTES(to_push, 10, 2)) & 0x3FFFU;
-      uint32_t rl = (GET_BYTES(to_push, 12, 2)) & 0x3FFFU;
-      uint32_t rr = (GET_BYTES(to_push, 14, 2)) & 0x3FFFU;
+      const uint32_t fl = ((GET_BYTE(to_push, 9) & 0x3FU) << 8) | GET_BYTE(to_push, 8);
+      const uint32_t fr = ((GET_BYTE(to_push, 11) & 0x3FU) << 8) | GET_BYTE(to_push, 10);
+      const uint32_t rl = ((GET_BYTE(to_push, 13) & 0x3FU) << 8) | GET_BYTE(to_push, 12);
+      const uint32_t rr = ((GET_BYTE(to_push, 15) & 0x3FU) << 8) | GET_BYTE(to_push, 14);
+
       vehicle_moving = (fl > HYUNDAI_STANDSTILL_THRSLD) || (fr > HYUNDAI_STANDSTILL_THRSLD) ||
                        (rl > HYUNDAI_STANDSTILL_THRSLD) || (rr > HYUNDAI_STANDSTILL_THRSLD);
 
       // average of all 4 wheel speeds. Conversion: raw * 0.03125 / 3.6 = m/s
-      UPDATE_VEHICLE_SPEED((fr + rr + rl + fl) / 4U * 0.03125 / 3.6);
+      UPDATE_VEHICLE_SPEED((fr + rr + rl + fl) / 4. * 0.03125 / 3.6);
     }
   }
 
@@ -162,7 +163,7 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *to_push) {
 }
 
 static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
-  const SteeringLimits HYUNDAI_CANFD_STEERING_LIMITS = {
+  const TorqueSteeringLimits HYUNDAI_CANFD_TORQUE_STEERING_LIMITS = {
     .max_steer = 512,
     .max_rt_delta = 112,
     .max_rt_interval = 250000,
@@ -178,7 +179,10 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
     .max_invalid_request_frames = 2,
     .min_valid_request_rt_interval = 810000,  // 810ms; a ~10% buffer on cutting every 90 frames
     .has_steer_req_tolerance = true,
+  };
 
+  const AngleSteeringLimits HYUNDAI_CANFD_ANGLE_STEERING_LIMITS = {
+    .max_angle = 1800,
     .angle_deg_to_can = 10,
     .angle_rate_up_lookup = {
       {5., 25., 25.},
@@ -186,7 +190,7 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
     },
     .angle_rate_down_lookup = {
       {5., 25., 25.},
-      {0.3, 0.15, 0.15}
+      {0.36, 0.26, 0.26}
     },
   };
 
@@ -197,22 +201,22 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
   const int steer_addr = (hyundai_canfd_lka_steering && !hyundai_longitudinal) ? hyundai_canfd_get_lka_addr() : 0x12a;
   if (addr == steer_addr) {
     if (hyundai_canfd_angle_steering) {
-      int lka_active_angle = (GET_BYTE(to_send, 9) >> 5) & 0x3U;
-      bool steer_angle_req = (lka_active_angle != 0U) &&
-                             (lka_active_angle != 3U);
+      const int lkas_angle_active = (GET_BYTE(to_send, 9) >> 4) & 0x3U;
+      const bool steer_angle_req = lkas_angle_active != 1;
 
-      int desired_angle = (((GET_BYTE(to_send, 10) >> 2) & 0x3F) | (GET_BYTE(to_send, 11) << 6));
+      int desired_angle = (GET_BYTE(to_send, 11) << 6) | (GET_BYTE(to_send, 10) >> 2);
+
       // Multiply by 10 to apply the DBC scaling factor of 0.1 for LKAS_ANGLE_CMD
       desired_angle = to_signed(desired_angle, 14);
 
-      if (steer_angle_cmd_checks(desired_angle, steer_angle_req, HYUNDAI_CANFD_STEERING_LIMITS)) {
+      if (steer_angle_cmd_checks(desired_angle, steer_angle_req, HYUNDAI_CANFD_ANGLE_STEERING_LIMITS)) {
         tx = false;
       }
     } else {
       int desired_torque = (((GET_BYTE(to_send, 6) & 0xFU) << 7U) | (GET_BYTE(to_send, 5) >> 1U)) - 1024U;
       bool steer_req = GET_BIT(to_send, 52U);
 
-      if (steer_torque_cmd_checks(desired_torque, steer_req, HYUNDAI_CANFD_STEERING_LIMITS)) {
+      if (steer_torque_cmd_checks(desired_torque, steer_req, HYUNDAI_CANFD_TORQUE_STEERING_LIMITS)) {
         tx = false;
       }
     }
