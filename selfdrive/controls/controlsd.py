@@ -45,7 +45,7 @@ class Controls:
     self.desired_curvature = 0.0
 
     self.pose_calibrator = PoseCalibrator()
-    self.calibrated_pose: Pose|None = None
+    self.calibrated_pose: Pose | None = None
 
     self.LoC = LongControl(self.CP)
     self.VM = VehicleModel(self.CP)
@@ -115,8 +115,8 @@ class Controls:
     actuators.curvature = float(self.desired_curvature)
     steer, steeringAngleDeg, lac_log = self.LaC.update(CC.latActive, CS, self.VM, lp,
                                                        self.steer_limited, self.desired_curvature,
-                                                       self.calibrated_pose) # TODO what if not available
-    actuators.steer = float(steer)
+                                                       self.calibrated_pose)  # TODO what if not available
+    actuators.torque = float(steer)
     actuators.steeringAngleDeg = float(steeringAngleDeg)
     # Ensure no NaNs/Infs
     for p in ACTUATOR_FIELDS:
@@ -166,7 +166,7 @@ class Controls:
         self.steer_limited = abs(CC.actuators.steeringAngleDeg - CO.actuatorsOutput.steeringAngleDeg) > \
                              STEER_ANGLE_SATURATION_THRESHOLD
       else:
-        self.steer_limited = abs(CC.actuators.steer - CO.actuatorsOutput.steer) > 1e-2
+        self.steer_limited = abs(CC.actuators.torque - CO.actuatorsOutput.torque) > 1e-2
 
     # TODO: both controlsState and carControl valids should be set by
     #       sm.all_checks(), but this creates a circular dependency
@@ -213,6 +213,7 @@ class Controls:
       CC, lac_log = self.state_control()
       self.publish(CC, lac_log)
       rk.monitor_time()
+
 
 def main():
   config_realtime_process(4, Priority.CTRL_HIGH)
