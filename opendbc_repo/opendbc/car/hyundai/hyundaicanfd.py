@@ -38,7 +38,7 @@ class CanBus(CanBusBase):
     return self._cam
 
 
-def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, apply_steer, apply_angle, angle_control):
+def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, apply_torque, apply_angle, angle_control):
   ret = []
   enabled = CC.enabled
 
@@ -56,7 +56,7 @@ def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, ap
       values = CS.lfa_info
       values["LKA_MODE"] = 0
       values["LKA_ICON"] = 2 if enabled else 1
-      values["TORQUE_REQUEST"] = 0  # apply_steer,
+      values["TORQUE_REQUEST"] = 0  # apply_torque,
       values["LKA_ASSIST"] = 0
       values["STEER_REQ"] = 0  # 1 if lat_active else 0,
       values["HAS_LANE_SAFETY"] = 0  # hide LKAS settings
@@ -76,7 +76,7 @@ def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, ap
       values = {
         "LKA_MODE": 2,
         "LKA_ICON": 2 if lat_active else 1,
-        "TORQUE_REQUEST": apply_steer,
+        "TORQUE_REQUEST": apply_torque,
         "STEER_REQ": 1 if lat_active else 0,
         "HAS_LANE_SAFETY": 0,
         "LKA_ACTIVE": 0,
@@ -92,7 +92,7 @@ def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, ap
       values = {
         "LKA_MODE": 0,
         "LKA_ICON": 2 if enabled else 1,
-        "TORQUE_REQUEST": 0,  # apply_steer,
+        "TORQUE_REQUEST": 0,  # apply_torque,
         "LKA_ASSIST": 0,
         "STEER_REQ": 0,  # 1 if lat_active else 0,
         "STEER_MODE": 0,
@@ -113,7 +113,7 @@ def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, ap
       values = {
         "LKA_MODE": 2,
         "LKA_ICON": 2 if enabled else 1,
-        "TORQUE_REQUEST": apply_steer,
+        "TORQUE_REQUEST": apply_torque,
         "VALUE104": 3 if enabled else 100,
         "STEER_REQ": 1 if lat_active else 0,
         "HAS_LANE_SAFETY": 0,  # hide LKAS settings
