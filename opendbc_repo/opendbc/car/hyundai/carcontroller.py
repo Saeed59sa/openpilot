@@ -1,8 +1,7 @@
 import numpy as np
 
 from opendbc.can.packer import CANPacker
-from opendbc.car import (Bus, DT_CTRL, apply_driver_steer_torque_limits, common_fault_avoidance, make_tester_present_msg, structs,
-                                     apply_std_steer_angle_limits)
+from opendbc.car import (Bus, DT_CTRL, apply_driver_steer_torque_limits, apply_std_steer_angle_limits, common_fault_avoidance, make_tester_present_msg, structs)
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.hyundai import hyundaicanfd, hyundaican
 from opendbc.car.hyundai.carstate import CarState
@@ -53,15 +52,14 @@ class CarController(CarControllerBase):
     self.CAN = CanBus(CP)
     self.params = CarControllerParams(CP)
     self.packer = CANPacker(dbc_names[Bus.pt])
-    self.angle_limit_counter = 0
-
-    self.accel_last = 0
-    self.apply_steer_last = 0
     self.car_fingerprint = CP.carFingerprint
-    self.last_button_frame = 0
+
+    self.angle_limit_counter = 0
+    self.accel_last = 0
+    self.apply_torque_last = 0
     self.apply_angle_last = 0
     self.lkas_max_torque = 0
-    self.torque_reducer = 0
+    self.last_button_frame = 0
     self.turningSignalTimer = 0
 
     self.hyundai_jerk = HyundaiJerk()
@@ -71,59 +69,36 @@ class CarController(CarControllerBase):
     hud_control = CC.hudControl
     lat_active = CC.latActive
 
-    # steering torque
-    new_steer = int(round(actuators.steer * self.params.STEER_MAX))
-    apply_steer = apply_driver_steer_torque_limits(new_steer, self.apply_steer_last, CS.out.steeringTorque, self.params)
-
     # >90 degree steering fault prevention
     self.angle_limit_counter, apply_steer_req = common_fault_avoidance(abs(CS.out.steeringAngleDeg) >= MAX_ANGLE, lat_active,
                                                                        self.angle_limit_counter, MAX_ANGLE_FRAMES,
                                                                        MAX_ANGLE_CONSECUTIVE_FRAMES)
 
-    #apply_angle = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_angle_last, CS.out.vEgoRaw, self.params)
+    # Hold torque with induced temporary fault when cutting the actuation bit
+    torque_fault = lat_active and not apply_steer_req
 
-    #if abs(CS.out.steeringTorqueEps) >= 100.0: # carrot. fault avoidance, test code
-    #  apply_angle = CS.out.steeringAngleDeg
+    apply_torque = 0
+    apply_angle = 0
 
-    if lat_active:
-      # Angular rate limit based on speed
+    # steering torque
+    if not self.CP.flags & HyundaiFlags.CANFD_ANGLE_STEERING:
+      new_torque = int(round(actuators.torque * self.params.STEER_MAX))
+      apply_torque = apply_driver_steer_torque_limits(new_torque, self.apply_torque_last, CS.out.steeringTorque, self.params)
+    else:
+      # angle control
       apply_angle = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_angle_last, CS.out.vEgoRaw, self.params)
-
       # To not fault the EPS
-      apply_angle = float(np.clip(apply_angle, CS.out.steeringAngleDeg - 20, CS.out.steeringAngleDeg + 20))
-    else:
-      apply_angle = CS.out.steeringAngleDeg
-      apply_steer = 0
-      self.lkas_max_torque = 0
+      #apply_angle = float(np.clip(apply_angle, CS.out.steeringAngleDeg - 20, CS.out.steeringAngleDeg + 20))
 
-    # Constants
-    TORQUE_THRESHOLD = 200  # Driver-applied torque threshold (absolute value)
-    TORQUE_MAX = 240  # Maximum allowable torque for LKAS
-    REDUCER_MIN = 30  # Minimum torque reducer value
-    REDUCER_MAX = 150  # Maximum torque reducer value
-
-    # Clamp vEgoCluster between 0 and 20
-    vEgo_safe = max(0, min(CS.out.vEgoCluster, 20))
-
-    # Interpolate a weight based on vehicle speed (vEgoCluster in m/s)
-    speed_weight = np.interp(vEgo_safe, [0, 5, 10, 20], [0.2, 0.3, 0.5, 1.0])
-
-    # Adjust the torque reducer directly in this block
-    if abs(CS.out.steeringTorque) > TORQUE_THRESHOLD:
-      # Driver is applying torque: reduce the reducer value to fight less
-      #self.torque_reducer = max(REDUCER_MIN, self.torque_reducer - 1)
-
-      # Driver is applying torque: reduce the reducer value more aggressively
-      torque_diff = abs(CS.out.steeringTorque) - TORQUE_THRESHOLD
-      reduction_factor = max(1, torque_diff / 10)  # Adjust factor based on torque difference
-      self.torque_reducer = max(REDUCER_MIN, self.torque_reducer - reduction_factor)
-    else:
-      # Driver is not applying torque: gradually restore the reducer value
-      self.torque_reducer = min(REDUCER_MAX, self.torque_reducer + 1)
-
-    # Calculate max torque to apply
-    reducer_ratio = self.torque_reducer / REDUCER_MAX
-    self.lkas_max_torque = int(round(TORQUE_MAX * speed_weight * reducer_ratio))
+      # Similar to torque control driver torque override, we ramp up and down the max allowed torque,
+      # but this is a single threshold in the opposite direction of angle for simplicity
+      if apply_angle > 0 and CS.out.steeringTorque < -self.params.ANGLE_DRIVER_TORQUE_THRESHOLD:
+        self.lkas_max_torque = max(self.lkas_max_torque - 1, self.params.ANGLE_MIN_TORQUE)
+      elif apply_angle < 0 and CS.out.steeringTorque > self.params.ANGLE_DRIVER_TORQUE_THRESHOLD:
+        self.lkas_max_torque = max(self.lkas_max_torque - 1, self.params.ANGLE_MIN_TORQUE)
+      else:
+        # ramp back up on engage as well
+        self.lkas_max_torque = min(self.lkas_max_torque + 1, self.params.ANGLE_MAX_TORQUE)
 
     # Disable steering while turning blinker on and speed below 60 kph
     if CS.out.leftBlinker or CS.out.rightBlinker:
@@ -131,11 +106,13 @@ class CarController(CarControllerBase):
     if self.turningSignalTimer > 0:
       self.turningSignalTimer -= 1
 
-    self.apply_angle_last = apply_angle
-    self.apply_steer_last = apply_steer
+    if not CC.latActive:
+      apply_angle = CS.out.steeringAngleDeg
+      apply_torque = 0
+      self.lkas_max_torque = 0
 
-    # Hold torque with induced temporary fault when cutting the actuation bit
-    torque_fault = lat_active and not apply_steer_req
+    self.apply_torque_last = apply_torque
+    self.apply_angle_last = apply_angle
 
     # accel + longitudinal
     accel = float(np.clip(actuators.accel, ACCEL_MIN, ACCEL_MAX))
@@ -171,7 +148,7 @@ class CarController(CarControllerBase):
       angle_control = self.CP.flags & HyundaiFlags.CANFD_ANGLE_STEERING
 
       can_sends.extend(hyundaicanfd.create_steering_messages(self.packer, self.CP, CC, CS, self.CAN, self.lkas_max_torque,
-                                                             apply_steer_req, apply_steer, apply_angle, angle_control))
+                                                             apply_steer_req, apply_torque, apply_angle, angle_control))
 
       # prevent LFA from activating on LKA steering cars by sending "no lane lines detected" to ADAS ECU
       if self.frame % 5 == 0 and (lka_steering and not camera_scc):
@@ -205,7 +182,7 @@ class CarController(CarControllerBase):
       send_lfa = self.CP.flags & HyundaiFlags.SEND_LFA.value
       use_fca = self.CP.flags & HyundaiFlags.USE_FCA.value
 
-      can_sends.append(hyundaican.create_lkas11(self.packer, self.frame, self.CP, apply_steer, apply_steer_req, torque_fault, sys_warning, sys_state, CC.enabled,
+      can_sends.append(hyundaican.create_lkas11(self.packer, self.frame, self.CP, apply_torque, apply_steer_req, torque_fault, sys_warning, sys_state, CC.enabled,
                                                 hud_control.leftLaneVisible, hud_control.rightLaneVisible, left_lane_warning, right_lane_warning, CS.lkas11))
 
       if not self.CP.openpilotLongitudinalControl:
@@ -239,8 +216,8 @@ class CarController(CarControllerBase):
         print(f'scc11 = {bool(CS.scc11)}  scc12 = {bool(CS.scc12)}  scc13 = {bool(CS.scc13)}  scc14 = {bool(CS.scc14)}  mdps12 = {bool(CS.mdps12)}')
 
     new_actuators = actuators.as_builder()
-    new_actuators.steer = apply_steer / self.params.STEER_MAX
-    new_actuators.steerOutputCan = apply_steer
+    new_actuators.torque = apply_torque / self.params.STEER_MAX
+    new_actuators.torqueOutputCan = apply_torque
     new_actuators.steeringAngleDeg = apply_angle
     new_actuators.accel = accel
 
