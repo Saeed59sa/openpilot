@@ -54,12 +54,12 @@ class CarController(CarControllerBase):
     self.packer = CANPacker(dbc_names[Bus.pt])
     self.car_fingerprint = CP.carFingerprint
 
-    self.angle_limit_counter = 0
     self.accel_last = 0
     self.apply_torque_last = 0
     self.apply_angle_last = 0
     self.lkas_max_torque = 0
     self.last_button_frame = 0
+    self.angle_limit_counter = 0
     self.turningSignalTimer = 0
 
     self.hyundai_jerk = HyundaiJerk()
@@ -68,6 +68,7 @@ class CarController(CarControllerBase):
     actuators = CC.actuators
     hud_control = CC.hudControl
 
+    # TODO: needed for angle control cars?
     # >90 degree steering fault prevention
     self.angle_limit_counter, apply_steer_req = common_fault_avoidance(abs(CS.out.steeringAngleDeg) >= MAX_FAULT_ANGLE, CC.latActive,
                                                                        self.angle_limit_counter, MAX_FAULT_ANGLE_FRAMES,

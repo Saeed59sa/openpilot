@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass, field
 from enum import Enum, IntFlag
 
-from opendbc.car import Bus, CarSpecs, DbcDict, PlatformConfig, Platforms, uds, AngleRateLimit
+from opendbc.car import AngleRateLimit, Bus, CarSpecs, DbcDict, PlatformConfig, Platforms, uds
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.structs import CarParams
 from opendbc.car.docs_definitions import CarFootnote, CarHarness, CarDocs, CarParts, Column
@@ -19,13 +19,11 @@ class CarControllerParams:
 
   # Stock LFA system is seen sending 250 max, but for LKAS events it's 175 max.
   # 250 can at least achieve 4 m/s^2
-  # 100 corresponds to ~2 m/s^2
-  ANGLE_MAX_TORQUE = 100  # units unknown
+  # 80 corresponds to ~2.5 m/s^2
+  ANGLE_MAX_TORQUE = 80  # units unknown
   # start winding down max angle torque at this value
   ANGLE_DRIVER_TORQUE_ALLOWANCE = 100
-  # minimum max angle torque
-  # Toyota's torque error allows ~0.55 m/s^2 of torque while overriding
-  ANGLE_MIN_TORQUE = 30  # equivalent to ~0.6 m/s^2 of torque (based on ANGLE_MAX_TORQUE)
+  ANGLE_MIN_TORQUE = 20  # equivalent to ~0.6 m/s^2 of torque (based on ANGLE_MAX_TORQUE)
   # LKAS angle command is unlimited, but LFA is limited to 176.7 (but does not fault if requesting above)
   STEER_ANGLE_MAX = 180
 
