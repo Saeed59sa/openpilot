@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass, field
 from enum import Enum, IntFlag
 
-from opendbc.car import AngleRateLimit, Bus, CarSpecs, DbcDict, PlatformConfig, Platforms, uds
+from opendbc.car import AngleSteeringLimits, Bus, CarSpecs, DbcDict, PlatformConfig, Platforms, uds
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.structs import CarParams
 from opendbc.car.docs_definitions import CarFootnote, CarHarness, CarDocs, CarParts, Column
@@ -13,19 +13,20 @@ Ecu = CarParams.Ecu
 
 class CarControllerParams:
 
-  # seen changing at 0.2 deg/frame down, 0.1 deg/frame up at 100Hz
-  ANGLE_RATE_LIMIT_UP = AngleRateLimit(speed_bp=[5, 25], angle_v=[0.3, 0.15])
-  ANGLE_RATE_LIMIT_DOWN = AngleRateLimit(speed_bp=[5, 25], angle_v=[0.36, 0.26])
+  ANGLE_LIMITS: AngleSteeringLimits = AngleSteeringLimits(
+    # LKAS angle command is unlimited, but LFA is limited to 176.7 deg (but does not fault if requesting above)
+    180,  # deg
+    # seen changing at 0.2 deg/frame down, 0.1 deg/frame up at 100Hz
+    ([5, 25], [0.3, 0.15]),
+    ([5, 25], [0.36, 0.26]),
+  )
 
   # Stock LFA system is seen sending 250 max, but for LKAS events it's 175 max.
-  # 250 can at least achieve 4 m/s^2
-  # 80 corresponds to ~2.5 m/s^2
-  ANGLE_MAX_TORQUE = 80  # units unknown
-  # start winding down max angle torque at this value
-  ANGLE_DRIVER_TORQUE_ALLOWANCE = 100
-  ANGLE_MIN_TORQUE = 20  # equivalent to ~0.6 m/s^2 of torque (based on ANGLE_MAX_TORQUE)
-  # LKAS angle command is unlimited, but LFA is limited to 176.7 (but does not fault if requesting above)
-  STEER_ANGLE_MAX = 180
+  # 250 can at least achieve 4 m/s^2, 80 corresponds to ~2.5 m/s^2
+  ANGLE_MAX_TORQUE = 80
+  ANGLE_MIN_TORQUE = 25  # equivalent to ~0.8 m/s^2 of torque (based on ANGLE_MAX_TORQUE) when overriding
+  ANGLE_TORQUE_UP_RATE = 1
+  ANGLE_TORQUE_DOWN_RATE = 3
 
   def __init__(self, CP):
     self.STEER_DELTA_UP = 3
@@ -70,15 +71,15 @@ class CarControllerParams:
 class HyundaiSafetyFlags(IntFlag):
   EV_GAS = 1
   HYBRID_GAS = 2
-  LONG = 2 ** 2
-  CAMERA_SCC = 2 ** 3
-  CANFD_LKA_STEERING = 2 ** 4
-  CANFD_ALT_BUTTONS = 2 ** 5
-  ALT_LIMITS = 2 ** 6
-  CANFD_LKA_STEERING_ALT = 2 ** 7
-  FCEV_GAS = 2 ** 8
-  ALT_LIMITS_2 = 2 ** 9
-  CANFD_ANGLE_STEERING = 2 ** 10
+  LONG = 4
+  CAMERA_SCC = 8
+  CANFD_LKA_STEERING = 16
+  CANFD_ALT_BUTTONS = 32
+  ALT_LIMITS = 64
+  CANFD_LKA_STEERING_ALT = 128
+  FCEV_GAS = 256
+  ALT_LIMITS_2 = 512
+  CANFD_ANGLE_STEERING = 1024
 
 
 class HyundaiFlags(IntFlag):

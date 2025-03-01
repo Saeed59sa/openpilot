@@ -318,7 +318,9 @@ class CarState(CarStateBase):
     ret.steeringTorque = cp.vl["MDPS"]["STEERING_COL_TORQUE"]
     ret.steeringTorqueEps = cp.vl["MDPS"]["STEERING_OUT_TORQUE"]
     ret.steeringPressed = self.update_steering_pressed(abs(ret.steeringTorque) > self.params.STEER_THRESHOLD, 5)
-    ret.steerFaultTemporary = cp.vl["MDPS"]["LKA_FAULT"] != 0 or cp.vl["MDPS"]["LFA2_FAULT"] != 0
+    ret.steerFaultTemporary = cp.vl["MDPS"]["LKA_FAULT"]
+    if self.CP.flags & HyundaiFlags.CANFD_ANGLE_STEERING:
+      ret.steerFaultTemporary = ret.steerFaultTemporary or cp.vl["MDPS"]["LKA_ANGLE_FAULT"] != 0
 
     left_blinker_sig = cp.vl["BLINKERS"]["LEFT_LAMP"] or cp.vl["BLINKERS"]["LEFT_LAMP_ALT"]
     right_blinker_sig = cp.vl["BLINKERS"]["RIGHT_LAMP"] or cp.vl["BLINKERS"]["RIGHT_LAMP_ALT"]
