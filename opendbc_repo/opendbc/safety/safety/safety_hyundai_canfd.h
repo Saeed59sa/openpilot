@@ -156,10 +156,10 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *to_push) {
 
     // vehicle moving
     if (addr == 0xa0) {
-      const uint32_t fl = (GET_BYTES(to_push, 8, 2)) & 0x3FFFU;
-      const uint32_t fr = (GET_BYTES(to_push, 10, 2)) & 0x3FFFU;
-      const uint32_t rl = (GET_BYTES(to_push, 12, 2)) & 0x3FFFU;
-      const uint32_t rr = (GET_BYTES(to_push, 14, 2)) & 0x3FFFU;
+      uint32_t fl = (GET_BYTES(to_push, 8, 2)) & 0x3FFFU;
+      uint32_t fr = (GET_BYTES(to_push, 10, 2)) & 0x3FFFU;
+      uint32_t rl = (GET_BYTES(to_push, 12, 2)) & 0x3FFFU;
+      uint32_t rr = (GET_BYTES(to_push, 14, 2)) & 0x3FFFU;
       vehicle_moving = (fl > HYUNDAI_STANDSTILL_THRSLD) || (fr > HYUNDAI_STANDSTILL_THRSLD) ||
                        (rl > HYUNDAI_STANDSTILL_THRSLD) || (rr > HYUNDAI_STANDSTILL_THRSLD);
 
@@ -191,7 +191,7 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *to_push) {
 }
 
 static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
-  const TorqueSteeringLimits HYUNDAI_CANFD_TORQUE_STEERING_LIMITS = {
+  const TorqueSteeringLimits HYUNDAI_CANFD_STEERING_LIMITS = {
     .max_steer = 512,
     .max_rt_delta = 112,
     .max_rt_interval = 250000,
@@ -249,7 +249,7 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
       int desired_torque = (((GET_BYTE(to_send, 6) & 0xFU) << 7U) | (GET_BYTE(to_send, 5) >> 1U)) - 1024U;
       bool steer_req = GET_BIT(to_send, 52U);
 
-      if (steer_torque_cmd_checks(desired_torque, steer_req, HYUNDAI_CANFD_TORQUE_STEERING_LIMITS)) {
+      if (steer_torque_cmd_checks(desired_torque, steer_req, HYUNDAI_CANFD_STEERING_LIMITS)) {
         tx = false;
       }
     }
@@ -381,7 +381,10 @@ static int hyundai_canfd_fwd_hook(int bus_num, int addr) {
     // SCC_CONTROL and ADRV_0x160 for camera SCC cars, we send our own longitudinal commands and to show FCA light
     bool is_scc_msg = (((addr == 0x1a0) || (addr == 0x160)) && hyundai_longitudinal && !hyundai_canfd_lka_steering);
 
-    bool block_msg = is_lka_msg || is_lfa_msg || is_lfahda_msg || is_scc_msg;
+    // CCNC messages
+    bool is_ccnc_msg = (addr == 0x161) || (addr == 0x162);
+
+    bool block_msg = is_lka_msg || is_lfa_msg || is_lfahda_msg || is_scc_msg || is_ccnc_msg;
     if (!block_msg) {
       bus_fwd = 0;
     }
@@ -434,6 +437,8 @@ static safety_config hyundai_canfd_init(uint16_t param) {
     HYUNDAI_CANFD_CRUISE_BUTTON_TX_MSGS(2)
     HYUNDAI_CANFD_LFA_STEERING_COMMON_TX_MSGS(0)
     HYUNDAI_CANFD_SCC_CONTROL_COMMON_TX_MSGS(0)
+    {0x161, 0, 32}, // CCNC_0x161
+    {0x162, 0, 32}, // CCNC_0x162
   };
 
   static const CanMsg HYUNDAI_CANFD_LFA_STEERING_LONG_TX_MSGS[] = {
@@ -443,6 +448,8 @@ static safety_config hyundai_canfd_init(uint16_t param) {
     HYUNDAI_CANFD_SCC_CONTROL_COMMON_TX_MSGS(0)
     {0x160, 0, 16}, // ADRV_0x160
     {0x7D0, 0, 8},  // tester present for radar ECU disable
+    {0x161, 0, 32}, // CCNC_0x161
+    {0x162, 0, 32}, // CCNC_0x162
     {203, 0, 24},   // CB
   };
 
@@ -451,6 +458,8 @@ static safety_config hyundai_canfd_init(uint16_t param) {
     HYUNDAI_CANFD_LFA_STEERING_COMMON_TX_MSGS(0)
     HYUNDAI_CANFD_SCC_CONTROL_COMMON_TX_MSGS(0)
     {0x160, 0, 16}, // ADRV_0x160
+    {0x161, 0, 32}, // CCNC_0x161
+    {0x162, 0, 32}, // CCNC_0x162
   };
 
   hyundai_common_init(param);
