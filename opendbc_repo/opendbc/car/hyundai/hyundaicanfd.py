@@ -38,9 +38,46 @@ class CanBus(CanBusBase):
     return self._cam
 
 
-def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, apply_torque, apply_angle, angle_control):
-  ret = []
+def create_steering_messages(packer, CP, CC, CS, CAN, lat_active, apply_torque, apply_angle, angle_max_torque):
   enabled = CC.enabled
+  angle_control = CP.flags & HyundaiFlags.CANFD_ANGLE_STEERING
+
+  """
+  common_values = {
+    "LKA_MODE": 2,
+    "LKA_ICON": 2 if enabled else 1,
+    "TORQUE_REQUEST": apply_torque,
+    "LKA_ASSIST": 0,
+    "STEER_REQ": 1 if lat_active else 0,
+    "STEER_MODE": 0,
+    "HAS_LANE_SAFETY": 0,  # hide LKAS settings
+    "NEW_SIGNAL_2": 0,
+  }
+
+  lkas_values = copy.copy(common_values)
+  lkas_values["LKA_AVAILABLE"] = 0
+
+  # Angle control doesn't support using LFA yet
+  if angle_control:
+    # TODO: HAS_LANE_SAFETY isn't used by the stock system
+    lkas_values |= {
+      "LKA_MODE": 0,  # TODO: not used by the stock system
+      "TORQUE_REQUEST": 0,  # we don't use torque
+      "STEER_REQ": 0,  # we don't use torque
+      # this goes 0 when LFA lane changes, 3 when LKA_ICON is >=green
+      "LKA_AVAILABLE": 3 if lat_active else 0,
+      "LKAS_ANGLE_CMD": apply_angle,
+      "LKAS_ANGLE_ACTIVE": 2 if lat_active else 1,
+      "LKAS_ANGLE_MAX_TORQUE": angle_max_torque if lat_active else 0,
+    }
+
+  lfa_values = copy.copy(common_values)
+  lfa_values["NEW_SIGNAL_1"] = 0
+  """
+
+  # For cars with an ADAS ECU (commonly HDA2), by sending LKAS actuation messages we're
+  # telling the ADAS ECU to forward our steering and disable stock LFA lane centering.
+  ret = []
 
   if CP.flags & HyundaiFlags.CANFD_CAMERA_SCC.value:
     if angle_control:
@@ -49,7 +86,7 @@ def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, ap
       values = {
         "LKAS_ANGLE_ACTIVE": 2 if abs(CS.out.steeringAngleDeg) < 110.0 and lat_active else 1,
         "LKAS_ANGLE_CMD": apply_angle,
-        "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0,
+        "LKAS_ANGLE_MAX_TORQUE": angle_max_torque if lat_active else 0,
       }
       ret.append(packer.make_can_msg("LFA_ALT", CAN.ECAN, values))
 
@@ -60,11 +97,11 @@ def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, ap
       values["LKA_ASSIST"] = 0
       values["STEER_REQ"] = 0  # 1 if lat_active else 0,
       values["HAS_LANE_SAFETY"] = 0  # hide LKAS settings
-      values["LKA_ACTIVE"] = 3 if lat_active else 0  # this changes sometimes, 3 seems to indicate engaged
+      values["LKA_AVAILABLE"] = 3 if lat_active else 0  # this changes sometimes, 3 seems to indicate engaged
       values["STEER_MODE"] = 0
       values["LKAS_ANGLE_CMD"] = apply_angle if lat_active else 0,
       values["LKAS_ANGLE_ACTIVE"] = 0  # 2 if lat_active else 1,
-      values["LKAS_ANGLE_MAX_TORQUE"] = 0  # max_torque if lat_active else 0,
+      values["LKAS_ANGLE_MAX_TORQUE"] = 0  # angle_max_torque if lat_active else 0,
       values["LKAS_SIGNAL_1"] = 10
       #values["NEW_SIGNAL_3"] = 9
       #values["LKAS_SIGNAL_2"] = 1
@@ -79,7 +116,7 @@ def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, ap
         "TORQUE_REQUEST": apply_torque,
         "STEER_REQ": 1 if lat_active else 0,
         "HAS_LANE_SAFETY": 0,
-        "LKA_ACTIVE": 0,
+        "LKA_AVAILABLE": 0,
         "STEER_MODE": 0,
         #"LKA_ASSIST": 0,
         #"VALUE104": 3 if lat_active else 100,
@@ -97,10 +134,10 @@ def create_steering_messages(packer, CP, CC, CS, CAN, max_torque, lat_active, ap
         "STEER_REQ": 0,  # 1 if lat_active else 0,
         "STEER_MODE": 0,
         "HAS_LANE_SAFETY": 0,  # hide LKAS settings
-        "LKA_ACTIVE": 3 if lat_active else 0,  # this changes sometimes, 3 seems to indicate engaged
+        "LKA_AVAILABLE": 3 if lat_active else 0,  # this changes sometimes, 3 seems to indicate engaged
         "LKAS_ANGLE_CMD": apply_angle if lat_active else 0,
         "LKAS_ANGLE_ACTIVE": 2 if lat_active else 1,
-        "LKAS_ANGLE_MAX_TORQUE": max_torque if lat_active else 0,
+        "LKAS_ANGLE_MAX_TORQUE": angle_max_torque if lat_active else 0,
         "LKAS_SIGNAL_1": 10,
         "NEW_SIGNAL_3": 9,
         "LKAS_SIGNAL_2": 1,
