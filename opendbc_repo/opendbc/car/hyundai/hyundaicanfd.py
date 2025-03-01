@@ -46,12 +46,11 @@ def create_steering_messages(packer, CP, CC, CS, CAN, lat_active, apply_torque, 
   common_values = {
     "LKA_MODE": 2,
     "LKA_ICON": 2 if enabled else 1,
-    "ADAS_StrTqReqVal": apply_torque,
+    "TORQUE_REQUEST": apply_torque,
     "LKA_ASSIST": 0,
-    "ADAS_ActToiSta": 1 if lat_active else 0,
+    "STEER_REQ": 1 if lat_active else 0,
     "STEER_MODE": 0,
     "HAS_LANE_SAFETY": 0,  # hide LKAS settings
-    "NEW_SIGNAL_1": 0,
     "NEW_SIGNAL_2": 0,
   }
 
@@ -63,13 +62,13 @@ def create_steering_messages(packer, CP, CC, CS, CAN, lat_active, apply_torque, 
     # TODO: HAS_LANE_SAFETY isn't used by the stock system
     lkas_values |= {
       "LKA_MODE": 0,  # TODO: not used by the stock system
-      "ADAS_StrTqReqVal": 0,  # we don't use torque
-      "ADAS_ActToiSta": 0,  # we don't use torque
+      "TORQUE_REQUEST": 0,  # we don't use torque
+      "STEER_REQ": 0,  # we don't use torque
       # this goes 0 when LFA lane changes, 3 when LKA_ICON is >=green
       "LKA_AVAILABLE": 3 if lat_active else 0,
-      "ADAS_StrAnglReqVal": apply_angle,
-      "ADAS_ActvACILvl2Sta": 2 if lat_active else 1,
-      "ADAS_ACIAnglTqRedcGainVal": angle_max_torque if lat_active else 0,
+      "LKAS_ANGLE_CMD": apply_angle,
+      "LKAS_ANGLE_ACTIVE": 2 if lat_active else 1,
+      "LKAS_ANGLE_MAX_TORQUE": angle_max_torque if lat_active else 0,
     }
 
   lfa_values = copy.copy(common_values)
@@ -85,31 +84,37 @@ def create_steering_messages(packer, CP, CC, CS, CAN, lat_active, apply_torque, 
       apply_angle = np.clip(apply_angle, -119, 119)
 
       values = {
-        "ADAS_ActvACILvl2Sta": 2 if abs(CS.out.steeringAngleDeg) < 110.0 and lat_active else 1,
-        "ADAS_StrAnglReqVal": apply_angle,
-        "ADAS_ACIAnglTqRedcGainVal": angle_max_torque if lat_active else 0,
+        "LKAS_ANGLE_ACTIVE": 2 if abs(CS.out.steeringAngleDeg) < 110.0 and lat_active else 1,
+        "LKAS_ANGLE_CMD": apply_angle,
+        "LKAS_ANGLE_MAX_TORQUE": angle_max_torque if lat_active else 0,
       }
       ret.append(packer.make_can_msg("LFA_ALT", CAN.ECAN, values))
 
       values = CS.lfa_info
       values["LKA_MODE"] = 0
       values["LKA_ICON"] = 2 if enabled else 1
-      values["ADAS_StrTqReqVal"] = 0  # apply_torque,
+      values["TORQUE_REQUEST"] = 0  # apply_torque,
       values["LKA_ASSIST"] = 0
-      values["ADAS_ActToiSta"] = 0  # 1 if lat_active else 0,
+      values["STEER_REQ"] = 0  # 1 if lat_active else 0,
       values["HAS_LANE_SAFETY"] = 0  # hide LKAS settings
       values["LKA_AVAILABLE"] = 3 if lat_active else 0  # this changes sometimes, 3 seems to indicate engaged
       values["STEER_MODE"] = 0
-      values["ADAS_StrAnglReqVal"] = apply_angle if lat_active else 0,
-      values["ADAS_ActvACILvl2Sta"] = 0  # 2 if lat_active else 1,
-      values["ADAS_ACIAnglTqRedcGainVal"] = 0  # angle_max_torque if lat_active else 0,
+      values["LKAS_ANGLE_CMD"] = apply_angle if lat_active else 0,
+      values["LKAS_ANGLE_ACTIVE"] = 0  # 2 if lat_active else 1,
+      values["LKAS_ANGLE_MAX_TORQUE"] = 0  # angle_max_torque if lat_active else 0,
+      values["LKAS_SIGNAL_1"] = 10
+      #values["NEW_SIGNAL_3"] = 9
+      #values["LKAS_SIGNAL_2"] = 1
+      #values["LKAS_SIGNAL_3"] = 1
+      #values["LKAS_SIGNAL_4"] = 1
+      #values["LKAS_SIGNAL_5"] = 1
 
     else:
       values = {
         "LKA_MODE": 2,
         "LKA_ICON": 2 if lat_active else 1,
-        "ADAS_StrTqReqVal": apply_torque,
-        "ADAS_ActToiSta": 1 if lat_active else 0,
+        "TORQUE_REQUEST": apply_torque,
+        "STEER_REQ": 1 if lat_active else 0,
         "HAS_LANE_SAFETY": 0,
         "LKA_AVAILABLE": 0,
         "STEER_MODE": 0,
@@ -124,25 +129,30 @@ def create_steering_messages(packer, CP, CC, CS, CAN, lat_active, apply_torque, 
       values = {
         "LKA_MODE": 0,
         "LKA_ICON": 2 if enabled else 1,
-        "ADAS_StrTqReqVal": 0,  # apply_torque,
+        "TORQUE_REQUEST": 0,  # apply_torque,
         "LKA_ASSIST": 0,
-        "ADAS_ActToiSta": 0,  # 1 if lat_active else 0,
+        "STEER_REQ": 0,  # 1 if lat_active else 0,
         "STEER_MODE": 0,
         "HAS_LANE_SAFETY": 0,  # hide LKAS settings
         "LKA_AVAILABLE": 3 if lat_active else 0,  # this changes sometimes, 3 seems to indicate engaged
-        "ADAS_StrAnglReqVal": apply_angle if lat_active else 0,
-        "ADAS_ActvACILvl2Sta": 2 if lat_active else 1,
-        "ADAS_ACIAnglTqRedcGainVal": angle_max_torque if lat_active else 0,
+        "LKAS_ANGLE_CMD": apply_angle if lat_active else 0,
+        "LKAS_ANGLE_ACTIVE": 2 if lat_active else 1,
+        "LKAS_ANGLE_MAX_TORQUE": angle_max_torque if lat_active else 0,
+        "LKAS_SIGNAL_1": 10,
         "NEW_SIGNAL_3": 9,
+        "LKAS_SIGNAL_2": 1,
+        "LKAS_SIGNAL_3": 1,
+        "LKAS_SIGNAL_4": 1,
+        "LKAS_SIGNAL_5": 1,
       }
 
     else:
       values = {
         "LKA_MODE": 2,
         "LKA_ICON": 2 if enabled else 1,
-        "ADAS_StrTqReqVal": apply_torque,
+        "TORQUE_REQUEST": apply_torque,
         "VALUE104": 3 if enabled else 100,
-        "ADAS_ActToiSta": 1 if lat_active else 0,
+        "STEER_REQ": 1 if lat_active else 0,
         "HAS_LANE_SAFETY": 0,  # hide LKAS settings
         "LKA_ASSIST": 0,
         "STEER_MODE": 0,
