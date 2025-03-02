@@ -1,11 +1,11 @@
+import copy
 import numpy as np
-
 from opendbc.car import CanBusBase
 from opendbc.car.hyundai.values import HyundaiFlags, HyundaiExFlags
+
 from openpilot.common.params import Params
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 
-import copy
 
 class CanBus(CanBusBase):
   def __init__(self, CP, fingerprint=None, lka_steering=None) -> None:
@@ -93,15 +93,15 @@ def create_steering_messages(packer, CP, CC, CS, CAN, lat_active, apply_torque, 
       values = CS.lfa_info
       values["LKA_MODE"] = 0
       values["LKA_ICON"] = 2 if enabled else 1
-      values["TORQUE_REQUEST"] = 0  # apply_torque,
+      values["TORQUE_REQUEST"] = 0  # apply_torque
       values["LKA_ASSIST"] = 0
-      values["STEER_REQ"] = 0  # 1 if lat_active else 0,
+      values["STEER_REQ"] = 0  # 1 if lat_active else 0
       values["HAS_LANE_SAFETY"] = 0  # hide LKAS settings
       values["LKA_AVAILABLE"] = 3 if lat_active else 0  # this changes sometimes, 3 seems to indicate engaged
       values["STEER_MODE"] = 0
-      values["LKAS_ANGLE_CMD"] = apply_angle if lat_active else 0,
-      values["LKAS_ANGLE_ACTIVE"] = 0  # 2 if lat_active else 1,
-      values["LKAS_ANGLE_MAX_TORQUE"] = 0  # angle_max_torque if lat_active else 0,
+      values["LKAS_ANGLE_CMD"] = apply_angle if lat_active else 0
+      values["LKAS_ANGLE_ACTIVE"] = 0  # 2 if lat_active else 1
+      values["LKAS_ANGLE_MAX_TORQUE"] = 0  # angle_max_torque if lat_active else 0
       values["LKAS_SIGNAL_1"] = 10
       #values["NEW_SIGNAL_3"] = 9
       #values["LKAS_SIGNAL_2"] = 1
@@ -383,6 +383,8 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       values["HDA_ICON"] = 5 if hdp_active else 2 if lat_active else 1
       values["LFA_ICON"] = 5 if hdp_active else 2 if lat_active else 1
       values["LKA_ICON"] = 4 if lat_active else 3
+
+      values["FCA_ICON"] = 0
       values["FCA_ALT_ICON"] = 0
 
       # SETSPEED 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 6 "CYAN";
@@ -397,8 +399,9 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       # HDA_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 5 "CYAN HDP";
       # LFA_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 5 "CYAN";
       # LKA_ICON 0 "HIDDEN" 1 "ORANGE" 3 "GRAY" 4 "GREEN";
-      # FCA_ALT_ICON 0 "HIDDEN" 1 "ORANGE" 3 "RED";
       # DAW_ICON 0 "HIDDEN" 1 "ORANGE";
+      # FCA_ICON 0 "HIDDEN" 1 "ORANGE" 2 "RED";
+      # FCA_ALT_ICON 0 "HIDDEN" 1 "ORANGE" 3 "RED";
 
       if values["ALERTS_2"] == 5:
         values["ALERTS_2"] = 0
