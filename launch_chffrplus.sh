@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+BASEDIR="$DIR"
 
 source "$DIR/launch_env.sh"
 

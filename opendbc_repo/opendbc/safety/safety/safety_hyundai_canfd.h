@@ -417,15 +417,15 @@ static safety_config hyundai_canfd_init(uint16_t param) {
     {0x51,  0, 32},  // ADRV_0x51
     {0x51,  1, 32},  // ADRV_0x51
     {0x730, 1,  8},  // tester present for ADAS ECU disable
-    {0x160, 1, 16},  // ADRV_0x160
+    {0x160, 0, 16},  // ADRV_0x160
     {0x160, 1, 16},  // ADRV_0x160
     {0x161, 0, 32},  // CCNC_0x161
     {0x162, 0, 32},  // CCNC_0x162
+    {0x1EA, 0, 32},  // ADRV_0x1ea
     {0x1EA, 1, 32},  // ADRV_0x1ea
-    {0x1EA, 1, 32},  // ADRV_0x1ea
+    {0x200, 0,  8},  // ADRV_0x200
     {0x200, 1,  8},  // ADRV_0x200
-    {0x200, 1,  8},  // ADRV_0x200
-    {0x345, 1,  8},  // ADRV_0x345
+    {0x345, 0,  8},  // ADRV_0x345
     {0x345, 1,  8},  // ADRV_0x345
     {0x1DA, 1, 32},  // ADRV_0x1da
     {0xCB,  0, 24},  // CB

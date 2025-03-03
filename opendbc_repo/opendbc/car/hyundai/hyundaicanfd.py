@@ -384,7 +384,6 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       values["LFA_ICON"] = 5 if hdp_active else 2 if lat_active else 1
       values["LKA_ICON"] = 4 if lat_active else 3
 
-      values["FCA_ICON"] = 0
       values["FCA_ALT_ICON"] = 0
 
       # SETSPEED 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 6 "CYAN";
@@ -400,7 +399,6 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       # LFA_ICON 0 "HIDDEN" 1 "GRAY" 2 "GREEN" 3 "WHITE" 5 "CYAN";
       # LKA_ICON 0 "HIDDEN" 1 "ORANGE" 3 "GRAY" 4 "GREEN";
       # DAW_ICON 0 "HIDDEN" 1 "ORANGE";
-      # FCA_ICON 0 "HIDDEN" 1 "ORANGE" 2 "RED";
       # FCA_ALT_ICON 0 "HIDDEN" 1 "ORANGE" 3 "RED";
 
       if values["ALERTS_2"] == 5:
