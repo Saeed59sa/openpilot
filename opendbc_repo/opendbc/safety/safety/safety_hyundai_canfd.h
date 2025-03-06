@@ -24,8 +24,35 @@
   {0x12A, e_can, 16},  /* LFA */                         \
   {0x1E0, e_can, 16},  /* LFAHDA_CLUSTER */              \
 
+#define HYUNDAI_CANFD_LFA_STEERING_ALT_TX_MSGS(e_can) \
+  {0xCB, 0, 24},  /* LFA_ALT */                       \
+
+#define HYUNDAI_CANFD_LFA_STEERING_COMMON_TX_MSGS_DUAL(e1, e2) \
+  HYUNDAI_CANFD_LFA_STEERING_COMMON_TX_MSGS(e1) \
+  HYUNDAI_CANFD_LFA_STEERING_COMMON_TX_MSGS(e2) \
+
 #define HYUNDAI_CANFD_SCC_CONTROL_COMMON_TX_MSGS(e_can) \
   {0x1A0, e_can, 32},  /* SCC_CONTROL */                \
+  {0x160, e_can, 16},  /* ADRV_0x160 */                 \
+
+#define HYUNDAI_CANFD_SCC_CONTROL_COMMON_TX_MSGS_DUAL(e1, e2) \
+  HYUNDAI_CANFD_SCC_CONTROL_COMMON_TX_MSGS(e1) \
+  HYUNDAI_CANFD_SCC_CONTROL_COMMON_TX_MSGS(e2) \
+
+#define HYUNDAI_CANFD_CCNC_TX_MSGS(e_can) \
+  {0x161, e_can, 32},  /* CCNC_0x161 */   \
+  {0x162, e_can, 32},  /* CCNC_0x162 */   \
+
+#define HYUNDAI_CANFD_ADRV_TX_MSGS(e_can) \
+  {0x51,  e_can, 32},  /* ADRV_0x51 */    \
+  {0x1EA, e_can, 32},  /* ADRV_0x1ea */   \
+  {0x200, e_can,  8},  /* ADRV_0x200 */   \
+  {0x345, e_can,  8},  /* ADRV_0x345 */   \
+  {0x1DA, 1,     32},  /* ADRV_0x1da */   \
+
+#define HYUNDAI_CANFD_ADRV_TX_MSGS_DUAL(e1, e2) \
+  HYUNDAI_CANFD_ADRV_TX_MSGS(e1) \
+  HYUNDAI_CANFD_ADRV_TX_MSGS(e2) \
 
 // *** Addresses checked in rx hook ***
 // EV, ICE, HYBRID: ACCELERATOR (0x35), ACCELERATOR_BRAKE_ALT (0x100), ACCELERATOR_ALT (0x105)
@@ -44,19 +71,54 @@
 #define HYUNDAI_CANFD_SCC_ADDR_CHECK(scc_bus)                                                                       \
   {.msg = {{0x1a0, (scc_bus), 32, .check_checksum = true, .max_counter = 0xffU, .frequency = 50U}, { 0 }, { 0 }}},  \
 
-bool hyundai_canfd_alt_buttons = false;
-bool hyundai_canfd_lka_steering_alt = false;
-bool hyundai_canfd_angle_steering = false;
+static bool hyundai_canfd_alt_buttons = false;
+static bool hyundai_canfd_lka_steering_alt = false;
+static bool hyundai_canfd_angle_steering = false;
 
-// {   80,   81,   272,   282,   298,   352,   353,   354,   442,   485,   416,   437,   506,   474,   480,   490,   512,   676,   866,   837,  1402,   908,  1848,  1187,  1204,  203,   0 }
-// { 0x50, 0x51, 0x110, 0x11A, 0x12A, 0x160, 0x161, 0x162, 0x1BA, 0x1E5, 0x1A0, 0x1B5, 0x1FA, 0x1DA, 0x1E0, 0x1EA, 0x200, 0x2A4, 0x362, 0x345, 0x57A, 0x38C, 0x738, 0x4A3, 0x4B4, 0xCB, 0x0 }
-int canfd_tx_addr[32] = { 80, 81, 272, 282, 298, 352, 353, 354, 442, 485, 416, 437, 506, 474, 480, 490, 512, 676, 866, 837, 1402, 908, 1848, 1187, 1204, 203, 0, };
-uint32_t canfd_tx_time[32] = { 0, };
-
-//int hyundai_canfd_angle_max_torque = 0;
-
-int hyundai_canfd_get_lka_addr(void) {
+static int hyundai_canfd_get_lka_addr(void) {
   return hyundai_canfd_lka_steering_alt ? 0x110 : 0x50;
+}
+
+static int hyundai_canfd_get_lfa_block_addr(void) {
+  return hyundai_canfd_lka_steering_alt ? 0x362 : 0x2a4;
+}
+
+#define CANFD_TX_ENTRIES_SIZE 20
+
+typedef struct {
+  int addr;
+  uint32_t timestamp;
+} CanFdTxEntry;
+
+CanFdTxEntry canfd_tx_entries[CANFD_TX_ENTRIES_SIZE] = {
+  {0x51, 0}, {0x160, 0}, {0x161, 0}, {0x162, 0}, {0x1BA, 0},
+  {0x1E5, 0}, {0x1A0, 0}, {0x1B5, 0}, {0x1FA, 0}, {0x1DA, 0},
+  {0x1EA, 0}, {0x200, 0}, {0x345, 0}, {0xCB, 0},
+}; // {0x4A3, 0}, {0x4B4, 0},
+
+void update_canfd_tx_addr(void) {
+  int addresses[2];
+  if (hyundai_canfd_lka_steering) {
+    int lka_addr = hyundai_canfd_get_lka_addr();
+    int lfa_block_addr = hyundai_canfd_get_lfa_block_addr();
+    addresses[0] = lka_addr;
+    addresses[1] = lfa_block_addr;
+  } else {
+    int lfa_addr = 0x12a;
+    int lfa_hda_addr = 0x1e0;
+    addresses[0] = lfa_addr;
+    addresses[1] = lfa_hda_addr;
+  }
+
+  for (int addr_index = 0; addr_index < 2; addr_index++) {
+    for (int i = 0; i < CANFD_TX_ENTRIES_SIZE; i++) {
+      if (canfd_tx_entries[i].addr == 0) {
+        canfd_tx_entries[i].addr = addresses[addr_index];
+        canfd_tx_entries[i].timestamp = microsecond_timer_get();
+        break;
+      }
+    }
+  }
 }
 
 static uint8_t hyundai_canfd_get_counter(const CANPacket_t *to_push) {
@@ -78,7 +140,7 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *to_push) {
   int bus = GET_BUS(to_push);
   int addr = GET_ADDR(to_push);
 
-  int pt_bus = (hyundai_canfd_lka_steering && !hyundai_camera_scc) ? 1 : 0;
+  const int pt_bus = (hyundai_canfd_lka_steering && !hyundai_camera_scc) ? 1 : 0;
   const int scc_bus = hyundai_camera_scc ? 2 : pt_bus;
 
   if (bus == pt_bus) {
@@ -199,7 +261,8 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
   int addr = GET_ADDR(to_send);
 
   // steering
-  const int steer_addr = (hyundai_canfd_lka_steering && !hyundai_longitudinal) ? hyundai_canfd_get_lka_addr() : 0x12a;
+  //const int steer_addr = (hyundai_canfd_lka_steering && !hyundai_longitudinal) ? hyundai_canfd_get_lka_addr() : 0x12a;
+  const int steer_addr = hyundai_canfd_lka_steering ? hyundai_canfd_get_lka_addr() : 0x12a;
   if (addr == steer_addr) {
     if (hyundai_canfd_angle_steering) {
       const int lkas_angle_active = (GET_BYTE(to_send, 9) >> 4) & 0x3U;
@@ -268,8 +331,11 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
     }
   }
 
-  for (int i = 0; canfd_tx_addr[i] > 0; i++) {
-    if (addr == canfd_tx_addr[i]) canfd_tx_time[i] = (tx) ? microsecond_timer_get() : 0;
+  for (int i = 0; i < CANFD_TX_ENTRIES_SIZE; i++) {
+    if (addr == canfd_tx_entries[i].addr) {
+      canfd_tx_entries[i].timestamp = tx ? microsecond_timer_get() : 0;
+      break;
+    }
   }
 
   return tx;
@@ -308,42 +374,37 @@ static void print_addr_list(const char *prefix, const AddrList *list) {
 }
 
 static int hyundai_canfd_fwd_hook(int bus_num, int addr) {
-  int bus_fwd = -1;
   uint32_t now = microsecond_timer_get();
-
   static AddrList addr_list1 = {{0}, 0};
   static AddrList addr_list2 = {{0}, 0};
 
   switch (bus_num) {
     case 0:
-      bus_fwd = 2;
-      break;
+      return 2;
     case 1:
       if (add_addr_to_list(&addr_list1, addr)) {
-        print_addr_list("!!!!! bus1_list=", &addr_list1);
+        print_addr_list("bus1_list=", &addr_list1);
       }
       break;
     case 2:
       if (add_addr_to_list(&addr_list2, addr)) {
-        print_addr_list("@@@@ bus2_list=", &addr_list2);
+        print_addr_list("bus2_list=", &addr_list2);
       }
-      bus_fwd = 0;
-      for (int i = 0; canfd_tx_addr[i] > 0; i++) {
-        if (addr == canfd_tx_addr[i] && (now - canfd_tx_time[i]) < OP_CAN_SEND_TIMEOUT) {
+      int bus_fwd = 0;
+      for (int i = 0; i < CANFD_TX_ENTRIES_SIZE; i++) {
+        if (addr == canfd_tx_entries[i].addr && (now - canfd_tx_entries[i].timestamp) < OP_CAN_SEND_TIMEOUT) {
           bus_fwd = -1;
           break;
         }
       }
-      break;
+      return bus_fwd;
   }
-
-  return bus_fwd;
+  return -1;
 }
 
 /*
     // LKAS for cars with LKAS and LFA messages, LFA for cars with no LKAS messages
-    int lfa_block_addr = hyundai_canfd_lka_steering_alt ? 0x362 : 0x2a4;
-    bool is_lka_msg = ((addr == hyundai_canfd_get_lka_addr()) || (addr == lfa_block_addr)) && hyundai_canfd_lka_steering;
+    bool is_lka_msg = ((addr == hyundai_canfd_get_lka_addr()) || (addr == hyundai_canfd_get_lfa_block_addr())) && hyundai_canfd_lka_steering;
     bool is_lfa_msg = ((addr == 0x12a) && !hyundai_canfd_lka_steering);
 
     // HUD icons
@@ -353,9 +414,24 @@ static int hyundai_canfd_fwd_hook(int bus_num, int addr) {
     bool is_scc_msg = (((addr == 0x1a0) || (addr == 0x160)) && hyundai_longitudinal && !hyundai_canfd_lka_steering);
 
     // CCNC messages
-    bool is_ccnc_msg = (addr == 0x161) || (addr == 0x162);
+    bool is_ccnc_msg = (addr == 0x161) || (addr == 0x162) || (addr == 0x1b5);
 
-    bool block_msg = is_lka_msg || is_lfa_msg || is_lfahda_msg || is_scc_msg || is_ccnc_msg;
+    // ADRV messages
+    bool is_adrv_msg = (addr == 0x51) || (addr == 0x1ea) || (addr == 0x200) || (addr == 0x345) || (addr == 0x1da);
+
+    // BSD messages
+    bool is_bsd_msg = (addr == 0x1ba) || (addr == 0x1e5);
+
+    // lfa_alt message
+    bool is_lfa_alt_msg = (addr == 0xcb);
+
+    // HDA_info message
+    //bool is_hda_info_msg = (addr == 0x4a3) || (addr == 0x4b4);
+
+    // speed_limit message
+    bool is_speed_limit_msg = (addr == 0x1fa);
+
+    bool block_msg = is_lka_msg || is_lfa_msg || is_lfahda_msg || is_scc_msg || is_ccnc_msg || is_adrv_msg || is_bsd_msg || is_lfa_alt_msg || is_speed_limit_msg; // || is_hda_info_msg
     if (!block_msg) {
       bus_fwd = 0;
     }
@@ -378,35 +454,21 @@ static safety_config hyundai_canfd_init(uint16_t param) {
     HYUNDAI_CANFD_LKA_STEERING_COMMON_TX_MSGS(0, 1)
     HYUNDAI_CANFD_LKA_STEERING_COMMON_TX_MSGS(1, 1)
     HYUNDAI_CANFD_LKA_STEERING_ALT_COMMON_TX_MSGS(1, 1)
-    HYUNDAI_CANFD_LFA_STEERING_COMMON_TX_MSGS(0)
-    HYUNDAI_CANFD_LFA_STEERING_COMMON_TX_MSGS(1)
-    HYUNDAI_CANFD_SCC_CONTROL_COMMON_TX_MSGS(0)
-    HYUNDAI_CANFD_SCC_CONTROL_COMMON_TX_MSGS(1)
-    {0x51,  0, 32},  // ADRV_0x51
-    {0x51,  1, 32},  // ADRV_0x51
+    HYUNDAI_CANFD_LFA_STEERING_COMMON_TX_MSGS_DUAL(0,1)
+    HYUNDAI_CANFD_SCC_CONTROL_COMMON_TX_MSGS_DUAL(0,1)
+    HYUNDAI_CANFD_ADRV_TX_MSGS_DUAL(0,1)
+    HYUNDAI_CANFD_CCNC_TX_MSGS(0)
+    HYUNDAI_CANFD_LFA_STEERING_ALT_TX_MSGS(0)
     {0x730, 1,  8},  // tester present for ADAS ECU disable
-    {0x160, 0, 16},  // ADRV_0x160
-    {0x160, 1, 16},  // ADRV_0x160
-    {0x161, 0, 32},  // CCNC_0x161
-    {0x162, 0, 32},  // CCNC_0x162
-    {0x1EA, 0, 32},  // ADRV_0x1ea
-    {0x1EA, 1, 32},  // ADRV_0x1ea
-    {0x200, 0,  8},  // ADRV_0x200
-    {0x200, 1,  8},  // ADRV_0x200
-    {0x345, 0,  8},  // ADRV_0x345
-    {0x345, 1,  8},  // ADRV_0x345
-    {0x1DA, 1, 32},  // ADRV_0x1da
-    {0xCB,  0, 24},  // CB
-    {0x4A3, 2,  8},  // 4A3
-    {0x4B4, 2,  8},  // 4B4
+    //{0x4A3, 2,  8},  // HDA_INFO_0x4a3
+    //{0x4B4, 2,  8},  // HDA_INFO_0x4b4
   };
 
   static const CanMsg HYUNDAI_CANFD_LFA_STEERING_TX_MSGS[] = {
     HYUNDAI_CANFD_CRUISE_BUTTON_TX_MSGS(2)
     HYUNDAI_CANFD_LFA_STEERING_COMMON_TX_MSGS(0)
     HYUNDAI_CANFD_SCC_CONTROL_COMMON_TX_MSGS(0)
-    {0x161, 0, 32}, // CCNC_0x161
-    {0x162, 0, 32}, // CCNC_0x162
+    HYUNDAI_CANFD_CCNC_TX_MSGS(0)
   };
 
   static const CanMsg HYUNDAI_CANFD_LFA_STEERING_LONG_TX_MSGS[] = {
@@ -414,20 +476,16 @@ static safety_config hyundai_canfd_init(uint16_t param) {
     HYUNDAI_CANFD_CRUISE_BUTTON_ALT_TX_MSGS(2)
     HYUNDAI_CANFD_LFA_STEERING_COMMON_TX_MSGS(0)
     HYUNDAI_CANFD_SCC_CONTROL_COMMON_TX_MSGS(0)
-    {0x160, 0, 16}, // ADRV_0x160
+    HYUNDAI_CANFD_CCNC_TX_MSGS(0)
+    HYUNDAI_CANFD_LFA_STEERING_ALT_TX_MSGS(0)
     {0x7D0, 0, 8},  // tester present for radar ECU disable
-    {0x161, 0, 32}, // CCNC_0x161
-    {0x162, 0, 32}, // CCNC_0x162
-    {203, 0, 24},   // CB
   };
 
   static const CanMsg HYUNDAI_CANFD_LFA_STEERING_CAMERA_SCC_TX_MSGS[] = {
     HYUNDAI_CANFD_CRUISE_BUTTON_TX_MSGS(2)
     HYUNDAI_CANFD_LFA_STEERING_COMMON_TX_MSGS(0)
     HYUNDAI_CANFD_SCC_CONTROL_COMMON_TX_MSGS(0)
-    {0x160, 0, 16}, // ADRV_0x160
-    {0x161, 0, 32}, // CCNC_0x161
-    {0x162, 0, 32}, // CCNC_0x162
+    HYUNDAI_CANFD_CCNC_TX_MSGS(0)
   };
 
   hyundai_common_init(param);
@@ -437,6 +495,8 @@ static safety_config hyundai_canfd_init(uint16_t param) {
   hyundai_canfd_angle_steering = GET_FLAG(param, HYUNDAI_PARAM_CANFD_ANGLE_STEERING);
   // TODO: test this restriction
   hyundai_canfd_lka_steering_alt = GET_FLAG(param, HYUNDAI_PARAM_CANFD_LKA_STEERING_ALT) || hyundai_canfd_angle_steering;
+
+  update_canfd_tx_addr();
 
   safety_config ret;
   if (hyundai_longitudinal) {
