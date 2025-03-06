@@ -89,6 +89,7 @@ void HudRenderer::updateState(const UIState &s) {
   apply_speed = ce.getVCruise();
   cruise_speed = ce.getVCruiseCluster();
   is_cruise_set = cruise_speed > 0 && (int)cruise_speed != SET_SPEED_NA && ce.getCruiseState().getSpeed();
+  is_cruise_available = set_speed != -1;
 
   if (is_cruise_set && !is_metric) {
     apply_speed *= KM_TO_MILE;
@@ -140,7 +141,10 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   bg.setColorAt(1, QColor::fromRgbF(0, 0, 0, 0));
   p.fillRect(0, 0, surface_rect.width(), UI_HEADER_HEIGHT, bg);
 
-  drawSetSpeed(p, surface_rect);
+
+  if (is_cruise_available) {
+    drawSetSpeed(p, surface_rect);
+  }
   drawCurrentSpeed(p, surface_rect);
 
   p.restore();
