@@ -596,6 +596,7 @@ FW_VERSIONS = {
     (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00NE__ RDR -----      1.00 1.00 99110-PI000         ',
       b'\xf1\x00NE__ RDR -----      1.00 1.00 99110-GI500         ',
+      b'\xf1\x00NE__ RDR -----      1.00 1.01 99110-GI500         '
     ],
     (Ecu.fwdCamera, 0x7c4, None): [
       b'\xf1\x00NE  MFC  AT USA LHD 1.00 1.01 99211-PI000 240905',
