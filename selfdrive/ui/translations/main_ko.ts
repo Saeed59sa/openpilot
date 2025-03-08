@@ -1290,7 +1290,7 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>You must accept the Terms and Conditions to use openpilot. Read the latest terms at &lt;span style=&apos;color: #465BEA;&apos;&gt;https://comma.ai/terms&lt;/span&gt; before continuing.</source>
-        <translation>오픈파일럿을 사용하려면 이용약관에 동의해야 합니다. 최신 약관은 &lt;span style=&apos;color: #465BEA;&apos;&apos;https://comma.ai/terms&lt;/span;에서 최신 약관을 읽은 후 계속하세요.</translation>
+        <translation>오픈파일럿을 사용하려면 이용약관에 동의해야 합니다. 최신 약관은 &lt;span style=&apos;color: #465BEA;&apos;&gt;https://comma.ai/terms&lt;/span&gt; 에서 최신 약관을 읽은 후 계속하세요.</translation>
     </message>
 </context>
 <context>
