@@ -247,14 +247,16 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
     .max_angle = 1800,
     .angle_deg_to_can = 10,
     .angle_rate_up_lookup = {
-      {5., 25., 25.},
+      //{5., 25., 25.},
+      {0, 5., 25.},
       //{0.3, 0.15, 0.15}
-      {0.6, 0.2, 0.2}
+      {1.4, 1.0, 0.2}
     },
     .angle_rate_down_lookup = {
-      {5., 25., 25.},
+      //{5., 25., 25.},
+      {0, 5., 25.},
       //{0.36, 0.26, 0.26}
-      {0.72, 0.3, 0.3}
+      {2.1, 1.5, 0.3}
     },
   };
   bool tx = true;

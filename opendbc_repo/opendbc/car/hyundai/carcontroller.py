@@ -88,11 +88,14 @@ class CarController(CarControllerBase):
 
       # Similar to torque control driver torque override, we ramp up and down the max allowed torque,
       # but this is a single threshold for simplicity. It also matches the stock system behavior.
-      if abs(CS.out.steeringTorque) > self.params.STEER_THRESHOLD:
-        self.lkas_max_torque = max(self.lkas_max_torque - self.params.ANGLE_TORQUE_DOWN_RATE, self.params.ANGLE_MIN_TORQUE)
+      if abs(CS.out.steeringTorque) > self.params.ANGLE_STEER_THRESHOLD:
+        torque_diff_down = abs(CS.out.steeringTorque) - self.params.ANGLE_STEER_THRESHOLD
+        reduction_factor = max(self.params.ANGLE_TORQUE_DOWN_RATE, torque_diff_down / 10)
+        self.lkas_max_torque = max(self.lkas_max_torque - reduction_factor, self.params.ANGLE_MIN_TORQUE)
       else:
-        # ramp back up on engage as well
-        self.lkas_max_torque = min(self.lkas_max_torque + self.params.ANGLE_TORQUE_UP_RATE, self.params.ANGLE_MAX_TORQUE)
+        torque_diff_up = self.params.ANGLE_STEER_THRESHOLD - abs(CS.out.steeringTorque)
+        increase_factor = max(self.params.ANGLE_TORQUE_UP_RATE, torque_diff_up / 10)
+        self.lkas_max_torque = min(self.lkas_max_torque + increase_factor, self.params.ANGLE_MAX_TORQUE)
 
     # Disable steering while turning blinker on and speed below 60 kph
     if CS.out.leftBlinker or CS.out.rightBlinker:
