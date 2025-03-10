@@ -390,19 +390,12 @@ class RadarD:
     self.ready = sm.seen['modelV2']
     self.current_time = 1e-9*max(sm.logMonoTime.values())
 
-    leads_v3 = sm['modelV2'].leadsV3
     if sm.recv_frame['carState'] != self.last_v_ego_frame:
       self.v_ego = sm['carState'].vEgo
       self.v_ego_hist.append(self.v_ego)
       self.last_v_ego_frame = sm.recv_frame['carState']
 
-    ar_pts = {}
-    for pt in rr.points:
-      pt_yRel = pt.yRel
-      if pt.trackId == 0 and pt.yRel == 0: # scc radar
-        if self.ready and leads_v3[0].prob > 0.5:
-          pt_yRel = -leads_v3[0].y[0]
-      ar_pts[pt.trackId] = [pt.dRel, pt_yRel, pt.vRel, pt.measured]
+    ar_pts = {pt.trackId: [pt.dRel, pt.yRel, pt.vRel, pt.measured] for pt in rr.points}
 
     # *** remove missing points from meta data ***
     for ids in list(self.tracks.keys()):
@@ -435,7 +428,7 @@ class RadarD:
       model_v_ego = sm['modelV2'].velocity.x[0]
     else:
       model_v_ego = self.v_ego
-    #leads_v3 = sm['modelV2'].leadsV3
+    leads_v3 = sm['modelV2'].leadsV3
     if len(leads_v3) > 1:
 
       if model_updated:
