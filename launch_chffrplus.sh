@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-BASEDIR="$DIR"
 
 source "$DIR/launch_env.sh"
 
@@ -35,25 +34,25 @@ function launch {
   # Check to see if there's a valid overlay-based update available. Conditions
   # are as follows:
   #
-  # 1. The BASEDIR init file has to exist, with a newer modtime than anything in
-  #    the BASEDIR Git repo. This checks for local development work or the user
+  # 1. The DIR init file has to exist, with a newer modtime than anything in
+  #    the DIR Git repo. This checks for local development work or the user
   #    switching branches/forks, which should not be overwritten.
   # 2. The FINALIZED consistent file has to exist, indicating there's an update
   #    that completed successfully and synced to disk.
 
-  if [ -f "${BASEDIR}/.overlay_init" ]; then
-    find ${BASEDIR}/.git -newer ${BASEDIR}/.overlay_init | grep -q '.' 2> /dev/null
+  if [ -f "${DIR}/.overlay_init" ]; then
+    find ${DIR}/.git -newer ${DIR}/.overlay_init | grep -q '.' 2> /dev/null
     if [ $? -eq 0 ]; then
-      echo "${BASEDIR} has been modified, skipping overlay update installation"
+      echo "${DIR} has been modified, skipping overlay update installation"
     else
       if [ -f "${STAGING_ROOT}/finalized/.overlay_consistent" ]; then
         if [ ! -d /data/safe_staging/old_openpilot ]; then
           echo "Valid overlay update found, installing"
           LAUNCHER_LOCATION="${BASH_SOURCE[0]}"
 
-          mv $BASEDIR /data/safe_staging/old_openpilot
-          mv "${STAGING_ROOT}/finalized" $BASEDIR
-          cd $BASEDIR
+          mv $DIR /data/safe_staging/old_openpilot
+          mv "${STAGING_ROOT}/finalized" $DIR
+          cd $DIR
 
           echo "Restarting launch script ${LAUNCHER_LOCATION}"
           unset AGNOS_VERSION
@@ -84,7 +83,7 @@ function launch {
     mkdir -p ${PARAMS_ROOT}/crwusiz
   fi
 
-  FINGERPRINTS="$BASEDIR/opendbc/car/fingerprints.py"
+  FINGERPRINTS="$DIR/opendbc/car/fingerprints.py"
   grep "HYUNDAI.HYUNDAI" "$FINGERPRINTS" | awk -F ': ' '{print $1}' | awk '{gsub(/^ +| +$/,"")}1' | sed 's/"//g' | sort > ${PARAMS_ROOT}/crwusiz/CarList_Hyundai
   grep "HYUNDAI.KIA" "$FINGERPRINTS" | awk -F ': ' '{print $1}' | awk '{gsub(/^ +| +$/,"")}1' | sed 's/"//g' | sort > ${PARAMS_ROOT}/crwusiz/CarList_Kia
   grep "HYUNDAI.GENESIS" "$FINGERPRINTS" | awk -F ': ' '{print $1}' | awk '{gsub(/^ +| +$/,"")}1' | sed 's/"//g' | sort > ${PARAMS_ROOT}/crwusiz/CarList_Genesis
@@ -111,10 +110,10 @@ function launch {
 
   # events.py 한글로 변경 및 파일이 교체된 상태인지 확인
   if [ "${LANG}" = "main_ko" ] && [[ ! "${EVENTSTAT}" == *"modified:   selfdrive/controls/lib/events.py"* ]]; then
-    cp -f $BASEDIR/selfdrive/selfdrived/events.py $BASEDIR/scripts/add/events_en.py
-    cp -f $BASEDIR/scripts/add/events_ko.py $BASEDIR/selfdrive/selfdrived/events.py
+    cp -f $DIR/selfdrive/selfdrived/events.py $DIR/scripts/add/events_en.py
+    cp -f $DIR/scripts/add/events_ko.py $DIR/selfdrive/selfdrived/events.py
   elif [ "${LANG}" = "main_en" ] && [[ "${EVENTSTAT}" == *"modified:   selfdrive/controls/lib/events.py"* ]]; then
-    cp -f $BASEDIR/scripts/add/events_en.py $BASEDIR/selfdrive/selfdrived/events.py
+    cp -f $DIR/scripts/add/events_en.py $DIR/selfdrive/selfdrived/events.py
   fi
 
   # start manager
