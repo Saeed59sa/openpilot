@@ -346,7 +346,7 @@ def create_fca_warning_light(packer, CP, CAN, frame):
   return ret
 
 
-def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle, left_lane_warning, right_lane_warning):
+def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle):
   main_enabled = CS.out.cruiseState.available
   cruise_enabled = CC.enabled
   lat_active = CC.latActive
@@ -468,8 +468,9 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       # FAULT_DAW 0 "HIDDEN" 1 "CHECK_INATTENTIVE_DRIVING_WARNING_SYSTEM" 2 "INATTENTIVE_DRIVING_WARNING_SYSTEM_DISABLED_CAMERA_OBSCURED";
       # FAULT_SCC 0 "HIDDEN" 1 "CHECK_SMART_CRUISE_CONTROL_SYSTEM" 2 "SMART_CRUISE_CONTROL_DISABLED_RADAR_BLOCKED";
 
-      if left_lane_warning or right_lane_warning:
-        values["VIBRATE"] = 1
+      #if left_lane_warning or right_lane_warning:
+      #  values["VIBRATE"] = 1
+
       ret.append(packer.make_can_msg("CCNC_0x162", CAN.ECAN, values))
 
     if frame % 2 == 0 and CS.adrv_info_160 is not None:

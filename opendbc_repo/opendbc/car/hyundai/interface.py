@@ -45,7 +45,8 @@ class CarInterface(CarInterfaceBase):
       if {0x1AA, 0x1CF} & set(fingerprint[CAN.ECAN]):
         ret.flags |= HyundaiFlags.HAS_LDA_BUTTON.value
 
-      if 0x105 in fingerprint[CAN.ECAN]:
+      # Check if the car is hybrid. Only HEV/PHEV cars have 0xFA on E-CAN.
+      if 0xFA in fingerprint[CAN.ECAN]:
         ret.flags |= HyundaiFlags.HYBRID.value
 
       if lka_steering:
@@ -159,12 +160,8 @@ class CarInterface(CarInterfaceBase):
     ret.radarUnavailable = RADAR_START_ADDR not in fingerprint[1] or Bus.radar not in DBC[ret.carFingerprint]
     ret.openpilotLongitudinalControl = (experimental_long and ret.experimentalLongitudinalAvailable) or camera_scc
     ret.startingState = True
-    ret.vEgoStarting = 0.3
-    ret.startAccel = 2.0
-    ret.stoppingDecelRate = 1.0
-    ret.vEgoStopping = 0.3
-    ret.stopAccel = -3.5
-
+    ret.vEgoStarting = 0.1
+    ret.startAccel = 1.0
     ret.longitudinalActuatorDelay = 0.5
 
     if ret.openpilotLongitudinalControl:
