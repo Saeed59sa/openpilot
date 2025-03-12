@@ -207,7 +207,6 @@ class CarController(CarControllerBase):
     can_sends = []
 
     lka_steering = self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING or Params().get_bool("IsHda2")
-    lka_steering_long = lka_steering and self.CP.openpilotLongitudinalControl
     camera_scc = self.CP.flags & HyundaiFlags.CAMERA_SCC
 
     # steering control
@@ -219,7 +218,7 @@ class CarController(CarControllerBase):
       can_sends.append(hyundaicanfd.create_suppress_lfa(self.packer, self.CP, CC, CS, self.CAN))
 
     # LFA and HDA icons
-    if self.frame % 5 == 0 and (not lka_steering or lka_steering_long):
+    if self.frame % 5 == 0 and (not lka_steering):
       can_sends.append(hyundaicanfd.create_lfahda_cluster(self.packer, CC, self.CAN))
 
     # blinkers

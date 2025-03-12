@@ -252,7 +252,7 @@ def create_lfahda_cluster(packer, CC, CAN):
   return packer.make_can_msg("LFAHDA_CLUSTER", CAN.ECAN, values)
 
 
-def create_acc_control(packer, CP, CC, CS, CAN, accel_last, accel, stopping, set_speed, hud_control, jerk_u, jerk_l):
+def create_acc_control(packer, CP, CC, CS, CAN, accel_last, accel, stopping, set_speed, hud, jerk_u, jerk_l):
   enabled = CC.enabled
   gas_override = CC.cruiseControl.override
 
@@ -276,11 +276,11 @@ def create_acc_control(packer, CP, CC, CS, CAN, accel_last, accel, stopping, set
     #values["JerkUpperLimit"] = 3.0
     values["JerkLowerLimit"] = jerk_l if enabled else 1
     values["JerkUpperLimit"] = jerk_u
-    values["DISTANCE_SETTING"] = hud_control.leadDistanceBars # + 5
+    values["DISTANCE_SETTING"] = hud.leadDistanceBars # + 5
 
     values["SET_ME_2"] = 4
     values["SET_ME_TMP_64"] = 100
-    values["NEW_SIGNAL_3"] = 1 if hud_control.leadVisible else 0 #0  # 1이되면 차선이탈방지 알람이 뜬다고...  => 앞에 차가 있으면, 1또는 2가 됨. 전방두부?
+    values["NEW_SIGNAL_3"] = 1 if hud.leadVisible else 0 #0  # 1이되면 차선이탈방지 알람이 뜬다고...  => 앞에 차가 있으면, 1또는 2가 됨. 전방두부?
     values["ZEROS_5"] = 0
     values["TARGET_DISTANCE"] = CS.out.vEgo * 1.0 + 4.0
     values["CRUISE_STANDSTILL"] = 1 if stopping and CS.out.aEgo > -0.1 else 0
@@ -302,7 +302,7 @@ def create_acc_control(packer, CP, CC, CS, CAN, accel_last, accel, stopping, set
       "ACC_ObjDist": 1,
       "SET_ME_2": 4,
       "SET_ME_TMP_64": 100,
-      "DISTANCE_SETTING": hud_control.leadDistanceBars, # + 5,
+      "DISTANCE_SETTING": hud.leadDistanceBars, # + 5,
       "CRUISE_STANDSTILL": 1 if stopping and CS.out.cruiseState.standstill else 0,
     }
 
@@ -346,7 +346,7 @@ def create_fca_warning_light(packer, CP, CAN, frame):
   return ret
 
 
-def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle):
+def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud, disp_angle):
   main_enabled = CS.out.cruiseState.available
   cruise_enabled = CC.enabled
   lat_active = CC.latActive
@@ -365,15 +365,15 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
 
       values["SETSPEED"] = 6 if hdp_active else 3 if main_enabled else 0
       values["SETSPEED_HUD"] = 5 if hdp_active else 2 if cruise_enabled else 1
-      values["vSetDis"] = int(hud_control.setSpeed * 3.6 + 0.5)
+      values["vSetDis"] = int(hud.setSpeed * 3.6 + 0.5)
 
-      values["DISTANCE"] = 4 if hdp_active else hud_control.leadDistanceBars
-      values["DISTANCE_LEAD"] = 2 if cruise_enabled and hud_control.leadVisible else 0
+      values["DISTANCE"] = 4 if hdp_active else hud.leadDistanceBars
+      values["DISTANCE_LEAD"] = 2 if cruise_enabled and hud.leadVisible else 0
       values["DISTANCE_CAR"] = 3 if hdp_active else 2 if cruise_enabled else 1 if main_enabled else 0
       values["DISTANCE_SPACING"] = 5 if hdp_active else 1 if cruise_enabled else 0
 
       values["TARGET"] = 1 if cruise_enabled else 0
-      values["TARGET_DISTANCE"] = int(hud_control.leadDistance)
+      values["TARGET_DISTANCE"] = int(hud.leadDistance)
 
       values["BACKGROUND"] = 1 if cruise_enabled else 3 if main_enabled else 7
       values["CENTERLINE"] = 1 if lat_active else 0
@@ -401,15 +401,16 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       # DAW_ICON 0 "HIDDEN" 1 "ORANGE";
       # FCA_ALT_ICON 0 "HIDDEN" 1 "ORANGE" 3 "RED";
 
+      values["DAW_ICON"] = 0
+
       if values["ALERTS_2"] == 5:
         values["ALERTS_2"] = 0
         values["SOUNDS_2"] = 0
-        values["DAW_ICON"] = 0
 
       if values["ALERTS_3"] in [17, 26]:
         values["ALERTS_3"] = 0
 
-      if values["ALERTS_5"] in [1, 4, 5]:
+      if values["ALERTS_5"] in [1, 2, 4, 5]:
         values["ALERTS_5"] = 0
 
       curvature = {
@@ -417,14 +418,14 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
         for i in range(-15, 16)
       }
       values["LANELINE_CURVATURE"] = curvature.get(max(-15, min(int(disp_angle / 3), 15)), 14) if lat_active else 15
-      if hud_control.leftLaneDepart:
+      if hud.leftLaneDepart:
         values["LANELINE_LEFT"] = 4 if (frame // 50) % 2 == 0 else 1
       else:
-        values["LANELINE_LEFT"] = 2 if hud_control.leftLaneVisible else 0
-      if hud_control.rightLaneDepart:
+        values["LANELINE_LEFT"] = 2 if hud.leftLaneVisible else 0
+      if hud.rightLaneDepart:
         values["LANELINE_RIGHT"] = 4 if (frame // 50) % 2 == 0 else 1
       else:
-        values["LANELINE_RIGHT"] = 2 if hud_control.rightLaneVisible else 0
+        values["LANELINE_RIGHT"] = 2 if hud.rightLaneVisible else 0
 
       values["LANELINE_LEFT_POSITION"] = 15
       values["LANELINE_RIGHT_POSITION"] = 15
@@ -450,10 +451,10 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       values["FAULT_LCA"] = 0
       values["FAULT_DAS"] = 0
       values["FAULT_HDA"] = 0
+      values["FAULT_DAW"] = 0
 
       #values["FAULT_FSS"] = 0
       #values["FAULT_SLA"] = 0
-      #values["FAULT_DAW"] = 0
       #values["FAULT_SCC"] = 0
 
       # FAULT_FCA 0 "HIDDEN" 1 "CHECK_FORWARD_SIDE_SAFETY_SYSTEM" 2 "FORWARD_SIDE_SAFETY_SYSTEM_LIMITED_CAMERA_OBSCURED" 3 "FORWARD_SIDE_SAFETY_SYSTEM_LIMITED_RADAR_BLOCKED";
@@ -462,14 +463,14 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
       # FAULT_LCA 0 "HIDDEN" 1 "CHECK_LANE_CHANGE_ASSIST_FUNCTION" 2 "LANE_CHANGE_ASSIST_FUNCTION_DISABLED_CAMERA_OBSCURED" 3 "LANE_CHANGE_ASSIST_FUNCTION_DISABLED_RADAR_BLOCKED";
       # FAULT_DAS 0 "HIDDEN" 1 "CHECK_DRIVER_ASSISTANCE_SYSTEM" 2 "DRIVER_ASSISTANCE_SYSTEM_LIMITED_CAMERA_OBSCURED" 3 "DRIVER_ASSISTANCE_SYSTEM_LIMITED_RADAR_BLOCKED" 4 "DRIVER_ASSISTANCE_SYSTEM_LIMITED_CAMERA_OBSCURED_AND_RADAR_BLOCKED";
       # FAULT_HDA 0 "HIDDEN" 1 "CHECK_HIGHWAY_DRIVING_ASSIST_SYSTEM";
+      # FAULT_DAW 0 "HIDDEN" 1 "CHECK_INATTENTIVE_DRIVING_WARNING_SYSTEM" 2 "INATTENTIVE_DRIVING_WARNING_SYSTEM_DISABLED_CAMERA_OBSCURED";
 
       # FAULT_FSS 0 "HIDDEN" 1 "CHECK_FORWARD_SAFETY_SYSTEM" 2 "FORWARD_SAFETY_SYSTEM_LIMITED_CAMERA_OBSCURED" 3 "FORWARD_SAFETY_SYSTEM_LIMITED_RADAR_BLOCKED";
       # FAULT_SLA 0 "HIDDEN" 1 "CHECK_SPEED_LIMIT_SYSTEM" 2 "SPEED_LIMIT_SYSTEM_DISABLED_CAMERA_OBSCURED";
-      # FAULT_DAW 0 "HIDDEN" 1 "CHECK_INATTENTIVE_DRIVING_WARNING_SYSTEM" 2 "INATTENTIVE_DRIVING_WARNING_SYSTEM_DISABLED_CAMERA_OBSCURED";
       # FAULT_SCC 0 "HIDDEN" 1 "CHECK_SMART_CRUISE_CONTROL_SYSTEM" 2 "SMART_CRUISE_CONTROL_DISABLED_RADAR_BLOCKED";
 
-      #if left_lane_warning or right_lane_warning:
-      #  values["VIBRATE"] = 1
+      if hud.leftLaneDepart or hud.rightLaneDepart:
+        values["VIBRATE"] = 1
 
       ret.append(packer.make_can_msg("CCNC_0x162", CAN.ECAN, values))
 
@@ -483,7 +484,7 @@ def create_adrv_messages(packer, CP, CC, CS, CAN, frame, hud_control, disp_angle
 
     if frame % 5 == 0 and CS.adrv_info_200 is not None:
       values = CS.adrv_info_200
-      values["TauGapSet"] = hud_control.leadDistanceBars
+      values["TauGapSet"] = hud.leadDistanceBars
       ret.append(packer.make_can_msg("ADRV_0x200", CAN.ECAN, values))
 
     if frame % 5 == 0 and CS.adrv_info_1ea is not None:
