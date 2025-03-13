@@ -48,7 +48,7 @@ Quick start: `bash <(curl -fsSL openpilot.comma.ai)`
 
 openpilot by crwusiz branch
 ------
- * version 0.9.8 [ only comma3 or comma3x support ]
+ * version 0.9.9 [ only comma3 or comma3x support ]
  * event message, qt ui kor translate ( language select )
  * brake, gps, wifi icon and wheel, N direction icon rotate
  * add community toggle / function / simple ui

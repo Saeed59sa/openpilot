@@ -508,7 +508,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.steerTempUnavailableSilent: {
     ET.WARNING: Alert(
-      "조향제어 일시적 불가능",
+      "조향제어 일시적 사용불가",
       "",
       AlertStatus.userPrompt, AlertSize.small,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.prompt, 1.8),
@@ -749,8 +749,8 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.steerTempUnavailable: {
-    ET.SOFT_DISABLE: soft_disable_alert("조향제어 일시적 불가능"),
-    ET.NO_ENTRY: NoEntryAlert("조향제어 일시적 불가능"),
+    ET.SOFT_DISABLE: soft_disable_alert("조향제어 일시적 사용불가"),
+    ET.NO_ENTRY: NoEntryAlert("조향제어 일시적 사용불가"),
   },
 
   EventName.steerTimeLimit: {
@@ -881,6 +881,11 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   EventName.radarFault: {
     ET.SOFT_DISABLE: soft_disable_alert("레이더 오류 : 차량을 재가동 하세요"),
     ET.NO_ENTRY: NoEntryAlert("레이더 오류 : 차량을 재가동 하세요"),
+  },
+
+  EventName.radarTempUnavailable: {
+    ET.SOFT_DISABLE: soft_disable_alert("레이더 일시적 사용불가"),
+    ET.NO_ENTRY: NoEntryAlert("레이더 일시적 사용불가"),
   },
 
   # Every frame from the camera should be processed by the model. If modeld

@@ -59,6 +59,7 @@ struct OnroadEvent @0xc4fa6047f024e718 {
     pcmEnable @23;
     pcmDisable @24;
     radarFault @25;
+    radarTempUnavailable @93;
     brakeHold @26;
     parkBrake @27;
     manualRestart @28;
@@ -126,7 +127,7 @@ struct OnroadEvent @0xc4fa6047f024e718 {
     personalityChanged @91;
     aeb @92;
 
-    ding @93;
+    ding @97;
     dong @94;
 
     turningIndicatorOn @95;
@@ -735,12 +736,12 @@ struct PeripheralState {
 struct RadarState @0x9a185389d6fdd05f {
   mdMonoTime @6 :UInt64;
   carStateMonoTime @11 :UInt64;
-  radarErrors @12 :List(Car.RadarData.Error);
+  radarErrors @13 :Car.RadarData.Error;
 
   leadOne @3 :LeadData;
   leadTwo @4 :LeadData;
 
-  leadLeft @13 :LeadData;
+  leadLeft @18 :LeadData;
   leadRight @14 :LeadData;
   leadsCenter @15 : List(LeadData);
   leadsLeft @16 : List(LeadData);
@@ -775,6 +776,7 @@ struct RadarState @0x9a185389d6fdd05f {
   calPercDEPRECATED @9 :Int8;
   canMonoTimesDEPRECATED @10 :List(UInt64);
   cumLagMsDEPRECATED @5 :Float32;
+  radarErrorsDEPRECATED @12 :List(Car.RadarData.ErrorDEPRECATED);
 }
 
 struct LiveCalibrationData {
@@ -1220,6 +1222,7 @@ struct EncodeIndex {
     chffrAndroidH264DEPRECATED @3;
     fullLosslessClipDEPRECATED @4;
     frontDEPRECATED @5;
+
   }
 }
 
@@ -1256,6 +1259,7 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
   shouldStop @37: Bool;
   allowThrottle @38: Bool;
   allowBrake @39: Bool;
+
 
   solverExecutionTime @35 :Float32;
 
