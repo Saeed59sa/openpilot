@@ -54,7 +54,7 @@ inline static std::unordered_map<std::string, uint32_t> keys = {
     {"InstallDate", PERSISTENT},
     {"IsDriverViewEnabled", CLEAR_ON_MANAGER_START},
     {"IsEngaged", PERSISTENT},
-    {"IsLdwEnabled", PERSISTENT},
+    {"IsLdwEnable", PERSISTENT},
     {"IsMetric", PERSISTENT},
     {"IsOffroad", CLEAR_ON_MANAGER_START},
     {"IsOnroad", PERSISTENT},
@@ -119,7 +119,7 @@ inline static std::unordered_map<std::string, uint32_t> keys = {
     {"Version", PERSISTENT},
 
     // add
-    {"AutoLaneChangeEnabled", PERSISTENT},
+    {"AutoLaneChangeEnable", PERSISTENT},
     {"PrebuiltEnable", PERSISTENT},
     {"LoggerEnable", PERSISTENT},
     {"SelectedCar", PERSISTENT},
@@ -131,8 +131,8 @@ inline static std::unordered_map<std::string, uint32_t> keys = {
     {"DriverCameraHardwareMissing", PERSISTENT},
     {"DriverCameraOnReverse", PERSISTENT},
     {"CarName", CLEAR_ON_MANAGER_START},
-    {"HyundaiCameraSCC", PERSISTENT},
+    {"CameraSccEnable", PERSISTENT},
     {"NetworkAddress", CLEAR_ON_MANAGER_START},
     {"CruiseStateControl", PERSISTENT},
-    {"PcmCruise", PERSISTENT},
+    {"PcmCruiseEnable", PERSISTENT},
 };

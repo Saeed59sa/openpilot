@@ -92,7 +92,7 @@ class SelfdriveD:
 
     # read params
     self.is_metric = self.params.get_bool("IsMetric")
-    self.is_ldw_enabled = self.params.get_bool("IsLdwEnabled")
+    self.is_ldw_enabled = self.params.get_bool("IsLdwEnable")
 
     car_recognized = self.CP.brand != 'mock'
 
@@ -231,7 +231,7 @@ class SelfdriveD:
       if (CS.leftBlindspot and direction == LaneChangeDirection.left) or \
          (CS.rightBlindspot and direction == LaneChangeDirection.right):
         self.events.add(EventName.laneChangeBlocked)
-      elif self.sm['modelV2'].meta.autoLaneChangeEnabled and self.sm['modelV2'].meta.autoLaneChangeTimer > 0:
+      elif self.sm['modelV2'].meta.autoLaneChangeEnable and self.sm['modelV2'].meta.autoLaneChangeTimer > 0:
         self.events.add(EventName.autoLaneChange)
       else:
         if direction == LaneChangeDirection.left:

@@ -187,13 +187,13 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
 
   // main toggle
   mainToggles = new ListWidget(this);
-  mainToggles->addItem(new ParamControl("PcmCruise", tr("PcmCruise"), tr("Change the openpilot cruise engagement. use the PcmCruise method"),
+  mainToggles->addItem(new ParamControl("PcmCruiseEnable", tr("PcmCruise"), tr("Change the openpilot cruise engagement. use the PcmCruise method"),
                                         "../assets/offroad/icon_lat.png", this));
   mainToggles->addItem(new ParamControl("CruiseStateControl", tr("Cruise State Controls"), tr("Openpilot controls cruise on/off, set speed"),
                                         "../assets/offroad/icon_lat.png", this));
   mainToggles->addItem(new ParamControl("IsHda2", tr("CANFD Car HDA2"), tr("Highway Drive Assist 2, turn it on"),
                                         "../assets/offroad/icon_hda.png", this));
-  mainToggles->addItem(new ParamControl("HyundaiCameraSCC", tr("CameraSCC"), tr("HDA1 CameraSCC CAR, HDA2 Connect the ADAS ECAN line to CAMERA modify, turn it on"),
+  mainToggles->addItem(new ParamControl("CameraSccEnable", tr("CameraSCC"), tr("HDA1 CameraSCC CAR, HDA2 Connect the ADAS ECAN line to CAMERA modify, turn it on"),
                                         "../assets/offroad/icon_hda.png", this));
   mainToggles->addItem(new ParamControl("DriverCameraOnReverse", tr("Driver Camera On Reverse"), tr("Displays the driver camera when in reverse"),
                                         "../assets/img_driver_face_static.png", this));

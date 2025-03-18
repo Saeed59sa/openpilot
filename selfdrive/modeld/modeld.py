@@ -320,7 +320,7 @@ def main(demo=False):
       drivingdata_send.drivingModelData.meta.laneChangeState = DH.lane_change_state
       drivingdata_send.drivingModelData.meta.laneChangeDirection = DH.lane_change_direction
 
-      modelv2_send.modelV2.meta.autoLaneChangeEnabled = DH.auto_lane_change_enabled
+      modelv2_send.modelV2.meta.autoLaneChangeEnable = DH.auto_lane_change_enable
       modelv2_send.modelV2.meta.autoLaneChangeTimer = int(ALC_START_TIME) - int(DH.auto_lane_change_timer)
 
       fill_pose_msg(posenet_send, model_output, meta_main.frame_id, vipc_dropped_frames, meta_main.timestamp_eof, live_calib_seen)

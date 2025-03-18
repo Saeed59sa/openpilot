@@ -290,7 +290,7 @@ class LongitudinalMpc:
     self.xState = XState.cruise
     self.startSignCount = 0
     self.stopSignCount = 0
-    self.actual_stop_distance = 0.0
+    self.adjusted_stop_distance = 0.0
 
     for i in range(N+1):
       self.solver.set(i, 'x', np.zeros(X_DIM))
@@ -526,7 +526,7 @@ class LongitudinalMpc:
     v = model.velocity.x
 
     self.xStop = self._update_stop_dist(x[31])
-    stop_model_x = self.xStop
+    filtered_stop_distance = self.xStop
 
     lead_detected = radarstate.leadOne.status
     d_rel = radarstate.leadOne.dRel if lead_detected else 1000
@@ -535,7 +535,7 @@ class LongitudinalMpc:
     if self.xState == XState.e2eStopped:
       if carstate.gasPressed:
         self.xState = XState.e2ePrepare
-      elif lead_detected and (radarstate.leadOne.dRel - stop_model_x) < 2.0:
+      elif lead_detected and (radarstate.leadOne.dRel - filtered_stop_distance) < 2.0:
         self.xState = XState.lead
       elif self.stopping_count == 0:
         if self.trafficState == TrafficState.green and not carstate.leftBlinker:
@@ -547,7 +547,7 @@ class LongitudinalMpc:
       if carstate.gasPressed:  # Stop detecting traffic signal for 10 seconds
         self.xState = XState.e2eCruise
         self.traffic_starting_count = 10.0 / DT_MDL
-      elif lead_detected and (radarstate.leadOne.dRel - stop_model_x) < 2.0:
+      elif lead_detected and (radarstate.leadOne.dRel - filtered_stop_distance) < 2.0:
         self.xState = XState.lead
       else:
         if self.trafficState == TrafficState.green:
@@ -556,8 +556,8 @@ class LongitudinalMpc:
           self.trafficStopAdjustRatio = np.interp(v_ego_kph, [0, 100], [1.0, 0.7])
           stop_dist = self.xStop * np.interp(self.xStop, [0, 100], [1.0, self.trafficStopAdjustRatio])
           if stop_dist > 10.0:
-            self.actual_stop_distance = stop_dist
-          stop_model_x = 0
+            self.adjusted_stop_distance = stop_dist
+          filtered_stop_distance = 0
           if v_ego < 0.3:
             self.stopping_count = 0.5 / DT_MDL
             self.xState = XState.e2eStopped
@@ -566,8 +566,8 @@ class LongitudinalMpc:
         self.xState = XState.lead
       elif v_ego_kph < 5.0 and self.trafficState != TrafficState.green:
         self.xState = XState.e2eStop
-        self.actual_stop_distance = 5.0 #2.0
-      elif v_ego_kph > 5.0: # and stop_model_x > 30.0:
+        self.adjusted_stop_distance = 5.0 #2.0
+      elif v_ego_kph > 5.0: # and filtered_stop_distance > 30.0:
         self.xState = XState.e2eCruise
     else: #XState.lead, XState.cruise, XState.e2eCruise
       self.traffic_starting_count = max(0, self.traffic_starting_count - 1)
@@ -575,50 +575,49 @@ class LongitudinalMpc:
         self.xState = XState.lead
       elif self.trafficState == TrafficState.red and abs(carstate.steeringAngleDeg) < 30 and self.traffic_starting_count == 0:
         self.xState = XState.e2eStop
-        self.actual_stop_distance = self.xStop
+        self.adjusted_stop_distance = self.xStop
       else:
         self.xState = XState.e2eCruise
 
     if self.trafficState in [TrafficState.off, TrafficState.green] or self.xState not in [XState.e2eStop, XState.e2eStopped]:
-      stop_model_x = 1000.0
+      filtered_stop_distance = 1000.0
 
-    self.actual_stop_distance = max(0, self.actual_stop_distance - (v_ego * DT_MDL))
+    self.adjusted_stop_distance = max(0, self.adjusted_stop_distance - (v_ego * DT_MDL))
 
-    if stop_model_x == 1000.0: ##  e2eCruise, lead
-      self.actual_stop_distance = 0.0
-    elif self.actual_stop_distance > 0: ## e2eStop, e2eStopped
-      stop_model_x = 0.0
+    if filtered_stop_distance == 1000.0: ##  e2eCruise, lead
+      self.adjusted_stop_distance = 0.0
+    elif self.adjusted_stop_distance > 0: ## e2eStop, e2eStopped
+      filtered_stop_distance = 0.0
 
-    stop_dist = stop_model_x + self.actual_stop_distance
-    stop_dist = max(stop_dist, v_ego ** 2 / (COMFORT_BRAKE * 2))
+    stop_distance = filtered_stop_distance + self.adjusted_stop_distance
+    stop_distance = max(stop_distance, v_ego ** 2 / (COMFORT_BRAKE * 2))
 
-    return v_cruise, stop_dist
+    return v_cruise, stop_distance
 
-  def _update_stop_dist(self, stop_dist):
-    stop_dist = self.xStopFilter.process(stop_dist, median = True)
-    stop_dist = self.xStopFilter2.process(stop_dist)
-    return stop_dist
+  def _update_stop_dist(self, stop_distance):
+    stop_distance = self.xStopFilter.process(stop_distance, median = True)
+    stop_distance = self.xStopFilter2.process(stop_distance)
+    return stop_distance
 
   def _check_model_stopping(self, v, v_ego, a_ego, model_x, y, d_rel):
     v_ego_kph = v_ego * CV.MS_TO_KPH
     model_v = self.vFilter.process(v[-1])
-    startSign = model_v > 5.0 or model_v > (v[0] + 2)
+    start_sign = model_v > 5.0 or model_v > (v[0] + 2)
 
     if v_ego_kph < 1.0:
-      stopSign = model_x < 20.0 and model_v < 10.0
+      stop_sign = model_x < 20.0 and model_v < 10.0
     elif v_ego_kph < 82.0:
-      stopSign = (model_x < d_rel - 3.0 and
+      stop_sign = (model_x < d_rel - 3.0 and
                   model_x < np.interp(v[0], [60/3.6, 80/3.6], [120.0, 150]) and
                   ((model_v < 3.0) or (model_v < v[0]*0.7)) and
                   abs(y[-1]) < 5.0)
-      # 정상주행중 감속하는 경우(카메라 감속등), 오감지가 많음.
       if self.xState == XState.e2eCruise and a_ego < -1.0:
-        stopSign = False
+        stop_sign = False
     else:
-      stopSign = False
+      stop_sign = False
 
-    self.stopSignCount = self.stopSignCount + 1 if stopSign else 0
-    self.startSignCount = self.startSignCount + 1 if startSign and not stopSign else 0
+    self.stopSignCount = self.stopSignCount + 1 if stop_sign else 0
+    self.startSignCount = self.startSignCount + 1 if start_sign and not stop_sign else 0
 
     if self.stopSignCount * DT_MDL > 0.0:
       self.trafficState = TrafficState.red

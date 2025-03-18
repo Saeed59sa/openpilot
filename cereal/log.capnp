@@ -1142,7 +1142,7 @@ struct ModelDataV2 {
     laneChangeState @8 :LaneChangeState;
     laneChangeDirection @9 :LaneChangeDirection;
 
-    autoLaneChangeEnabled @10 :Bool;
+    autoLaneChangeEnable @10 :Bool;
     autoLaneChangeTimer @11 :Int8;
 
     # deprecated

@@ -410,11 +410,8 @@ static bool hyundai_canfd_fwd_hook(int bus_num, int addr) {
   // SCC_CONTROL and ADRV_0x160 for camera SCC cars, we send our own longitudinal commands and to show FCA light
   //bool is_scc_msg = (((addr == 0x1a0) || (!is_ccnc_msg && (addr == 0x160))) && hyundai_longitudinal && !hyundai_canfd_lka_steering);
 
-  // mdps message
-  bool is_mdps_msg = (is_ccnc_msg && (addr == 0xea));
-
   if (bus_num == 0) {
-    block_msg = is_mdps_msg;
+    block_msg = ((is_ccnc_msg) && (((addr) == 0xEA) || ((addr) == 0x7C4))); // mdps || vehicle diagnostics
   } else if (bus_num == 2) {
     //block_msg = is_lka_msg || is_lfa_msg || is_lfahda_msg || is_scc_msg || is_ccnc_msg;
 
@@ -470,8 +467,6 @@ static safety_config hyundai_canfd_init(uint16_t param) {
     HYUNDAI_CANFD_CRUISE_BUTTON_TX_MSGS(2)
     HYUNDAI_CANFD_LFA_STEERING_COMMON_TX_MSGS(0)
     HYUNDAI_CANFD_SCC_CONTROL_COMMON_TX_MSGS(0, false)
-    {0x161, 0, 32, false},  // CCNC_0x161
-    {0x162, 0, 32, false},  // CCNC_0x162
   };
 
   static const CanMsg HYUNDAI_CANFD_LFA_STEERING_LONG_TX_MSGS[] = {
@@ -482,8 +477,6 @@ static safety_config hyundai_canfd_init(uint16_t param) {
     HYUNDAI_CANFD_LFA_STEERING_ALT_TX_MSGS(0)
     {0x7D0, 0,  8, false},  // tester present for radar ECU disable
     {0x160, 1, 16, false},  // ADRV_0x160
-    {0x161, 0, 32, false},  // CCNC_0x161
-    {0x162, 0, 32, false},  // CCNC_0x162
   };
 
 #define HYUNDAI_CANFD_LFA_STEERING_CAMERA_SCC_TX_MSGS(longitudinal) \

@@ -272,28 +272,25 @@ class HyundaiJerk:
     self.jerk_u = self.jerk_l = 0.0
     self.cb_upper = self.cb_lower = 0.0
     self.jerk_u_min = 0.5
+    self.jerk_max = 5.0
 
   def make_jerk(self, CP, CS, accel, actuators):
     if actuators.longControlState == LongCtrlState.stopping:
       self.jerk = self.jerk_u_min / 2 - CS.out.aEgo
     else:
-      jerk = actuators.jerk if actuators.longControlState == LongCtrlState.pid else 0.0
-      #a_error = actuators.aTargetNow - CS.out.aEgo
-      self.jerk = jerk #+ a_error
+      self.jerk = actuators.jerk if actuators.longControlState == LongCtrlState.pid else 0.0
 
-    jerk_max_l = 5.0
-    jerk_max_u = jerk_max_l
     if actuators.longControlState == LongCtrlState.off:
-      self.jerk_u = jerk_max_u
-      self.jerk_l = jerk_max_l
+      self.jerk_u = self.jerk_max
+      self.jerk_l = self.jerk_max
       self.cb_upper = self.cb_lower = 0.0
     else:
       if CP.flags & HyundaiFlags.CANFD:
-        self.jerk_u = min(max(self.jerk_u_min, self.jerk * 2.0), jerk_max_u)
-        self.jerk_l = min(max(1.0, -self.jerk * 4.0), jerk_max_l)
+        self.jerk_u = min(max(self.jerk_u_min, self.jerk * 2.0), self.jerk_max)
+        self.jerk_l = min(max(1.0, -self.jerk * 4.0), self.jerk_max)
         self.cb_upper = self.cb_lower = 0.0
       else:
-        self.jerk_u = min(max(self.jerk_u_min, self.jerk * 2.0), jerk_max_u)
-        self.jerk_l = min(max(1.0, -self.jerk * 2.0), jerk_max_l)
+        self.jerk_u = min(max(self.jerk_u_min, self.jerk * 2.0), self.jerk_max)
+        self.jerk_l = min(max(1.0, -self.jerk * 2.0), self.jerk_max)
         self.cb_upper = np.clip(0.9 + accel * 0.2, 0, 1.2)
         self.cb_lower = np.clip(0.8 + accel * 0.2, 0, 1.2)

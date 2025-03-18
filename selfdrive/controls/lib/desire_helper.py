@@ -44,7 +44,7 @@ class DesireHelper:
     self.prev_one_blinker = False
     self.desire = log.Desire.none
 
-    self.auto_lane_change_enabled = Params().get_bool('AutoLaneChangeEnabled')
+    self.auto_lane_change_enable = Params().get_bool('AutoLaneChangeEnable')
     self.auto_lane_change_timer = 0.0
     self.prev_torque_applied = False
 
@@ -71,7 +71,7 @@ class DesireHelper:
         torque_applied = carstate.steeringPressed and\
                          ((carstate.steeringTorque > 0 and self.lane_change_direction == LaneChangeDirection.left) or
                           (carstate.steeringTorque < 0 and self.lane_change_direction == LaneChangeDirection.right)) or \
-                         self.auto_lane_change_enabled and (ALC_START_TIME + 0.25) > self.auto_lane_change_timer > ALC_START_TIME
+                         self.auto_lane_change_enable and (ALC_START_TIME + 0.25) > self.auto_lane_change_timer > ALC_START_TIME
         blindspot_detected = ((carstate.leftBlindspot and self.lane_change_direction == LaneChangeDirection.left) or
                               (carstate.rightBlindspot and self.lane_change_direction == LaneChangeDirection.right))
 

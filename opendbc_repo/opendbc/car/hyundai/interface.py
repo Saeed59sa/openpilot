@@ -29,7 +29,7 @@ class CarInterface(CarInterfaceBase):
   def _get_params(ret: structs.CarParams, candidate, fingerprint, car_fw, experimental_long, docs) -> structs.CarParams:
     ret.brand = "hyundai"
 
-    camera_scc = Params().get_bool("HyundaiCameraSCC")
+    camera_scc = Params().get_bool("CameraSccEnable")
 
     if camera_scc:
       ret.flags |= HyundaiFlags.CAMERA_SCC.value
@@ -162,7 +162,7 @@ class CarInterface(CarInterfaceBase):
     # Common longitudinal control setup
 
     ret.experimentalLongitudinalAvailable = True  # candidate not in (CANFD_UNSUPPORTED_LONGITUDINAL_CAR | CANFD_RADAR_SCC_CAR)
-    ret.pcmCruise = Params().get_bool("PcmCruise")
+    ret.pcmCruise = Params().get_bool("PcmCruiseEnable")
 
     ret.radarUnavailable = RADAR_START_ADDR not in fingerprint[1] or Bus.radar not in DBC[ret.carFingerprint]
     ret.openpilotLongitudinalControl = (experimental_long and ret.experimentalLongitudinalAvailable) or camera_scc
@@ -211,7 +211,7 @@ class CarInterface(CarInterfaceBase):
       return self.create_buttons_can(button)
 
   def create_buttons_can(self, button):
-    sccbus = 2 if self.CP.flags & HyundaiFlags.CAMERA_SCC.value else 0
+    sccbus = 2 if self.CP.flags & HyundaiFlags.CAMERA_SCC else 0
     values = copy.copy(self.CS.clu11)
     values["CF_Clu_CruiseSwState"] = button
     values["CF_Clu_AliveCnt1"] = (values["CF_Clu_AliveCnt1"] + 1) % 0x10

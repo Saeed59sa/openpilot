@@ -34,13 +34,13 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
       "../assets/img_experimental_white.svg",
     },
     {
-      "IsLdwEnabled",
+      "IsLdwEnable",
       tr("Enable Lane Departure Warnings"),
       tr("Receive alerts to steer back into the lane when your vehicle drifts over a detected lane line without a turn signal activated while driving over 31 mph (50 km/h)."),
       "../assets/offroad/icon_ldws.png",
     },
     {
-      "AutoLaneChangeEnabled",
+      "AutoLaneChangeEnable",
       tr("Enable AutoLaneChange"),
       tr("Operation of the turn signal at 60㎞/h speed will result in a short change of the vehicle"),
       "../assets/offroad/icon_lca.png",

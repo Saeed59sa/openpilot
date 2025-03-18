@@ -47,13 +47,13 @@ def manager_init() -> None:
 
     # add
     ("SshEnabled", "1"),
-    ("IsLdwEnabled", "1"),
-    ("AutoLaneChangeEnabled", "1"),
+    ("IsLdwEnable", "1"),
+    ("AutoLaneChangeEnable", "1"),
     ("PrebuiltEnable", "0"),
     ("LoggerEnable", "1"),
     ("RadarTrackEnable", "0"),
-    ("HyundaiCameraSCC", "0"),
-    ("PcmCruise", "0"),
+    ("CameraSccEnable", "0"),
+    ("PcmCruiseEnable", "0"),
   ]
 
   if params.get_bool("RecordFrontLock"):
