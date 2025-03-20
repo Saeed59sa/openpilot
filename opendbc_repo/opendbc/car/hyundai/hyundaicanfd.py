@@ -72,15 +72,14 @@ def create_steering_messages(packer, CP, CC, CS, CAN, lat_active, apply_torque, 
         "STEER_REQ": 0,  # we don't use torque
         # this goes 0 when LFA lane changes, 3 when LKA_ICON is >=green
         "LKA_AVAILABLE": 3 if lat_active else 0,
-        "LKAS_ANGLE_CMD": 0,
-        "LKAS_ANGLE_ACTIVE": 0,
-        "LKAS_ANGLE_MAX_TORQUE": 0,
+        #"LKAS_ANGLE_CMD": 0,
+        #"LKAS_ANGLE_ACTIVE": 0,
+        #"LKAS_ANGLE_MAX_TORQUE": 0,
       }
 
-      apply_angle = np.clip(apply_angle, -119, 119)
       values = {
-        "LKAS_ANGLE_CMD": apply_angle if lat_active else 0,
-        "LKAS_ANGLE_ACTIVE": 2 if abs(CS.out.steeringAngleDeg) < 110.0 and lat_active else 1,
+        "LKAS_ANGLE_CMD": apply_angle,
+        "LKAS_ANGLE_ACTIVE": 2 if lat_active else 1,
         "LKAS_ANGLE_MAX_TORQUE": angle_max_torque if lat_active else 0,
       }
       ret.append(packer.make_can_msg("LFA_ALT", CAN.ECAN, values))
@@ -205,6 +204,7 @@ def create_acc_control(packer, CP, CC, CS, CAN, accel_last, accel, stopping, set
 
   if camerascc:
     values = CS.cruise_info
+    values.update({s: CS.cruise_info[s] for s in ["ACC_ObjDist", "ACC_ObjRelSpd"]})
     values |= {
       "ACCMode": 0 if not enabled else (2 if gas_override else 1),
       "MainMode_ACC": 1,
