@@ -7,3 +7,6 @@
 [submodule "msgq_repo"]
 	path = msgq_repo
 	url = https://github.com/commaai/msgq
+[submodule "rednose_repo"]
+	path = rednose_repo
+	url = https://github.com/commaai/rednose
