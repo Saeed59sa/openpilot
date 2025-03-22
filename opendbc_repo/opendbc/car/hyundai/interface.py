@@ -196,12 +196,6 @@ class CarInterface(CarInterfaceBase):
     if CP.flags & HyundaiFlags.ENABLE_BLINKERS:
       disable_ecu(can_recv, can_send, bus=CanBus(CP).ECAN, addr=0x7B1, com_cont_req=b'\x28\x83\x01')
 
-  @staticmethod
-  def get_params_adjust_set_speed(CP):
-    if CP.flags & HyundaiFlags.CANFD:
-      return [16], [20]
-    return [16, 20], [12, 14, 16, 18]
-
   def create_buttons(self, button):
     if self.CP.flags & HyundaiFlags.CANFD:
       if self.CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS:
@@ -211,11 +205,11 @@ class CarInterface(CarInterfaceBase):
       return self.create_buttons_can(button)
 
   def create_buttons_can(self, button):
-    sccbus = 2 if self.CP.flags & HyundaiFlags.CAMERA_SCC else 0
     values = copy.copy(self.CS.clu11)
     values["CF_Clu_CruiseSwState"] = button
     values["CF_Clu_AliveCnt1"] = (values["CF_Clu_AliveCnt1"] + 1) % 0x10
-    return self.CC.packer.make_can_msg("CLU11", sccbus, values)
+    bus = 2 if self.CP.flags & HyundaiFlags.CAMERA_SCC else 0
+    return self.CC.packer.make_can_msg("CLU11", bus, values)
 
   def create_buttons_canfd(self, button):
     values = {

@@ -134,7 +134,7 @@ class CarController(CarControllerBase):
       if self.CP.flags & HyundaiFlags.ENABLE_BLINKERS:
         can_sends.append(make_tester_present_msg(0x7b1, self.CAN.ECAN, suppress_response=True))
 
-    # *** CAN/CAN FD specific ***
+    # CAN-FD platforms
     if self.CP.flags & HyundaiFlags.CANFD:
       can_sends.extend(self.create_canfd_msgs(apply_steer_req, apply_torque, set_speed_in_units, accel,
                                               stopping, hud_control, actuators, CS, CC))
@@ -207,6 +207,7 @@ class CarController(CarControllerBase):
     can_sends = []
 
     lka_steering = self.CP.flags & HyundaiFlags.CANFD_LKA_STEERING or Params().get_bool("IsHda2")
+    lka_steering_long = lka_steering and self.CP.openpilotLongitudinalControl
     camera_scc = self.CP.flags & HyundaiFlags.CAMERA_SCC
 
     # steering control
@@ -218,7 +219,7 @@ class CarController(CarControllerBase):
       can_sends.append(hyundaicanfd.create_suppress_lfa(self.packer, self.CP, CC, CS, self.CAN))
 
     # LFA and HDA icons
-    if self.frame % 5 == 0 and (not lka_steering):
+    if self.frame % 5 == 0 and (not lka_steering or lka_steering_long):
       can_sends.append(hyundaicanfd.create_lfahda_cluster(self.packer, CC, self.CAN))
 
     # blinkers
@@ -226,14 +227,13 @@ class CarController(CarControllerBase):
       can_sends.extend(hyundaicanfd.create_spas_messages(self.packer, CC, self.CAN))
 
     if self.CP.openpilotLongitudinalControl:
-      self.hyundai_jerk.make_jerk(self.CP, CS, accel, actuators)
-
       if lka_steering:
         can_sends.extend(hyundaicanfd.create_adrv_messages(self.packer, self.CP, CC, CS, self.CAN, self.frame,
                                                            hud_control, self.apply_angle_last))
       else:
         can_sends.extend(hyundaicanfd.create_fca_warning_light(self.packer, self.CP, self.CAN, self.frame))
       if self.frame % 2 == 0:
+        self.hyundai_jerk.make_jerk(self.CP, CS, accel, actuators)
         can_sends.append(hyundaicanfd.create_acc_control(self.packer, self.CP, CC, CS, self.CAN, self.accel_last,
                                                          accel, stopping, set_speed_in_units, hud_control,
                                                          self.hyundai_jerk.jerk_u, self.hyundai_jerk.jerk_l))
@@ -253,11 +253,10 @@ class CarController(CarControllerBase):
 
         # cruise standstill resume
         elif CC.cruiseControl.resume:
-          if self.CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS:
-            if CS.canfd_buttons:
-              for _ in range(20):
-                can_sends.append(hyundaicanfd.create_buttons_canfd_alt(self.packer, self.CP, self.CAN, Buttons.RES_ACCEL, CS.canfd_buttons))
-              self.last_button_frame = self.frame
+          if self.CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS and CS.canfd_buttons:
+            for _ in range(20):
+              can_sends.append(hyundaicanfd.create_buttons_canfd_alt(self.packer, self.CP, self.CAN, CS.buttons_counter + 1, Buttons.RES_ACCEL))
+            self.last_button_frame = self.frame
           else:
             for _ in range(20):
               can_sends.append(hyundaicanfd.create_buttons(self.packer, self.CP, self.CAN, CS.buttons_counter + 1, Buttons.RES_ACCEL))

@@ -270,10 +270,6 @@ class CarInterfaceBase(ABC):
 
     return ret
 
-  @staticmethod
-  def get_params_adjust_set_speed(CP):
-    return [10], [20]
-
   def create_buttons(self, button):
     return None
 

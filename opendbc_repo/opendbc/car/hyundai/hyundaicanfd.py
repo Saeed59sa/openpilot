@@ -131,20 +131,17 @@ def create_buttons(packer, CP, CAN, cnt, btn):
     "SET_ME_1": 1,
     "CRUISE_BUTTONS": btn,
   }
-
   bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_LKA_STEERING else CAN.CAM
   return packer.make_can_msg("CRUISE_BUTTONS", bus, values)
 
 
-def create_buttons_canfd_alt(packer, CP, CAN, button, canfd_buttons):
-  try:
-    values = copy.copy(canfd_buttons)
-    values["CRUISE_BUTTONS"] = button
-    values["COUNTER"] = (values["COUNTER"] + 1) % 256
-    bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_LKA_STEERING else CAN.CAM
-    return packer.make_can_msg("CRUISE_BUTTONS_ALT", bus, values)
-  except:
-    return None
+def create_buttons_canfd_alt(packer, CP, CAN, cnt, btn):
+  values = {
+    "COUNTER": cnt % 256,
+    "CRUISE_BUTTONS": btn,
+  }
+  bus = CAN.ECAN if CP.flags & HyundaiFlags.CANFD_LKA_STEERING else CAN.CAM
+  return packer.make_can_msg("CRUISE_BUTTONS_ALT", bus, values)
 
 
 def create_acc_cancel(packer, CP, CS, CAN):

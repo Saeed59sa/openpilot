@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-from opendbc.car.hyundai.values import Buttons
+from opendbc.car.hyundai.values import Buttons, HyundaiFlags
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
 from openpilot.selfdrive.car.cruise import V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_INITIAL, V_CRUISE_UNSET, VCruiseHelper
@@ -46,7 +46,8 @@ class SpeedController:
     self.alive_index = 0
     self.wait_index = 0
     self.alive_count = 0
-    self.wait_count_list, self.alive_count_list = CI.get_params_adjust_set_speed(CP)
+    self.wait_count_list = [16] if CP.flags & HyundaiFlags.CANFD else [16, 20]
+    self.alive_count_list = [20] if CP.flags & HyundaiFlags.CANFD else [12, 14, 16, 18]
     random.shuffle(self.wait_count_list)
     random.shuffle(self.alive_count_list)
 
