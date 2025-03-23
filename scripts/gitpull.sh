@@ -29,6 +29,7 @@ if ping -c 3 8.8.8.8 > /dev/null 2>&1; then
   elif [ "${LANG}" = "main_en" ]; then
     set_time_settings America/New_York
   fi
+  SUBMODULE=$(git config --global submodule.recurse)
   SSL_VERIFY=$(git config --global http.sslVerify)
   BRANCH=$(git rev-parse --abbrev-ref HEAD)
   BRANCH_GONE=$(git branch -vv | grep ': gone]' | awk '{print $1}')
@@ -42,6 +43,11 @@ if ping -c 3 8.8.8.8 > /dev/null 2>&1; then
   if [ "$SSL_VERIFY" != "false" ]; then
     git config --global http.sslVerify false
     echo "http.ssl verify false"
+  fi
+
+  if [ "$SUBMODULE" != "true" ]; then
+    git config --global submodule.recurse true
+    echo "submodule.recurse true"
   fi
 
   git fetch --all --prune
