@@ -132,7 +132,6 @@ inline static std::unordered_map<std::string, uint32_t> keys = {
     {"DriverCameraOnReverse", PERSISTENT},
     {"CarName", CLEAR_ON_MANAGER_START},
     {"CameraSccEnable", PERSISTENT},
-    {"NetworkAddress", CLEAR_ON_MANAGER_START},
     {"CruiseStateControl", PERSISTENT},
     {"PcmCruiseEnable", PERSISTENT},
 };

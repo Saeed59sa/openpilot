@@ -134,7 +134,6 @@ void Sidebar::paintEvent(QPaintEvent *event) {
   p.setFont(InterFont(30));
   p.setPen(QColor(0xff, 0xff, 0xff));
   const QRect r2 = QRect(0, 267, event->rect().width(), 50);
-  Params().putNonBlocking("NetworkAddress", uiState()->wifi->getIp4Address().toStdString());
 
   if (net_type == network_type[cereal::DeviceState::NetworkType::WIFI])
     p.drawText(r2, Qt::AlignCenter, uiState()->wifi->getIp4Address());

@@ -213,9 +213,9 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   }
 
   if (gpsSatelliteCount == 0) {
-    infoGps = "🛰️[ No Gps Signal ]";
+    infoGps = "🛰️ No Gps Signal";
   } else {
-    infoGps = QString::asprintf("🛰️[ Alt(%s) Acc(%s) Sat(%d) ]",
+    infoGps = QString::asprintf("🛰️ Alt(%s) Acc(%s) Sat(%d)",
                                 altitudeStr.toStdString().c_str(),
                                 accuracyStr.toStdString().c_str(),
                                 gpsSatelliteCount);
@@ -288,22 +288,13 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   }
 
   // bottom left info
-  QString infoText = QString("[%1]").arg(QString::fromStdString(params.get("CarName")));
+  QString infoText = QString("%1").arg(QString::fromStdString(params.get("CarName")));
 
   x = surface_rect.left() + 30;
   y = surface_rect.height() - 30;
 
   p.setFont(InterFont(30));
   drawTextColorLR(p, x, y, infoText, whiteColor(200), "L");
-
-  // bottom right info
-  QString infoNetworkAddress = QString("[%1]").arg(QString::fromStdString(params.get("NetworkAddress")));
-
-  x = surface_rect.right() - 230;
-  y = surface_rect.height() - 30;
-
-  p.setFont(InterFont(30));
-  drawTextColorLR(p, x, y, infoNetworkAddress, orangeColor(200), "R");
 
   // turnsignal
   if (blink_wait > 0) {
@@ -336,7 +327,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
 }
 
 void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
-  // max speed, apply speed, speed limit sign init
+  // max speed, apply speed, speed limit sign
   float limit_speed = 0;
   float left_dist = 0;
 
@@ -363,144 +354,62 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
     leftDistStr = QString::asprintf("%.0f m", left_dist);
   }
 
-  int rect_width = 300;
-  int rect_height = 188;
+  QRect speed_box(30, 30, 300, 188);
 
-  QRect max_speed_rect(30, 30, rect_width, rect_height);
   p.setPen(Qt::NoPen);
   p.setBrush(blackColor(100));
-  p.drawRoundedRect(max_speed_rect, 32, 32);
-  //drawRoundedRect(p, max_speed_rect, top_radius, top_radius, bottom_radius, bottom_radius);
+  p.drawRoundedRect(speed_box, 32, 32);
+
+  QColor speedColor = whiteColor(200);
+  if (limit_speed > 0 && status != STATUS_DISENGAGED && status != STATUS_OVERRIDE) {
+    speedColor = interpColor(
+      cruise_speed,
+      {limit_speed + 5, limit_speed + 15, limit_speed + 25},
+      {whiteColor(200), orangeColor(200), redColor(200)}
+    );
+  }
 
   // max speed
   QString cruiseSpeedStr = QString::number(std::nearbyint(cruise_speed));
-  QRect max_speed_outer(max_speed_rect.left() + 10, max_speed_rect.top() + 10, 140, 168);
+  QRect max_speed_outer(speed_box.left() + 10, speed_box.top() + 10, 140, 168);
   p.setPen(QPen(whiteColor(200), 2));
   p.drawRoundedRect(max_speed_outer, 16, 16);
 
-  if (limit_speed > 0 && status != STATUS_DISENGAGED && status != STATUS_OVERRIDE) {
-    p.setPen(interpColor(
-      cruise_speed,
-      {limit_speed + 5, limit_speed + 15, limit_speed + 25},
-      {whiteColor(), orangeColor(), redColor()}
-    ));
-  } else {
-    p.setPen(whiteColor());
-  }
-  p.setFont(InterFont(65));
-  QRect speed_rect = getTextRect(p, Qt::AlignCenter, cruiseSpeedStr);
-  speed_rect.moveCenter({max_speed_outer.center().x(), 0});
-  speed_rect.moveTop(max_speed_rect.top() + 90);
-  p.drawText(speed_rect, Qt::AlignCenter, is_cruise_set ? cruiseSpeedStr : "─");
-
-  if (status == STATUS_DISENGAGED) {
-    p.setPen(whiteColor());
-  } else if (limit_speed > 0) {
-    p.setPen(interpColor(
-      cruise_speed,
-      {limit_speed + 5, limit_speed + 15, limit_speed + 25},
-      {greenColor(), lightorangeColor(), pinkColor()}
-    ));
-  } else {
-    p.setPen(greenColor());
-  }
-  p.setFont(InterFont(35, QFont::Bold));
-  QRect max_rect = getTextRect(p, Qt::AlignCenter, "MAX");
-  max_rect.moveCenter({max_speed_outer.center().x(), 0});
-  max_rect.moveTop(max_speed_rect.top() + 25);
-  p.drawText(max_rect, Qt::AlignCenter, tr("MAX"));
+  drawTextCenter(p, {max_speed_outer.center().x(), speed_box.top() + 50}, 35, tr("MAX"), whiteColor(200));
+  drawTextCenter(p, {max_speed_outer.center().x(), speed_box.top() + 120}, 65, is_cruise_set ? cruiseSpeedStr : "─", speedColor);
 
   // apply speed
   QString applySpeedStr = QString::number(std::nearbyint(apply_speed));
-  QRect apply_speed_outer(max_speed_rect.right() - 150, max_speed_rect.top() + 10, 140, 168);
+  QRect apply_speed_outer(speed_box.right() - 150, speed_box.top() + 10, 140, 168);
   p.setPen(QPen(whiteColor(200), 2));
   p.drawRoundedRect(apply_speed_outer, 16, 16);
 
-  if (limit_speed > 0 && status != STATUS_DISENGAGED && status != STATUS_OVERRIDE) {
-    p.setPen(interpColor(
-      apply_speed,
-      {limit_speed + 5, limit_speed + 15, limit_speed + 25},
-      {whiteColor(), orangeColor(), redColor()}
-    ));
-  } else {
-    p.setPen(whiteColor());
-  }
-  p.setFont(InterFont(65));
-  QRect apply_rect = getTextRect(p, Qt::AlignCenter, applySpeedStr);
-  apply_rect.moveCenter({apply_speed_outer.center().x(), 0});
-  apply_rect.moveTop(max_speed_rect.top() + 90);
-  p.drawText(apply_rect, Qt::AlignCenter, is_cruise_set ? applySpeedStr : "─");
-
-  if (status == STATUS_DISENGAGED) {
-    p.setPen(whiteColor());
-  } else if (limit_speed > 0) {
-    p.setPen(interpColor(
-      apply_speed,
-      {limit_speed + 5, limit_speed + 15, limit_speed + 25},
-      {greenColor(), lightorangeColor(), pinkColor()}
-    ));
-  } else {
-    p.setPen(greenColor());
-  }
-  p.setFont(InterFont(35, QFont::Bold));
-  QRect long_rect = getTextRect(p, Qt::AlignCenter, "SET");
-  long_rect.moveCenter({apply_speed_outer.center().x(), 0});
-  long_rect.moveTop(max_speed_rect.top() + 25);
-  p.drawText(long_rect, Qt::AlignCenter, tr("SET"));
+  drawTextCenter(p, {apply_speed_outer.center().x(), speed_box.top() + 50}, 35, tr("SET"), whiteColor(200));
+  drawTextCenter(p, {apply_speed_outer.center().x(), speed_box.top() + 120}, 65, is_cruise_set ? applySpeedStr : "─", speedColor);
 
   // speedlimit sign
-  if (limit_speed > 0 && left_dist > 0) {
-    QPoint center(max_speed_rect.center().x(), max_rect.top() + 280);
+  if (limit_speed > 0 || roadLimitSpeed > 0) {
+    QPoint center(speed_box.center().x(), speed_box.top() + 280);
+    const QList<QPair<int, QColor>> circles = {
+        {92, whiteColor()},
+        {86, redColor()},
+        {66, whiteColor()}
+    };
+
     p.setPen(Qt::NoPen);
-    p.setBrush(whiteColor());
-    p.drawEllipse(center, 92, 92);
-    p.setBrush(redColor());
-    p.drawEllipse(center, 86, 86);
-    p.setBrush(whiteColor());
-    p.drawEllipse(center, 66, 66);
+    for (const auto& [radius, color] : circles) {
+        p.setBrush(color);
+        p.drawEllipse(center, radius, radius);
+    }
 
-    p.setFont(InterFont(60, QFont::Bold));
-    QRect limit_rect = getTextRect(p, Qt::AlignCenter, limitSpeedStr);
-    limit_rect.moveCenter(center);
-    p.setPen(blackColor());
-    p.drawText(limit_rect, Qt::AlignCenter, limitSpeedStr);
-
-    p.setFont(InterFont(50, QFont::Bold));
-    QRect left_rect = getTextRect(p, Qt::AlignCenter, leftDistStr);
-    left_rect.moveCenter({max_speed_rect.center().x(), 0});
-    left_rect.moveBottom(max_speed_rect.bottom() + 265);
-    p.setPen(whiteColor());
-    p.drawText(left_rect, Qt::AlignCenter, leftDistStr);
-  } else if (roadLimitSpeed > 0 && roadLimitSpeed < 120) {
-    QPoint center(max_speed_rect.center().x(), max_rect.top() + 280);
-    p.setPen(Qt::NoPen);
-    p.setBrush(whiteColor());
-    p.drawEllipse(center, 92, 92);
-    p.setBrush(redColor());
-    p.drawEllipse(center, 86, 86);
-    p.setBrush(whiteColor());
-    p.drawEllipse(center, 66, 66);
-
-    p.setFont(InterFont(60, QFont::Bold));
-    QRect roadlimit_rect = getTextRect(p, Qt::AlignCenter, roadLimitSpeedStr);
-    roadlimit_rect.moveCenter(center);
-    p.setPen(blackColor());
-    p.drawText(roadlimit_rect, Qt::AlignCenter, roadLimitSpeedStr);
-  } else if (limit_speed > 0) {
-    QPoint center(max_speed_rect.center().x(), max_rect.top() + 280);
-    p.setPen(Qt::NoPen);
-    p.setBrush(whiteColor());
-    p.drawEllipse(center, 92, 92);
-    p.setBrush(redColor());
-    p.drawEllipse(center, 86, 86);
-    p.setBrush(whiteColor());
-    p.drawEllipse(center, 66, 66);
-
-    p.setFont(InterFont(60, QFont::Bold));
-    QRect limit_rect = getTextRect(p, Qt::AlignCenter, limitSpeedStr);
-    limit_rect.moveCenter(center);
-    p.setPen(blackColor());
-    p.drawText(limit_rect, Qt::AlignCenter, limitSpeedStr);
+    if (limit_speed > 0 && left_dist > 0) {
+        drawTextCenter(p, center, 60, limitSpeedStr, blackColor(200));
+        drawTextCenter(p, {speed_box.center().x(), speed_box.bottom() + 210}, 50, leftDistStr, whiteColor(200));
+    } else if (roadLimitSpeed > 0 && roadLimitSpeed < 120) {
+        drawTextCenter(p, center, 60, roadLimitSpeedStr, blackColor(200));
+    } else if (limit_speed > 0) {
+        drawTextCenter(p, center, 60, limitSpeedStr, blackColor(200));
+    }
   }
 }
 
@@ -571,6 +480,38 @@ void HudRenderer::drawTextColorLR(QPainter &p, int x, int y, const QString &text
 
   font.setBold(false);
   p.setFont(font);
+}
+
+void HudRenderer::drawTextCenter(QPainter &p, const QPoint &center, int fontSize, const QString &text, const QColor &color) {
+    p.setFont(InterFont(fontSize, QFont::Bold));
+    QFontMetrics fm(p.font());
+    QRect init_rect = fm.boundingRect(text);
+    QRect rect = fm.boundingRect(init_rect, Qt::AlignCenter, text);
+    rect.moveCenter(center);
+    p.setPen(color);
+    p.drawText(rect, Qt::AlignCenter, text);
+}
+
+QColor HudRenderer::interpColor(float xv, std::vector<float> xp, std::vector<QColor> fp) {
+  assert(xp.size() == fp.size());
+
+  int N = xp.size();
+  int hi = 0;
+
+  while (hi < N and xv > xp[hi]) hi++;
+  int low = hi - 1;
+
+  if (hi == N && xv > xp[low]) {
+    return fp[fp.size() - 1];
+  } else if (hi == 0){
+    return fp[0];
+  } else {
+    return QColor(
+      (xv - xp[low]) * (fp[hi].red() - fp[low].red()) / (xp[hi] - xp[low]) + fp[low].red(),
+      (xv - xp[low]) * (fp[hi].green() - fp[low].green()) / (xp[hi] - xp[low]) + fp[low].green(),
+      (xv - xp[low]) * (fp[hi].blue() - fp[low].blue()) / (xp[hi] - xp[low]) + fp[low].blue(),
+      (xv - xp[low]) * (fp[hi].alpha() - fp[low].alpha()) / (xp[hi] - xp[low]) + fp[low].alpha());
+  }
 }
 
 void HudRenderer::draw_blinker(QPainter& p, const QRect& surface_rect, bool is_left, const QPixmap& blinker_img) {
