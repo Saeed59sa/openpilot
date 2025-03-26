@@ -360,12 +360,12 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   p.setBrush(blackColor(100));
   p.drawRoundedRect(speed_box, 32, 32);
 
-  QColor speedColor = whiteColor(200);
+  QColor speedColor = whiteColor();
   if (limit_speed > 0 && status != STATUS_DISENGAGED && status != STATUS_OVERRIDE) {
     speedColor = interpColor(
       cruise_speed,
       {limit_speed + 5, limit_speed + 15, limit_speed + 25},
-      {whiteColor(200), orangeColor(200), redColor(200)}
+      {whiteColor(), orangeColor(), redColor()}
     );
   }
 
@@ -483,13 +483,13 @@ void HudRenderer::drawTextColorLR(QPainter &p, int x, int y, const QString &text
 }
 
 void HudRenderer::drawTextCenter(QPainter &p, const QPoint &center, int fontSize, const QString &text, const QColor &color) {
-    p.setFont(InterFont(fontSize, QFont::Bold));
-    QFontMetrics fm(p.font());
-    QRect init_rect = fm.boundingRect(text);
-    QRect rect = fm.boundingRect(init_rect, Qt::AlignCenter, text);
-    rect.moveCenter(center);
-    p.setPen(color);
-    p.drawText(rect, Qt::AlignCenter, text);
+  p.setFont(InterFont(fontSize));
+  QFontMetrics fm(p.font());
+  QRect init_rect = fm.boundingRect(text);
+  QRect rect = fm.boundingRect(init_rect, Qt::AlignCenter, text);
+  rect.moveCenter(center);
+  p.setPen(color);
+  p.drawText(rect, Qt::AlignCenter, text);
 }
 
 QColor HudRenderer::interpColor(float xv, std::vector<float> xp, std::vector<QColor> fp) {
