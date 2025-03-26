@@ -541,7 +541,7 @@ class LongitudinalMpc:
         if self.trafficState == TrafficState.green and not carstate.leftBlinker:
           self.xState = XState.e2ePrepare
       self.stopping_count = max(0, self.stopping_count - 1)
-      #v_cruise = 0
+      v_cruise = 0
     elif self.xState == XState.e2eStop:
       self.stopping_count = 0
       if carstate.gasPressed:  # Stop detecting traffic signal for 10 seconds

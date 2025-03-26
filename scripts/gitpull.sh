@@ -51,6 +51,8 @@ if ping -c 3 8.8.8.8 > /dev/null 2>&1; then
   fi
 
   git fetch --all --prune
+  git submodule sync --recursive
+  git submodule update --init --recursive --force
   echo "Fetch completed!"
 
   if [ "${BRANCH_GONE}" != "" ]; then

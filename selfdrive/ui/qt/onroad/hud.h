@@ -15,8 +15,7 @@ private:
   void drawSetSpeed(QPainter &p, const QRect &surface_rect);
   void drawCurrentSpeed(QPainter &p, const QRect &surface_rect);
   void drawText(QPainter &p, int x, int y, const QString &text, int alpha = 255);
-  void drawTextColor(QPainter &p, int x, int y, const QString &text, const QColor &color);
-  void drawTextColorLR(QPainter &p, int x, int y, const QString &text, const QColor &color, const QString &alignment);
+  void drawTextColor(QPainter &p, int x, int y, int fontSize, const QString &text, const QColor &color, const QString &alignment = "C");
   void drawTextCenter(QPainter &p, const QPoint &center, int fontSize, const QString &text, const QColor &color);
   void draw_blinker(QPainter& p, const QRect& surface_rect, bool is_left, const QPixmap& blinker_img);
   QColor interpColor(float xv, std::vector<float> xp, std::vector<QColor> fp);
