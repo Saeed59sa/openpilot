@@ -50,20 +50,42 @@ if ping -c 3 8.8.8.8 > /dev/null 2>&1; then
     echo "submodule.recurse true"
   fi
 
+  echo -e "\n${RED}Resetting local changes...${NC}\n"
+  git reset --hard HEAD
+
+  echo -e "\n${RED}Fetching latest changes from remote...${NC}\n"
   git fetch --all --prune
+
+  echo -e "\n${RED}Resetting to latest remote commit...${NC}\n"
+  git reset --hard origin/$BRANCH
+
+  echo -e "\n${RED}Submodule sync...${NC}\n"
   git submodule sync --recursive
+
+  echo -e "\n${RED}Submodule init and recursive...${NC}\n"
   git submodule update --init --recursive --force
-  echo "Fetch completed!"
+
+  echo -e "\n${GREEN}Git Fetch and Reset completed!${NC}\n"
 
   if [ "${BRANCH_GONE}" != "" ]; then
     echo $BRANCH_GONE | xargs git branch -D
   fi
 
-  echo -e "\n${RED}Resetting local branch to match remote...${NC}\n"
-  git reset --hard origin/$BRANCH
-  echo -e "\n  Git Fetch and Reset HEAD commits ...\n"
-  echo -e "  current branch is [ ${GREEN}${BOLD} $BRANCH ${NC} ]  \n"
-  exec /data/openpilot/scripts/restart.sh
+  REMOTE_COMMIT_HASH=$(git ls-remote origin $BRANCH | awk '{print $1}' | cut -c1-9)
+  LOCAL_COMMIT_HASH=$(git rev-parse --short HEAD)
+
+  REMOTE_COMMIT_TIME=$(date -d @"$(git show -s --format=%ct origin/$BRANCH)" '+%Y-%m-%d %H:%M:%S')
+  LOCAL_COMMIT_TIME=$(date -d @"$(git show -s --format=%ct HEAD)" '+%Y-%m-%d %H:%M:%S')
+
+  echo -e "  Remote Commit: [ ${GREEN}${BOLD} $REMOTE_COMMIT_HASH ${NC} ] - $REMOTE_COMMIT_TIME"
+  echo -e "  Local Commit:  [ ${GREEN}${BOLD} $LOCAL_COMMIT_HASH ${NC} ] - $LOCAL_COMMIT_TIME"
+
+  if [ "$REMOTE_COMMIT_HASH" = "$LOCAL_COMMIT_HASH" ]; then
+    echo -e "\nCommit is ${GREEN}${BOLD}match${NC}. Proceeding restart...\n"
+    exec /data/openpilot/scripts/restart.sh
+  else
+    echo -e "\nCommit is ${RED}${BOLD}not match${NC}. Skipping restart.\n"
+  fi
 
 else
   touch /data/check_network
