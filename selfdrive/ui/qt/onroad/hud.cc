@@ -285,12 +285,20 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   }
 
   // bottom left info
-  QString infoText = QString("%1").arg(QString::fromStdString(params.get("CarName")));
+  QString car_name = QString("%1").arg(QString::fromStdString(params.get("CarName")));
 
   x = surface_rect.left() + 30;
   y = surface_rect.height() - 30;
 
-  drawTextColor(p, x, y, 30, infoText, whiteColor(200), "L");
+  drawTextColor(p, x, y, 30, car_name, whiteColor(200), "L");
+
+  // bottom right info
+  QString current_description = QString("%1").arg(QString::fromStdString(params.get("UpdaterCurrentDescription")));
+
+  x = surface_rect.right() - 30;
+  y = surface_rect.height() - 30;
+
+  drawTextColor(p, x, y, 30, current_description, whiteColor(200), "R");
 
   // turnsignal
   if (blink_wait > 0) {
