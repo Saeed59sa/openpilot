@@ -156,15 +156,15 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   // upper left info
   QString infoDate = QString("%1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd"));
 
-  x = surface_rect.left() + 30;
+  x = surface_rect.left() + 70;
   y = (UI_BORDER_SIZE);
 
   drawTextColor(p, x, y, 30, infoDate, whiteColor(200), "L");
 
   // nda icon
   if (nda_state > 0) {
-    w = 120;
-    h = 54;
+    w = 120 * 0.8;
+    h = 54 * 0.8;
     x = (surface_rect.width() + (UI_BORDER_SIZE)) / 2 - (w / 2);
     y = UI_BORDER_SIZE;
     p.drawPixmap(x, y, w, h, nda_state == 1 ? nda_img : hda_img);
@@ -450,8 +450,8 @@ void HudRenderer::drawCurrentSpeed(QPainter &p, const QRect &surface_rect) {
     variableColor = QColor(255, a, a, 200);
   }
 
-  drawTextColor(p, surface_rect.center().x(), 210, 170, speedStr, variableColor);
-  drawTextColor(p, surface_rect.center().x(), 280, 50, is_metric ? tr("km/h") : tr("mph"), lightorangeColor());
+  drawTextColor(p, surface_rect.center().x(), 200, 170, speedStr, variableColor);
+  drawTextColor(p, surface_rect.center().x(), 260, 50, is_metric ? tr("km/h") : tr("mph"), lightorangeColor());
 }
 
 void HudRenderer::drawText(QPainter &p, int x, int y, const QString &text, int alpha) {
