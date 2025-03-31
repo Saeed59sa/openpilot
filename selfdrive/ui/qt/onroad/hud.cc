@@ -1,6 +1,7 @@
 #include "selfdrive/ui/qt/onroad/hud.h"
 
 #include <cmath>
+#include <QDateTime>
 
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/onroad/buttons.h"
@@ -152,6 +153,14 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   int x,y,w,h = 0;
   QColor icon_bg = blackColor(100);
 
+  // upper left info
+  QString infoDate = QString("%1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd"));
+
+  x = surface_rect.left() + 30;
+  y = (UI_BORDER_SIZE);
+
+  drawTextColor(p, x, y, 30, infoDate, whiteColor(200), "L");
+
   // nda icon
   if (nda_state > 0) {
     w = 120;
@@ -199,7 +208,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   y = (btn_size / 2) + (UI_BORDER_SIZE * 2);
   drawIcon(p, QPoint(x, y), wifi_img, icon_bg, wifi_state > 0 ? 0.8 : 0.2);
 
-  // upper gps info
+  // upper right info
   if (gpsVerticalAccuracy == 0 || gpsVerticalAccuracy > 100) {
     altitudeStr = "--";
   } else {
@@ -222,7 +231,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   }
 
   x = surface_rect.right() - 30;
-  y = (UI_BORDER_SIZE * 1.5);
+  y = (UI_BORDER_SIZE);
 
   drawTextColor(p, x, y, 30, infoGps, whiteColor(200), "R");
 
@@ -288,7 +297,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   QString car_name = QString("%1").arg(QString::fromStdString(params.get("CarName")));
 
   x = surface_rect.left() + 30;
-  y = surface_rect.height() - 30;
+  y = surface_rect.height() - 20;
 
   drawTextColor(p, x, y, 30, car_name, whiteColor(200), "L");
 
@@ -296,7 +305,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   QString current_description = QString("%1").arg(QString::fromStdString(params.get("UpdaterCurrentDescription")));
 
   x = surface_rect.right() - 30;
-  y = surface_rect.height() - 30;
+  y = surface_rect.height() - 20;
 
   drawTextColor(p, x, y, 30, current_description, whiteColor(200), "R");
 
