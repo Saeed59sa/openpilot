@@ -71,8 +71,8 @@ if ping -c 3 8.8.8.8 > /dev/null 2>&1; then
     echo $BRANCH_GONE | xargs git branch -D
   fi
 
-  REMOTE_COMMIT_HASH=$(git ls-remote origin $BRANCH | awk '{print $1}' | cut -c1-9)
-  LOCAL_COMMIT_HASH=$(git rev-parse --short HEAD)
+  REMOTE_COMMIT_HASH=$(git ls-remote origin $BRANCH | awk '{print $1}')
+  LOCAL_COMMIT_HASH=$(git rev-parse HEAD)
 
   REMOTE_COMMIT_TIME=$(date -d @"$(git show -s --format=%ct origin/$BRANCH)" '+%Y-%m-%d %H:%M:%S')
   LOCAL_COMMIT_TIME=$(date -d @"$(git show -s --format=%ct HEAD)" '+%Y-%m-%d %H:%M:%S')
