@@ -1,9 +1,10 @@
 import numpy as np
+import capnp
 from collections import deque
-from functools import partial
+from functools import partial, cache
 
 import cereal.messaging as messaging
-from cereal import log
+from cereal import log, car
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
 
 BLOCK_SIZE = 100
@@ -15,6 +16,34 @@ MIN_RECOVERY_BUFFER_SEC = 2.0
 MIN_VEGO = 15.0
 MIN_ABS_YAW_RATE = np.radians(1.0)
 MIN_NCC = 0.95
+MAX_LAG = 1.0
+
+
+@cache
+def fft_next_good_size(n: int) -> int:
+    """
+    smallest composite of 2, 3, 5, 7, 11 that is >= n
+    inspired by pocketfft
+    """
+    if n <= 6:
+      return n
+    best, f2 = 2 * n, 1
+    while f2 < best:
+        f23 = f2
+        while f23 < best:
+            f235 = f23
+            while f235 < best:
+                f2357 = f235
+                while f2357 < best:
+                    f235711 = f2357
+                    while f235711 < best:
+                        best = f235711 if f235711 >= n else best
+                        f235711 *= 11
+                    f2357 *= 7
+                f235 *= 5
+            f23 *= 3
+        f2 *= 2
+    return best
 
 
 def parabolic_peak_interp(R, max_index):
@@ -27,7 +56,7 @@ def parabolic_peak_interp(R, max_index):
   return max_index + offset
 
 
-def masked_normalized_cross_correlation(expected_sig, actual_sig, mask):
+def masked_normalized_cross_correlation(expected_sig: np.ndarray, actual_sig: np.ndarray, mask: np.ndarray, n: int):
   """
   References:
     D. Padfield. "Masked FFT registration". In Proc. Computer Vision and
@@ -45,7 +74,6 @@ def masked_normalized_cross_correlation(expected_sig, actual_sig, mask):
   rotated_expected_sig = expected_sig[::-1]
   rotated_mask = mask[::-1]
 
-  n = len(expected_sig) + len(actual_sig) - 1
   fft = partial(np.fft.fft, n=n)
 
   actual_sig_fft = fft(actual_sig)
@@ -86,11 +114,11 @@ def masked_normalized_cross_correlation(expected_sig, actual_sig, mask):
 
 
 class Points:
-  def __init__(self, num_points):
-    self.times = deque(maxlen=num_points)
-    self.okay = deque(maxlen=num_points)
-    self.desired = deque(maxlen=num_points)
-    self.actual = deque(maxlen=num_points)
+  def __init__(self, num_points: int):
+    self.times = deque[float]([0.0 for _ in range(num_points)], maxlen=num_points)
+    self.okay = deque[bool]([False for _ in range(num_points)], maxlen=num_points)
+    self.desired = deque[float]([0.0 for _ in range(num_points)], maxlen=num_points)
+    self.actual = deque[float]([0.0 for _ in range(num_points)], maxlen=num_points)
 
   @property
   def num_points(self):
@@ -100,18 +128,18 @@ class Points:
   def num_okay(self):
     return np.count_nonzero(self.okay)
 
-  def update(self, t, desired, actual, okay):
+  def update(self, t: float, desired: float, actual: float, okay: bool):
     self.times.append(t)
     self.okay.append(okay)
     self.desired.append(desired)
     self.actual.append(actual)
 
-  def get(self):
+  def get(self) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     return np.array(self.times), np.array(self.desired), np.array(self.actual), np.array(self.okay)
 
 
 class BlockAverage:
-  def __init__(self, num_blocks, block_size, valid_blocks, initial_value):
+  def __init__(self, num_blocks: int, block_size: int, valid_blocks: int, initial_value: float):
     self.num_blocks = num_blocks
     self.block_size = block_size
     self.block_idx = valid_blocks % block_size
@@ -120,14 +148,14 @@ class BlockAverage:
     self.values = np.tile(initial_value, (num_blocks, 1))
     self.valid_blocks = valid_blocks
 
-  def update(self, value):
+  def update(self, value: float):
     self.values[self.block_idx] = (self.idx * self.values[self.block_idx] + (self.block_size - self.idx) * value) / self.block_size
     self.idx = (self.idx + 1) % self.block_size
     if self.idx == 0:
       self.block_idx = (self.block_idx + 1) % self.num_blocks
       self.valid_blocks = min(self.valid_blocks + 1, self.num_blocks)
 
-  def get(self):
+  def get(self) -> float | None:
     valid_block_idx = [i for i in range(self.valid_blocks) if i != self.block_idx]
     if not valid_block_idx:
       return None
@@ -137,10 +165,10 @@ class BlockAverage:
 class LateralLagEstimator:
   inputs = {"carControl", "carState", "controlsState", "liveCalibration", "livePose"}
 
-  def __init__(self, CP, dt,
-               block_count=BLOCK_NUM, min_valid_block_count=BLOCK_NUM_NEEDED, block_size=BLOCK_SIZE,
-               window_sec=MOVING_WINDOW_SEC, okay_window_sec=MIN_OKAY_WINDOW_SEC, min_recovery_buffer_sec=MIN_RECOVERY_BUFFER_SEC,
-               min_vego=MIN_VEGO, min_yr=MIN_ABS_YAW_RATE, min_ncc=MIN_NCC):
+  def __init__(self, CP: car.CarParams, dt: float,
+               block_count: int = BLOCK_NUM, min_valid_block_count: int = BLOCK_NUM_NEEDED, block_size: int = BLOCK_SIZE,
+               window_sec: float = MOVING_WINDOW_SEC, okay_window_sec: float = MIN_OKAY_WINDOW_SEC, min_recovery_buffer_sec: float = MIN_RECOVERY_BUFFER_SEC,
+               min_vego: float = MIN_VEGO, min_yr: float = MIN_ABS_YAW_RATE, min_ncc: float = MIN_NCC):
     self.dt = dt
     self.window_sec = window_sec
     self.okay_window_sec = okay_window_sec
@@ -153,29 +181,29 @@ class LateralLagEstimator:
     self.min_yr = min_yr
     self.min_ncc = min_ncc
 
-    self.t = 0
+    self.t = 0.0
     self.lat_active = False
     self.steering_pressed = False
     self.steering_saturated = False
-    self.desired_curvature = 0
-    self.v_ego = 0
-    self.yaw_rate = 0
+    self.desired_curvature = 0.0
+    self.v_ego = 0.0
+    self.yaw_rate = 0.0
 
-    self.last_lat_inactive_t = 0
-    self.last_steering_pressed_t = 0
-    self.last_steering_saturated_t = 0
-    self.last_estimate_t = 0
+    self.last_lat_inactive_t = 0.0
+    self.last_steering_pressed_t = 0.0
+    self.last_steering_saturated_t = 0.0
+    self.last_estimate_t = 0.0
 
     self.calibrator = PoseCalibrator()
 
     self.reset(self.initial_lag, 0)
 
-  def reset(self, initial_lag, valid_blocks):
+  def reset(self, initial_lag: float, valid_blocks: int):
     window_len = int(self.window_sec / self.dt)
     self.points = Points(window_len)
     self.block_avg = BlockAverage(self.block_count, self.block_size, valid_blocks, initial_lag)
 
-  def get_msg(self, valid, debug=False):
+  def get_msg(self, valid: bool, debug: bool = False) -> capnp._DynamicStructBuilder:
     msg = messaging.new_message('liveDelay')
 
     msg.valid = valid
@@ -196,7 +224,7 @@ class LateralLagEstimator:
 
     return msg
 
-  def handle_log(self, t, which, msg):
+  def handle_log(self, t: float, which: str, msg: capnp._DynamicStructReader):
     if which == "carControl":
       self.lat_active = msg.latActive
     elif which == "carState":
@@ -212,6 +240,9 @@ class LateralLagEstimator:
       calibrated_pose = self.calibrator.build_calibrated_pose(device_pose)
       self.yaw_rate = calibrated_pose.angular_velocity.z
     self.t = t
+
+  def points_enough(self):
+    return self.points.num_points >= int(self.okay_window_sec / self.dt)
 
   def points_valid(self):
     return self.points.num_okay >= int(self.okay_window_sec / self.dt)
@@ -238,32 +269,31 @@ class LateralLagEstimator:
     self.points.update(self.t, la_desired, la_actual_pose, okay)
 
   def update_estimate(self):
-    # check if the points are valid overall
-    if not self.points_valid():
+    if not self.points_enough():
       return
 
     times, desired, actual, okay = self.points.get()
     # check if there are any new valid data points since the last update
+    is_valid = self.points_valid()
     if self.last_estimate_t != 0 and times[0] <= self.last_estimate_t:
       new_values_start_idx = next(-i for i, t in enumerate(reversed(times)) if t <= self.last_estimate_t)
-      if (new_values_start_idx == 0 or not np.any(okay[new_values_start_idx:])):
-        return
+      is_valid = is_valid and not (new_values_start_idx == 0 or not np.any(okay[new_values_start_idx:]))
 
-    delay, corr = self.actuator_delay(desired, actual, okay, self.dt)
-    if corr < self.min_ncc:
+    delay, corr = self.actuator_delay(desired, actual, okay, self.dt, MAX_LAG)
+    if corr < self.min_ncc or not is_valid:
       return
 
     self.block_avg.update(delay)
     self.last_estimate_t = self.t
 
-  def correlation_lags(self, sig_len, dt):
-    return np.arange(0, sig_len) * dt
+  def actuator_delay(self, expected_sig: np.ndarray, actual_sig: np.ndarray, mask: np.ndarray, dt: float, max_lag: float) -> tuple[float, float]:
+    assert len(expected_sig) == len(actual_sig)
+    max_lag_samples = int(max_lag / dt)
+    padded_size = len(expected_sig) + len(actual_sig) - 1 # fft_next_good_size(len(expected_sig) + max_lag_samples)
 
-  def actuator_delay(self, expected_sig, actual_sig, mask, dt, max_lag=1.):
-    ncc = masked_normalized_cross_correlation(expected_sig, actual_sig, mask)
+    ncc = masked_normalized_cross_correlation(expected_sig, actual_sig, mask, padded_size)
 
     # only consider lags from 0 to max_lag
-    max_lag_samples = int(max_lag / dt)
     roi_ncc = ncc[len(expected_sig) - 1: len(expected_sig) - 1 + max_lag_samples]
 
     max_corr_index = np.argmax(roi_ncc)
