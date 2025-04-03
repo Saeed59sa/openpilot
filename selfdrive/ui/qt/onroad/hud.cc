@@ -160,10 +160,10 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   drawTextColor(p, x, y, 30, infoDate, whiteColor(200), "L");
 
   // traffic icon
-  w = 90;
-  h = 180;
+  w = 81;
+  h = 162;
   x = 280;
-  y = (UI_BORDER_SIZE * 2);
+  y = (UI_BORDER_SIZE * 2.5);
   if (traffic_state == 1) {
     p.drawPixmap(x, y, w, h, traffic_red_img);
   } else if (traffic_state == 2) {
@@ -438,11 +438,11 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
 
   // speedlimit sign
   if (limit_speed > 0 || roadLimitSpeed > 0) {
-    QPoint center(speed_box.center().x(), speed_box.bottom() + 100);
+    QPoint center(speed_box.right() + 160, speed_box.center().y());
     const QList<QPair<int, QColor>> circles = {
-        {80, whiteColor()},
-        {78, redColor()},
-        {60, whiteColor()}
+        {72, whiteColor()},
+        {70, redColor()},
+        {54, whiteColor()}
     };
 
     p.setPen(Qt::NoPen);
@@ -453,7 +453,7 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
 
     if (limit_speed > 0 && left_dist > 0) {
         drawTextCenter(p, center, 50, limitSpeedStr, blackColor(200));
-        drawTextCenter(p, {speed_box.center().x(), speed_box.bottom() + 200}, 40, leftDistStr, whiteColor(200));
+        drawTextCenter(p, {speed_box.right() + 160, speed_box.bottom()}, 40, leftDistStr, whiteColor(200));
     } else if (roadLimitSpeed > 0 && roadLimitSpeed < 120) {
         drawTextCenter(p, center, 50, roadLimitSpeedStr, blackColor(200));
     } else if (limit_speed > 0) {
