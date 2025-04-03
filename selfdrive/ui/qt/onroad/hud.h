@@ -36,7 +36,6 @@ private:
   QPixmap traffic_off_img, traffic_green_img, traffic_red_img;
   QPixmap autohold_warning_img;
   QPixmap autohold_active_img;
-  QPixmap nda_img, hda_img;
   QPixmap lka_on_img, lka_off_img;
 
   QString leftDistStr, altitudeStr, accuracyStr, infoGps;

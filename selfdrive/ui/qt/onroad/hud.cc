@@ -45,8 +45,6 @@ HudRenderer::HudRenderer() {
   // neokii add
   autohold_warning_img = loadPixmap("../assets/img_autohold_warning.png", {img_size, img_size});
   autohold_active_img = loadPixmap("../assets/img_autohold_active.png", {img_size, img_size});
-  nda_img = loadPixmap("../assets/img_nda.png");
-  hda_img = loadPixmap("../assets/img_hda.png");
 }
 
 static const QColor get_tpms_color(float tpms) {
@@ -161,15 +159,6 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
 
   drawTextColor(p, x, y, 30, infoDate, whiteColor(200), "L");
 
-  // nda icon
-  if (nda_state > 0) {
-    w = 120 * 0.8;
-    h = 54 * 0.8;
-    x = (surface_rect.width() + (UI_BORDER_SIZE)) / 2 - (w / 2);
-    y = UI_BORDER_SIZE;
-    p.drawPixmap(x, y, w, h, nda_state == 1 ? nda_img : hda_img);
-  }
-
   // traffic icon
   w = 90;
   h = 180;
@@ -181,6 +170,45 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     p.drawPixmap(x, y, w, h, traffic_green_img);
   } else {
     p.drawPixmap(x, y, w, h, traffic_off_img);
+  }
+
+  x = surface_rect.left() + 400;
+  y = (UI_BORDER_SIZE);
+
+  // NDA State
+  if (nda_state > 0) {
+      QString ndaText = "NDA";
+      int ndaTextWidth = p.fontMetrics().horizontalAdvance(ndaText);
+      int ndaTextHeight = p.fontMetrics().height();
+      p.setPen(Qt::NoPen);
+      p.setBrush(blackColor(200));
+      p.drawRoundedRect(x - 10, y - 20, ndaTextWidth + 20, ndaTextHeight + 10, 15, 15);
+      drawTextColor(p, x, y, 30, ndaText, limeColor(200), "L");
+      x += ndaTextWidth + 24;
+  }
+
+  // CameraScc Setting
+  if (params.getBool("CameraSccEnable")) {
+      QString cameraSccText = "CameraScc";
+      int cameraSccTextWidth = p.fontMetrics().horizontalAdvance(cameraSccText);
+      int cameraSccTextHeight = p.fontMetrics().height();
+      p.setPen(Qt::NoPen);
+      p.setBrush(blackColor(200));
+      p.drawRoundedRect(x - 10, y - 20, cameraSccTextWidth + 20, cameraSccTextHeight + 10, 15, 15);
+      drawTextColor(p, x, y, 30, cameraSccText, limeColor(200), "L");
+      x += cameraSccTextWidth + 24;
+  }
+
+  // HDA2 Setting
+  if (params.getBool("IsHda2")) {
+      QString hda2Text = "HDA2";
+      int hda2TextWidth = p.fontMetrics().horizontalAdvance(hda2Text);
+      int hda2TextHeight = p.fontMetrics().height();
+      p.setPen(Qt::NoPen);
+      p.setBrush(blackColor(200));
+      p.drawRoundedRect(x - 10, y - 20, hda2TextWidth + 20, hda2TextHeight + 10, 15, 15);
+      drawTextColor(p, x, y, 30, hda2Text, limeColor(200), "L");
+      x += hda2TextWidth + 24;
   }
 
   // N direction icon
@@ -251,13 +279,13 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
       sa_color = orangeColor(200);
     }
 
-  QString sa_str = QString::asprintf("%.0f °", steerAngle);
+    QString sa_str = QString::asprintf("%.0f °", steerAngle);
 
-  QRect textRect = p.fontMetrics().boundingRect(sa_str);  // Get text size
-  int textX = iconCenter.x() - textRect.width() / 2;      // Center horizontally
-  int textY = iconCenter.y() + btn_size / 2 + 20;         // Place below the icon (20px margin)
+    QRect textRect = p.fontMetrics().boundingRect(sa_str);  // Get text size
+    int textX = iconCenter.x() - textRect.width() / 2;      // Center horizontally
+    int textY = iconCenter.y() + btn_size / 2 + 20;         // Place below the icon (20px margin)
 
-  drawTextColor(p, textX, textY, 30, sa_str, sa_color);
+    drawTextColor(p, textX, textY, 30, sa_str, sa_color);
 
     // lka icon
     x = (btn_size / 2) + (UI_BORDER_SIZE * 1.5) + (btn_size * 2);
@@ -385,7 +413,7 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   // max speed
   QRect max_speed_outer(speed_box.left() + 10, speed_box.top() + 10, 230, 90);
   p.setPen(QPen(whiteColor(200), 2));
-  p.drawRoundedRect(max_speed_outer, 16, 16);
+  p.drawRoundedRect(max_speed_outer, 15, 15);
 
   QString cruiseSpeedStr = QString::number(std::nearbyint(cruise_speed));
   int max_label_x = max_speed_outer.left() + 20;
@@ -398,7 +426,7 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   // set speed
   QRect apply_speed_outer(speed_box.left() + 10, speed_box.top() + 100, 230, 90);
   p.setPen(QPen(whiteColor(200), 2));
-  p.drawRoundedRect(apply_speed_outer, 16, 16);
+  p.drawRoundedRect(apply_speed_outer, 15, 15);
 
   QString applySpeedStr = QString::number(std::nearbyint(apply_speed));
   int set_label_x = apply_speed_outer.left() + 20;
@@ -450,8 +478,11 @@ void HudRenderer::drawCurrentSpeed(QPainter &p, const QRect &surface_rect) {
     variableColor = QColor(255, a, a, 200);
   }
 
-  drawTextColor(p, surface_rect.center().x(), 200, 170, speedStr, variableColor);
-  drawTextColor(p, surface_rect.center().x(), 260, 50, is_metric ? tr("km/h") : tr("mph"), lightorangeColor());
+  int speedStrWidth = p.fontMetrics().horizontalAdvance(speedStr);
+  int unitX = surface_rect.center().x() - 100 + speedStrWidth + 100;
+
+  drawTextColor(p, surface_rect.center().x() - 100, 180, 180, speedStr, variableColor);
+  drawTextColor(p, unitX, 180, 30, is_metric ? tr("km/h") : tr("mph"), lightorangeColor());
 }
 
 void HudRenderer::drawText(QPainter &p, int x, int y, const QString &text, int alpha) {
