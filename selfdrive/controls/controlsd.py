@@ -121,6 +121,10 @@ class Controls:
     new_desired_curvature = model_v2.action.desiredCurvature if CC.latActive else self.curvature
     self.desired_curvature, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, new_desired_curvature, lp.roll)
 
+    # Apply smoothing to reduce oscillations during high curvature transitions
+    alpha = 0.2  # Adjust smoothing factor (0 = no smoothing, 1 = full smoothing)
+    self.desired_curvature = (1 - alpha) * self.desired_curvature + alpha * new_desired_curvature
+
     actuators.curvature = self.desired_curvature
     steer, steeringAngleDeg, lac_log = self.LaC.update(CC.latActive, CS, self.VM, lp,
                                                        self.steer_limited_by_controls, self.desired_curvature,
