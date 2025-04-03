@@ -1,59 +1,28 @@
+#!/usr/bin/env python3
+import os
 import numpy as np
 import capnp
 from collections import deque
-from functools import partial, cache
+from functools import partial
 
 import cereal.messaging as messaging
-from cereal import log, car
-from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
+from cereal import car, log
+from cereal.services import SERVICE_LIST
+from openpilot.common.params import Params
+from openpilot.common.realtime import config_realtime_process
+from openpilot.common.swaglog import cloudlog
+from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose, fft_next_good_size, parabolic_peak_interp
 
 BLOCK_SIZE = 100
 BLOCK_NUM = 50
 BLOCK_NUM_NEEDED = 5
 MOVING_WINDOW_SEC = 300.0
-MIN_OKAY_WINDOW_SEC = 30.0
+MIN_OKAY_WINDOW_SEC = 25.0
 MIN_RECOVERY_BUFFER_SEC = 2.0
 MIN_VEGO = 15.0
 MIN_ABS_YAW_RATE = np.radians(1.0)
 MIN_NCC = 0.95
 MAX_LAG = 1.0
-
-
-@cache
-def fft_next_good_size(n: int) -> int:
-    """
-    smallest composite of 2, 3, 5, 7, 11 that is >= n
-    inspired by pocketfft
-    """
-    if n <= 6:
-      return n
-    best, f2 = 2 * n, 1
-    while f2 < best:
-        f23 = f2
-        while f23 < best:
-            f235 = f23
-            while f235 < best:
-                f2357 = f235
-                while f2357 < best:
-                    f235711 = f2357
-                    while f235711 < best:
-                        best = f235711 if f235711 >= n else best
-                        f235711 *= 11
-                    f2357 *= 7
-                f235 *= 5
-            f23 *= 3
-        f2 *= 2
-    return best
-
-
-def parabolic_peak_interp(R, max_index):
-  if max_index == 0 or max_index == len(R) - 1:
-    return max_index
-
-  y_m1, y_0, y_p1 = R[max_index - 1], R[max_index], R[max_index + 1]
-  offset = 0.5 * (y_p1 - y_m1) / (2 * y_0 - y_p1 - y_m1)
-
-  return max_index + offset
 
 
 def masked_normalized_cross_correlation(expected_sig: np.ndarray, actual_sig: np.ndarray, mask: np.ndarray, n: int):
@@ -115,10 +84,10 @@ def masked_normalized_cross_correlation(expected_sig: np.ndarray, actual_sig: np
 
 class Points:
   def __init__(self, num_points: int):
-    self.times = deque[float]([0.0 for _ in range(num_points)], maxlen=num_points)
-    self.okay = deque[bool]([False for _ in range(num_points)], maxlen=num_points)
-    self.desired = deque[float]([0.0 for _ in range(num_points)], maxlen=num_points)
-    self.actual = deque[float]([0.0 for _ in range(num_points)], maxlen=num_points)
+    self.times = deque[float]([0.0] * num_points, maxlen=num_points)
+    self.okay = deque[bool]([False] * num_points, maxlen=num_points)
+    self.desired = deque[float]([0.0] * num_points, maxlen=num_points)
+    self.actual = deque[float]([0.0] * num_points, maxlen=num_points)
 
   @property
   def num_points(self):
@@ -155,11 +124,13 @@ class BlockAverage:
       self.block_idx = (self.block_idx + 1) % self.num_blocks
       self.valid_blocks = min(self.valid_blocks + 1, self.num_blocks)
 
-  def get(self) -> float | None:
+  def get(self) -> tuple[float, float]:
     valid_block_idx = [i for i in range(self.valid_blocks) if i != self.block_idx]
-    if not valid_block_idx:
-      return None
-    return float(np.mean(self.values[valid_block_idx], axis=0).item())
+    valid_and_current_idx = valid_block_idx + [self.block_idx]
+
+    valid_mean = float(np.mean(self.values[valid_block_idx], axis=0).item()) if len(valid_block_idx) > 0 else float('nan')
+    current_mean = float(np.mean(self.values[valid_and_current_idx], axis=0).item())
+    return valid_mean, current_mean
 
 
 class LateralLagEstimator:
@@ -210,14 +181,14 @@ class LateralLagEstimator:
 
     liveDelay = msg.liveDelay
 
-    estimated_lag = self.block_avg.get()
-    liveDelay.lateralDelayEstimate = estimated_lag or self.initial_lag
-    if self.block_avg.valid_blocks >= self.min_valid_block_count and estimated_lag is not None:
+    valid_mean_lag, current_mean_lag = self.block_avg.get()
+    if self.block_avg.valid_blocks >= self.min_valid_block_count and not np.isnan(valid_mean_lag):
       liveDelay.status = log.LiveDelayData.Status.estimated
-      liveDelay.lateralDelay = estimated_lag
+      liveDelay.lateralDelay = valid_mean_lag
     else:
       liveDelay.status = log.LiveDelayData.Status.unestimated
       liveDelay.lateralDelay = self.initial_lag
+    liveDelay.lateralDelayEstimate = current_mean_lag
     liveDelay.validBlocks = self.block_avg.valid_blocks
     if debug:
       liveDelay.points = self.block_avg.values.flatten().tolist()
@@ -289,7 +260,7 @@ class LateralLagEstimator:
   def actuator_delay(self, expected_sig: np.ndarray, actual_sig: np.ndarray, mask: np.ndarray, dt: float, max_lag: float) -> tuple[float, float]:
     assert len(expected_sig) == len(actual_sig)
     max_lag_samples = int(max_lag / dt)
-    padded_size = len(expected_sig) + len(actual_sig) - 1 # fft_next_good_size(len(expected_sig) + max_lag_samples)
+    padded_size = fft_next_good_size(len(expected_sig) + max_lag_samples)
 
     ncc = masked_normalized_cross_correlation(expected_sig, actual_sig, mask, padded_size)
 
@@ -301,3 +272,58 @@ class LateralLagEstimator:
     lag = parabolic_peak_interp(roi_ncc, max_corr_index) * dt
 
     return lag, corr
+
+
+def retrieve_initial_lag(params_reader: Params, CP: car.CarParams):
+  last_lag_data = params_reader.get("LiveLag")
+  last_carparams_data = params_reader.get("CarParamsPrevRoute")
+
+  if last_lag_data is not None:
+    try:
+      with log.Event.from_bytes(last_lag_data) as last_lag_msg, car.CarParams.from_bytes(last_carparams_data) as last_CP:
+        ld = last_lag_msg.liveDelay
+        if last_CP.carFingerprint != CP.carFingerprint:
+          raise Exception("Car model mismatch")
+
+        lag, valid_blocks = ld.lateralDelayEstimate, ld.validBlocks
+        return lag, valid_blocks
+    except Exception as e:
+      cloudlog.error(f"Failed to retrieve initial lag: {e}")
+
+  return None
+
+
+def main():
+  config_realtime_process([0, 1, 2, 3], 5)
+
+  DEBUG = bool(int(os.getenv("DEBUG", "0")))
+
+  pm = messaging.PubMaster(['liveDelay'])
+  sm = messaging.SubMaster(['livePose', 'liveCalibration', 'carState', 'controlsState', 'carControl'], poll='livePose')
+
+  params_reader = Params()
+  CP = messaging.log_from_bytes(params_reader.get("CarParams", block=True), car.CarParams)
+
+  lag_learner = LateralLagEstimator(CP, 1. / SERVICE_LIST['livePose'].frequency)
+  if (initial_lag_params := retrieve_initial_lag(params_reader, CP)) is not None:
+    lag, valid_blocks = initial_lag_params
+    lag_learner.reset(lag, valid_blocks)
+
+  while True:
+    sm.update()
+    if sm.all_checks():
+      for which in sorted(sm.updated.keys(), key=lambda x: sm.logMonoTime[x]):
+        if sm.updated[which]:
+          t = sm.logMonoTime[which] * 1e-9
+          lag_learner.handle_log(t, which, sm[which])
+      lag_learner.update_points()
+
+    # 4Hz driven by livePose
+    if sm.frame % 5 == 0:
+      lag_learner.update_estimate()
+      lag_msg = lag_learner.get_msg(sm.all_checks(), DEBUG)
+      lag_msg_dat = lag_msg.to_bytes()
+      pm.send('liveDelay', lag_msg_dat)
+
+      if sm.frame % 1200 == 0: # cache every 60 seconds
+        params_reader.put_nonblocking("LiveLag", lag_msg_dat)
