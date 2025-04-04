@@ -237,26 +237,12 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   drawIcon(p, QPoint(x, y), wifi_img, icon_bg, wifi_state > 0 ? 0.8 : 0.2);
 
   // upper right info
-  if (gpsVerticalAccuracy == 0 || gpsVerticalAccuracy > 100) {
-    altitudeStr = "--";
-  } else {
-    altitudeStr = QString::asprintf("%.1f m", gpsAltitude);
-  }
-
-  if (gpsAccuracy == 0 || gpsAccuracy > 100) {
-    accuracyStr = "--";
-  } else {
-    accuracyStr = QString::asprintf("%.1f m", gpsAccuracy);
-  }
-
-  if (gpsSatelliteCount == 0) {
-    infoGps = "🛰️ No Gps Signal";
-  } else {
-    infoGps = QString::asprintf("🛰️ Alt(%s) Acc(%s) Sat(%d)",
-                                altitudeStr.toStdString().c_str(),
-                                accuracyStr.toStdString().c_str(),
-                                gpsSatelliteCount);
-  }
+  altitudeStr = (gpsVerticalAccuracy == 0 || gpsVerticalAccuracy > 100) ? "--" : QString::asprintf("%.1f m", gpsAltitude);
+  accuracyStr = (gpsAccuracy == 0 || gpsAccuracy > 100) ? "--" : QString::asprintf("%.1f m", gpsAccuracy);
+  infoGps = (gpsSatelliteCount == 0) ? "🛰️ No Gps Signal" : QString::asprintf("🛰️ Alt(%s) Acc(%s) Sat(%d)",
+                                                                              altitudeStr.toStdString().c_str(),
+                                                                              accuracyStr.toStdString().c_str(),
+                                                                              gpsSatelliteCount);
 
   x = surface_rect.right() - 30;
   y = (UI_BORDER_SIZE);
@@ -479,10 +465,10 @@ void HudRenderer::drawCurrentSpeed(QPainter &p, const QRect &surface_rect) {
   }
 
   int speedStrWidth = p.fontMetrics().horizontalAdvance(speedStr);
-  int unitX = surface_rect.center().x() - 100 + speedStrWidth + 100;
+  int unitX = surface_rect.center().x() - 100 + speedStrWidth + 120;
 
   drawTextColor(p, surface_rect.center().x() - 100, 180, 180, speedStr, variableColor);
-  drawTextColor(p, unitX, 180, 30, is_metric ? tr("km/h") : tr("mph"), lightorangeColor());
+  drawTextColor(p, unitX, 180, 40, is_metric ? tr("km/h") : tr("mph"), lightorangeColor());
 }
 
 void HudRenderer::drawText(QPainter &p, int x, int y, const QString &text, int alpha) {
