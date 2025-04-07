@@ -167,6 +167,12 @@ class Controls:
     hudControl.leadDistanceBars = self.sm['selfdriveState'].personality.raw + 1
     hudControl.visualAlert = self.sm['selfdriveState'].alertHudVisual
 
+    leadOne = self.sm['radarState'].leadOne
+    hudControl.leadDistance = leadOne.dRel if leadOne.status else 0
+    hudControl.leadRelSpeed = leadOne.vRel if leadOne.status else 0
+    hudControl.leadRadar = 1 if leadOne.radar else 0
+    hudControl.leadDPath = leadOne.dPath
+
     hudControl.rightLaneVisible = True
     hudControl.leftLaneVisible = True
     if self.sm.valid['driverAssistance']:
