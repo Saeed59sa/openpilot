@@ -118,7 +118,7 @@ class BlockAverage:
     self.valid_blocks = valid_blocks
 
   def update(self, value: float):
-    self.values[self.block_idx] = (self.idx * self.values[self.block_idx] + (self.block_size - self.idx) * value) / self.block_size
+    self.values[self.block_idx] = (self.idx * self.values[self.block_idx] + value) / (self.idx + 1)
     self.idx = (self.idx + 1) % self.block_size
     if self.idx == 0:
       self.block_idx = (self.block_idx + 1) % self.num_blocks
@@ -278,7 +278,7 @@ class LateralLagEstimator:
 
 
 def retrieve_initial_lag(params_reader: Params, CP: car.CarParams):
-  last_lag_data = params_reader.get("LiveLag")
+  last_lag_data = params_reader.get("LiveDelay")
   last_carparams_data = params_reader.get("CarParamsPrevRoute")
 
   if last_lag_data is not None:
@@ -289,6 +289,7 @@ def retrieve_initial_lag(params_reader: Params, CP: car.CarParams):
           raise Exception("Car model mismatch")
 
         lag, valid_blocks = ld.lateralDelayEstimate, ld.validBlocks
+        assert valid_blocks <= BLOCK_NUM, "Invalid number of valid blocks"
         return lag, valid_blocks
     except Exception as e:
       cloudlog.error(f"Failed to retrieve initial lag: {e}")
@@ -329,4 +330,4 @@ def main():
       pm.send('liveDelay', lag_msg_dat)
 
       if sm.frame % 1200 == 0: # cache every 60 seconds
-        params_reader.put_nonblocking("LiveLag", lag_msg_dat)
+        params_reader.put_nonblocking("LiveDelay", lag_msg_dat)
