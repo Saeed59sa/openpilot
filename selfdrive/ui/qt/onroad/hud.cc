@@ -145,7 +145,6 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   bg.setColorAt(1, QColor::fromRgbF(0, 0, 0, 0));
   p.fillRect(0, 0, surface_rect.width(), UI_HEADER_HEIGHT, bg);
 
-
   if (is_cruise_available) {
     drawSetSpeed(p, surface_rect);
   }
@@ -445,24 +444,24 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   if (limit_speed > 0 || roadLimitSpeed > 0) {
     QPoint center(speed_box.right() + 160, speed_box.center().y());
     const QList<QPair<int, QColor>> circles = {
-        {72, whiteColor()},
-        {70, redColor()},
-        {54, whiteColor()}
+      {72, whiteColor()},
+      {70, redColor()},
+      {54, whiteColor()}
     };
 
     p.setPen(Qt::NoPen);
     for (const auto& [radius, color] : circles) {
-        p.setBrush(color);
-        p.drawEllipse(center, radius, radius);
+      p.setBrush(color);
+      p.drawEllipse(center, radius, radius);
     }
 
     if (limit_speed > 0 && left_dist > 0) {
-        drawTextCenter(p, center, 50, limitSpeedStr, blackColor(200));
-        drawTextCenter(p, {speed_box.right() + 160, speed_box.bottom()}, 40, leftDistStr, whiteColor(200));
+      drawTextCenter(p, center, 50, limitSpeedStr, blackColor(200));
+      drawTextCenter(p, {speed_box.right() + 160, speed_box.bottom()}, 40, leftDistStr, whiteColor(200));
     } else if (roadLimitSpeed > 0 && roadLimitSpeed < 120) {
-        drawTextCenter(p, center, 50, roadLimitSpeedStr, blackColor(200));
+      drawTextCenter(p, center, 50, roadLimitSpeedStr, blackColor(200));
     } else if (limit_speed > 0) {
-        drawTextCenter(p, center, 50, limitSpeedStr, blackColor(200));
+      drawTextCenter(p, center, 50, limitSpeedStr, blackColor(200));
     }
   }
 }
@@ -518,7 +517,6 @@ void HudRenderer::drawTextColor(QPainter &p, int x, int y, int fontSize, const Q
     real_rect.moveCenter({x, y - real_rect.height() / 2});
     p.drawText(real_rect.x(), real_rect.bottom(), text);
   }
-
 
   font.setBold(false);
   p.setFont(InterFont(fontSize));
