@@ -83,6 +83,7 @@ void HudRenderer::updateState(const UIState &s) {
   const auto ge = sm["gpsLocationExternal"].getGpsLocationExternal();
   const auto nd = sm["naviData"].getNaviData();
   const auto lo = sm["longitudinalPlan"].getLongitudinalPlan();
+  const auto lp = sm["liveParameters"].getLiveParameters();
 
   // Handle older routes where vCruiseCluster is not set
   apply_speed = ce.getVCruise();
@@ -129,6 +130,10 @@ void HudRenderer::updateState(const UIState &s) {
   traffic_state = lo.getTrafficState();
   lka_state = ce.getCruiseState().getAvailable();
   lat_active = cc.getLatActive();
+  steering_angle_deg = cc.getActuators().getSteeringAngleDeg();
+  steer_torque = ce.getSteeringTorque();
+  curvature = cc.getActuators().getCurvature();
+  steer_ratio = lp.getSteerRatio();
 }
 
 void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
@@ -177,38 +182,38 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
 
   // NDA State
   if (nda_state > 0) {
-      QString ndaText = "NDA";
-      int ndaTextWidth = p.fontMetrics().horizontalAdvance(ndaText);
-      int ndaTextHeight = p.fontMetrics().height();
-      p.setPen(Qt::NoPen);
-      p.setBrush(blackColor(200));
-      p.drawRoundedRect(x - 10, y - 20, ndaTextWidth + 20, ndaTextHeight + 10, 15, 15);
-      drawTextColor(p, x, y, 30, ndaText, limeColor(200), "L");
-      x += ndaTextWidth + 24;
+    QString ndaText = "NDA";
+    int ndaTextWidth = p.fontMetrics().horizontalAdvance(ndaText);
+    int ndaTextHeight = p.fontMetrics().height();
+    p.setPen(Qt::NoPen);
+    p.setBrush(blackColor(200));
+    p.drawRoundedRect(x - 10, y - 20, ndaTextWidth + 20, ndaTextHeight + 10, 15, 15);
+    drawTextColor(p, x, y, 30, ndaText, limeColor(200), "L");
+    x += ndaTextWidth + 24;
   }
 
   // CameraScc Setting
   if (params.getBool("CameraSccEnable")) {
-      QString cameraSccText = "CameraScc";
-      int cameraSccTextWidth = p.fontMetrics().horizontalAdvance(cameraSccText);
-      int cameraSccTextHeight = p.fontMetrics().height();
-      p.setPen(Qt::NoPen);
-      p.setBrush(blackColor(200));
-      p.drawRoundedRect(x - 10, y - 20, cameraSccTextWidth + 20, cameraSccTextHeight + 10, 15, 15);
-      drawTextColor(p, x, y, 30, cameraSccText, limeColor(200), "L");
-      x += cameraSccTextWidth + 24;
+    QString cameraSccText = "CameraScc";
+    int cameraSccTextWidth = p.fontMetrics().horizontalAdvance(cameraSccText);
+    int cameraSccTextHeight = p.fontMetrics().height();
+    p.setPen(Qt::NoPen);
+    p.setBrush(blackColor(200));
+    p.drawRoundedRect(x - 10, y - 20, cameraSccTextWidth + 20, cameraSccTextHeight + 10, 15, 15);
+    drawTextColor(p, x, y, 30, cameraSccText, limeColor(200), "L");
+    x += cameraSccTextWidth + 24;
   }
 
   // HDA2 Setting
   if (params.getBool("IsHda2")) {
-      QString hda2Text = "HDA2";
-      int hda2TextWidth = p.fontMetrics().horizontalAdvance(hda2Text);
-      int hda2TextHeight = p.fontMetrics().height();
-      p.setPen(Qt::NoPen);
-      p.setBrush(blackColor(200));
-      p.drawRoundedRect(x - 10, y - 20, hda2TextWidth + 20, hda2TextHeight + 10, 15, 15);
-      drawTextColor(p, x, y, 30, hda2Text, limeColor(200), "L");
-      x += hda2TextWidth + 24;
+    QString hda2Text = "HDA2";
+    int hda2TextWidth = p.fontMetrics().horizontalAdvance(hda2Text);
+    int hda2TextHeight = p.fontMetrics().height();
+    p.setPen(Qt::NoPen);
+    p.setBrush(blackColor(200));
+    p.drawRoundedRect(x - 10, y - 20, hda2TextWidth + 20, hda2TextHeight + 10, 15, 15);
+    drawTextColor(p, x, y, 30, hda2Text, limeColor(200), "L");
+    x += hda2TextWidth + 24;
   }
 
   // N direction icon
@@ -242,7 +247,8 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   infoGps = (gpsSatelliteCount == 0) ? "🛰️ No Gps Signal" : QString::asprintf("🛰️ Alt(%s) Acc(%s) Sat(%d)",
                                                                               altitudeStr.toStdString().c_str(),
                                                                               accuracyStr.toStdString().c_str(),
-                                                                              gpsSatelliteCount);
+                                                                              gpsSatelliteCount
+                                                                              );
 
   x = surface_rect.right() - 30;
   y = (UI_BORDER_SIZE);
@@ -257,15 +263,15 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     drawIconGradient(p, iconCenter, steer_img, icon_bg, 0.8, steerAngle);
 
     QColor sa_color = limeColor(200);
-    if (std::fabs(steerAngle) > 360) {
+    if (std::abs(steerAngle) > 360) {
       sa_color = darkRedColor(200);
-    } else if (std::fabs(steerAngle) > 240) {
+    } else if (std::abs(steerAngle) > 240) {
       sa_color = redColor(200);
-    } else if (std::fabs(steerAngle) > 120) {
+    } else if (std::abs(steerAngle) > 120) {
       sa_color = orangeColor(200);
     }
 
-    QString sa_str = QString::asprintf("%.0f °", steerAngle);
+    QString sa_str = QString::asprintf("%.1f °", std::abs(steerAngle));
 
     QRect textRect = p.fontMetrics().boundingRect(sa_str);  // Get text size
     int textX = iconCenter.x() - textRect.width() / 2;      // Center horizontally
@@ -307,13 +313,26 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     drawTextColor(p, x + 133, y + 171, 30, get_tpms_text(rr), get_tpms_color(rr));
   }
 
-  // bottom left info
+  // bottom carname
   QString car_name = QString("%1").arg(QString::fromStdString(params.get("CarName")));
 
   x = surface_rect.left() + 30;
   y = surface_rect.height() - 20;
 
   drawTextColor(p, x, y, 30, car_name, whiteColor(200), "L");
+
+  // bottom left info
+  QString steer_info =  QString::asprintf("SR(%.1f) SAD(%.1f) Torque(%.1f) Curvature(%.1f)",
+                                          steer_ratio,
+                                          std::abs(steering_angle_deg),
+                                          std::abs(steer_torque),
+                                          std::abs(curvature)
+                                          );
+
+  x = surface_rect.left() + 400;
+  y = surface_rect.height() - 20;
+
+  drawTextColor(p, x, y, 30, steer_info, whiteColor(200), "L");
 
   // bottom right info
   QString current_description = QString("%1").arg(QString::fromStdString(params.get("UpdaterCurrentDescription")));

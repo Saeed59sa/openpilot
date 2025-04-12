@@ -59,6 +59,7 @@ private:
   float steerAngle = 0;
   float fl, fr, rl, rr = 0;
   float roadLimitSpeed, navLimitSpeed = 0;
+  float steering_angle_deg, steer_torque, curvature, steer_ratio = 0;
   Params params;
 
 protected:
