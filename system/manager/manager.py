@@ -43,7 +43,7 @@ def manager_init() -> None:
     ("LongitudinalPersonality", str(log.LongitudinalPersonality.standard)),
     ("IsMetric", "1"),
     ("ExperimentalMode", "0"),
-    ("ExperimentalLongitudinalEnabled", "0"),
+    ("AlphaLongitudinalEnabled", "0"),
 
     # add
     ("SshEnabled", "1"),
