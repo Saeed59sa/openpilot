@@ -53,6 +53,7 @@ private:
   int camLimitSpeed, sectionLimitSpeed = 0;
   int camLimitSpeedLeftDist, sectionLeftDist = 0;
   int traffic_state = 0;
+  int blink_index, blink_wait = 0;
 
   float apply_speed, cruise_speed;
   float gpsBearing, gpsVerticalAccuracy, gpsAltitude, gpsAccuracy = 0;
@@ -60,6 +61,9 @@ private:
   float fl, fr, rl, rr = 0;
   float roadLimitSpeed, navLimitSpeed = 0;
   float steering_angle_deg, steer_torque, curvature, steer_ratio = 0;
+
+  double prev_blink_time = 0.0;
+
   Params params;
 
 protected:

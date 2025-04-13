@@ -7,18 +7,7 @@
 #include "selfdrive/ui/qt/onroad/buttons.h"
 
 constexpr int SET_SPEED_NA = 255;
-
-// blinker
-constexpr float BLINKER_IMG_ALPHA = 0.8f;
 constexpr int BLINKER_DRAW_COUNT = 8;
-constexpr int BLINKER_WIDTH = 200;
-constexpr int BLINKER_HEIGHT = 200;
-constexpr double BLINK_PERIOD_MS = 900.0;
-constexpr int BLINK_WAIT_FRAMES = UI_FREQ / 4;
-
-static int blink_index = 0;
-static int blink_wait = 0;
-static double prev_blink_time = 0.0;
 
 HudRenderer::HudRenderer() {
   steer_img = loadPixmap("../assets/img_steer.png", {img_size, img_size});
@@ -342,6 +331,8 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   drawTextColor(p, x, y, 30, current_description, whiteColor(200), "R");
 
   // turnsignal
+  double BLINK_PERIOD_MS = 900.0;
+
   if (blink_wait > 0) {
     blink_wait--;
     blink_index = 0;
@@ -362,7 +353,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
       }
       if (blink_index >= BLINKER_DRAW_COUNT) {
         blink_index = BLINKER_DRAW_COUNT - 1;
-        blink_wait = BLINK_WAIT_FRAMES;
+        blink_wait = UI_FREQ / 4;
       }
     } else {
       blink_index = 0;
@@ -561,6 +552,10 @@ QColor HudRenderer::interpColor(float xv, std::vector<float> xp, std::vector<QCo
 }
 
 void HudRenderer::draw_blinker(QPainter& p, const QRect& surface_rect, bool is_left, const QPixmap& blinker_img) {
+  float BLINKER_IMG_ALPHA = 0.8f;
+  int BLINKER_WIDTH = 200;
+  int BLINKER_HEIGHT = 200;
+
   const int center_x = surface_rect.width() / 2;
   const int y = (surface_rect.height() - BLINKER_HEIGHT) / 2;
   int x = center_x;
