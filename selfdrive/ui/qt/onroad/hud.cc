@@ -310,7 +310,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   drawTextColor(p, x, y, 30, car_name, whiteColor(200), "L");
 
   // bottom left info
-  QString steer_info =  QString::asprintf("SR(%.1f) SAD(%.1f) Torque(%.1f) Curvature(%.3f)",
+  QString steer_info =  QString::asprintf("SteerRatio(%.1f) SteerTarget(%.1f) Torque(%.1f) Curvature(%.3f)",
                                           steer_ratio,
                                           std::abs(steering_angle_deg),
                                           std::abs(steer_torque),
