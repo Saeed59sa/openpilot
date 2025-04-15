@@ -122,7 +122,7 @@ class Controls:
     self.desired_curvature, curvature_limited = clip_curvature(CS.vEgo, self.desired_curvature, new_desired_curvature, lp.roll)
 
     # Apply smoothing to reduce oscillations during high curvature transitions
-    alpha = 0.4  # Adjust smoothing factor (0 = no smoothing, 1 = full smoothing)
+    alpha = 0.3  # Adjust smoothing factor (0 = no smoothing, 1 = full smoothing)
     self.desired_curvature = (1 - alpha) * self.desired_curvature + alpha * new_desired_curvature
 
     actuators.curvature = self.desired_curvature
