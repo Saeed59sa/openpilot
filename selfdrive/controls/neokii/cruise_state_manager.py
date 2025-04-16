@@ -137,9 +137,12 @@ class CruiseStateManager:
 
     if btn == ButtonType.lfaButton:
       if not self.btn_long_pressed:
-        self.enabled = False
-        self.available = False
-        self.reset_available()
+        if self.enabled:
+          self.enabled = False
+          self.available = False
+          self.reset_available()
+        else:
+          self.available = True
       else:
         self.enabled = False
         self.available = False
