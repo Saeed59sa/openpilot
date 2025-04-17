@@ -261,9 +261,9 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
 
     QString sa_str = QString::asprintf("%.1f °", std::abs(steerAngle));
 
-    QRect textRect = p.fontMetrics().boundingRect(sa_str);  // Get text size
-    int textX = iconCenter.x() - textRect.width() / 2;      // Center horizontally
-    int textY = iconCenter.y() + btn_size / 2 + 20;         // Place below the icon (20px margin)
+    QRect textRect = p.fontMetrics().boundingRect(sa_str);
+    int textX = iconCenter.x() - textRect.width() / 2 + 40;
+    int textY = iconCenter.y() + btn_size / 2 + 20;
 
     drawTextColor(p, textX, textY, 30, sa_str, sa_color);
 
@@ -310,7 +310,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   drawTextColor(p, x, y, 30, car_name, whiteColor(200), "L");
 
   // bottom left info
-  QString steer_info =  QString::asprintf("SteerRatio(%.1f) SteerTarget(%.1f) Torque(%.1f) Curvature(%.3f)",
+  QString steer_info =  QString::asprintf("SteerRatio(%.1f) SteerTarget(%.1f °) Torque(%.1f) Curvature(%.3f)",
                                           steer_ratio,
                                           std::abs(steering_angle_deg),
                                           std::abs(steer_torque),

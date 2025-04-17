@@ -141,7 +141,7 @@ class CruiseStateManager:
           self.enabled = False
           self.available = False
           self.reset_available()
-        else:
+        elif not self.enabled and self.available and CS.gearShifter != GearShifter.park:
           self.available = True
       else:
         self.enabled = False
