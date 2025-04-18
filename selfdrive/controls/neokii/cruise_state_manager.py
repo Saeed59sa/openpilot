@@ -137,16 +137,10 @@ class CruiseStateManager:
 
     if btn == ButtonType.lfaButton:
       if not self.btn_long_pressed:
-        if self.enabled:
-          self.enabled = False
-          self.available = False
-          self.reset_available()
-        elif not self.enabled and self.available and CS.gearShifter != GearShifter.park:
-          self.available = True
-      else:
         self.enabled = False
         self.available = False
-        subprocess.Popen(["sh", "/data/openpilot/scripts/gitpull.sh"])
+        self.reset_available()
+      #else:
 
     v_cruise_kph = np.clip(round(v_cruise_kph, 1), V_CRUISE_MIN, V_CRUISE_MAX)
     self.speed = v_cruise_kph * CV.KPH_TO_MS
