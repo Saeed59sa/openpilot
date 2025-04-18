@@ -1265,11 +1265,8 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
 
   solverExecutionTime @35 :Float32;
 
-  vTarget @40: Float32;
-  jTarget @41: Float32;
-  xTarget @42: Float32;
-  xState @43: Int32;
-  trafficState @44: Int32;
+  xState @40: Int32;
+  trafficState @41: Int32;
 
   enum LongitudinalPlanSource {
     cruise @0;
