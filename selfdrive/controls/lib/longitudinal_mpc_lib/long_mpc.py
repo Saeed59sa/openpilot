@@ -514,11 +514,11 @@ class LongitudinalMpc:
     # lin {self.time_linearization:.2e} qp_iter {qp_iter}, reset {reset}")
 
   def _update_carrot(self, sm, v_cruise):
-    carstate = sm['carState']
+    CS = sm['carState']
     model = sm['modelV2']
-    radarstate = sm['radarState']
-    v_ego = carstate.vEgo
-    a_ego = carstate.aEgo
+    radar = sm['radarState']
+    v_ego = CS.vEgo
+    a_ego = CS.aEgo
     v_ego_kph = v_ego * CV.MS_TO_KPH
 
     x = model.position.x
@@ -528,26 +528,26 @@ class LongitudinalMpc:
     self.xStop = self._update_stop_dist(x[31])
     filtered_stop_distance = self.xStop
 
-    lead_detected = radarstate.leadOne.status
-    d_rel = radarstate.leadOne.dRel if lead_detected else 1000
+    lead_detected = radar.leadOne.status
+    d_rel = radar.leadOne.dRel if lead_detected else 1000
     self._check_model_stopping(v, v_ego, a_ego, x[-1], y, d_rel)
 
     if self.xState == XState.e2eStopped:
-      if carstate.gasPressed:
+      if CS.gasPressed:
         self.xState = XState.e2ePrepare
-      elif lead_detected and (radarstate.leadOne.dRel - filtered_stop_distance) < 2.0:
+      elif lead_detected and (radar.leadOne.dRel - filtered_stop_distance) < 2.0:
         self.xState = XState.lead
       elif self.stopping_count == 0:
-        if self.trafficState == TrafficState.green and not carstate.leftBlinker:
+        if self.trafficState == TrafficState.green and not CS.leftBlinker:
           self.xState = XState.e2ePrepare
-      self.stopping_count = max(0, self.stopping_count - 1)
+      self.stopping_count = max(0, int(self.stopping_count) - 1)
       v_cruise = 0
     elif self.xState == XState.e2eStop:
       self.stopping_count = 0
-      if carstate.gasPressed:  # Stop detecting traffic signal for 10 seconds
+      if CS.gasPressed:  # Stop detecting traffic signal for 10 seconds
         self.xState = XState.e2eCruise
         self.traffic_starting_count = 10.0 / DT_MDL
-      elif lead_detected and (radarstate.leadOne.dRel - filtered_stop_distance) < 2.0:
+      elif lead_detected and (radar.leadOne.dRel - filtered_stop_distance) < 2.0:
         self.xState = XState.lead
       else:
         if self.trafficState == TrafficState.green:
@@ -559,7 +559,7 @@ class LongitudinalMpc:
             self.adjusted_stop_distance = stop_dist
           filtered_stop_distance = 0
           if v_ego < 0.3:
-            self.stopping_count = 0.5 / DT_MDL
+            self.stopping_count = int(0.5 / DT_MDL)
             self.xState = XState.e2eStopped
     elif self.xState == XState.e2ePrepare:
       if lead_detected:
@@ -573,7 +573,7 @@ class LongitudinalMpc:
       self.traffic_starting_count = max(0, self.traffic_starting_count - 1)
       if lead_detected:
         self.xState = XState.lead
-      elif self.trafficState == TrafficState.red and abs(carstate.steeringAngleDeg) < 30 and self.traffic_starting_count == 0:
+      elif self.trafficState == TrafficState.red and abs(CS.steeringAngleDeg) < 30 and self.traffic_starting_count == 0:
         self.xState = XState.e2eStop
         self.adjusted_stop_distance = self.xStop
       else:
