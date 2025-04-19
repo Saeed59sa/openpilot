@@ -474,7 +474,7 @@ void HudRenderer::drawCurrentSpeed(QPainter &p, const QRect &surface_rect) {
   }
 
   int speedStrWidth = p.fontMetrics().horizontalAdvance(speedStr);
-  int unitX = surface_rect.center().x() + speedStrWidth + 120;
+  int unitX = surface_rect.center().x() + speedStrWidth + 140;
 
   drawTextColor(p, surface_rect.center().x(), 180, 180, speedStr, variableColor);
   drawTextColor(p, unitX, 180, 40, is_metric ? tr("km/h") : tr("mph"), lightorangeColor());
