@@ -263,24 +263,18 @@ void ModelRenderer::drawLead(QPainter &painter, const cereal::RadarState::LeadDa
 
   // lead car radar distance and speed
   QString l_dist, l_speed;
-  QColor d_color, v_color = whiteColor(150);
+  QColor d_color = whiteColor(150);
+  QColor v_color = pinkColor(150);
 
-  if (d_rel < 5) {
-    d_color = redColor(150);
-  } else if (d_rel < 15) {
-    d_color = orangeColor(150);
-  } else {
-    d_color = whiteColor(150);
+  if (d_rel < 15) {
+    d_color = (d_rel < 5) ? redColor(150) : orangeColor(150);
   }
   l_dist = QString::asprintf("%.1f m", d_rel);
 
-  if (v_rel < -4.4704) {
-    v_color = redColor(150);
-  } else if (v_rel < 0) {
-    v_color = orangeColor(150);
-  } else {
-    v_color = pinkColor(150);
+  if (v_rel < 0) {
+    v_color = (v_rel < -4.4704) ? redColor(150) : orangeColor(150);
   }
+
   if (s->scene.is_metric) {
     l_speed = QString::asprintf("%.0f km/h", speed + v_rel * 3.6);
   } else {
