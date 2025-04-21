@@ -480,7 +480,7 @@
     </message>
     <message>
         <source>openpilot requires the device to be mounted within 4° left or right and within 5° up or 9° down. openpilot is continuously calibrating, resetting is rarely required.</source>
-        <translation>오픈파일럿 장치는 좌우 4°, 위로 5°, 아래로 9° 이내 각도로 장착되어야 합니다. 오픈파일럿은 지속적으로 자동 보정되며 재설정은 거의 필요하지 않습니다.</translation>
+        <translation>오픈파일럿 장치는 좌우 4°, 위로 5°, 아래로 9° 이내의 각도로 장착되어야 합니다. 오픈파일럿은 지속적으로 자동 보정되며 재설정은 거의 필요하지 않습니다.</translation>
     </message>
     <message>
         <source> Your device is pointed %1° %2 and %3° %4.</source>

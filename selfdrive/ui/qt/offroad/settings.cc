@@ -264,7 +264,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   QObject::connect(restart_btn, &QPushButton::released, [=]() {
     emit closeSettings();
     QTimer::singleShot(1000, []() {
-      Params().putBool("SoftRestartTriggered", true);
+        Params().putBool("SoftRestartTriggered", true);
     });
   });
 
@@ -309,6 +309,10 @@ void DevicePanel::updateCalibDescription() {
         desc += tr(" Your device is pointed %1° %2 and %3° %4.")
                     .arg(QString::number(std::abs(pitch), 'g', 1), pitch > 0 ? tr("down") : tr("up"),
                          QString::number(std::abs(yaw), 'g', 1), yaw > 0 ? tr("left") : tr("right"));
+        QString position = QString("[ %1° %2 / %3° %4 ]")
+                           .arg(QString::number(std::abs(pitch), 'g', 1), pitch > 0 ? "↓" : "↑",
+                                QString::number(std::abs(yaw), 'g', 1), yaw > 0 ? "←" : "→");
+        params.put("DevicePosition", position.toStdString());
       }
     } catch (kj::Exception) {
       qInfo() << "invalid CalibrationParams";
