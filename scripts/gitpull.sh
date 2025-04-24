@@ -78,7 +78,7 @@ if ping -c 3 8.8.8.8 > /dev/null 2>&1; then
   LOCAL_COMMIT_TIME=$(date -d @"$(git show -s --format=%ct HEAD)" '+%Y-%m-%d %H:%M:%S')
 
   echo -e "  Remote Commit: [ ${GREEN}${BOLD} $REMOTE_COMMIT_HASH ${NC} ] - $REMOTE_COMMIT_TIME"
-  echo -e "  Local Commit:  [ ${GREEN}${BOLD} $LOCAL_COMMIT_HASH ${NC} ] - $LOCAL_COMMIT_TIME"
+  echo -e "   Local Commit: [ ${GREEN}${BOLD} $LOCAL_COMMIT_HASH ${NC} ] - $LOCAL_COMMIT_TIME"
 
   if [ "$REMOTE_COMMIT_HASH" = "$LOCAL_COMMIT_HASH" ]; then
     echo -e "\nCommit is ${GREEN}${BOLD}match${NC}. Proceeding restart...\n"

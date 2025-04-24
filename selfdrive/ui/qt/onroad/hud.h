@@ -37,7 +37,6 @@ private:
   QPixmap autohold_warning_img;
   QPixmap autohold_active_img;
   QPixmap lka_on_img, lka_off_img;
-  QPixmap c3x_img;
 
   QString leftDistStr, altitudeStr, accuracyStr, infoGps;
 

@@ -30,7 +30,6 @@ HudRenderer::HudRenderer() {
   traffic_red_img = loadPixmap("../assets/img_traffic_red.png", {img_size, img_size});
   lka_on_img = loadPixmap("../assets/img_lka_on.png", {img_size, img_size});
   lka_off_img = loadPixmap("../assets/img_lka_off.png", {img_size, img_size});
-  c3x_img = loadPixmap("../assets/img_c3x.png");
 
   // neokii add
   autohold_warning_img = loadPixmap("../assets/img_autohold_warning.png", {img_size, img_size});
@@ -243,21 +242,6 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   y = (UI_BORDER_SIZE);
 
   drawTextColor(p, x, y, 30, infoGps, whiteColor(200), "R");
-
-  // c3x position
-  w = 161;
-  h = 104;
-  x = surface_rect.right() - w - (UI_BORDER_SIZE * 2);
-  y = (h * 2 ) + (UI_BORDER_SIZE * 2);
-
-  p.drawPixmap(x, y, w, h, c3x_img);
-
-  QString c3x_position = QString("%1").arg(QString::fromStdString(params.get("DevicePosition")));
-
-  x = surface_rect.right() - w - (UI_BORDER_SIZE * 2);
-  y = (h * 2) + (UI_BORDER_SIZE * 2);
-
-  drawTextColor(p, x, y, 30, c3x_position, whiteColor(200), "R");
 
   if (!hideBottomIcons) {
     // steer img

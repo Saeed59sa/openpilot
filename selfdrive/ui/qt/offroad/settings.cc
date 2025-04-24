@@ -210,6 +210,25 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   });
   addItem(resetCalibBtn);
 
+  std::string calib_bytes = params.get("CalibrationParams");
+  if (!calib_bytes.empty()) {
+    try {
+      AlignedBuffer aligned_buf;
+      capnp::FlatArrayMessageReader cmsg(aligned_buf.align(calib_bytes.data(), calib_bytes.size()));
+      auto calib = cmsg.getRoot<cereal::Event>().getLiveCalibration();
+      if (calib.getCalStatus() != cereal::LiveCalibrationData::Status::UNCALIBRATED) {
+        double pitch = calib.getRpyCalib()[1] * (180 / M_PI);
+        double yaw = calib.getRpyCalib()[2] * (180 / M_PI);
+        QString position = QString("%2 %1° %4 %3°")
+                           .arg(QString::number(std::abs(pitch), 'g', 1), pitch > 0 ? "↓" : "↑",
+                                QString::number(std::abs(yaw), 'g', 1), yaw > 0 ? "←" : "→");
+        params.put("DevicePosition", position.toStdString());
+      }
+    } catch (kj::Exception) {
+      qInfo() << "invalid CalibrationParams";
+    }
+  }
+
   auto retrainingBtn = new ButtonControl(tr("Review Training Guide"), tr("REVIEW"), tr("Review the rules, features, and limitations of openpilot"));
   connect(retrainingBtn, &ButtonControl::clicked, [=]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to review the training guide?"), tr("Review"), this)) {
@@ -309,10 +328,6 @@ void DevicePanel::updateCalibDescription() {
         desc += tr(" Your device is pointed %1° %2 and %3° %4.")
                     .arg(QString::number(std::abs(pitch), 'g', 1), pitch > 0 ? tr("down") : tr("up"),
                          QString::number(std::abs(yaw), 'g', 1), yaw > 0 ? tr("left") : tr("right"));
-        QString position = QString("[ %1° %2 / %3° %4 ]")
-                           .arg(QString::number(std::abs(pitch), 'g', 1), pitch > 0 ? "↓" : "↑",
-                                QString::number(std::abs(yaw), 'g', 1), yaw > 0 ? "←" : "→");
-        params.put("DevicePosition", position.toStdString());
       }
     } catch (kj::Exception) {
       qInfo() << "invalid CalibrationParams";
