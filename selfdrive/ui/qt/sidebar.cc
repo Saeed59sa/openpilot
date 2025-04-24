@@ -4,6 +4,8 @@
 
 #include "selfdrive/ui/qt/util.h"
 
+#include <QProcess>
+
 void Sidebar::drawMetric(QPainter &p, const QPair<QString, QString> &label, QColor c, int y) {
   const QRect rect = {30, y, 240, 126};
 
@@ -57,9 +59,11 @@ void Sidebar::mouseReleaseEvent(QMouseEvent *event) {
     update();
   }
   if (onroad && home_btn.contains(event->pos())) {
-    MessageBuilder msg;
-    msg.initEvent().initUserFlag();
-    pm->send("userFlag", msg);
+    //MessageBuilder msg;
+    //msg.initEvent().initUserFlag();
+    //pm->send("userFlag", msg);
+    QProcess::execute("sh /data/openpilot/scripts/gitpull.sh");
+
   } else if (settings_btn.contains(event->pos())) {
     emit openSettings();
   }
