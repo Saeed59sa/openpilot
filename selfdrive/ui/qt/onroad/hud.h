@@ -34,9 +34,8 @@ private:
   QPixmap gps_img, direction_img, tpms_img;
   QPixmap turnsignal_l_img, turnsignal_r_img;
   QPixmap traffic_off_img, traffic_green_img, traffic_red_img;
-  QPixmap autohold_warning_img;
-  QPixmap autohold_active_img;
   QPixmap lka_on_img, lka_off_img;
+  QPixmap autohold_warning_img, autohold_active_img;
 
   QString leftDistStr, altitudeStr, accuracyStr, infoGps;
 
@@ -46,14 +45,13 @@ private:
   bool left_blinker, right_blinker = false;
   bool lat_active, lka_state = false;
 
-  int autohold_state, nda_state = 0;
-  int wifi_state = 0;
-  int gpsSatelliteCount = 0;
   int accel = 0;
+  int gpsSatelliteCount = 0;
   int camLimitSpeed, sectionLimitSpeed = 0;
   int camLimitSpeedLeftDist, sectionLeftDist = 0;
-  int traffic_state = 0;
+  int wifi_state, traffic_state = 0;
   int blink_index, blink_wait = 0;
+  int autohold_state, nda_state = 0;
 
   float apply_speed, cruise_speed;
   float gpsBearing, gpsVerticalAccuracy, gpsAltitude, gpsAccuracy = 0;
