@@ -1028,6 +1028,10 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.WARNING: personality_changed_alert,
   },
 
+  EventName.userFlag: {
+    ET.PERMANENT: NormalPermanentAlert("Bookmark Saved", duration=1.5),
+  },
+
   EventName.turningIndicatorOn: {
     ET.WARNING: Alert(
       "Steer Unavailable while Turning",

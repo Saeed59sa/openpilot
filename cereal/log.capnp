@@ -127,11 +127,12 @@ struct OnroadEvent @0xc4fa6047f024e718 {
     espActive @90;
     personalityChanged @91;
     aeb @92;
+    userFlag @95;
 
     ding @97;
     dong @98;
 
-    turningIndicatorOn @95;
+    turningIndicatorOn @99;
     autoLaneChange @96;
 
     soundsUnavailableDEPRECATED @47;
@@ -496,6 +497,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
   # device thermals
   cpuTempC @26 :List(Float32);
   gpuTempC @27 :List(Float32);
+  dspTempC @49 :Float32;
   memoryTempC @28 :Float32;
   nvmeTempC @35 :List(Float32);
   modemTempC @36 :List(Float32);

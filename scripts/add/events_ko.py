@@ -1035,6 +1035,10 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.WARNING: personality_changed_alert,
   },
 
+  EventName.userFlag: {
+    ET.PERMANENT: NormalPermanentAlert("북마크 저장됨", duration=1.5),
+  },
+
   EventName.turningIndicatorOn: {
     ET.WARNING: Alert(
       "방향지시등 동작중에는 핸들을 잡아주세요",
