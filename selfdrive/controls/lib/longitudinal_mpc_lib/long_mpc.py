@@ -379,7 +379,6 @@ class LongitudinalMpc:
     radarstate = sm['radarState']
     t_follow = get_T_FOLLOW(personality)
     v_ego = self.x0[1]
-    a_ego = self.x0[2]
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
 
     lead_xv_0 = self.process_lead(radarstate.leadOne)
@@ -394,8 +393,8 @@ class LongitudinalMpc:
     comfort_brake = COMFORT_BRAKE
     stop_distance = STOP_DISTANCE
 
-    self.params[:,0] = ACCEL_MIN if not reset_state else a_ego
-    self.params[:,1] = ACCEL_MAX if not reset_state else a_ego
+    self.params[:,0] = ACCEL_MIN
+    self.params[:,1] = ACCEL_MAX
 
     v_cruise, stop_dist = self._update_carrot(sm, v_cruise)
 
