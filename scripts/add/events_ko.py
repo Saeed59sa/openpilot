@@ -520,7 +520,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "도로를 주시하세요",
       "",
       AlertStatus.normal, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 1.),
+      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 5.),
   },
 
   EventName.promptDriverDistracted: {
@@ -619,8 +619,8 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.WARNING: Alert(
       "핸들을 잡아주세요",
       "회전이 조향 한도를 초과함",
-      AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.promptRepeat, 2.),
+      AlertStatus.userPrompt, AlertSize.small,
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, 3.),
   },
 
   # Thrown when the fan is driven at >50% but is not rotating
@@ -1044,7 +1044,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "방향지시등 동작중에는 핸들을 잡아주세요",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.none, .2),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.none, .2),
   },
 
   EventName.autoLaneChange: {
