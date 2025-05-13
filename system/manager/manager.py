@@ -46,7 +46,7 @@ def manager_init() -> None:
 
     # add
     ("SshEnabled", "1"),
-    ("IsLdwEnable", "1"),
+    ("IsLdwEnabled", "1"),
     ("AutoLaneChangeEnable", "1"),
     ("PrebuiltEnable", "0"),
     ("LoggerEnable", "1"),
