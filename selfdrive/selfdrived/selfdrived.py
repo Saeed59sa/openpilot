@@ -2,6 +2,7 @@
 import os
 import time
 import threading
+from collections import deque
 
 import cereal.messaging as messaging
 
@@ -15,6 +16,7 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.common.gps import get_gps_location_service
 
 from openpilot.selfdrive.car.car_specific import CarSpecificEvents
+from openpilot.selfdrive.locationd.lagd import MAX_LAG
 from openpilot.selfdrive.selfdrived.events import Events, ET
 from openpilot.selfdrive.selfdrived.state import StateMachine
 from openpilot.selfdrive.selfdrived.alertmanager import AlertManager, set_offroad_alert
@@ -119,6 +121,8 @@ class SelfdriveD:
     self.experimental_mode = False
     self.personality = self.read_personality_param()
     self.recalibrating_seen = False
+    self.lateral_actions = deque([0. for _ in range(int(MAX_LAG / DT_CTRL))],
+                                 maxlen=int(MAX_LAG / DT_CTRL))
     self.state_machine = StateMachine()
     self.rk = Ratekeeper(100, print_delay_threshold=None)
 
@@ -351,10 +355,12 @@ class SelfdriveD:
     recent_steer_pressed = (self.sm.frame - self.last_steering_pressed_frame)*DT_CTRL < 2.0
     controlstate = self.sm['controlsState']
     lac = getattr(controlstate.lateralControlState, controlstate.lateralControlState.which())
+    self.lateral_actions.append(self.sm['modelV2'].action.desiredCurvature)
     if lac.active and not recent_steer_pressed and not self.CP.notCar:
       clipped_speed = max(CS.vEgo, 0.3)
+      action_index = min(round(self.sm['liveDelay'].lateralDelay / DT_CTRL) + 1, self.lateral_actions.maxlen)
       actual_lateral_accel = controlstate.curvature * (clipped_speed**2)
-      desired_lateral_accel = self.sm['modelV2'].action.desiredCurvature * (clipped_speed**2)
+      desired_lateral_accel = self.lateral_actions[-action_index] * (clipped_speed**2)
       undershooting = abs(desired_lateral_accel) / abs(1e-3 + actual_lateral_accel) > 1.2
       turning = abs(desired_lateral_accel) > 1.0
       # TODO: lac.saturated includes speed and other checks, should be pulled out
