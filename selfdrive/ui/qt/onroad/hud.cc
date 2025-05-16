@@ -10,30 +10,30 @@ constexpr int SET_SPEED_NA = 255;
 constexpr int BLINKER_DRAW_COUNT = 8;
 
 HudRenderer::HudRenderer() {
-  steer_img = loadPixmap("../assets/img_steer.png", {img_size, img_size});
-  gaspress_img = loadPixmap("../assets/offroad/icon_disengage_on_accelerator.svg", {img_size, img_size});
+  steer_img = loadPixmap("../assets/icons/steer.png", {img_size, img_size});
+  gaspress_img = loadPixmap("../assets/icons/disengage_on_accelerator.svg", {img_size, img_size});
 
   // crwusiz add
-  brake_img = loadPixmap("../assets/img_brake_disc.png", {img_size, img_size});
-  gps_img = loadPixmap("../assets/img_gps.png", {img_size, img_size});
-  wifi_l_img = loadPixmap("../assets/offroad/icon_wifi_strength_low.svg", {img_size, img_size});
-  wifi_m_img = loadPixmap("../assets/offroad/icon_wifi_strength_medium.svg", {img_size, img_size});
-  wifi_h_img = loadPixmap("../assets/offroad/icon_wifi_strength_high.svg", {img_size, img_size});
-  wifi_f_img = loadPixmap("../assets/offroad/icon_wifi_strength_full.svg", {img_size, img_size});
-  wifi_ok_img = loadPixmap("../assets/img_wifi.png", {img_size, img_size});
-  direction_img = loadPixmap("../assets/img_direction.png", {img_size, img_size});
-  turnsignal_l_img = loadPixmap("../assets/img_turnsignal_l.png", {img_size, img_size});
-  turnsignal_r_img = loadPixmap("../assets/img_turnsignal_r.png", {img_size, img_size});
-  tpms_img = loadPixmap("../assets/img_tpms.png");
-  traffic_off_img = loadPixmap("../assets/img_traffic_off.png", {img_size, img_size});
-  traffic_green_img = loadPixmap("../assets/img_traffic_green.png", {img_size, img_size});
-  traffic_red_img = loadPixmap("../assets/img_traffic_red.png", {img_size, img_size});
-  lka_on_img = loadPixmap("../assets/img_lka_on.png", {img_size, img_size});
-  lka_off_img = loadPixmap("../assets/img_lka_off.png", {img_size, img_size});
+  brake_img = loadPixmap("../assets/icons/brake_disc.png", {img_size, img_size});
+  gps_img = loadPixmap("../assets/icons/gps.png", {img_size, img_size});
+  wifi_l_img = loadPixmap("../assets/icons/wifi_strength_low.svg", {img_size, img_size});
+  wifi_m_img = loadPixmap("../assets/icons/wifi_strength_medium.svg", {img_size, img_size});
+  wifi_h_img = loadPixmap("../assets/icons/wifi_strength_high.svg", {img_size, img_size});
+  wifi_f_img = loadPixmap("../assets/icons/wifi_strength_full.svg", {img_size, img_size});
+  wifi_ok_img = loadPixmap("../assets/icons/wifi.png", {img_size, img_size});
+  direction_img = loadPixmap("../assets/icons/direction.png", {img_size, img_size});
+  turnsignal_l_img = loadPixmap("../assets/icons/turnsignal_l.png", {img_size, img_size});
+  turnsignal_r_img = loadPixmap("../assets/icons/turnsignal_r.png", {img_size, img_size});
+  tpms_img = loadPixmap("../assets/icons/tpms.png");
+  traffic_off_img = loadPixmap("../assets/icons/traffic_off.png", {img_size, img_size});
+  traffic_green_img = loadPixmap("../assets/icons/traffic_green.png", {img_size, img_size});
+  traffic_red_img = loadPixmap("../assets/icons/traffic_red.png", {img_size, img_size});
+  lka_on_img = loadPixmap("../assets/icons/lka_on.png", {img_size, img_size});
+  lka_off_img = loadPixmap("../assets/icons/lka_off.png", {img_size, img_size});
 
   // neokii add
-  autohold_warning_img = loadPixmap("../assets/img_autohold_warning.png", {img_size, img_size});
-  autohold_active_img = loadPixmap("../assets/img_autohold_active.png", {img_size, img_size});
+  autohold_warning_img = loadPixmap("../assets/icons/autohold_warning.png", {img_size, img_size});
+  autohold_active_img = loadPixmap("../assets/icons/autohold_active.png", {img_size, img_size});
 }
 
 static const QColor get_tpms_color(float tpms) {

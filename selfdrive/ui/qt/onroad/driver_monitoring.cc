@@ -21,7 +21,7 @@ static const QColor DMON_ENGAGED_COLOR = QColor::fromRgbF(0.1, 0.945, 0.26);
 static const QColor DMON_DISENGAGED_COLOR = QColor::fromRgbF(0.545, 0.545, 0.545);
 
 DriverMonitorRenderer::DriverMonitorRenderer() : face_kpts_draw(std::size(DEFAULT_FACE_KPTS_3D)) {
-  dm_img = loadPixmap("../assets/img_driver_face.png", {img_size, img_size});
+  dm_img = loadPixmap("../assets/icons/driver_face.png", {img_size, img_size});
 }
 
 void DriverMonitorRenderer::updateState(const UIState &s) {

@@ -30,7 +30,7 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
   home_img = loadPixmap("../assets/images/button_home.png", home_btn.size());
   flag_img = loadPixmap("../assets/images/button_flag.png", home_btn.size());
   settings_img = loadPixmap("../assets/images/button_settings.png", settings_btn.size(), Qt::IgnoreAspectRatio);
-  c3x_img = loadPixmap("../assets/img_c3x.png", home_btn.size());
+  c3x_img = loadPixmap("../assets/icons/c3x.png", home_btn.size());
 
   connect(this, &Sidebar::valueChanged, [=] { update(); });
 

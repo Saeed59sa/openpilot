@@ -188,23 +188,23 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   // main toggle
   mainToggles = new ListWidget(this);
   mainToggles->addItem(new ParamControl("PcmCruiseEnable", tr("PcmCruise"), tr("Change the openpilot cruise engagement. use the PcmCruise method"),
-                                        "../assets/offroad/icon_lat.png", this));
+                                        "../assets/icons/lat.png", this));
   mainToggles->addItem(new ParamControl("CruiseStateControl", tr("Cruise State Controls"), tr("Openpilot controls cruise on/off, set speed"),
-                                        "../assets/offroad/icon_lat.png", this));
+                                        "../assets/icons/lat.png", this));
   mainToggles->addItem(new ParamControl("IsHda2", tr("CANFD Car HDA2"), tr("Highway Drive Assist 2, turn it on"),
-                                        "../assets/offroad/icon_hda.png", this));
+                                        "../assets/icons/hda.png", this));
   mainToggles->addItem(new ParamControl("CameraSccEnable", tr("CameraSCC"), tr("HDA1 CameraSCC CAR, HDA2 Connect the ADAS ECAN line to CAMERA modify, turn it on"),
-                                        "../assets/offroad/icon_hda.png", this));
+                                        "../assets/icons/hda.png", this));
   mainToggles->addItem(new ParamControl("DriverCameraOnReverse", tr("Driver Camera On Reverse"), tr("Displays the driver camera when in reverse"),
-                                        "../assets/img_driver_face_static.png", this));
+                                        "../assets/icons/driver_face_static.png", this));
   mainToggles->addItem(new ParamControl("DriverCameraHardwareMissing", tr("DriverCamera Hardware Missing"), tr("If there is a problem with the driver camera hardware, drive without the driver camera"),
-                                        "../assets/img_driver_face_static_x.png", this));
+                                        "../assets/icons/driver_face_static_x.png", this));
   mainToggles->addItem(new ParamControl("PrebuiltEnable", tr("Prebuilt Enable"), tr("Create prebuilt file to speed bootup"),
-                                        "../assets/offroad/icon_prebuilt.png", this));
+                                        "../assets/icons/prebuilt.png", this));
   mainToggles->addItem(new ParamControl("LoggerEnable", tr("Logger Enable"), tr("Turn off this option to reduce system load"),
-                                        "../assets/offroad/icon_logger.png", this));
+                                        "../assets/icons/logger.png", this));
   mainToggles->addItem(new ParamControl("RadarTrackEnable", tr("Enable Radar Track use"), tr("Enable Radar Track use (disable AEB)"),
-                                        "../assets/offroad/icon_warning.png", this));
+                                        "../assets/icons/warning.png", this));
 
   // func
   QPushButton* gitpull_btn = new QPushButton("Git Pull");
