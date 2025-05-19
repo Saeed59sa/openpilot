@@ -1,13 +1,15 @@
 import pyray as rl
 from openpilot.system.ui.lib.application import gui_app, FontWeight
-from openpilot.system.ui.lib.button import gui_button
+from openpilot.system.ui.lib.button import ButtonStyle, gui_button
 from openpilot.system.ui.lib.inputbox import InputBox
 from openpilot.system.ui.lib.label import gui_label
+
+KEY_FONT_SIZE = 96
 
 # Constants for special keys
 CONTENT_MARGIN = 50
 BACKSPACE_KEY = "<-"
-ENTER_KEY = "Enter"
+ENTER_KEY = "->"
 SPACE_KEY = "  "
 SHIFT_KEY = "↑"
 SHIFT_DOWN_KEY = "↓"
@@ -56,9 +58,10 @@ class Keyboard:
     self._eye_open_texture = gui_app.texture("icons/eye_open.png", 81, 54)
     self._eye_closed_texture = gui_app.texture("icons/eye_closed.png", 81, 54)
     self._key_icons = {
-      BACKSPACE_KEY: gui_app.texture("icons/backspace.png", 60, 60),
-      SHIFT_KEY: gui_app.texture("icons/shift.png", 60, 60),
-      SHIFT_DOWN_KEY: gui_app.texture("icons/arrow-down.png", 60, 60),
+      BACKSPACE_KEY: gui_app.texture("icons/backspace.png", 80, 80),
+      SHIFT_KEY: gui_app.texture("icons/shift.png", 80, 80),
+      SHIFT_DOWN_KEY: gui_app.texture("icons/arrow-down.png", 80, 80),
+      ENTER_KEY: gui_app.texture("icons/arrow-right.png", 80, 80),
     }
 
   @property
@@ -103,9 +106,9 @@ class Keyboard:
         result = -1
         if key in self._key_icons:
           texture = self._key_icons[key]
-          result = gui_button(key_rect, "", icon=texture, is_enabled=is_enabled)
+          result = gui_button(key_rect, "", icon=texture, button_style=ButtonStyle.PRIMARY if key == ENTER_KEY else ButtonStyle.NORMAL, is_enabled=is_enabled)
         else:
-          result = gui_button(key_rect, key, is_enabled=is_enabled)
+          result = gui_button(key_rect, key, KEY_FONT_SIZE, is_enabled=is_enabled)
 
         if result:
           if key == ENTER_KEY:

@@ -1,7 +1,6 @@
 import numpy as np
 
 class FirstOrderFilter:
-  # first order filter
   def __init__(self, x0, rc, dt, initialized=True):
     self.x = x0
     self.dt = dt
