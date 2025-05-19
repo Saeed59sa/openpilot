@@ -11,6 +11,10 @@ from openpilot.selfdrive.modeld.constants import ModelConstants
 
 MIN_CURVE_SPEED = 32. * CV.KPH_TO_MS
 SYNC_MARGIN = 3.
+MAX_NO_LIMIT_SPEED = 255.
+LONG_LEAD_DECAY_FACTOR = 22.
+LONG_LEAD_ACCEL_GAIN = 1.2
+CURVE_A_Y_SLOPE = 0.0375
 
 
 class SpeedController:
@@ -93,9 +97,11 @@ class SpeedController:
     lead_speed = self._get_long_lead_speed(clu_speed, sm)
     if self.min_set_speed_clu <= lead_speed < max_speed_clu:
       max_speed_clu = lead_speed
-      self.max_speed_clu = clu_speed + 3.
+      self.max_speed_clu = min(self.max_speed_clu, clu_speed + 3.)
 
-    self._update_max_speed(int(round(max_speed_clu)))
+    kp = np.interp(clu_speed, [0, 30], [0.015, 0.005])
+
+    self._update_max_speed(int(round(max_speed_clu)), kp)
     return max_speed_clu
 
   def get_lead(self, sm):
@@ -107,9 +113,9 @@ class SpeedController:
       lead = self.get_lead(sm)
       if lead is not None:
         d = lead.dRel - 5.
-        if 0. < d < -lead.vRel * 22. and lead.vRel < -1.:
-          t = d / lead.vRel
-          accel = -(lead.vRel / t) * self.speed_conv_to_clu * 1.2
+        if 0. < d < -lead.vRel * LONG_LEAD_DECAY_FACTOR and lead.vRel < -1.:
+          t = d / lead.vRel if abs(lead.vRel) > 1e-3 else 0.1
+          accel = -(lead.vRel / t) * self.speed_conv_to_clu * LONG_LEAD_ACCEL_GAIN
           if accel < 0.:
             return max(clu_speed + accel, self.min_set_speed_clu)
     return 0
@@ -128,16 +134,18 @@ class SpeedController:
         end_index = min(start_index + 10, ModelConstants.IDX_N)
         curv_segment = curv[start_index:end_index]
 
-        a_y_max = 2.975 - speed * 0.0375
+        a_y_max = 2.975 - speed * CURVE_A_Y_SLOPE
         v_curvature = np.sqrt(a_y_max / np.clip(np.abs(curv_segment), 1e-4, None))
         model_speed = np.mean(v_curvature) * 0.85
 
-        if model_speed < speed:
+        if np.isnan(model_speed):
+          self.curve_speed_ms = MAX_NO_LIMIT_SPEED
+        elif model_speed < speed:
           self.curve_speed_ms = float(max(model_speed, MIN_CURVE_SPEED))
         else:
-          self.curve_speed_ms = 255.
+          self.curve_speed_ms = MAX_NO_LIMIT_SPEED
       else:
-        self.curve_speed_ms = 255.
+        self.curve_speed_ms = MAX_NO_LIMIT_SPEED
 
   def _cal_target_speed(self, CS, clu_speed, v_cruise_kph, cruise_btn_pressed):
     override_speed = -1
@@ -160,12 +168,12 @@ class SpeedController:
 
     return override_speed
 
-  def _update_max_speed(self, max_speed):
+  def _update_max_speed(self, max_speed, kp):
     if not self.long_control or self.max_speed_clu <= 0:
       self.max_speed_clu = max_speed
     else:
-      kp = 0.01
-      self.max_speed_clu += (max_speed - self.max_speed_clu) * kp
+      error = max_speed - self.max_speed_clu
+      self.max_speed_clu += error * kp
 
   def _get_button(self, current_set_speed):
     if self.target_speed < V_CRUISE_INITIAL:
@@ -217,7 +225,7 @@ class SpeedController:
     self._update_message(CS)
 
   def spam_message(self, CS, can_sends):
-    ascc_enabled = CS.cruiseState.enabled and 1 < CS.cruiseState.speed < 255 and not CS.brakePressed
+    ascc_enabled = CS.cruiseState.enabled and 1 < CS.cruiseState.speed < MAX_NO_LIMIT_SPEED and not CS.brakePressed
     btn_pressed = self.CI.CS.cruise_buttons[-1] != Buttons.NONE
 
     if not self.long_control:
