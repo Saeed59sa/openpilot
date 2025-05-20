@@ -94,8 +94,9 @@ class SpeedController:
         self.max_speed_clu = clu_speed
       max_speed_clu = min(max_speed_clu, apply_limit_speed)
 
-    lead_speed = self._get_long_lead_speed(clu_speed, sm)
-    if self.min_set_speed_clu <= lead_speed < max_speed_clu:
+    lead_speed, lead = self._get_long_lead_speed(clu_speed, sm)
+
+    if lead is not None and self.min_set_speed_clu <= lead_speed < max_speed_clu:
       max_speed_clu = lead_speed
       self.max_speed_clu = min(self.max_speed_clu, clu_speed + 3.)
 
@@ -104,21 +105,19 @@ class SpeedController:
     self._update_max_speed(int(round(max_speed_clu)), kp)
     return max_speed_clu
 
-  def get_lead(self, sm):
-    radar = sm['radarState']
-    return radar.leadOne if radar.leadOne.status else None
-
   def _get_long_lead_speed(self, clu_speed, sm):
-    if self.long_control:
-      lead = self.get_lead(sm)
-      if lead is not None:
-        d = lead.dRel - 5.
-        if 0. < d < -lead.vRel * LONG_LEAD_DECAY_FACTOR and lead.vRel < -1.:
-          t = d / lead.vRel if abs(lead.vRel) > 1e-3 else 0.1
-          accel = -(lead.vRel / t) * self.speed_conv_to_clu * LONG_LEAD_ACCEL_GAIN
-          if accel < 0.:
-            return max(clu_speed + accel, self.min_set_speed_clu)
-    return 0
+    radar = sm['radarState']
+    lead = radar.leadOne if radar.leadOne.status else None
+
+    if self.long_control and lead is not None:
+      d = lead.dRel - 5.
+      if 0. < d < -lead.vRel * LONG_LEAD_DECAY_FACTOR and lead.vRel < -1.:
+        t = d / lead.vRel if abs(lead.vRel) > 1e-3 else 0.1
+        accel = -(lead.vRel / t) * self.speed_conv_to_clu * LONG_LEAD_ACCEL_GAIN
+        if accel < 0.:
+          return max(clu_speed + accel, self.min_set_speed_clu), lead
+
+    return 0, None
 
   def _cal_curve_speed(self, sm, speed, frame):
     if frame % 20 == 0:
