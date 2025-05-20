@@ -8,6 +8,8 @@ from openpilot.system.ui.lib.label import gui_label
 
 KEY_FONT_SIZE = 96
 DOUBLE_CLICK_THRESHOLD = 0.5  # seconds
+DELETE_REPEAT_DELAY = 0.5
+DELETE_REPEAT_INTERVAL = 0.07
 
 # Constants for special keys
 CONTENT_MARGIN = 50
@@ -43,7 +45,7 @@ KEYBOARD_LAYOUTS = {
   ],
   "specials": [
     ["[", "]", "{", "}", "#", "%", "^", "*", "+", "="],
-    ["_", "\\", "|", "~", "<", ">", "€", "£", "¥", "•"],
+    ["_", "\\", "|", "~", "<", ">"],
     [NUMERIC_KEY, ".", ",", "?", "!", "'", BACKSPACE_KEY],
     [ABC_KEY, SPACE_KEY, ".", ENTER_KEY],
   ],
@@ -61,6 +63,11 @@ class Keyboard:
     self._input_box = InputBox(max_text_size)
     self._password_mode = password_mode
     self._show_password_toggle = show_password_toggle
+
+    # Backspace key repeat tracking
+    self._backspace_pressed: bool = False
+    self._backspace_press_time: float = 0.0
+    self._backspace_last_repeat:float = 0.0
 
     self._eye_open_texture = gui_app.texture("icons/eye_open.png", 81, 54)
     self._eye_closed_texture = gui_app.texture("icons/eye_closed.png", 81, 54)
@@ -80,6 +87,7 @@ class Keyboard:
     self._layout_name = "lowercase"
     self._caps_lock = False
     self._input_box.clear()
+    self._backspace_pressed = False
 
   def render(self, title: str, sub_title: str):
     rect = rl.Rectangle(CONTENT_MARGIN, CONTENT_MARGIN, gui_app.width - 2 * CONTENT_MARGIN, gui_app.height - 2 * CONTENT_MARGIN)
@@ -93,6 +101,21 @@ class Keyboard:
     input_margin = 25
     input_box_rect = rl.Rectangle(rect.x + input_margin, rect.y + 160, rect.width - input_margin, 100)
     self._render_input_area(input_box_rect)
+
+    # Process backspace key repeat if it's held down
+    if not rl.is_mouse_button_down(rl.MouseButton.MOUSE_BUTTON_LEFT):
+      self._backspace_pressed = False
+
+    if self._backspace_pressed:
+      current_time = time.monotonic()
+      time_since_press = current_time - self._backspace_press_time
+
+      # After initial delay, start repeating with shorter intervals
+      if time_since_press > DELETE_REPEAT_DELAY:
+        time_since_last_repeat = current_time - self._backspace_last_repeat
+        if time_since_last_repeat > DELETE_REPEAT_INTERVAL:
+          self._input_box.delete_char_before_cursor()
+          self._backspace_last_repeat = current_time
 
     layout = KEYBOARD_LAYOUTS[self._layout_name]
 
@@ -112,10 +135,25 @@ class Keyboard:
 
         new_width = (key_width * 3 + h_space * 2) if key == SPACE_KEY else (key_width * 2 + h_space if key == ENTER_KEY else key_width)
         key_rect = rl.Rectangle(start_x, row_y_start + row * (key_height + v_space), new_width, key_height)
+        if (key_rect.x + key_rect.width) > (rect.x + rect.width):
+          key_rect.width = rect.x + rect.width - key_rect.x
+          new_width = key_rect.width
+
         start_x += new_width
 
         is_enabled = key != ENTER_KEY or len(self._input_box.text) >= self._min_text_size
         result = -1
+
+         # Check for backspace key press-and-hold
+        mouse_pos = rl.get_mouse_position()
+        mouse_over_key = rl.check_collision_point_rec(mouse_pos, key_rect)
+
+        if key == BACKSPACE_KEY and mouse_over_key:
+          if rl.is_mouse_button_pressed(rl.MouseButton.MOUSE_BUTTON_LEFT):
+            self._backspace_pressed = True
+            self._backspace_press_time = time.monotonic()
+            self._backspace_last_repeat = time.monotonic()
+
         if key in self._key_icons:
           if key == SHIFT_ACTIVE_KEY and self._caps_lock:
             key = CAPS_LOCK_KEY
