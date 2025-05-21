@@ -15,7 +15,7 @@ MAX_NO_LIMIT_SPEED = 255.
 LONG_LEAD_DECAY_FACTOR = 22.
 LONG_LEAD_ACCEL_GAIN = 1.2
 CURVE_A_Y_SLOPE = 0.0375
-
+CURVATURE_THRESHOLD = 0.0018
 
 class SpeedController:
   def __init__(self, CP, CI):
@@ -79,7 +79,8 @@ class SpeedController:
     self.curve_speed_ms = 0.
 
   def _cal_max_speed(self, CS, sm, clu_speed, v_cruise_kph):
-    apply_limit_speed, road_limit_speed, left_dist, first_started = SpeedLimiter.instance().get_max_speed(clu_speed, self.is_metric)
+    apply_limit_speed, road_limit_speed, left_dist, first_started = SpeedLimiter.instance().get_max_speed(clu_speed,
+                                                                                                          self.is_metric)
     self._cal_curve_speed(sm, CS.vEgo, sm.frame)
 
     if self.curve_speed_ms >= MIN_CURVE_SPEED:
@@ -101,8 +102,12 @@ class SpeedController:
       self.max_speed_clu = min(self.max_speed_clu, clu_speed + 3.)
 
     kp = np.interp(clu_speed, [0, 30], [0.015, 0.005])
+    if not self.long_control or self.max_speed_clu <= 0:
+      self.max_speed_clu = int(round(max_speed_clu))
+    else:
+      error = int(round(max_speed_clu)) - self.max_speed_clu
+      self.max_speed_clu += error * kp
 
-    self._update_max_speed(int(round(max_speed_clu)), kp)
     return max_speed_clu
 
   def _get_long_lead_speed(self, clu_speed, sm):
@@ -128,6 +133,11 @@ class SpeedController:
         dy = np.gradient(y, x)
         d2y = np.gradient(dy, x)
         curv = d2y / (1 + dy ** 2) ** 1.5
+
+        curv_abs = np.abs(curv)
+        if np.percentile(curv_abs, 90) < CURVATURE_THRESHOLD:
+          self.curve_speed_ms = MAX_NO_LIMIT_SPEED
+          return
 
         start_index = int(np.interp(speed, [10.0, 27.0], [10, ModelConstants.IDX_N - 10]))
         end_index = min(start_index + 10, ModelConstants.IDX_N)
@@ -166,13 +176,6 @@ class SpeedController:
         CruiseStateManager.instance().speed = set_speed * self.speed_conv_to_ms
 
     return override_speed
-
-  def _update_max_speed(self, max_speed, kp):
-    if not self.long_control or self.max_speed_clu <= 0:
-      self.max_speed_clu = max_speed
-    else:
-      error = max_speed - self.max_speed_clu
-      self.max_speed_clu += error * kp
 
   def _get_button(self, current_set_speed):
     if self.target_speed < V_CRUISE_INITIAL:
