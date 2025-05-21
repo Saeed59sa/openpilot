@@ -153,10 +153,10 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   drawTextColor(p, x, y, 30, infoDate, whiteColor(200), "L");
 
   // traffic icon
-  w = 81;
-  h = 162;
-  x = 280;
-  y = (UI_BORDER_SIZE * 2.5);
+  w = 77;
+  h = 154;
+  x = 205;
+  y = (UI_BORDER_SIZE * 2.6);
   if (traffic_state == 1) {
     p.drawPixmap(x, y, w, h, traffic_red_img);
   } else if (traffic_state == 2) {
@@ -363,7 +363,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
 }
 
 void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
-  // max speed, apply speed, speed limit sign
+  // max speed, speed limit sign
   float limit_speed = 0;
   float left_dist = 0;
 
@@ -390,11 +390,11 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
     leftDistStr = QString::asprintf("%.0f m", left_dist);
   }
 
-  QRect speed_box(30, 30, 250, 200);
+  QRect speed_box(30, 45, 260, 170);
 
   p.setPen(Qt::NoPen);
   p.setBrush(blackColor(100));
-  p.drawRoundedRect(speed_box, 32, 32);
+  p.drawRoundedRect(speed_box, 15, 15);
 
   QColor speedColor = whiteColor();
   if (limit_speed > 0 && status != STATUS_DISENGAGED && status != STATUS_OVERRIDE) {
@@ -406,30 +406,25 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   }
 
   // max speed
-  QRect max_speed_outer(speed_box.left() + 10, speed_box.top() + 10, 230, 90);
+  if (nda_state > 0) {
+    maxSpeedStr = QString::number(std::nearbyint(apply_speed));
+  } else {
+    maxSpeedStr = QString::number(std::nearbyint(cruise_speed));
+  }
+
+  QRect max_speed_box(speed_box.left() + 5, speed_box.top() + 5, 160, 160);
   p.setPen(QPen(whiteColor(200), 2));
-  p.drawRoundedRect(max_speed_outer, 15, 15);
+  p.drawRoundedRect(max_speed_box, 15, 15);
 
-  QString cruiseSpeedStr = QString::number(std::nearbyint(cruise_speed));
-  int max_label_x = max_speed_outer.left() + 20;
-  int max_value_x = max_speed_outer.right() - 20;
-  int max_center_y = max_speed_outer.center().y();
+  int max_text_y = max_speed_box.top() + max_speed_box.height() / 4;
+  int value_text_y = max_speed_box.top() + (max_speed_box.height() / 4 * 3);
 
-  drawTextColor(p, max_label_x, max_center_y, 30, tr("MAX"), whiteColor(200), "L");
-  drawTextColor(p, max_value_x, max_center_y, 60, is_cruise_set ? cruiseSpeedStr : "─", speedColor, "R");
+  drawTextColor(p, max_speed_box.center().x(), max_text_y, 30, tr("MAX"), whiteColor(200));
+  drawTextColor(p, max_speed_box.center().x(), value_text_y, 60, is_cruise_set ? maxSpeedStr : "─", speedColor);
 
-  // set speed
-  QRect apply_speed_outer(speed_box.left() + 10, speed_box.top() + 100, 230, 90);
+  QRect traffic_box(max_speed_box.right() + 5, speed_box.top() + 5, 85, 160);
   p.setPen(QPen(whiteColor(200), 2));
-  p.drawRoundedRect(apply_speed_outer, 15, 15);
-
-  QString applySpeedStr = QString::number(std::nearbyint(apply_speed));
-  int set_label_x = apply_speed_outer.left() + 20;
-  int set_value_x = apply_speed_outer.right() - 20;
-  int set_center_y = apply_speed_outer.center().y();
-
-  drawTextColor(p, set_label_x, set_center_y, 30, tr("SET"), whiteColor(200), "L");
-  drawTextColor(p, set_value_x, set_center_y, 60, is_cruise_set ? applySpeedStr : "─", speedColor, "R");
+  p.drawRoundedRect(traffic_box, 15, 15);
 
   // speedlimit sign
   if (limit_speed > 0 || roadLimitSpeed > 0) {

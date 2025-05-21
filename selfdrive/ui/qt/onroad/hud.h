@@ -38,6 +38,7 @@ private:
   QPixmap autohold_warning_img, autohold_active_img;
 
   QString leftDistStr, altitudeStr, accuracyStr, infoGps;
+  QString maxSpeedStr;
 
   bool hideBottomIcons = false;
   bool longControl = false;
