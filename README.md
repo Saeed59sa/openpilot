@@ -5,7 +5,7 @@
 <p>
   <b>openpilot is an operating system for robotics.</b>
   <br>
-  Currently, it upgrades the driver assistance system in 275+ supported cars.
+  Currently, it upgrades the driver assistance system in 300+ supported cars.
 </p>
 
 <h3>
@@ -22,7 +22,7 @@
 
 Quick start: `bash <(curl -fsSL openpilot.comma.ai)`
 
-![openpilot tests](https://github.com/commaai/openpilot/actions/workflows/selfdrive_tests.yaml/badge.svg)
+[![openpilot tests](https://github.com/commaai/openpilot/actions/workflows/selfdrive_tests.yaml/badge.svg)](https://github.com/commaai/openpilot/actions/workflows/selfdrive_tests.yaml)
 [![codecov](https://codecov.io/gh/commaai/openpilot/branch/master/graph/badge.svg)](https://codecov.io/gh/commaai/openpilot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![X Follow](https://img.shields.io/twitter/follow/comma_ai)](https://x.com/comma_ai)
@@ -100,10 +100,11 @@ We have detailed instructions for [how to install the harness and device in a ca
 ### Branches
 | branch           | URL                                    | description                                                                         |
 |------------------|----------------------------------------|-------------------------------------------------------------------------------------|
-| `release3`         | openpilot.comma.ai                     | This is openpilot's release branch.                                                 |
+| `release3`         | openpilot.comma.ai                      | This is openpilot's release branch.                                                 |
 | `release3-staging` | openpilot-test.comma.ai                | This is the staging branch for releases. Use it to get new releases slightly early. |
 | `nightly`          | openpilot-nightly.comma.ai             | This is the bleeding edge development branch. Do not expect this to be stable.      |
 | `nightly-dev`      | installer.comma.ai/commaai/nightly-dev | Same as nightly, but includes experimental development features for some cars.      |
+| `secretgoodopenpilot` | installer.comma.ai/commaai/secretgoodopenpilot | This is a preview branch from the autonomy team where new driving models get merged earlier than master. |
 
 To start developing openpilot
 ------
@@ -130,8 +131,8 @@ Safety and Testing
 * panda has additional hardware-in-the-loop [tests](https://github.com/commaai/panda/blob/master/Jenkinsfile).
 * We run the latest openpilot in a testing closet containing 10 comma devices continuously replaying routes.
 
-Licensing
-------
+<details>
+<summary>MIT Licensed</summary>
 
 openpilot is released under the MIT license. Some parts of the software are released under other licenses as specified.
 
@@ -140,9 +141,10 @@ Any user of this software shall indemnify and hold harmless Comma.ai, Inc. and i
 **THIS IS ALPHA QUALITY SOFTWARE FOR RESEARCH PURPOSES ONLY. THIS IS NOT A PRODUCT.
 YOU ARE RESPONSIBLE FOR COMPLYING WITH LOCAL LAWS AND REGULATIONS.
 NO WARRANTY EXPRESSED OR IMPLIED.**
+</details>
 
-User Data and comma Account
-------
+<details>
+<summary>User Data and comma Account</summary>
 
 By default, openpilot uploads the driving data to our servers. You can also access your data through [comma connect](https://connect.comma.ai/). We use your data to train better models and improve openpilot for everyone.
 
