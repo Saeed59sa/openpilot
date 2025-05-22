@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import math
 
 from opendbc.car.hyundai.values import Buttons, HyundaiFlags
 from openpilot.common.conversions import Conversions as CV
@@ -15,7 +16,6 @@ MAX_NO_LIMIT_SPEED = 255.
 LONG_LEAD_DECAY_FACTOR = 22.
 LONG_LEAD_ACCEL_GAIN = 1.2
 CURVE_A_Y_SLOPE = 0.0375
-CURVATURE_THRESHOLD = 0.0018
 
 class SpeedController:
   def __init__(self, CP, CI):
@@ -125,51 +125,59 @@ class SpeedController:
     return 0, None
 
   def _cal_curve_speed(self, sm, speed, frame):
-    if frame % 20 == 0:
-      model_msg = sm['modelV2']
-      if len(model_msg.position.x) == ModelConstants.IDX_N and len(model_msg.position.y) == ModelConstants.IDX_N:
-        x = model_msg.position.x
-        y = model_msg.position.y
-        dy = np.gradient(y, x)
-        d2y = np.gradient(dy, x)
-        curv = d2y / (1 + dy ** 2) ** 1.5
+    if frame % 10 != 0:
+      return
 
-        curv_abs = np.abs(curv)
-        if np.percentile(curv_abs, 90) < CURVATURE_THRESHOLD:
-          self.curve_speed_ms = MAX_NO_LIMIT_SPEED
-          return
+    model_msg = sm['modelV2']
+    if len(model_msg.position.x) != ModelConstants.IDX_N or len(model_msg.position.y) != ModelConstants.IDX_N:
+      self.curve_speed_ms = MAX_NO_LIMIT_SPEED
+      return
 
-        start_index = int(np.interp(speed, [10.0, 27.0], [10, ModelConstants.IDX_N - 10]))
-        end_index = min(start_index + 10, ModelConstants.IDX_N)
-        curv_segment = curv[start_index:end_index]
+    x = model_msg.position.x
+    y = model_msg.position.y
+    dy = np.gradient(y, x)
+    d2y = np.gradient(dy, x)
+    curv = d2y / (1 + dy ** 2) ** 1.5
 
-        a_y_max = 2.975 - speed * CURVE_A_Y_SLOPE
-        v_curvature = np.sqrt(a_y_max / np.clip(np.abs(curv_segment), 1e-4, None))
-        model_speed = np.mean(v_curvature) * 0.85
+    start_index = int(np.interp(speed, [10.0, 27.0], [5, ModelConstants.IDX_N - 15]))
+    end_index = min(start_index + 15, ModelConstants.IDX_N)
+    curv_segment = curv[start_index:end_index]
+    curv_segment_abs = np.abs(curv_segment)
 
-        if np.isnan(model_speed):
-          self.curve_speed_ms = MAX_NO_LIMIT_SPEED
-        elif model_speed < speed:
-          self.curve_speed_ms = float(max(model_speed, MIN_CURVE_SPEED))
-        else:
-          self.curve_speed_ms = MAX_NO_LIMIT_SPEED
-      else:
-        self.curve_speed_ms = MAX_NO_LIMIT_SPEED
+    if curv_segment.size == 0:
+      self.curve_speed_ms = MAX_NO_LIMIT_SPEED
+      return
+
+    a_y_max = 2.975 - speed * CURVE_A_Y_SLOPE
+    v_curvature = np.sqrt(a_y_max / np.clip(curv_segment_abs, 1e-4, None))
+
+    model_speed = float(np.mean(v_curvature))
+    reduction_ratio = np.interp(curv_segment_abs, [0.0015, 0.004], [0.85, 0.75])
+    reduction_ratio_avg = float(np.mean(reduction_ratio))
+    model_speed *= reduction_ratio_avg
+
+    min_curve_speed = max(speed * 0.4, MIN_CURVE_SPEED)
+
+    if not math.isnan(model_speed) and model_speed < speed:
+      self.curve_speed_ms = float(max(model_speed, min_curve_speed))
+    else:
+      self.curve_speed_ms = MAX_NO_LIMIT_SPEED
 
   def _cal_target_speed(self, CS, clu_speed, v_cruise_kph, cruise_btn_pressed):
     override_speed = -1
+    syncing = CS.gasPressed and not cruise_btn_pressed
+
     if not self.long_control:
-      if CS.gasPressed and not cruise_btn_pressed:
-        if clu_speed + SYNC_MARGIN > self._kph_to_clu(v_cruise_kph):
-          set_speed = np.clip(clu_speed + SYNC_MARGIN, V_CRUISE_INITIAL, self.max_set_speed_clu)
-          v_cruise_kph = int(round(set_speed * self.speed_conv_to_ms * CV.MS_TO_KPH))
-          override_speed = v_cruise_kph
+      if syncing and clu_speed + SYNC_MARGIN > self._kph_to_clu(v_cruise_kph):
+        set_speed = np.clip(clu_speed + SYNC_MARGIN, V_CRUISE_INITIAL, self.max_set_speed_clu)
+        v_cruise_kph = int(round(set_speed * self.speed_conv_to_ms * CV.MS_TO_KPH))
+        override_speed = v_cruise_kph
 
       self.target_speed = self._kph_to_clu(v_cruise_kph)
       if self.max_speed_clu > V_CRUISE_INITIAL:
         self.target_speed = np.clip(self.target_speed, V_CRUISE_INITIAL, self.max_speed_clu)
 
-    elif CS.cruiseState.enabled and CS.gasPressed and not cruise_btn_pressed:
+    elif CS.cruiseState.enabled and syncing:
       if clu_speed + SYNC_MARGIN > self._kph_to_clu(v_cruise_kph):
         set_speed = np.clip(clu_speed + SYNC_MARGIN, self.min_set_speed_clu, self.max_set_speed_clu)
         self.target_speed = set_speed
