@@ -119,7 +119,7 @@ void HudRenderer::updateState(const UIState &s) {
   traffic_state = lo.getTrafficState();
   lka_state = ce.getCruiseState().getAvailable();
   lat_active = cc.getLatActive();
-  steering_angle_deg = cc.getActuators().getSteeringAngleDeg();
+  steerAngleTarget = cc.getActuators().getSteeringAngleDeg();
   steer_torque = ce.getSteeringTorque();
   curvature = cc.getActuators().getCurvature();
   steer_ratio = lp.getSteerRatio();
@@ -165,7 +165,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     p.drawPixmap(x, y, w, h, traffic_off_img);
   }
 
-  x = surface_rect.left() + 400;
+  x = surface_rect.left() + 320;
   y = (UI_BORDER_SIZE);
 
   // NDA State
@@ -259,13 +259,30 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
       sa_color = orangeColor(200);
     }
 
-    QString sa_str = QString::asprintf("%.1f °", std::abs(steerAngle));
+    QString sa_str = QString::asprintf("R %.1f °", std::abs(steerAngle));
 
     QRect textRect = p.fontMetrics().boundingRect(sa_str);
     int textX = iconCenter.x() - textRect.width() / 2 + 40;
     int textY = iconCenter.y() + btn_size / 2 + 20;
 
     drawTextColor(p, textX, textY, 30, sa_str, sa_color);
+
+    QColor sat_color = limeColor(200);
+    if (std::abs(steerAngleTarget) > 360) {
+      sat_color = darkRedColor(200);
+    } else if (std::abs(steerAngleTarget) > 240) {
+      sat_color = redColor(200);
+    } else if (std::abs(steerAngleTarget) > 120) {
+      sat_color = orangeColor(200);
+    }
+
+    QString sat_str = QString::asprintf("T %.1f °", std::abs(steerAngleTarget));
+
+    QRect textRect2 = p.fontMetrics().boundingRect(sat_str);
+    int textX2 = iconCenter.x() - textRect2.width() / 2 + 40;
+    int textY2 = iconCenter.y() + btn_size / 2 + 50;
+
+    drawTextColor(p, textX2, textY2, 30, sat_str, sat_color);
 
     // lka icon
     x = (btn_size / 2) + (UI_BORDER_SIZE * 1.5) + (btn_size * 2);
@@ -310,9 +327,8 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   drawTextColor(p, x, y, 30, car_name, whiteColor(200), "L");
 
   // bottom left info
-  QString steer_info =  QString::asprintf("SteerRatio(%.1f) SteerTarget(%.1f °) Torque(%.1f) Curvature(%.3f)",
+  QString steer_info =  QString::asprintf("SteerRatio(%.1f) Torque(%.1f) Curvature(%.3f)",
                                           steer_ratio,
-                                          std::abs(steering_angle_deg),
                                           std::abs(steer_torque),
                                           std::abs(curvature)
                                           );
@@ -428,7 +444,7 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
 
   // speedlimit sign
   if (limit_speed > 0 || roadLimitSpeed > 0) {
-    QPoint center(speed_box.right() + 160, speed_box.center().y());
+    QPoint center(speed_box.right() + 80, speed_box.center().y());
     const QList<QPair<int, QColor>> circles = {
       {72, whiteColor()},
       {70, redColor()},
@@ -443,7 +459,7 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
 
     if (limit_speed > 0 && left_dist > 0) {
       drawTextCenter(p, center, 50, limitSpeedStr, blackColor(200));
-      drawTextCenter(p, {speed_box.right() + 160, speed_box.bottom()}, 40, leftDistStr, whiteColor(200));
+      drawTextCenter(p, {speed_box.right() + 80, speed_box.bottom()}, 40, leftDistStr, whiteColor(200));
     } else if (roadLimitSpeed > 0 && roadLimitSpeed < 120) {
       drawTextCenter(p, center, 50, roadLimitSpeedStr, blackColor(200));
     } else if (limit_speed > 0) {

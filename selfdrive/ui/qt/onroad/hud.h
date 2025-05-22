@@ -56,10 +56,10 @@ private:
 
   float apply_speed, cruise_speed;
   float gpsBearing, gpsVerticalAccuracy, gpsAltitude, gpsAccuracy = 0;
-  float steerAngle = 0;
+  float steerAngle, steerAngleTarget = 0;
   float fl, fr, rl, rr = 0;
   float roadLimitSpeed, navLimitSpeed = 0;
-  float steering_angle_deg, steer_torque, curvature, steer_ratio = 0;
+  float steer_torque, curvature, steer_ratio = 0;
 
   double prev_blink_time = 0.0;
 
