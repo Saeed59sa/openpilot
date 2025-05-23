@@ -204,6 +204,18 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     x += hda2TextWidth + 24;
   }
 
+  // LongitudinalControl Setting
+  if (params.getBool("AlphaLongitudinalEnabled")) {
+    QString longControlText = "LongControl";
+    int longControlTextWidth = p.fontMetrics().horizontalAdvance(longControlText);
+    int longControlTextHeight = p.fontMetrics().height();
+    p.setPen(Qt::NoPen);
+    p.setBrush(blackColor(200));
+    p.drawRoundedRect(x - 10, y - 20, longControlTextWidth + 20, longControlTextHeight + 10, 15, 15);
+    drawTextColor(p, x, y, 30, longControlText, limeColor(200), "L");
+    x += longControlTextWidth + 24;
+  }
+
   // N direction icon
   x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 3);
   y = (btn_size / 2) + (UI_BORDER_SIZE * 2);
@@ -280,7 +292,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
 
     QRect textRect2 = p.fontMetrics().boundingRect(sat_str);
     int textX2 = iconCenter.x() - textRect2.width() / 2 + 40;
-    int textY2 = iconCenter.y() + btn_size / 2 + 50;
+    int textY2 = iconCenter.y() - btn_size / 2;
 
     drawTextColor(p, textX2, textY2, 30, sat_str, sat_color);
 
