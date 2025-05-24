@@ -83,10 +83,8 @@ class SpeedController:
                                                                                                           self.is_metric)
     self._cal_curve_speed(sm, CS.vEgo, sm.frame)
 
-    if self.curve_speed_ms >= MIN_CURVE_SPEED:
-      max_speed_clu = min(v_cruise_kph * CV.KPH_TO_MS, self.curve_speed_ms) * self.speed_conv_to_clu
-    else:
-      max_speed_clu = self._kph_to_clu(v_cruise_kph)
+    curve_limited_speed = min(v_cruise_kph * CV.KPH_TO_MS, self.curve_speed_ms)
+    max_speed_clu = int(round(curve_limited_speed * self.speed_conv_to_clu))
 
     self.active_cam = road_limit_speed > 0 and left_dist > 0
 
@@ -139,8 +137,12 @@ class SpeedController:
     d2y = np.gradient(dy, x)
     curv = d2y / (1 + dy ** 2) ** 1.5
 
-    start_index = int(np.interp(speed, [10.0, 27.0], [5, ModelConstants.IDX_N - 15]))
-    end_index = min(start_index + 15, ModelConstants.IDX_N)
+    far_start_ratio = 0.3
+    far_end_ratio = 0.95
+
+    start_index = int(ModelConstants.IDX_N * far_start_ratio)
+    end_index = int(ModelConstants.IDX_N * far_end_ratio)
+
     curv_segment = curv[start_index:end_index]
     curv_segment_abs = np.abs(curv_segment)
 
@@ -152,12 +154,11 @@ class SpeedController:
     v_curvature = np.sqrt(a_y_max / np.clip(curv_segment_abs, 1e-4, None))
 
     model_speed = float(np.mean(v_curvature))
-    reduction_ratio = np.interp(curv_segment_abs, [0.0015, 0.004], [0.85, 0.75])
+    reduction_ratio = np.interp(curv_segment_abs, [0.0015, 0.004], [0.85, 0.7])
     reduction_ratio_avg = float(np.mean(reduction_ratio))
     model_speed *= reduction_ratio_avg
 
     min_curve_speed = max(speed * 0.4, MIN_CURVE_SPEED)
-
     if not math.isnan(model_speed) and model_speed < speed:
       self.curve_speed_ms = float(max(model_speed, min_curve_speed))
     else:
