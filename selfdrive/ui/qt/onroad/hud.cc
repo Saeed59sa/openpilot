@@ -144,14 +144,6 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   int x,y,w,h = 0;
   QColor icon_bg = blackColor(100);
 
-  // upper left info
-  QString infoDate = QString("%1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd"));
-
-  x = surface_rect.left() + 70;
-  y = (UI_BORDER_SIZE);
-
-  drawTextColor(p, x, y, 30, infoDate, whiteColor(200), "L");
-
   // traffic icon
   w = 77;
   h = 154;
@@ -165,8 +157,16 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     p.drawPixmap(x, y, w, h, traffic_off_img);
   }
 
-  x = surface_rect.left() + 320;
+  // upper left info
+  x = surface_rect.left() + 20;
   y = (UI_BORDER_SIZE);
+
+  QString carName = QString("%1").arg(QString::fromStdString(params.get("CarName")));
+  int carNameWidth = p.fontMetrics().horizontalAdvance(carName);
+  //int carNameHeight = p.fontMetrics().height();
+
+  drawTextColor(p, x, y, 30, carName, whiteColor(200), "L");
+  x += carNameWidth + 24;
 
   // NDA State
   if (nda_state > 0) {
@@ -256,48 +256,33 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   drawTextColor(p, x, y, 30, infoGps, whiteColor(200), "R");
 
   if (!hideBottomIcons) {
-    // steer img
+    // lka icon
     x = (btn_size / 2) + (UI_BORDER_SIZE * 1.5) + (btn_size);
     y = surface_rect.bottom() - (UI_FOOTER_HEIGHT / 2);
+
     QPoint iconCenter(x, y);  // Icon center point
     drawIconGradient(p, iconCenter, steer_img, icon_bg, 0.8, steerAngle);
 
-    QColor sa_color = limeColor(200);
-    if (std::abs(steerAngle) > 360) {
-      sa_color = darkRedColor(200);
-    } else if (std::abs(steerAngle) > 240) {
-      sa_color = redColor(200);
-    } else if (std::abs(steerAngle) > 120) {
-      sa_color = orangeColor(200);
-    }
+    QColor sa_color = getColorForAngle(steerAngle);
+    QColor sat_color = getColorForAngle(steerAngleTarget);
 
     QString sa_str = QString::asprintf("R %.1f °", std::abs(steerAngle));
-
-    QRect textRect = p.fontMetrics().boundingRect(sa_str);
-    int textX = iconCenter.x() - textRect.width() / 2 + 40;
-    int textY = iconCenter.y() + btn_size / 2 + 20;
-
-    drawTextColor(p, textX, textY, 30, sa_str, sa_color);
-
-    QColor sat_color = limeColor(200);
-    if (std::abs(steerAngleTarget) > 360) {
-      sat_color = darkRedColor(200);
-    } else if (std::abs(steerAngleTarget) > 240) {
-      sat_color = redColor(200);
-    } else if (std::abs(steerAngleTarget) > 120) {
-      sat_color = orangeColor(200);
-    }
-
     QString sat_str = QString::asprintf("T %.1f °", std::abs(steerAngleTarget));
 
+    QRect textRect = p.fontMetrics().boundingRect(sa_str);
+    int textX = iconCenter.x() - textRect.width() / 2;
+    int textY = iconCenter.y() + btn_size / 2 + 20;
+
     QRect textRect2 = p.fontMetrics().boundingRect(sat_str);
-    int textX2 = iconCenter.x() - textRect2.width() / 2 + 40;
-    int textY2 = iconCenter.y() - btn_size / 2;
+    int textX2 = iconCenter.x() - textRect2.width() / 2;
+    int textY2 = iconCenter.y() + btn_size / 2 + 50;
 
-    drawTextColor(p, textX2, textY2, 30, sat_str, sat_color);
+    drawTextColor(p, textX, textY, 30, sa_str, sa_color, "L");
+    drawTextColor(p, textX2, textY2, 30, sat_str, sat_color, "L");
 
-    // lka icon
+    // steer img
     x = (btn_size / 2) + (UI_BORDER_SIZE * 1.5) + (btn_size * 2);
+
     if (lat_active) {
       drawIcon(p, QPoint(x, y), lka_on_img, icon_bg, lka_state ? 0.8 : 0.2);
     } else {
@@ -330,13 +315,13 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     drawTextColor(p, x + 133, y + 171, 30, get_tpms_text(rr), get_tpms_color(rr));
   }
 
-  // bottom carname
-  QString car_name = QString("%1").arg(QString::fromStdString(params.get("CarName")));
+  // bottom left infoDate
+  QString infoDate = QString("%1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd"));
 
-  x = surface_rect.left() + 30;
+  x = surface_rect.left() + 20;
   y = surface_rect.height() - 20;
 
-  drawTextColor(p, x, y, 30, car_name, whiteColor(200), "L");
+  drawTextColor(p, x, y, 30, infoDate, whiteColor(200), "L");
 
   // bottom left info
   QString steer_info =  QString::asprintf("SteerRatio(%.1f) Torque(%.1f) Curvature(%.3f)",
@@ -345,7 +330,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
                                           std::abs(curvature)
                                           );
 
-  x = surface_rect.left() + 400;
+  x = surface_rect.left() + 500;
   y = surface_rect.height() - 20;
 
   drawTextColor(p, x, y, 30, steer_info, whiteColor(200), "L");

@@ -77,4 +77,14 @@ protected:
   inline QColor greenColor(int alpha = 255) { return QColor(128, 216, 166, alpha); }
   inline QColor pinkColor(int alpha = 255) { return QColor(255, 191, 191, alpha); }
   inline QColor darkRedColor(int alpha = 255) { return QColor(139, 0, 0, alpha); }
+  inline QColor getColorForAngle(double angle) {
+    if (std::abs(angle) > 360) {
+      return darkRedColor(200);
+    } else if (std::abs(angle) > 240) {
+      return redColor(200);
+    } else if (std::abs(angle) > 120) {
+      return orangeColor(200);
+    }
+    return limeColor(200);
+  }
 };
