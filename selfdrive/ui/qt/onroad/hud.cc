@@ -162,13 +162,11 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   y = (UI_BORDER_SIZE);
 
   QString carName = QString("%1").arg(QString::fromStdString(params.get("CarName")));
-  int carNameWidth = p.fontMetrics().horizontalAdvance(carName);
-  //int carNameHeight = p.fontMetrics().height();
 
   drawTextColor(p, x, y, 30, carName, whiteColor(200), "L");
-  x += carNameWidth + 24;
 
   // NDA State
+  x = surface_rect.left() + 300;
   if (nda_state > 0) {
     QString ndaText = "NDA";
     int ndaTextWidth = p.fontMetrics().horizontalAdvance(ndaText);

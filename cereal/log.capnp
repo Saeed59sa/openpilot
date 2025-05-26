@@ -768,6 +768,7 @@ struct RadarState @0x9a185389d6fdd05f {
     radarTrackId @15 :Int32 = -1;
 
     aLead @5 :Float32;
+    jLead @16 :Float32;
   }
 
   # deprecated
