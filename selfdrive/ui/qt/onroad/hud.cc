@@ -248,7 +248,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
                                                                               gpsSatelliteCount
                                                                               );
 
-  x = surface_rect.right() - 30;
+  x = surface_rect.right() - 20;
   y = (UI_BORDER_SIZE);
 
   drawTextColor(p, x, y, 30, infoGps, whiteColor(200), "R");
@@ -336,7 +336,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   // bottom right info
   QString current_description = QString("%1").arg(QString::fromStdString(params.get("UpdaterCurrentDescription")));
 
-  x = surface_rect.right() - 30;
+  x = surface_rect.right() - 20;
   y = surface_rect.height() - 20;
 
   drawTextColor(p, x, y, 30, current_description, whiteColor(200), "R");
