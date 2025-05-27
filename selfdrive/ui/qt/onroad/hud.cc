@@ -166,7 +166,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   drawTextColor(p, x, y, 30, carName, whiteColor(200), "L");
 
   // NDA State
-  x = surface_rect.left() + 300;
+  x = surface_rect.left() + 400;
   if (nda_state > 0) {
     QString ndaText = "NDA";
     int ndaTextWidth = p.fontMetrics().horizontalAdvance(ndaText);
@@ -328,7 +328,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
                                           std::abs(curvature)
                                           );
 
-  x = surface_rect.left() + 500;
+  x = surface_rect.left() + 400;
   y = surface_rect.height() - 20;
 
   drawTextColor(p, x, y, 30, steer_info, whiteColor(200), "L");
