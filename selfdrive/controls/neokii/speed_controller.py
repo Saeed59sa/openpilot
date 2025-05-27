@@ -10,9 +10,8 @@ from openpilot.selfdrive.controls.neokii.cruise_state_manager import CruiseState
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 from openpilot.selfdrive.modeld.constants import ModelConstants
 
-MIN_CURVE_SPEED = 32. * CV.KPH_TO_MS
+MIN_CURVE_SPEED = 40. * CV.KPH_TO_MS
 SYNC_MARGIN = 3.
-MAX_NO_LIMIT_SPEED = 255.
 LONG_LEAD_DECAY_FACTOR = 22.
 LONG_LEAD_ACCEL_GAIN = 1.2
 CURVE_A_Y_SLOPE = 0.0375
@@ -128,7 +127,7 @@ class SpeedController:
 
     model_msg = sm['modelV2']
     if len(model_msg.position.x) != ModelConstants.IDX_N or len(model_msg.position.y) != ModelConstants.IDX_N:
-      self.curve_speed_ms = MAX_NO_LIMIT_SPEED
+      self.curve_speed_ms = V_CRUISE_UNSET
       return
 
     x = model_msg.position.x
@@ -147,7 +146,7 @@ class SpeedController:
     curv_segment_abs = np.abs(curv_segment)
 
     if curv_segment.size == 0:
-      self.curve_speed_ms = MAX_NO_LIMIT_SPEED
+      self.curve_speed_ms = V_CRUISE_UNSET
       return
 
     a_y_max = 2.975 - speed * CURVE_A_Y_SLOPE
@@ -162,7 +161,7 @@ class SpeedController:
     if not math.isnan(model_speed) and model_speed < speed:
       self.curve_speed_ms = float(max(model_speed, min_curve_speed))
     else:
-      self.curve_speed_ms = MAX_NO_LIMIT_SPEED
+      self.curve_speed_ms = V_CRUISE_UNSET
 
   def _cal_target_speed(self, CS, clu_speed, v_cruise_kph, cruise_btn_pressed):
     override_speed = -1
@@ -236,7 +235,7 @@ class SpeedController:
     self._update_message(CS)
 
   def spam_message(self, CS, can_sends):
-    ascc_enabled = CS.cruiseState.enabled and 1 < CS.cruiseState.speed < MAX_NO_LIMIT_SPEED and not CS.brakePressed
+    ascc_enabled = CS.cruiseState.enabled and 1 < CS.cruiseState.speed < V_CRUISE_UNSET and not CS.brakePressed
     btn_pressed = self.CI.CS.cruise_buttons[-1] != Buttons.NONE
 
     if not self.long_control:
