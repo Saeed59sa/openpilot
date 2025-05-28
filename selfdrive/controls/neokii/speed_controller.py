@@ -10,7 +10,6 @@ from openpilot.selfdrive.controls.neokii.cruise_state_manager import CruiseState
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 from openpilot.selfdrive.modeld.constants import ModelConstants
 
-MIN_CURVE_SPEED = 40. * CV.KPH_TO_MS
 SYNC_MARGIN = 3.
 LONG_LEAD_DECAY_FACTOR = 22.
 LONG_LEAD_ACCEL_GAIN = 1.2
@@ -144,7 +143,6 @@ class SpeedController:
 
     far_start_ratio = 0.3
     far_end_ratio = 0.95
-
     start_index = int(trajectory_size * far_start_ratio)
     end_index = int(trajectory_size * far_end_ratio)
 
@@ -157,29 +155,34 @@ class SpeedController:
 
     a_y_max = 2.975 - speed * CURVE_A_Y_SLOPE
     v_curvature = np.sqrt(a_y_max / np.clip(curv_segment_abs, 1e-4, None))
-
     model_speed = float(np.mean(v_curvature))
+
     reduction_ratio = np.interp(curv_segment_abs, [0.0015, 0.004], [0.85, 0.75])
     reduction_ratio_avg = float(np.mean(reduction_ratio))
     model_speed *= reduction_ratio_avg
 
-    min_curve_speed = max(speed * 0.4, MIN_CURVE_SPEED)
+    min_curve_speed = np.interp(speed, [0.0, 60.0 * CV.KPH_TO_MS], [30.0 * CV.KPH_TO_MS, 50.0 * CV.KPH_TO_MS])
     model_based_speed = float(max(model_speed, min_curve_speed)) if not math.isnan(
       model_speed) and model_speed < speed else no_limit_speed
+
+    orientation_rate = np.array(model_msg.orientationRate.z)
+    velocity = np.array(model_msg.velocity.x)
+    product = orientation_rate * velocity
+    predicted_lat_acc = float(np.max(np.abs(product)))
+    acc_based_curvature = predicted_lat_acc / max(speed, 1.0) ** 2
+    if acc_based_curvature > 1e-4:
+      acc_based_speed = np.sqrt(a_y_max / acc_based_curvature)
+      acc_based_speed = float(max(acc_based_speed, min_curve_speed)) if acc_based_speed < speed else no_limit_speed
+    else:
+      acc_based_speed = no_limit_speed
 
     steering_decel_angle_deg = 100.0
     steer_based_speed = no_limit_speed
     if steering_angle >= steering_decel_angle_deg:
-      steer_based_speed = min(speed * 0.85, speed - 3.0)
+      steer_based_speed = max(min(speed * 0.85, speed - 3.0), min_curve_speed)
 
-    if model_based_speed != no_limit_speed and steer_based_speed != no_limit_speed:
-      self.curve_speed_ms = min(model_based_speed, steer_based_speed)
-    elif model_based_speed != no_limit_speed:
-      self.curve_speed_ms = model_based_speed
-    elif steer_based_speed != no_limit_speed:
-      self.curve_speed_ms = steer_based_speed
-    else:
-      self.curve_speed_ms = no_limit_speed
+    candidates = [s for s in [model_based_speed, acc_based_speed, steer_based_speed] if s != no_limit_speed]
+    self.curve_speed_ms = min(candidates) if candidates else no_limit_speed
 
   def _cal_target_speed(self, CS, clu_speed, v_cruise_kph, cruise_btn_pressed):
     override_speed = -1

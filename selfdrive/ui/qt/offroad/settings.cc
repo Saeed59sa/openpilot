@@ -230,9 +230,6 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
           params.remove("LiveDelay");
           params.putBool("OnroadCycleRequested", true);
           emit closeSettings();
-          QTimer::singleShot(1000, []() {
-            Params().putBool("SoftRestartTriggered", true);
-          });
         }
       }
     } else {
@@ -313,9 +310,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   power_layout->addWidget(restart_btn);
   QObject::connect(restart_btn, &QPushButton::released, [=]() {
     emit closeSettings();
-    QTimer::singleShot(1000, []() {
-        Params().putBool("SoftRestartTriggered", true);
-    });
+    Params().putBool("OnroadCycleRequested", true);
   });
 
   QPushButton *reboot_btn = new QPushButton(tr("Reboot"));

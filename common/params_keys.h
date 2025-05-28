@@ -128,7 +128,6 @@ inline static std::unordered_map<std::string, uint32_t> keys = {
     {"SelectedCar", PERSISTENT},
     {"SelectedManufacturer", PERSISTENT},
     {"SelectedBranch", PERSISTENT},
-    {"SoftRestartTriggered", CLEAR_ON_MANAGER_START},
     {"RadarTrackEnable", PERSISTENT},
     {"IsHda2", PERSISTENT},
     {"DriverCameraHardwareMissing", PERSISTENT},
