@@ -78,9 +78,10 @@ class SpeedController:
     self.curve_speed_ms = 0.
 
   def _cal_max_speed(self, CS, sm, clu_speed, v_cruise_kph):
-    apply_limit_speed, road_limit_speed, left_dist, first_started = SpeedLimiter.instance().get_max_speed(clu_speed,
-                                                                                                          self.is_metric)
-    self._cal_curve_speed(sm, CS.vEgo, sm.frame)
+    apply_limit_speed, road_limit_speed, left_dist, first_started = (
+      SpeedLimiter.instance().get_max_speed(clu_speed, self.is_metric))
+
+    self._cal_curve_speed(sm, CS)
 
     curve_limited_speed = min(v_cruise_kph * CV.KPH_TO_MS, self.curve_speed_ms)
     max_speed_clu = int(round(curve_limited_speed * self.speed_conv_to_clu))
@@ -121,13 +122,18 @@ class SpeedController:
 
     return 0, None
 
-  def _cal_curve_speed(self, sm, speed, frame):
-    if frame % 10 != 0:
+  def _cal_curve_speed(self, sm, CS):
+    speed = CS.vEgo
+    steering_angle = abs(CS.steeringAngleDeg)
+    model_msg = sm['modelV2']
+    no_limit_speed = V_CRUISE_UNSET
+    trajectory_size = ModelConstants.IDX_N
+
+    if sm.frame % 10 != 0:
       return
 
-    model_msg = sm['modelV2']
-    if len(model_msg.position.x) != ModelConstants.IDX_N or len(model_msg.position.y) != ModelConstants.IDX_N:
-      self.curve_speed_ms = V_CRUISE_UNSET
+    if len(model_msg.position.x) != trajectory_size or len(model_msg.position.y) != trajectory_size:
+      self.curve_speed_ms = no_limit_speed
       return
 
     x = model_msg.position.x
@@ -139,29 +145,41 @@ class SpeedController:
     far_start_ratio = 0.3
     far_end_ratio = 0.95
 
-    start_index = int(ModelConstants.IDX_N * far_start_ratio)
-    end_index = int(ModelConstants.IDX_N * far_end_ratio)
+    start_index = int(trajectory_size * far_start_ratio)
+    end_index = int(trajectory_size * far_end_ratio)
 
     curv_segment = curv[start_index:end_index]
     curv_segment_abs = np.abs(curv_segment)
 
     if curv_segment.size == 0:
-      self.curve_speed_ms = V_CRUISE_UNSET
+      self.curve_speed_ms = no_limit_speed
       return
 
     a_y_max = 2.975 - speed * CURVE_A_Y_SLOPE
     v_curvature = np.sqrt(a_y_max / np.clip(curv_segment_abs, 1e-4, None))
 
     model_speed = float(np.mean(v_curvature))
-    reduction_ratio = np.interp(curv_segment_abs, [0.0015, 0.004], [0.85, 0.7])
+    reduction_ratio = np.interp(curv_segment_abs, [0.0015, 0.004], [0.85, 0.75])
     reduction_ratio_avg = float(np.mean(reduction_ratio))
     model_speed *= reduction_ratio_avg
 
     min_curve_speed = max(speed * 0.4, MIN_CURVE_SPEED)
-    if not math.isnan(model_speed) and model_speed < speed:
-      self.curve_speed_ms = float(max(model_speed, min_curve_speed))
+    model_based_speed = float(max(model_speed, min_curve_speed)) if not math.isnan(
+      model_speed) and model_speed < speed else no_limit_speed
+
+    steering_decel_angle_deg = 100.0
+    steer_based_speed = no_limit_speed
+    if steering_angle >= steering_decel_angle_deg:
+      steer_based_speed = min(speed * 0.85, speed - 3.0)
+
+    if model_based_speed != no_limit_speed and steer_based_speed != no_limit_speed:
+      self.curve_speed_ms = min(model_based_speed, steer_based_speed)
+    elif model_based_speed != no_limit_speed:
+      self.curve_speed_ms = model_based_speed
+    elif steer_based_speed != no_limit_speed:
+      self.curve_speed_ms = steer_based_speed
     else:
-      self.curve_speed_ms = V_CRUISE_UNSET
+      self.curve_speed_ms = no_limit_speed
 
   def _cal_target_speed(self, CS, clu_speed, v_cruise_kph, cruise_btn_pressed):
     override_speed = -1
