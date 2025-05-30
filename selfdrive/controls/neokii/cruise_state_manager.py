@@ -97,6 +97,15 @@ class CruiseStateManager:
 
   def update_cruise_state(self, CS, v_cruise_kph, btn):
     v_cruise_delta = 10 if self.is_metric else 5 * CV.MPH_TO_KPH
+    road_limit_speed_nda = SpeedLimiter.instance().get_road_limit_speed()
+    road_limit_speed_stock = CS.exState.navLimitSpeed
+
+    if road_limit_speed_nda is not None and road_limit_speed_nda > 0:
+      road_limit_speed = road_limit_speed_nda
+    elif road_limit_speed_stock is not None and road_limit_speed_stock > 0:
+      road_limit_speed = road_limit_speed_stock
+    else:
+      road_limit_speed = None
 
     if self.enabled:
       if not self.btn_long_pressed:
@@ -118,8 +127,7 @@ class CruiseStateManager:
           self.enabled = True
           v_cruise_kph = np.clip(round(self.speed * CV.MS_TO_KPH, 1), V_CRUISE_INITIAL, V_CRUISE_MAX)
           v_cruise_kph = max(v_cruise_kph, round(CS.vEgoCluster * CV.MS_TO_KPH, 1))
-          road_limit_speed = SpeedLimiter.instance().get_road_limit_speed()
-          if V_CRUISE_INITIAL < road_limit_speed < V_CRUISE_MAX:
+          if road_limit_speed is not None and V_CRUISE_INITIAL < road_limit_speed < V_CRUISE_MAX:
             v_cruise_kph = max(v_cruise_kph, road_limit_speed)
 
     if btn == ButtonType.gapAdjustCruise:
@@ -137,10 +145,22 @@ class CruiseStateManager:
 
     if btn == ButtonType.lfaButton:
       if not self.btn_long_pressed:
+        if road_limit_speed is not None:
+          if self.enabled:
+            v_cruise_kph = road_limit_speed
+          elif not self.enabled and self.available and CS.gearShifter != GearShifter.park:
+            self.enabled = True
+            v_cruise_kph = road_limit_speed
+        else:
+          if not self.enabled and self.available and CS.gearShifter != GearShifter.park:
+            self.enabled = True
+            v_cruise_kph = np.clip(round(self.speed * CV.MS_TO_KPH, 1), V_CRUISE_INITIAL, V_CRUISE_MAX)
+            v_cruise_kph = max(v_cruise_kph, round(CS.vEgoCluster * CV.MS_TO_KPH, 1))
+      else:
         self.enabled = False
         self.available = False
         self.reset_available()
-      #else:
+
 
     v_cruise_kph = np.clip(round(v_cruise_kph, 1), V_CRUISE_MIN, V_CRUISE_MAX)
     self.speed = v_cruise_kph * CV.KPH_TO_MS
