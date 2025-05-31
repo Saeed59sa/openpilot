@@ -60,11 +60,7 @@
     </message>
     <message>
         <source>Cellular Metered</source>
-        <translation>데이터 요금제</translation>
-    </message>
-    <message>
-        <source>Prevent large data uploads when on a metered connection</source>
-        <translation>데이터 요금제 연결 시 대용량 데이터 업로드를 방지합니다</translation>
+        <translation>모바일 데이터 종량제</translation>
     </message>
     <message>
         <source>Hidden Network</source>
@@ -85,6 +81,30 @@
     <message>
         <source>for &quot;%1&quot;</source>
         <translation>&quot;%1&quot;에 접속하려면 비밀번호가 필요합니다</translation>
+    </message>
+    <message>
+        <source>Prevent large data uploads when on a metered cellular connection</source>
+        <translation>모바일 데이터 종량제 사용 시 대용량 데이터 업로드 방지</translation>
+    </message>
+    <message>
+        <source>default</source>
+        <translation>기본</translation>
+    </message>
+    <message>
+        <source>metered</source>
+        <translation>종량제</translation>
+    </message>
+    <message>
+        <source>unmetered</source>
+        <translation>무제한</translation>
+    </message>
+    <message>
+        <source>Wi-Fi Network Metered</source>
+        <translation>제한된 Wi-Fi 네트워크</translation>
+    </message>
+    <message>
+        <source>Prevent large data uploads when on a metered Wi-Fi connection</source>
+        <translation>제한된 Wi-Fi 사용 시 대용량 데이터 업로드 방지</translation>
     </message>
 </context>
 <context>
