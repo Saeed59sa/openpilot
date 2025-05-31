@@ -176,7 +176,7 @@ class SpeedController:
     else:
       acc_based_speed = no_limit_speed
 
-    steering_decel_angle_deg = 100.0
+    steering_decel_angle_deg = 60.0
     steer_based_speed = no_limit_speed
     if steering_angle >= steering_decel_angle_deg:
       steer_based_speed = max(min(speed * 0.85, speed - 3.0), min_curve_speed)
