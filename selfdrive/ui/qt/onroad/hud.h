@@ -35,7 +35,7 @@ private:
   QPixmap turnsignal_l_img, turnsignal_r_img;
   QPixmap traffic_off_img, traffic_green_img, traffic_red_img;
   QPixmap lka_on_img, lka_off_img;
-  QPixmap autohold_warning_img, autohold_active_img;
+  QPixmap autohold_warning_img, autohold_active_img, speed_bump_img;
 
   QString leftDistStr, altitudeStr, accuracyStr, infoGps;
   QString maxSpeedStr;
@@ -52,7 +52,7 @@ private:
   int camLimitSpeedLeftDist, sectionLeftDist = 0;
   int wifi_state, traffic_state = 0;
   int blink_index, blink_wait = 0;
-  int autohold_state, nda_state = 0;
+  int autohold_state, nda_state, cam_type = 0;
 
   float apply_speed, cruise_speed;
   float gpsBearing, gpsVerticalAccuracy, gpsAltitude, gpsAccuracy = 0;

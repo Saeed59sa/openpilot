@@ -34,6 +34,7 @@ HudRenderer::HudRenderer() {
   // neokii add
   autohold_warning_img = loadPixmap("../assets/icons/autohold_warning.png", {img_size, img_size});
   autohold_active_img = loadPixmap("../assets/icons/autohold_active.png", {img_size, img_size});
+  speed_bump_img = loadPixmap("../assets/icons/safety_speed_bump.png");
 }
 
 static const QColor get_tpms_color(float tpms) {
@@ -111,6 +112,7 @@ void HudRenderer::updateState(const UIState &s) {
   rr = ce.getExState().getTpms().getRr();
   navLimitSpeed = ce.getExState().getNavLimitSpeed();
   nda_state = nd.getActive();
+  cam_type = nd.getCamType();
   roadLimitSpeed = nd.getRoadLimitSpeed();
   camLimitSpeed = nd.getCamLimitSpeed();
   camLimitSpeedLeftDist = nd.getCamLimitSpeedLeftDist();
@@ -156,6 +158,14 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   } else {
     p.drawPixmap(x, y, w, h, traffic_off_img);
   }
+
+  // speed_bump icon
+  if (cam_type == 22)
+    w = 128;
+    h = 120;
+    x = 440;
+    y = (UI_BORDER_SIZE * 3.5);
+    p.drawPixmap(x, y, w, h, speed_bump_img);
 
   // upper left info
   x = surface_rect.left() + 20;
