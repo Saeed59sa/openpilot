@@ -160,12 +160,13 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   }
 
   // speed_bump icon
-  if (cam_type == 22)
-    w = 128;
+  if (cam_type == 22) {
+    w = 158;
     h = 120;
     x = 440;
     y = (UI_BORDER_SIZE * 3.5);
     p.drawPixmap(x, y, w, h, speed_bump_img);
+  }
 
   // upper left info
   x = surface_rect.left() + 20;

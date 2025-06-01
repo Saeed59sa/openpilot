@@ -335,7 +335,7 @@ def wrong_car_mode_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
   if CP.brand == "honda":
     text = "Enable Main Switch to Engage"
   if CP.brand == "hyundai":
-    text = "Enable with Cruise and SET button"
+    text = "Enable with Cruise and SET or LFA button"
   return NoEntryAlert(text)
 
 

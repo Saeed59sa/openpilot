@@ -335,7 +335,7 @@ def wrong_car_mode_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
   if CP.brand == "honda":
     text = "메인 스위치로 활성화됩니다"
   if CP.brand == "hyundai":
-    text = "크루즈와 SET 버튼으로 활성화됩니다"
+    text = "크루즈와 SET 또는 LFA 버튼으로 활성화됩니다"
   return NoEntryAlert(text)
 
 

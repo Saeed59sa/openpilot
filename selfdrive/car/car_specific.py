@@ -231,5 +231,8 @@ class CarSpecificEvents:
       elif not CS.cruiseState.enabled and CS_prev.cruiseState.enabled:
         events.add(EventName.dong)
 
+    if CS.exState.wrongButtonPress:
+      events.add(EventName.wrongCarMode)
+
     return events
 

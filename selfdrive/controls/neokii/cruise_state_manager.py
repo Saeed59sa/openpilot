@@ -23,6 +23,7 @@ class CruiseStateManager:
     self.btn_count = 0
     self.btn_long_pressed = False
     self.prev_brake_pressed = False
+    self.wrong_btn_pressed = False
 
     self.prev_main_buttons = 0
 
@@ -62,6 +63,8 @@ class CruiseStateManager:
     CS.cruiseState.enabled = self.enabled
     CS.cruiseState.standstill = False
     CS.cruiseState.speed = float(self.speed)
+
+    CS.exState.wrongButtonPress = self.button_press()
 
   def update_buttons(self, CS):
     btn = ButtonType.unknown
@@ -129,6 +132,10 @@ class CruiseStateManager:
           v_cruise_kph = max(v_cruise_kph, round(CS.vEgoCluster * CV.MS_TO_KPH, 1))
           if road_limit_speed is not None and V_CRUISE_INITIAL < road_limit_speed < V_CRUISE_MAX:
             v_cruise_kph = max(v_cruise_kph, road_limit_speed)
+    elif not self.enabled and not self.available:
+      if not self.btn_long_pressed:
+        if btn == ButtonType.lfaButton or btn == ButtonType.decelCruise or btn == ButtonType.accelCruise:
+          self.wrong_btn_pressed = True
 
     if btn == ButtonType.gapAdjustCruise:
       #if not self.btn_long_pressed:
@@ -161,6 +168,11 @@ class CruiseStateManager:
         self.available = False
         self.reset_available()
 
-
     v_cruise_kph = np.clip(round(v_cruise_kph, 1), V_CRUISE_MIN, V_CRUISE_MAX)
     self.speed = v_cruise_kph * CV.KPH_TO_MS
+
+  def button_press(self):
+    if self.wrong_btn_pressed:
+      self.wrong_btn_pressed = False
+      return True
+    return False
