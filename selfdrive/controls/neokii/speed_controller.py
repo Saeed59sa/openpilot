@@ -10,10 +10,6 @@ from openpilot.selfdrive.controls.neokii.cruise_state_manager import CruiseState
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 from openpilot.selfdrive.modeld.constants import ModelConstants
 
-SYNC_MARGIN = 3.
-LONG_LEAD_DECAY_FACTOR = 22.
-LONG_LEAD_ACCEL_GAIN = 1.2
-CURVE_A_Y_SLOPE = 0.0375
 
 class SpeedController:
   def __init__(self, CP, CI):
@@ -110,12 +106,14 @@ class SpeedController:
   def _get_long_lead_speed(self, clu_speed, sm):
     radar = sm['radarState']
     lead = radar.leadOne if radar.leadOne.status else None
+    lead_decay_factor = 22.
+    lead_accel_gain = 1.2
 
     if self.long_control and lead is not None:
       d = lead.dRel - 5.
-      if 0. < d < -lead.vRel * LONG_LEAD_DECAY_FACTOR and lead.vRel < -1.:
+      if 0. < d < -lead.vRel * lead_decay_factor and lead.vRel < -1.:
         t = d / lead.vRel if abs(lead.vRel) > 1e-3 else 0.1
-        accel = -(lead.vRel / t) * self.speed_conv_to_clu * LONG_LEAD_ACCEL_GAIN
+        accel = -(lead.vRel / t) * self.speed_conv_to_clu * lead_accel_gain
         if accel < 0.:
           return max(clu_speed + accel, self.min_set_speed_clu), lead
 
@@ -149,17 +147,10 @@ class SpeedController:
     curv_segment = curv[start_index:end_index]
     curv_segment_abs = np.abs(curv_segment)
 
-    if curv_segment.size == 0:
-      self.curve_speed_ms = no_limit_speed
-      return
-
-    a_y_max = 2.975 - speed * CURVE_A_Y_SLOPE
+    curve_a_y_slope = 0.0375
+    a_y_max = 2.975 - speed * curve_a_y_slope
     v_curvature = np.sqrt(a_y_max / np.clip(curv_segment_abs, 1e-4, None))
     model_speed = float(np.mean(v_curvature))
-
-    reduction_ratio = np.interp(curv_segment_abs, [0.0015, 0.004], [0.85, 0.75])
-    reduction_ratio_avg = float(np.mean(reduction_ratio))
-    model_speed *= reduction_ratio_avg
 
     min_curve_speed = np.interp(speed, [0.0, 60.0 * CV.KPH_TO_MS], [30.0 * CV.KPH_TO_MS, 50.0 * CV.KPH_TO_MS])
     model_based_speed = float(max(model_speed, min_curve_speed)) if not math.isnan(
@@ -167,9 +158,9 @@ class SpeedController:
 
     orientation_rate = np.array(model_msg.orientationRate.z)
     velocity = np.array(model_msg.velocity.x)
-    product = orientation_rate * velocity
-    predicted_lat_acc = float(np.max(np.abs(product)))
+    predicted_lat_acc = float(np.max(np.abs(orientation_rate * velocity)))
     acc_based_curvature = predicted_lat_acc / max(speed, 1.0) ** 2
+
     if acc_based_curvature > 1e-4:
       acc_based_speed = np.sqrt(a_y_max / acc_based_curvature)
       acc_based_speed = float(max(acc_based_speed, min_curve_speed)) if acc_based_speed < speed else no_limit_speed
@@ -187,10 +178,11 @@ class SpeedController:
   def _cal_target_speed(self, CS, clu_speed, v_cruise_kph, cruise_btn_pressed):
     override_speed = -1
     syncing = CS.gasPressed and not cruise_btn_pressed
+    sync_margin = 3.
 
     if not self.long_control:
-      if syncing and clu_speed + SYNC_MARGIN > self._kph_to_clu(v_cruise_kph):
-        set_speed = np.clip(clu_speed + SYNC_MARGIN, V_CRUISE_INITIAL, self.max_set_speed_clu)
+      if syncing and clu_speed + sync_margin > self._kph_to_clu(v_cruise_kph):
+        set_speed = np.clip(clu_speed + sync_margin, V_CRUISE_INITIAL, self.max_set_speed_clu)
         v_cruise_kph = int(round(set_speed * self.speed_conv_to_ms * CV.MS_TO_KPH))
         override_speed = v_cruise_kph
 
@@ -199,8 +191,8 @@ class SpeedController:
         self.target_speed = np.clip(self.target_speed, V_CRUISE_INITIAL, self.max_speed_clu)
 
     elif CS.cruiseState.enabled and syncing:
-      if clu_speed + SYNC_MARGIN > self._kph_to_clu(v_cruise_kph):
-        set_speed = np.clip(clu_speed + SYNC_MARGIN, self.min_set_speed_clu, self.max_set_speed_clu)
+      if clu_speed + sync_margin > self._kph_to_clu(v_cruise_kph):
+        set_speed = np.clip(clu_speed + sync_margin, self.min_set_speed_clu, self.max_set_speed_clu)
         self.target_speed = set_speed
         CruiseStateManager.instance().speed = set_speed * self.speed_conv_to_ms
 
