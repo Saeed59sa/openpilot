@@ -7,6 +7,9 @@ class CommunityPanel : public QWidget {
 public:
   explicit CommunityPanel(QWidget *parent = nullptr);
 
+signals:
+  void closeSettings();
+
 private:
   QStackedLayout* main_layout = nullptr;
   QWidget* homeScreen = nullptr;

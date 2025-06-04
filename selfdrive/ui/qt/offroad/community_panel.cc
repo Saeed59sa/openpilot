@@ -354,7 +354,8 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     if (QFile::exists(file_path)) {
       if (ConfirmationDialog::confirm(tr("tmux log upload<br><br>Process?"), tr("Process"), this)) {
         QProcess::execute("/data/openpilot/scripts/log_upload.sh tmux_error.log");
-      }
+        emit closeSettings();
+    }
     } else {
       ConfirmationDialog::alert(tr("log file not found"), this);
     }
@@ -367,6 +368,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     if (exitCode == 0) {
       if (ConfirmationDialog::confirm(tr("tmux console log upload<br><br>Process?"), tr("Process"), this)) {
         QProcess::execute("/data/openpilot/scripts/log_upload.sh tmux_console.log");
+        emit closeSettings();
       }
     } else {
       ConfirmationDialog::alert(tr("log file not found"), this);
@@ -378,6 +380,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   QObject::connect(carparams_dump_upload_btn, &QPushButton::clicked, this, [this]() {
     if (ConfirmationDialog::confirm(tr("carParams dump upload<br><br>Process?"), tr("Process"), this)) {
       QProcess::execute("/data/openpilot/scripts/dump_upload.sh carParams");
+      emit closeSettings();
     }
   });
 
@@ -432,6 +435,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
         //} else {
         //  ConfirmationDialog::alert(tr("Upload complete"), this);
         process->deleteLater();
+        emit closeSettings();
         }
       }
     }
