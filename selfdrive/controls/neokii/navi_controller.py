@@ -386,7 +386,6 @@ class SpeedLimiter:
     self.sock = messaging.sub_sock("naviData")
     self.naviData = None
     self.logMonoTime = 0
-    self.active_cam = False
 
   @classmethod
   def instance(cls):
@@ -415,14 +414,6 @@ class SpeedLimiter:
       return self.naviData.active and (self.naviData.camLimitSpeedLeftDist > 0 or self.naviData.sectionLeftDist > 0)
     return False
 
-  def get_cam_alert(self):
-    self.recv()
-    if self.naviData is not None:
-      left_dist = self.naviData.camLimitSpeedLeftDist
-      limit_speed = self.naviData.camLimitSpeed
-      self.active_cam = limit_speed > 0 and left_dist > 0
-    return False
-
   def get_road_limit_speed(self):
     print(self.logMonoTime)
     if self.naviData is None or time.monotonic() - self.logMonoTime > 3.:
@@ -430,11 +421,10 @@ class SpeedLimiter:
     return self.naviData.roadLimitSpeed
 
   def get_max_speed(self, cluster_speed, is_metric):
-    log = ""
     self.recv()
 
     if self.naviData is None:
-      return 0, 0, 0, False, 0, ""
+      return 0, 0, False
 
     try:
       road_limit_speed = self.naviData.roadLimitSpeed
@@ -483,9 +473,9 @@ class SpeedLimiter:
           if not self.decelerating:
             self.started_dist = cam_limit_speed_left_dist
             self.decelerating = True
-            first_started = True
+            is_limit_zone = True
           else:
-            first_started = False
+            is_limit_zone = False
 
           td = self.started_dist - safe_dist
           d = cam_limit_speed_left_dist - safe_dist
@@ -497,37 +487,35 @@ class SpeedLimiter:
 
           self.last_limit_speed_left_dist = cam_limit_speed_left_dist
 
-          return cam_limit_speed * cam_speed_factor + int(pp * diff_speed), \
-                 cam_limit_speed, cam_limit_speed_left_dist, first_started
+          return cam_limit_speed * cam_speed_factor + int(pp * diff_speed), cam_limit_speed, is_limit_zone
 
         self.decelerating = False
-        return 0, cam_limit_speed, cam_limit_speed_left_dist, False
+        return 0, cam_limit_speed, False
 
       elif section_left_dist is not None and section_limit_speed is not None and section_left_dist > 0:
         if min_limit <= section_limit_speed <= max_limit:
 
           if not self.decelerating:
             self.decelerating = True
-            first_started = True
+            is_limit_zone = True
           else:
-            first_started = False
+            is_limit_zone = False
 
           speed_diff = 0
           if section_adjust_speed is not None and section_adjust_speed:
             speed_diff = (section_limit_speed - section_avg_speed) / 2.
             speed_diff *= np.interp(section_left_dist, [500, 1000], [0., 1.])
 
-          return section_limit_speed * cam_speed_factor + speed_diff, section_limit_speed, section_left_dist, first_started
+          return section_limit_speed * cam_speed_factor + speed_diff, section_limit_speed, is_limit_zone
 
         self.decelerating = False
-        return 0, section_limit_speed, section_left_dist, False
+        return 0, section_limit_speed, False
 
-    except Exception as e:
-      log = "Ex: " + str(e)
+    except Exception:
       pass
 
     self.decelerating = False
-    return 0, 0, 0, False
+    return 0, 0, False
 
 def signal_handler(sig, frame):
   print('Ctrl+C pressed, exiting.')
