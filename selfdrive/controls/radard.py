@@ -59,19 +59,25 @@ class Track:
     self.kf = KF1D([[v_lead], [0.0]], self.K_A, self.K_C, self.K_K)
 
   def update(self, d_rel: float, y_rel: float, v_rel: float, v_lead: float, a_lead: float, j_lead: float, measured: float):
-
+    # relative values, copy
     self.dRel = d_rel   # LONG_DIST
     self.yRel = y_rel   # -LAT_DIST
     self.vRel = v_rel   # REL_SPEED
-
-    self.vLead = self.vLeadK = v_lead
-    self.aLead = self.aLeadK = a_lead
+    self.vLead = v_lead
+    self.aLead = a_lead
     self.jLead = j_lead
-
     self.measured = measured   # measured or estimate
-    a_lead_threshold = 0.5 * self.radar_reaction_factor
-    if abs(self.aLead) < a_lead_threshold and abs(j_lead) < 0.5:
-      self.aLeadTau.x = _LEAD_ACCEL_TAU * self.radar_reaction_factor
+
+    # computed velocity and accelerations
+    if self.cnt > 0:
+      self.kf.update(self.vLead)
+
+    self.vLeadK = float(self.kf.x[SPEED][0])
+    self.aLeadK = float(self.kf.x[ACCEL][0])
+
+    # Learn if constant acceleration
+    if abs(self.aLeadK) < 0.5:
+      self.aLeadTau.x = _LEAD_ACCEL_TAU
     else:
       self.aLeadTau.update(0.0)
 

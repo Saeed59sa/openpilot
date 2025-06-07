@@ -6,8 +6,7 @@ from openpilot.common.params import Params
 from openpilot.selfdrive.ui.widgets.offroad_alerts import UpdateAlert, OffroadAlert
 from openpilot.system.ui.lib.text_measure import measure_text_cached
 from openpilot.system.ui.lib.label import gui_label
-from openpilot.system.ui.lib.application import gui_app, FontWeight, DEFAULT_TEXT_COLOR
-
+from openpilot.system.ui.lib.application import gui_app, FontWeight, DEFAULT_TEXT_COLOR, Widget
 
 HEADER_HEIGHT = 80
 HEAD_BUTTON_FONT_SIZE = 40
@@ -25,8 +24,9 @@ class HomeLayoutState(IntEnum):
   ALERTS = 2
 
 
-class HomeLayout:
+class HomeLayout(Widget):
   def __init__(self):
+    super().__init__()
     self.params = Params()
 
     self.update_alert = UpdateAlert()
@@ -59,7 +59,7 @@ class HomeLayout:
   def _set_state(self, state: HomeLayoutState):
     self.current_state = state
 
-  def render(self, rect: rl.Rectangle):
+  def _render(self, rect: rl.Rectangle):
     self._update_layout_rects(rect)
 
     current_time = time.time()

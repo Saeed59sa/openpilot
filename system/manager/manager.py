@@ -9,6 +9,7 @@ from cereal import log
 import cereal.messaging as messaging
 import openpilot.system.sentry as sentry
 from openpilot.common.params import Params, ParamKeyType
+from openpilot.common.text_window import TextWindow
 from openpilot.system.hardware import HARDWARE
 from openpilot.system.manager.helpers import unblock_stdout, write_onroad_params, save_bootlog
 from openpilot.system.manager.process import ensure_running
@@ -167,6 +168,7 @@ def manager_thread() -> None:
 
   write_onroad_params(False, params)
   ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore)
+
   started_prev = False
 
   log_timer = 0
@@ -243,8 +245,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-  from openpilot.system.ui.text import TextWindow
-
   unblock_stdout()
 
   try:
