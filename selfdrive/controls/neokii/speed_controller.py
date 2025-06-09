@@ -150,7 +150,7 @@ class SpeedController:
     no_limit_speed = 255.
     trajectory_size = ModelConstants.IDX_N
 
-    if sm.frame % 10 != 0:
+    if sm.frame % 20 != 0:
       return no_limit_speed
 
     if len(model_msg.position.x) != trajectory_size or len(model_msg.position.y) != trajectory_size:
