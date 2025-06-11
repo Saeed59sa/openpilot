@@ -233,16 +233,9 @@ class TorqueEstimator(ParameterEstimator):
     liveTorqueParameters.latAccelOffsetFiltered = float(self.filtered_params['latAccelOffset'].x)
     liveTorqueParameters.frictionCoefficientFiltered = float(self.filtered_params['frictionCoefficient'].x)
     liveTorqueParameters.totalBucketPoints = len(self.filtered_points)
+    liveTorqueParameters.calPerc = self.filtered_points.get_valid_percent()
     liveTorqueParameters.decay = self.decay
     liveTorqueParameters.maxResets = self.resets
-
-    bucket_progresses = []
-    for b, req in zip(self.filtered_points.buckets.values(),
-                      self.filtered_points.buckets_min_points.values()):
-      if req > 0:
-        bucket_progresses.append(min(len(b) / req, 1.0))
-    cal_perc = int(np.mean(bucket_progresses) * 100) if bucket_progresses else 0
-    liveTorqueParameters.calPerc = min(cal_perc, 100)
     return msg
 
 
