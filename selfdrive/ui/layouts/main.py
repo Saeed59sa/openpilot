@@ -18,10 +18,8 @@ class MainLayout(Widget):
   def __init__(self):
     super().__init__()
     self._sidebar = Sidebar()
-    self._sidebar_visible = True
     self._current_mode = MainState.HOME
     self._prev_onroad = False
-    self._window_rect = None
 
     # Initialize layouts
     self._layouts = {MainState.HOME: HomeLayout(), MainState.SETTINGS: SettingsLayout(), MainState.ONROAD: AugmentedRoadView()}
@@ -45,10 +43,9 @@ class MainLayout(Widget):
     self._layouts[MainState.ONROAD].set_callbacks(on_click=self._on_onroad_clicked)
 
   def _update_layout_rects(self, rect):
-    self._window_rect = rect
     self._sidebar_rect = rl.Rectangle(rect.x, rect.y, SIDEBAR_WIDTH, rect.height)
 
-    x_offset = SIDEBAR_WIDTH if self._sidebar_visible else 0
+    x_offset = SIDEBAR_WIDTH if self._sidebar.is_visible else 0
     self._content_rect = rl.Rectangle(rect.y + x_offset, rect.y, rect.width - x_offset, rect.height)
 
   def _handle_onroad_transition(self):
@@ -60,30 +57,30 @@ class MainLayout(Widget):
   def _set_mode_for_state(self):
     if ui_state.started:
       self._current_mode = MainState.ONROAD
-      self._sidebar_visible = False
+      self._sidebar.set_visible(False)
     else:
       self._current_mode = MainState.HOME
-      self._sidebar_visible = True
+      self._sidebar.set_visible(True)
 
   def open_settings(self, panel_type: PanelType):
     self._layouts[MainState.SETTINGS].set_current_panel(panel_type)
     self._current_mode = MainState.SETTINGS
-    self._sidebar_visible = False
+    self._sidebar.set_visible(False)
 
   def _on_settings_clicked(self):
     self._current_mode = MainState.SETTINGS
-    self._sidebar_visible = False
+    self._sidebar.set_visible(False)
 
   def _on_flag_clicked(self):
     pass
 
   def _on_onroad_clicked(self):
-    self._sidebar_visible = not self._sidebar_visible
+    self._sidebar.set_visible(not self._sidebar.is_visible)
 
   def _render_main_content(self):
     # Render sidebar
-    if self._sidebar_visible:
+    if self._sidebar.is_visible:
       self._sidebar.render(self._sidebar_rect)
 
-    content_rect = self._content_rect if self._sidebar_visible else self._window_rect
+    content_rect = self._content_rect if self._sidebar.is_visible else self._rect
     self._layouts[self._current_mode].render(content_rect)
