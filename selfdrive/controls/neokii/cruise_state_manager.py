@@ -137,7 +137,7 @@ class CruiseStateManager:
           v_cruise_kph = max(v_cruise_kph, round(self.conv_to_clu(CS.vEgoCluster), 1))
           if road_limit_speed is not None and V_CRUISE_INITIAL < road_limit_speed < V_CRUISE_MAX:
             v_cruise_kph = max(v_cruise_kph, road_limit_speed)
-    elif not self.enabled and not self.available:
+    else:
       if not self.btn_long_pressed:
         if btn == ButtonType.lfaButton or btn == ButtonType.decelCruise or btn == ButtonType.accelCruise:
           self.wrong_btn_pressed = True
