@@ -343,4 +343,5 @@ MIGRATION = {
   "SKODA SUPERB 3RD GEN": VW.SKODA_SUPERB_MK3,
 
   "mock": MOCK.MOCK,
+  "mock_custom": MOCK.MOCK_CUSTOM,
 }
