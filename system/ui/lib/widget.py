@@ -24,11 +24,17 @@ class Widget(abc.ABC):
     self._is_visible = visible
 
   def set_rect(self, rect: rl.Rectangle) -> None:
+    prev_rect = self._rect
     self._rect = rect
+    if (rect.x != prev_rect.x or rect.y != prev_rect.y or
+        rect.width != prev_rect.width or rect.height != prev_rect.height):
+      self._update_layout_rects()
 
   def render(self, rect: rl.Rectangle = None) -> bool | int | None:
     if rect is not None:
       self.set_rect(rect)
+
+    self._update_state()
 
     if not self.is_visible:
       return None
@@ -52,6 +58,12 @@ class Widget(abc.ABC):
   def _render(self, rect: rl.Rectangle) -> bool | int | None:
     """Render the widget within the given rectangle."""
 
+  def _update_state(self):
+    """Optionally update the widget's non-layout state. This is called before rendering."""
+
+  def _update_layout_rects(self) -> None:
+    """Optionally update any layout rects on Widget rect change."""
+
   def _handle_mouse_release(self, mouse_pos: rl.Vector2) -> bool:
-    """Handle mouse release events, if applicable."""
+    """Optionally handle mouse release events."""
     return False
