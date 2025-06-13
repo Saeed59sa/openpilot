@@ -563,8 +563,28 @@
         <translation>캘리브레이션을 재설정하려면 해제하세요</translation>
     </message>
     <message>
-        <source> Resetting calibration will restart openpilot if the car is powered on.</source>
-        <translation> 차량이 전원이 켜진 경우 캘리브레이션 재설정이 오픈파일럿을 재시작합니다.</translation>
+        <source>openpilot requires the device to be mounted within 4° left or right and within 5° up or 9° down.</source>
+        <translation>오픈파일럿 장치는 좌우측으로는 4° 또는 위로는 5° 아래로는 9° 이내에 장착해야합니다.</translation>
+    </message>
+    <message>
+        <source>Steering lag calibration is %1% complete.</source>
+        <translation>조향 지연 캘리브레이션은 %1% 완료입니다.</translation>
+    </message>
+    <message>
+        <source>Steering lag calibration is complete.</source>
+        <translation>조향 지연 캘리브레이션이 완료되었습니다. type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Steering torque response calibration is %1% complete.</source>
+        <translation>조향 토크 응답 캘리브레이션은 %1% 완료입니다. </translation>
+    </message>
+    <message>
+        <source>Steering torque response calibration is complete.</source>
+        <translation>조향 토크 응답 캘리브레이션이 완료되었습니다.</translation>
+    </message>
+    <message>
+        <source>openpilot is continuously calibrating, resetting is rarely required. Resetting calibration will restart openpilot if the car is powered on.</source>
+        <translation>오픈파일럿은 지속적으로 교정되어 재설정이 거의 필요하지 않습니다. 차량이 전원이 켜진 경우 캘리브레이션 재설정이 오픈파일럿을 다시 시작합니다.</translation>
     </message>
 </context>
 <context>
@@ -587,10 +607,6 @@
 </context>
 <context>
     <name>FirehosePanel</name>
-    <message>
-        <source>🔥 Firehose Mode 🔥</source>
-        <translation>🔥 파이어호스 모드 🔥</translation>
-    </message>
     <message>
         <source>openpilot learns to drive by watching humans, like you, drive.
 
@@ -621,6 +637,10 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <source>&lt;span stylesheet=&apos;font-size: 60px; font-weight: bold; color: #e74c3c;&apos;&gt;INACTIVE&lt;/span&gt;: connect to an unmetered network</source>
         <translation>&lt;span stylesheet=&apos;font-size: 60px; font-weight: bold; color: #e74c3c;&apos;&gt;비활성 상태&lt;/span&gt;: 무제한 네트워크에 연결 하세요</translation>
     </message>
+    <message>
+        <source>Firehose Mode</source>
+        <translation>파이어호스 모드</translation>
+    </message>
 </context>
 <context>
     <name>HudRenderer</name>
@@ -636,10 +656,6 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <source>MAX</source>
         <translation>MAX</translation>
     </message>
-    <message>
-        <source>SET</source>
-        <translation>SET</translation>
-    </message>
 </context>
 <context>
     <name>InputDialog</name>
@@ -652,13 +668,6 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <translation>
             <numerusform>최소 %n자 이상이어야 합니다!</numerusform>
         </translation>
-    </message>
-</context>
-<context>
-    <name>Installer</name>
-    <message>
-        <source>Installing...</source>
-        <translation>설치 중...</translation>
     </message>
 </context>
 <context>
