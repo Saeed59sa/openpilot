@@ -418,7 +418,7 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   p.setBrush(blackColor(100));
   p.drawRoundedRect(speed_box, 15, 15);
 
-  QColor speedColor = whiteColor();
+  QColor speedColor = whiteColor(200);
   if (limit_speed > 0 && status != STATUS_DISENGAGED && status != STATUS_OVERRIDE) {
     speedColor = interpColor(
       cruise_speed,
@@ -428,12 +428,6 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   }
 
   // max speed
-  if (nda_state > 0) {
-    maxSpeedStr = QString::number(std::nearbyint(apply_speed));
-  } else {
-    maxSpeedStr = QString::number(std::nearbyint(cruise_speed));
-  }
-
   QRect max_speed_box(speed_box.left() + 5, speed_box.top() + 5, 160, 160);
   p.setPen(QPen(whiteColor(200), 2));
   p.drawRoundedRect(max_speed_box, 15, 15);
@@ -441,7 +435,9 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   int max_text_y = max_speed_box.top() + max_speed_box.height() / 4;
   int value_text_y = max_speed_box.top() + (max_speed_box.height() / 4 * 3);
 
-  drawTextColor(p, max_speed_box.center().x(), max_text_y, 30, tr("MAX"), whiteColor(200));
+  maxSpeedStr = QString::number(std::nearbyint((nda_state > 0) ? apply_speed : cruise_speed));
+
+  drawTextColor(p, max_speed_box.center().x(), max_text_y, 30, nda_state > 0 ? "SET" : "MAX", whiteColor(200));
   drawTextColor(p, max_speed_box.center().x(), value_text_y, 60, is_cruise_set ? maxSpeedStr : "─", speedColor);
 
   QRect traffic_box(max_speed_box.right() + 5, speed_box.top() + 5, 85, 160);
