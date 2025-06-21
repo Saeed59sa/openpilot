@@ -168,6 +168,7 @@ class UserSoftDisableAlert(SoftDisableAlert):
     super().__init__(alert_text_2),
     self.alert_text_1 = "오픈파일럿이 해제됩니다"
 
+
 class ImmediateDisableAlert(Alert):
   def __init__(self, alert_text_2: str):
     super().__init__("핸들을 즉시 잡아주세요", alert_text_2,
@@ -367,6 +368,18 @@ def personality_changed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging
   personality_kr = personality_map.get(personality)
   return NormalPermanentAlert(f"운전 성향: {personality_kr}", duration=1.5)
 
+
+def invalid_lkas_setting_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
+  text = "활성화 하려면 차량의 LKAS 상태를 확인하세요"
+  if CP.brand == "tesla":
+    text = "활성화 하려면 Traffic-Aware Cruise Control을 켜세요"
+  elif CP.brand == "mazda":
+    text = "활성화 하려면 LKAS를 켜세요"
+  elif CP.brand == "nissan":
+    text = "활성화 하려면 LKAS를 끄세요"
+  return NormalPermanentAlert("Invalid LKAS setting", text)
+
+
 def auto_lane_change_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
   alc_timer = sm['modelV2'].meta.autoLaneChangeTimer
   return Alert(
@@ -374,6 +387,7 @@ def auto_lane_change_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.Su
     "차선이 안전한지 확인하세요",
     AlertStatus.normal, AlertSize.mid,
     Priority.LOW, VisualAlert.none, AudibleAlert.promptRepeat, .75)
+
 
 def can_error_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
   if os.path.isfile('/data/can_missing.log'):
@@ -400,6 +414,7 @@ def can_error_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.none, .2, creation_delay=1.)
+
 
 EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # ********** events with no alerts **********
@@ -453,8 +468,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.invalidLkasSetting: {
-    ET.PERMANENT: NormalPermanentAlert("잘못된 LKAS 설정",
-                                       "활성화 하려면 차량의 LKAS를 켜거나 끄세요."),
+    ET.PERMANENT: invalid_lkas_setting_alert,
     ET.NO_ENTRY: NoEntryAlert("잘못된 LKAS 설정"),
   },
 
@@ -576,7 +590,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "정지 상태를 종료하려면 RES버튼을 누르세요",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.MID, VisualAlert.none, AudibleAlert.none, .2),
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, .2),
   },
 
   EventName.belowSteerSpeed: {
@@ -784,11 +798,6 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   EventName.noGps: {
-    ET.PERMANENT: Alert(
-      "GPS 수신 불량",
-      "기기에서 하늘이 잘 보이는지 확인하세요",
-      AlertStatus.normal, AlertSize.mid,
-      Priority.LOWER, VisualAlert.none, AudibleAlert.none, .2, creation_delay=600.)
   },
 
   EventName.tooDistracted: {
