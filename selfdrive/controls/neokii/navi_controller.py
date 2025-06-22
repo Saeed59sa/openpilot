@@ -408,17 +408,11 @@ class SpeedLimiter:
       return self.naviData.active
     return 0
 
-  def get_cam_active(self):
+  def get_road_limit_speed(self):
     self.recv()
     if self.naviData is not None:
-      return self.naviData.active and (self.naviData.camLimitSpeedLeftDist > 0 or self.naviData.sectionLeftDist > 0)
-    return False
-
-  def get_road_limit_speed(self):
-    print(self.logMonoTime)
-    if self.naviData is None or time.monotonic() - self.logMonoTime > 3.:
-      return 0
-    return self.naviData.roadLimitSpeed
+      return self.naviData.roadLimitSpeed
+    return 0
 
   def get_max_speed(self, cluster_speed, is_metric):
     self.recv()

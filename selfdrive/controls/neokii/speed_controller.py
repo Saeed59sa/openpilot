@@ -92,16 +92,13 @@ class SpeedController:
     current_max_speed_clu = self.to_current_unit(v_cruise_kph)
 
     # 1. apply limit speed
-    if apply_limit_speed >= self.to_current_unit(V_CRUISE_MIN):
+    if apply_limit_speed >= self.min_set_speed_clu:
       current_max_speed_clu = min(current_max_speed_clu, apply_limit_speed)
 
     # 2. road limit speed
-    if road_limit_speed > 0:
-      if road_limit_speed < current_max_speed_clu * 0.9:
-        prelimit_clu = max(road_limit_speed * 1.3, self.to_current_unit(V_CRUISE_INITIAL))
-        current_max_speed_clu = min(current_max_speed_clu, prelimit_clu)
-      elif current_max_speed_clu < road_limit_speed * 0.9:
-        current_max_speed_clu = max(current_max_speed_clu, road_limit_speed)
+    if self.min_set_speed_clu <= road_limit_speed < current_max_speed_clu * 0.9:
+      prelimit_clu = max(road_limit_speed * 1.3, self.min_set_speed_clu)
+      current_max_speed_clu = min(current_max_speed_clu, prelimit_clu)
 
     # 3. curve limit speed
     curve_limited_speed_clu = self._cal_curve_speed(sm, CS, v_cruise_kph)
@@ -139,9 +136,9 @@ class SpeedController:
     deceleration_ms2 = -relative_speed / time
     speed_delta_clu = self.conv_to_clu(deceleration_ms2) * lead_accel_gain
     new_speed_clu = clu_speed + speed_delta_clu
-    target_speed = max(new_speed_clu, self.min_set_speed_clu)
+    lead_speed = max(new_speed_clu, self.min_set_speed_clu)
 
-    return target_speed, lead
+    return lead_speed, lead
 
   def _cal_curve_speed(self, sm, CS, v_cruise_kph):
     speed = CS.vEgo
