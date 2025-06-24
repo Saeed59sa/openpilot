@@ -572,11 +572,11 @@
     </message>
     <message>
         <source>Steering lag calibration is complete.</source>
-        <translation>조향 지연 캘리브레이션이 완료되었습니다. type="unfinished"></translation>
+        <translation>조향 지연 캘리브레이션이 완료되었습니다.</translation>
     </message>
     <message>
         <source>Steering torque response calibration is %1% complete.</source>
-        <translation>조향 토크 응답 캘리브레이션은 %1% 완료입니다. </translation>
+        <translation>조향 토크 응답 캘리브레이션은 %1% 완료입니다.</translation>
     </message>
     <message>
         <source>Steering torque response calibration is complete.</source>

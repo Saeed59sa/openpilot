@@ -418,7 +418,7 @@ class SpeedLimiter:
     self.recv()
 
     if self.naviData is None:
-      return 0, 0, False
+      return 0, False
 
     try:
       road_limit_speed = self.naviData.roadLimitSpeed
@@ -481,10 +481,10 @@ class SpeedLimiter:
 
           self.last_limit_speed_left_dist = cam_limit_speed_left_dist
 
-          return cam_limit_speed * cam_speed_factor + int(pp * diff_speed), cam_limit_speed, is_limit_zone
+          return cam_limit_speed * cam_speed_factor + int(pp * diff_speed), is_limit_zone
 
         self.decelerating = False
-        return 0, cam_limit_speed, False
+        return 0, False
 
       elif section_left_dist is not None and section_limit_speed is not None and section_left_dist > 0:
         if min_limit <= section_limit_speed <= max_limit:
@@ -500,16 +500,16 @@ class SpeedLimiter:
             speed_diff = (section_limit_speed - section_avg_speed) / 2.
             speed_diff *= np.interp(section_left_dist, [500, 1000], [0., 1.])
 
-          return section_limit_speed * cam_speed_factor + speed_diff, section_limit_speed, is_limit_zone
+          return section_limit_speed * cam_speed_factor + speed_diff, is_limit_zone
 
         self.decelerating = False
-        return 0, section_limit_speed, False
+        return 0, False
 
     except Exception:
       pass
 
     self.decelerating = False
-    return 0, 0, False
+    return 0, False
 
 def signal_handler(sig, frame):
   print('Ctrl+C pressed, exiting.')

@@ -86,37 +86,42 @@ class SpeedController:
     self.curve_speed_clu = 0.
 
   def _cal_max_speed(self, CS, sm, clu_speed, v_cruise_kph):
-    apply_limit_speed, road_limit_speed, is_limit_zone = (
-      SpeedLimiter.instance().get_max_speed(clu_speed, self.is_metric))
+    apply_limit_speed, is_limit_zone = SpeedLimiter.instance().get_max_speed(clu_speed, self.is_metric)
+
+    road_limit_speed_nda = SpeedLimiter.instance().get_road_limit_speed()
+    road_limit_speed_stock = CS.exState.navLimitSpeed
+
+    if road_limit_speed_nda is not None and road_limit_speed_nda > 0:
+      road_limit_speed = road_limit_speed_nda
+    elif road_limit_speed_stock is not None and road_limit_speed_stock > 0:
+      road_limit_speed = road_limit_speed_stock
+    else:
+      road_limit_speed = None
 
     current_max_speed_clu = self.to_current_unit(v_cruise_kph)
 
-    # 1. apply limit speed
-    if apply_limit_speed >= self.min_set_speed_clu:
-      current_max_speed_clu = min(current_max_speed_clu, apply_limit_speed)
-
-    # 2. road limit speed
-    if self.min_set_speed_clu <= road_limit_speed < current_max_speed_clu * 0.9:
+    # 1. road limit speed
+    if road_limit_speed is not None and self.min_set_speed_clu <= road_limit_speed < current_max_speed_clu:
       prelimit_clu = max(road_limit_speed * 1.3, self.min_set_speed_clu)
       current_max_speed_clu = min(current_max_speed_clu, prelimit_clu)
 
-    # 3. curve limit speed
+    # 2. apply limit speed
+    if apply_limit_speed >= self.min_set_speed_clu:
+      current_max_speed_clu = min(current_max_speed_clu, apply_limit_speed)
+
+    # 3. lead limit speed
+    lead_speed = self._get_long_lead_speed(clu_speed, sm)
+    if self.min_set_speed_clu <= lead_speed < current_max_speed_clu:
+      current_max_speed_clu = min(current_max_speed_clu, lead_speed)
+
+    # 4. curve limit speed
     curve_limited_speed_clu = self._cal_curve_speed(sm, CS, v_cruise_kph)
     current_max_speed_clu = min(current_max_speed_clu, curve_limited_speed_clu)
-
-    # 4. lead limit speed
-    lead_speed, lead = self._get_long_lead_speed(clu_speed, sm)
-    if lead is not None and self.min_set_speed_clu <= lead_speed < current_max_speed_clu:
-      current_max_speed_clu = min(current_max_speed_clu, lead_speed)
 
     self._update_max_speed(int(round(current_max_speed_clu)), is_limit_zone)
 
   def _get_long_lead_speed(self, clu_speed, sm):
     radar = sm['radarState']
-
-    if not self.long_control or not radar.leadOne.status:
-        return 0, None
-
     lead = radar.leadOne
     lead_distance_buffer = 5.
     distance = lead.dRel - lead_distance_buffer
@@ -125,20 +130,23 @@ class SpeedController:
     lead_accel_gain = 1.2
     min_relative_speed = -1.0
 
+    if not self.long_control or not lead.status:
+        return 0
+
     is_valid_deceleration = (
       0 < distance < -relative_speed * lead_decay_factor and
       relative_speed < min_relative_speed
     )
     if not is_valid_deceleration:
-      return 0, None
+      return 0
 
     time = distance / relative_speed if abs(relative_speed) > 1e-3 else 0.1
-    deceleration_ms2 = -relative_speed / time
-    speed_delta_clu = self.conv_to_clu(deceleration_ms2) * lead_accel_gain
+    deceleration_ms = -relative_speed / time
+    speed_delta_clu = self.conv_to_clu(deceleration_ms) * lead_accel_gain
     new_speed_clu = clu_speed + speed_delta_clu
     lead_speed = max(new_speed_clu, self.min_set_speed_clu)
 
-    return lead_speed, lead
+    return lead_speed
 
   def _cal_curve_speed(self, sm, CS, v_cruise_kph):
     speed = CS.vEgo
