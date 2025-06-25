@@ -1598,11 +1598,11 @@ Default matches half of the MUTCD standard of 4 inches.</source>
     </message>
     <message>
         <source>FrogPilot Backups</source>
-        <translation type="unfinished"></translation>
+        <translation>النسخ الاحتياطية لـ FSDPilot</translation>
     </message>
     <message>
         <source>Manage your FrogPilot backups.</source>
-        <translation type="unfinished"></translation>
+        <translation>إدارة النسخ الاحتياطية لـ FSDPilot.</translation>
     </message>
     <message>
         <source>BACKUP</source>
@@ -1646,7 +1646,7 @@ Default matches half of the MUTCD standard of 4 inches.</source>
     </message>
     <message>
         <source>Are you sure you want to restore this version of FrogPilot?</source>
-        <translation type="unfinished"></translation>
+        <translation>هل أنت متأكد أنك تريد استعادة هذا الإصدار من FSDPilot؟</translation>
     </message>
     <message>
         <source>Restore</source>
@@ -2627,15 +2627,15 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
     </message>
     <message>
         <source>Advanced FrogPilot features for more experienced users.</source>
-        <translation type="unfinished"></translation>
+        <translation>ميزات FSDPilot المتقدمة للمستخدمين الأكثر خبرة.</translation>
     </message>
     <message>
         <source>Options to customize FrogPilot&apos;s sound alerts and notifications.</source>
-        <translation type="unfinished"></translation>
+        <translation>خيارات لتخصيص تنبيهات وإشعارات الصوت لـ FSDPilot.</translation>
     </message>
     <message>
         <source>FrogPilot features than impact acceleration, braking, and steering.</source>
-        <translation type="unfinished"></translation>
+        <translation>ميزات FSDPilot التي تؤثر على التسارع والفرملة والتوجيه.</translation>
     </message>
     <message>
         <source>Offline maps downloader and &apos;Navigate On openpilot (NOO)&apos; settings.</source>
@@ -2643,11 +2643,11 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
     </message>
     <message>
         <source>Tools and system utilities used to maintain and troubleshoot FrogPilot.</source>
-        <translation type="unfinished"></translation>
+        <translation>أدوات ونوافذ نظام تُستخدم لصيانة واستكشاف أخطاء FSDPilot.</translation>
     </message>
     <message>
         <source>Options for customizing FrogPilot&apos;s themes, UI appearance, and onroad widgets.</source>
-        <translation type="unfinished"></translation>
+        <translation>خيارات لتخصيص سمات FSDPilot ومظهر الواجهة وعناصر القيادة.</translation>
     </message>
     <message>
         <source>Vehicle-specific settings and configurations for supported makes and models.</source>
@@ -2798,7 +2798,7 @@ DISENGAGE IMMEDIATELY, Driver Unresponsive</source>
     </message>
     <message>
         <source>Enable the famed &apos;Goat Scream&apos; that has brought both joy and anger to FrogPilot users all around the world!</source>
-        <translation type="unfinished"></translation>
+        <translation>تمكين الصرخة الشهيرة "صراخ الماعز" التي جلبت الفرح والغضب لمستخدمي FSDPilot حول العالم!</translation>
     </message>
     <message>
         <source>Green Light Alert</source>
@@ -2851,7 +2851,8 @@ DISENGAGE IMMEDIATELY, Driver Unresponsive</source>
         <source>Themed color schemes.
 
 Want to submit your own color scheme? Share it in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
-        <translation type="unfinished"></translation>
+        <translation>مخططات ألوان مخصصة.
+هل تريد تقديم مخطط الألوان الخاص بك؟ شاركه في قناة "feature-request" على خادم FSDPilot في ديسكورد!</translation>
     </message>
     <message>
         <source>Icon Pack</source>
@@ -2861,7 +2862,8 @@ Want to submit your own color scheme? Share it in the &apos;feature-request&apos
         <source>Themed icon packs.
 
 Want to submit your own icons? Share them in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
-        <translation type="unfinished"></translation>
+        <translation>حزم أيقونات مخصصة.
+هل تريد تقديم أيقوناتك الخاصة؟ شاركها في قناة "feature-request" على خادم FSDPilot في ديسكورد!</translation>
     </message>
     <message>
         <source>Sound Pack</source>
@@ -2871,7 +2873,8 @@ Want to submit your own icons? Share them in the &apos;feature-request&apos; cha
         <source>Themed sound effects.
 
 Want to submit your own sounds? Share them in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
-        <translation type="unfinished"></translation>
+        <translation>مؤثرات صوتية مخصصة.
+هل تريد تقديم أصواتك الخاصة؟ شاركها في قناة "feature-request" على خادم FSDPilot في ديسكورد!</translation>
     </message>
     <message>
         <source>Steering Wheel</source>
@@ -2889,7 +2892,8 @@ Want to submit your own sounds? Share them in the &apos;feature-request&apos; ch
         <source>Themed turn signal animations.
 
 Want to submit your own animations? Share them in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
-        <translation type="unfinished"></translation>
+        <translation>رسوم متحركة لإشارات الانعطاف مخصصة.
+هل تريد تقديم رسوماتك المتحركة الخاصة؟ شاركها في قناة "feature-request" على خادم FSDPilot في ديسكورد!</translation>
     </message>
     <message>
         <source>Download Status</source>
@@ -3191,7 +3195,7 @@ Want to submit your own animations? Share them in the &apos;feature-request&apos
     </message>
     <message>
         <source>Custom FrogPilot widgets used in the onroad user interface.</source>
-        <translation type="unfinished"></translation>
+        <translation>عناصر FSDPilot المخصصة المستخدمة في واجهة القيادة.</translation>
     </message>
     <message>
         <source>Compass</source>
@@ -3706,7 +3710,7 @@ Fully disengaged = 50%</source>
     </message>
     <message>
         <source>FrogPilot</source>
-        <translation type="unfinished"></translation>
+        <translation>FSDPilot</translation>
     </message>
 </context>
 <context>
@@ -3778,7 +3782,7 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>FrogPilot</source>
-        <translation type="unfinished"></translation>
+        <translation>FSDPilot</translation>
     </message>
 </context>
 <context>
@@ -4078,15 +4082,15 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Automatically Update FrogPilot</source>
-        <translation type="unfinished"></translation>
+        <translation>تحديث FSDPilot تلقائياً</translation>
     </message>
     <message>
         <source>FrogPilot will automatically update itself and it&apos;s assets when you&apos;re offroad and connected to Wi-Fi.</source>
-        <translation type="unfinished"></translation>
+        <translation>سيقوم FSDPilot بتحديث نفسه وموارده تلقائياً عند التوقف عن القيادة والاتصال بشبكة واي فاي.</translation>
     </message>
     <message>
         <source>Do you want to permanently delete any additional FrogPilot assets? This is 100% unrecoverable and includes backups, downloaded models, themes, and long-term storage toggle settings for easy reinstalls.</source>
-        <translation type="unfinished"></translation>
+        <translation>هل تريد حذف أي ملفات إضافية لـ FSDPilot بشكل نهائي؟ هذا غير قابل للاسترجاع تماماً ويتضمن النسخ الاحتياطية والنماذج المحملة والسمات وإعدادات التخزين طويلة المدى لتسهيل إعادة التثبيت.</translation>
     </message>
     <message>
         <source>Error Log</source>
