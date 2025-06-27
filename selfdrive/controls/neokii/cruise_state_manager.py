@@ -4,7 +4,7 @@ import numpy as np
 from opendbc.car import structs
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
-from openpilot.selfdrive.car.cruise import V_CRUISE_INITIAL, V_CRUISE_MIN, V_CRUISE_MAX, IMPERIAL_INCREMENT
+from openpilot.selfdrive.car.cruise import V_CRUISE_INITIAL, V_CRUISE_MIN, V_CRUISE_MAX, IMPERIAL_INCREMENT, CRUISE_LONG_PRESS
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 
 ButtonType = structs.CarState.ButtonEvent.Type
@@ -25,7 +25,6 @@ class CruiseStateManager:
     self.btn_count = 0
     self.btn_long_pressed = False
     self.prev_brake_pressed = False
-    self.wrong_btn_pressed = False
 
     self.prev_main_buttons = 0
 
@@ -69,8 +68,6 @@ class CruiseStateManager:
     CS.cruiseState.standstill = False
     CS.cruiseState.speed = float(self.speed)
 
-    self._update_message(CS)
-
   def update_buttons(self, CS):
     btn = ButtonType.unknown
 
@@ -96,10 +93,10 @@ class CruiseStateManager:
         self.btn_long_pressed = False
         self.btn_count = 0
 
-    if self.btn_count > 70:
+    if self.btn_count > CRUISE_LONG_PRESS:
       self.btn_long_pressed = True
       btn = self.prev_btn
-      self.btn_count %= 70
+      self.btn_count %= CRUISE_LONG_PRESS
 
     return btn
 
@@ -130,17 +127,15 @@ class CruiseStateManager:
       if not self.btn_long_pressed:
         if btn == ButtonType.decelCruise:
           self.enabled = True
-          v_cruise_kph = max(np.clip(round(self.conv_to_clu(CS.vEgoCluster), 1), V_CRUISE_MIN, V_CRUISE_MAX), V_CRUISE_INITIAL)
+          v_cruise_kph = max(np.clip(round(self.conv_to_clu(CS.vEgoCluster)), V_CRUISE_MIN, V_CRUISE_MAX),
+                             V_CRUISE_INITIAL)
         elif btn == ButtonType.accelCruise:
           self.enabled = True
-          v_cruise_kph = np.clip(round(self.conv_to_clu(self.speed), 1), V_CRUISE_INITIAL, V_CRUISE_MAX)
-          v_cruise_kph = max(v_cruise_kph, round(self.conv_to_clu(CS.vEgoCluster), 1))
+          v_cruise_kph = max(np.clip(round(self.conv_to_clu(self.speed)), V_CRUISE_INITIAL, V_CRUISE_MAX),
+                             round(self.conv_to_clu(CS.vEgoCluster)))
+
           if road_limit_speed is not None and V_CRUISE_INITIAL < road_limit_speed < V_CRUISE_MAX:
             v_cruise_kph = max(v_cruise_kph, road_limit_speed)
-    else:
-      if not self.btn_long_pressed:
-        if btn == ButtonType.lfaButton or btn == ButtonType.decelCruise or btn == ButtonType.accelCruise:
-          self.wrong_btn_pressed = True
 
     if btn == ButtonType.gapAdjustCruise:
       #if not self.btn_long_pressed:
@@ -166,22 +161,12 @@ class CruiseStateManager:
         else:
           if not self.enabled and self.available and CS.gearShifter != GearShifter.park:
             self.enabled = True
-            v_cruise_kph = np.clip(round(self.conv_to_clu(self.speed), 1), V_CRUISE_INITIAL, V_CRUISE_MAX)
-            v_cruise_kph = max(v_cruise_kph, round(self.conv_to_clu(CS.vEgoCluster), 1))
+            v_cruise_kph = max(np.clip(round(self.conv_to_clu(self.speed)), V_CRUISE_INITIAL, V_CRUISE_MAX),
+                               round(self.conv_to_clu(CS.vEgoCluster)))
       else:
         self.enabled = False
         self.available = False
         self.reset_available()
 
-    v_cruise_kph = np.clip(round(v_cruise_kph, 1), V_CRUISE_MIN, V_CRUISE_MAX)
+    v_cruise_kph = np.clip(round(v_cruise_kph), V_CRUISE_MIN, V_CRUISE_MAX)
     self.speed = self.conv_to_ms(v_cruise_kph)
-
-  def button_press(self):
-    if self.wrong_btn_pressed:
-      self.wrong_btn_pressed = False
-      return True
-    return False
-
-  def _update_message(self, CS):
-    exState = CS.exState
-    exState.wrongButtonPress = self.button_press()
