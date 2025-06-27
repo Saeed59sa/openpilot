@@ -39,7 +39,7 @@ class SpeedController:
     self.btn = Buttons.NONE
     self.target_speed_clu = 0.
     self.max_speed_clu = 0.
-    self.curve_speed_clu = 0.
+    self.curve_speed_clu = 255.
     self.cruise_speed_kph = 0.
     self.real_set_speed_kph = 0.
     self.v_cruise_kph = V_CRUISE_UNSET
@@ -83,7 +83,7 @@ class SpeedController:
     self.alive_timer = 0
     self.target_speed_clu = 0.
     self.max_speed_clu = 0.
-    self.curve_speed_clu = 0.
+    self.curve_speed_clu = 255.
 
   def _cal_max_speed(self, CS, sm, clu_speed, v_cruise_kph):
     apply_limit_speed, is_limit_zone = SpeedLimiter.instance().get_max_speed(clu_speed, self.is_metric)
@@ -110,18 +110,22 @@ class SpeedController:
       current_max_speed_clu = min(current_max_speed_clu, apply_limit_speed)
 
     # 3. lead limit speed
-    lead_speed = self._get_long_lead_speed(clu_speed, sm)
+    lead_speed = self._get_long_lead_speed(sm['radarState'], clu_speed)
     if self.min_set_speed_clu <= lead_speed < current_max_speed_clu:
       current_max_speed_clu = min(current_max_speed_clu, lead_speed)
 
     # 4. curve limit speed
-    curve_limited_speed_clu = self._cal_curve_speed(sm, CS, v_cruise_kph)
-    current_max_speed_clu = min(current_max_speed_clu, curve_limited_speed_clu)
+    if sm.frame % 20 == 0:
+      self._cal_curve_speed(sm['modelV2'], CS.vEgo, v_cruise_kph)
+    current_max_speed_clu = min(current_max_speed_clu, self.curve_speed_clu)
+
+    # 5. steering angle based speed limit
+    steer_limited_speed_clu = self._cal_steer_based_speed(CS.vEgo, CS.steeringAngleDeg)
+    current_max_speed_clu = min(current_max_speed_clu, steer_limited_speed_clu)
 
     self._update_max_speed(int(round(current_max_speed_clu)), is_limit_zone)
 
-  def _get_long_lead_speed(self, clu_speed, sm):
-    radar = sm['radarState']
+  def _get_long_lead_speed(self, radar, clu_speed):
     lead = radar.leadOne
     lead_distance_buffer = 5.
     distance = lead.dRel - lead_distance_buffer
@@ -148,15 +152,9 @@ class SpeedController:
 
     return lead_speed
 
-  def _cal_curve_speed(self, sm, CS, v_cruise_kph):
-    speed = CS.vEgo
-    steering_angle = abs(CS.steeringAngleDeg)
-    model_msg = sm['modelV2']
+  def _cal_curve_speed(self, model_msg, speed, v_cruise_kph):
     no_limit_speed = 255.
     trajectory_size = ModelConstants.IDX_N
-
-    if sm.frame % 20 != 0:
-      return no_limit_speed
 
     if len(model_msg.position.x) != trajectory_size or len(model_msg.position.y) != trajectory_size:
       return no_limit_speed
@@ -195,17 +193,23 @@ class SpeedController:
       acc_based_speed_ms = float(max(temp_acc_speed, min_curve_speed_ms)) \
         if temp_acc_speed < speed else no_limit_speed
 
-    steering_decel_angle_deg = 60.0
-    steer_based_speed_ms = no_limit_speed
-    if steering_angle >= steering_decel_angle_deg:
-      steer_based_speed_ms = max(min(speed * 0.85, speed - 3.0), min_curve_speed_ms)
-
-    candidates_ms = [s for s in [model_based_speed_ms, acc_based_speed_ms, steer_based_speed_ms] if s != no_limit_speed]
+    candidates_ms = [s for s in [model_based_speed_ms, acc_based_speed_ms] if s != no_limit_speed]
     calculated_curve_speed_ms = min(candidates_ms) if candidates_ms else no_limit_speed
     final_curve_speed_ms = min(calculated_curve_speed_ms, self.conv_to_ms(v_cruise_kph))
     self.curve_speed_clu = self.conv_to_clu(final_curve_speed_ms)
 
     return self.curve_speed_clu
+
+  def _cal_steer_based_speed(self, speed, steering_angle):
+    steering_decel_angle_deg = 60.0
+    min_curve_speed_ms = np.interp(speed, [0.0, self.conv_to_ms(60.0)], [self.conv_to_ms(30.0), self.conv_to_ms(50.0)])
+    no_limit_speed = 255.
+
+    if abs(steering_angle) >= steering_decel_angle_deg:
+      steer_based_speed = max(min(speed * 0.85, speed - 3.0), min_curve_speed_ms)
+      return self.conv_to_clu(steer_based_speed)
+
+    return no_limit_speed
 
   def _cal_target_speed(self, CS, clu_speed, v_cruise_kph, cruise_btn_pressed):
     override_speed = -1
