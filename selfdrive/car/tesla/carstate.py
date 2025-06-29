@@ -3,8 +3,11 @@ from cereal import car, custom
 from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.car.tesla.values import DBC, CANBUS, GEAR_MAP
 from openpilot.selfdrive.car.interfaces import CarStateBase
+from openpilot.common.params import Params
 from opendbc.can.parser import CANParser
 from opendbc.can.can_define import CANDefine
+
+params = Params()
 
 class CarState(CarStateBase):
   def __init__(self, CP):
@@ -78,6 +81,11 @@ class CarState(CarStateBase):
     # Blindspot
     ret.leftBlindspot = cp_cam.vl["DAS_status"]["DAS_blindSpotRearLeft"] != 0
     ret.rightBlindspot = cp_cam.vl["DAS_status"]["DAS_blindSpotRearRight"] != 0
+
+    # Charge port state
+    ret.chargePortOpen = False  # TODO: read actual value from CAN
+    if params.get_bool("FakeChargePortClosed"):
+      ret.chargePortOpen = False
 
     # AEB
     ret.stockAeb = (cp_cam.vl["DAS_control"]["DAS_aebEvent"] == 1)

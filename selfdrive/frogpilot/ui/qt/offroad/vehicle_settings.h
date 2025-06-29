@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <set>
 
 #include "selfdrive/frogpilot/ui/qt/offroad/frogpilot_settings.h"
@@ -18,7 +19,7 @@ private:
   void updateToggles();
 
   std::set<QString> teslaKeys = {
-    "VirtualTorqueBlending", "HybridTACC"
+    "VirtualTorqueBlending", "HybridTACC", "FakeChargePortClosed"
   };
 
   std::set<QString> gmKeys = {

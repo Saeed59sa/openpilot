@@ -343,6 +343,7 @@ frogpilot_default_params: list[tuple[str, str | bytes]] = [
   ("VirtualTorqueBlending", "1"),
   ("VisionTurnControl", "0"),
   ("VoltSNG", "0"),
+  ("FakeChargePortClosed", "0"),
   ("WarningImmediateVolume", "101"),
   ("WarningSoftVolume", "101"),
   ("WD40CalibrationParams", ""),
@@ -716,6 +717,7 @@ class FrogPilotVariables:
 
     toggle.virtual_torque_blending = car_make == "tesla" and self.params.get_bool("VirtualTorqueBlending")
     toggle.hybrid_tacc = car_make == "tesla" and self.params.get_bool("HybridTACC")
+    toggle.fake_charge_port_closed = car_make == "tesla" and self.params.get_bool("FakeChargePortClosed")
 
     toggle.volt_sng = car_model == "CHEVROLET_VOLT" and self.params.get_bool("VoltSNG")
 
@@ -970,6 +972,7 @@ class FrogPilotVariables:
 
       toggle.virtual_torque_blending = car_make == "tesla" and self.default_frogpilot_toggles.VirtualTorqueBlending
       toggle.hybrid_tacc = car_make == "tesla" and self.default_frogpilot_toggles.HybridTACC
+      toggle.fake_charge_port_closed = car_make == "tesla" and self.default_frogpilot_toggles.FakeChargePortClosed
 
       toggle.volt_sng = car_model == "CHEVROLET_VOLT" and self.default_frogpilot_toggles.VoltSNG
 
@@ -1165,6 +1168,7 @@ class FrogPilotVariables:
 
       toggle.virtual_torque_blending = car_make == "tesla" and self.default_frogpilot_toggles.VirtualTorqueBlending
       toggle.hybrid_tacc = car_make == "tesla" and self.default_frogpilot_toggles.HybridTACC
+      toggle.fake_charge_port_closed = car_make == "tesla" and self.default_frogpilot_toggles.FakeChargePortClosed
 
       toggle.volt_sng = car_model == "CHEVROLET_VOLT" and self.default_frogpilot_toggles.VoltSNG
 
