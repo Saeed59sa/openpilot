@@ -2496,7 +2496,8 @@ struct Microphone {
   # uncalibrated, A-weighted
   soundPressureWeighted @3 :Float32;
   soundPressureWeightedDb @1 :Float32;
-  filteredSoundPressureWeightedDb @2 :Float32;
+
+  filteredSoundPressureWeightedDbDEPRECATED @2 :Float32;
 }
 
 struct Touch {
