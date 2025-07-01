@@ -5,6 +5,7 @@
 
 #include "selfdrive/ui/qt/onroad/buttons.h"
 #include "selfdrive/ui/qt/widgets/cameraview.h"
+#include "common/params.h"
 
 #include "selfdrive/frogpilot/screenrecorder/screenrecorder.h"
 
@@ -101,6 +102,7 @@ private:
 
   // FrogPilot variables
   Params paramsMemory{"/dev/shm/params"};
+  Params params;
 
   Compass *compass_img;
   DistanceButton *distance_btn;

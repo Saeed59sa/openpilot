@@ -518,7 +518,10 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   offset += statusBarHeight / 2;
   int y = height() - offset;
   float opacity = dmActive ? 0.65 : 0.2;
-  drawIcon(painter, QPoint(x, y), dm_img, blackColor(70), opacity);
+  bool dm_missing = params.getBool("DriverCameraHardwareMissing");
+  if (!dm_missing) {
+    drawIcon(painter, QPoint(x, y), dm_img, blackColor(70), opacity);
+  }
 
   // face
   QPointF face_kpts_draw[std::size(default_face_kpts_3d)];
