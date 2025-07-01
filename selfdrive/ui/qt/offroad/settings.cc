@@ -60,6 +60,12 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
       "../assets/offroad/icon_monitoring.png",
     },
     {
+      "DriverCameraHardwareMissing",
+      tr("DriverCamera Hardware Missing"),
+      tr("DriverCamera Hardware Missing"),
+      "../assets/offroad/icon_monitoring.png",
+    },
+    {
       "IsMetric",
       tr("Use Metric System"),
       tr("Display speed in km/h instead of mph."),

@@ -101,6 +101,7 @@ private:
 
   // FrogPilot variables
   Params paramsMemory{"/dev/shm/params"};
+  Params params;
 
   Compass *compass_img;
   DistanceButton *distance_btn;
