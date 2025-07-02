@@ -3,12 +3,14 @@ import numpy as np
 import time
 import wave
 
+
 from cereal import car, messaging
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.realtime import Ratekeeper
 from openpilot.common.retry import retry
 from openpilot.common.swaglog import cloudlog
+
 from openpilot.system import micd
 
 SAMPLE_RATE = 48000
@@ -137,7 +139,7 @@ class Soundd:
     # sounddevice must be imported after forking processes
     import sounddevice as sd
 
-    sm = messaging.SubMaster(['selfdriveState', 'microphone'])
+    sm = messaging.SubMaster(['selfdriveState', 'soundPressure'])
 
     with self.get_stream(sd) as stream:
       rk = Ratekeeper(20)
@@ -146,8 +148,8 @@ class Soundd:
       while True:
         sm.update(0)
 
-        if sm.updated['microphone'] and self.current_alert == AudibleAlert.none: # only update volume filter when not playing alert
-          self.spl_filter_weighted.update(sm["microphone"].soundPressureWeightedDb)
+        if sm.updated['soundPressure'] and self.current_alert == AudibleAlert.none: # only update volume filter when not playing alert
+          self.spl_filter_weighted.update(sm["soundPressure"].soundPressureWeightedDb)
           self.current_volume = self.calculate_volume(float(self.spl_filter_weighted.x))
 
         self.get_audible_alert(sm)
