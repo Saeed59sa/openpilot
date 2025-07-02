@@ -105,6 +105,8 @@ Pipfile
 # Ignore all local history of files
 .history
 .ionide
+/opendbc_repo/opendbc/safety/tests/libsafety
+/opendbc/safety/tests/libsafety
 
 ### JetBrains ###
 !.idea/customTargets.xml
