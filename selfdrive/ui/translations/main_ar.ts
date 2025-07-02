@@ -2599,31 +2599,31 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
     <name>FrogPilotSettingsWindow</name>
     <message>
         <source>Advanced Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>الإعدادات المتقدمة</translation>
     </message>
     <message>
         <source>Alerts and Sounds</source>
-        <translation type="unfinished"></translation>
+        <translation>التنبيهات والأصوات</translation>
     </message>
     <message>
         <source>Driving Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>ضوابط القيادة</translation>
     </message>
     <message>
         <source>Navigation</source>
-        <translation type="unfinished"></translation>
+        <translation>الملاحة</translation>
     </message>
     <message>
         <source>System Management</source>
-        <translation type="unfinished"></translation>
+        <translation>إدارة النظام</translation>
     </message>
     <message>
         <source>Theme and Appearance</source>
-        <translation type="unfinished"></translation>
+        <translation>السمات والمظهر</translation>
     </message>
     <message>
         <source>Vehicle Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>ضوابط المركبة</translation>
     </message>
     <message>
         <source>Advanced FrogPilot features for more experienced users.</source>
@@ -2634,12 +2634,12 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation>خيارات لتخصيص تنبيهات وإشعارات الصوت لـ FSDPilot.</translation>
     </message>
     <message>
-        <source>FrogPilot features than impact acceleration, braking, and steering.</source>
+        <source>FrogPilot features that impact acceleration, braking, and steering.</source>
         <translation>ميزات FSDPilot التي تؤثر على التسارع والفرملة والتوجيه.</translation>
     </message>
     <message>
         <source>Offline maps downloader and &apos;Navigate On openpilot (NOO)&apos; settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>أداة تنزيل الخرائط دون اتصال وإعدادات "التنقل على أوبن بايلوت (NOO)".</translation>
     </message>
     <message>
         <source>Tools and system utilities used to maintain and troubleshoot FrogPilot.</source>
@@ -2651,47 +2651,47 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
     </message>
     <message>
         <source>Vehicle-specific settings and configurations for supported makes and models.</source>
-        <translation type="unfinished"></translation>
+        <translation>إعدادات وتكوينات خاصة بالمركبات للطرازات المدعومة.</translation>
     </message>
     <message>
         <source>DRIVING</source>
-        <translation type="unfinished"></translation>
+        <translation>القيادة</translation>
     </message>
     <message>
         <source>VISUALS</source>
-        <translation type="unfinished"></translation>
+        <translation>المرئيات</translation>
     </message>
     <message>
         <source>MANAGE</source>
-        <translation type="unfinished"></translation>
+        <translation>إدارة</translation>
     </message>
     <message>
         <source>GAS / BRAKE</source>
-        <translation type="unfinished"></translation>
+        <translation>الغاز / الفرامل</translation>
     </message>
     <message>
         <source>STEERING</source>
-        <translation type="unfinished"></translation>
+        <translation>التوجيه</translation>
     </message>
     <message>
         <source>DATA</source>
-        <translation type="unfinished"></translation>
+        <translation>البيانات</translation>
     </message>
     <message>
         <source>DEVICE</source>
-        <translation type="unfinished"></translation>
+        <translation>الجهاز</translation>
     </message>
     <message>
         <source>UTILITIES</source>
-        <translation type="unfinished"></translation>
+        <translation>الأدوات</translation>
     </message>
     <message>
         <source>APPEARANCE</source>
-        <translation type="unfinished"></translation>
+        <translation>المظهر</translation>
     </message>
     <message>
         <source>THEME</source>
-        <translation type="unfinished"></translation>
+        <translation>السمة</translation>
     </message>
 </context>
 <context>
