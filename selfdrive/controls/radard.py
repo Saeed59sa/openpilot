@@ -49,34 +49,22 @@ class KalmanParams:
 
 
 class Track:
-  def __init__(self, identifier: int, v_lead: float, kalman_params: KalmanParams):
+  def __init__(self, identifier: int):
     self.identifier = identifier
     self.cnt = 0
     self.aLeadTau = FirstOrderFilter(_LEAD_ACCEL_TAU, 0.45, DT_MDL)
-    self.K_A = kalman_params.A
-    self.K_C = kalman_params.C
-    self.K_K = kalman_params.K
-    self.kf = KF1D([[v_lead], [0.0]], self.K_A, self.K_C, self.K_K)
 
   def update(self, d_rel: float, y_rel: float, v_rel: float, v_lead: float, a_lead: float, j_lead: float, measured: float):
-    # relative values, copy
     self.dRel = d_rel   # LONG_DIST
     self.yRel = y_rel   # -LAT_DIST
     self.vRel = v_rel   # REL_SPEED
-    self.vLead = v_lead
-    self.aLead = a_lead
+
+    self.vLead = self.vLeadK = v_lead
+    self.aLead = self.aLeadK = a_lead
     self.jLead = j_lead
     self.measured = measured   # measured or estimate
 
-    # computed velocity and accelerations
-    if self.cnt > 0:
-      self.kf.update(self.vLead)
-
-    self.vLeadK = float(self.kf.x[SPEED][0])
-    self.aLeadK = float(self.kf.x[ACCEL][0])
-
-    # Learn if constant acceleration
-    if abs(self.aLeadK) < 0.5:
+    if abs(self.aLead) < 0.5 and abs(j_lead) < 0.5:
       self.aLeadTau.x = _LEAD_ACCEL_TAU
     else:
       self.aLeadTau.update(0.0)
@@ -118,8 +106,9 @@ class Track:
 
 
 def laplacian_pdf(x: float, mu: float, b: float):
-  diff = abs(x - mu) / max(b, 1e-4)
-  return 0.0 if diff > 50.0 else math.exp(-diff)
+  b = max(b, 1e-4)
+  return math.exp(-abs(x-mu)/b)
+
 
 def match_vision_to_track(v_ego: float, lead: capnp._DynamicStructReader, tracks: dict[int, Track]):
   offset_vision_dist = lead.x[0] - RADAR_TO_CAMERA
@@ -150,7 +139,7 @@ def get_RadarState_from_vision(model_msg, lead_msg: capnp._DynamicStructReader, 
   dPath = yRel + np.interp(dRel, model_msg.position.x, model_msg.position.y)
   return {
     "dRel": float(dRel),
-    "yRel": yRel,
+    "yRel": float(yRel),
     "dPath" : float(dPath),
     "vRel": float(lead_v_rel_pred),
     "vLead": float(v_ego + lead_v_rel_pred),
@@ -268,6 +257,7 @@ class VisionTrack:
       "dRel": self.dRel,
       "vRel": self.vRel,
       "yRel": self.yRel,
+      #"dPath": self.dPath,
       "vLead": self.vLead,
       "vLeadK": self.vLeadK,
       "aLead": self.aLead,
@@ -298,7 +288,7 @@ class VisionTrack:
     lead_v_rel_pred = lead_msg.v[0] - model_v_ego
     self.prob = lead_msg.prob
     self.v_ego = v_ego
-    if self.prob > .8:
+    if self.prob > .5:
       dRel = float(lead_msg.x[0]) - RADAR_TO_CAMERA
       if abs(self.dRel - dRel) > 5.0:
         self.cnt = 0
@@ -357,7 +347,6 @@ class RadarD:
     self.current_time = 0.0
 
     self.tracks: dict[int, Track] = {}
-    self.kalman_params = KalmanParams(DT_MDL)
 
     self.v_ego = 0.0
     self.v_ego_hist = deque([0.0], maxlen=int(round(delay / DT_MDL))+1)
@@ -369,6 +358,8 @@ class RadarD:
     self.ready = False
 
     self.vision_tracks = [VisionTrack(DT_MDL), VisionTrack(DT_MDL)]
+
+    self.radar_detected = False
 
 
   def update(self, sm: messaging.SubMaster, rr: car.RadarData):
@@ -406,7 +397,7 @@ class RadarD:
 
       # create the track if it doesn't exist or it's a new track
       if ids not in self.tracks:
-        self.tracks[ids] = Track(ids, v_lead, self.kalman_params)
+        self.tracks[ids] = Track(ids)
       self.tracks[ids].update(rpt[0], rpt[1], rpt[2], v_lead, a_lead, j_lead, rpt[3])
 
     # *** publish radarState ***
@@ -427,11 +418,14 @@ class RadarD:
     if len(leads_v3) > 1:
 
       if model_updated:
+        if self.radar_detected:
+          self.vision_tracks[0].cnt = 0
+          self.vision_tracks[1].cnt = 0
         self.vision_tracks[0].update(leads_v3[0], model_v_ego, self.v_ego, sm['modelV2'])
         self.vision_tracks[1].update(leads_v3[1], model_v_ego, self.v_ego, sm['modelV2'])
 
-      self.radar_state.leadOne = self.get_lead(sm['modelV2'], self.tracks, 0, leads_v3[0], model_v_ego, low_speed_override=False)
-      self.radar_state.leadTwo = self.get_lead(sm['modelV2'], self.tracks, 1, leads_v3[1], model_v_ego, low_speed_override=False)
+      self.radar_state.leadOne, self.radar_detected = self.get_lead(sm['modelV2'], self.tracks, 0, leads_v3[0], low_speed_override=False)
+      self.radar_state.leadTwo, _ = self.get_lead(sm['modelV2'], self.tracks, 1, leads_v3[1], low_speed_override=False)
 
       ll, lc, lr, leadCenter, self.radar_state.leadLeft, self.radar_state.leadRight = get_lead_side(self.v_ego, self.tracks, sm['modelV2'], 3.2, model_v_ego)
       self.radar_state.leadsLeft = list(ll)
@@ -448,7 +442,9 @@ class RadarD:
 
 
   def get_lead(self, model_msg, tracks: dict[int, Track], index: int, lead_msg: capnp._DynamicStructReader,
-               model_v_ego: float, low_speed_override: bool = True) -> dict[str, Any]:
+               low_speed_override: bool = True) \
+    -> tuple[dict[str, bool] | dict[str | Any, float | Any] | dict[str | Any, float | bool | Any], bool]:
+
     v_ego = self.v_ego
     ready = self.ready
 
@@ -459,8 +455,10 @@ class RadarD:
       track = None
 
     lead_dict = {'status': False}
+    radar = False
     if track is not None:
       lead_dict = track.get_RadarState(model_msg, lead_msg.prob, self.vision_tracks[0].yRel)
+      radar = True
     elif (track is None) and ready and (lead_msg.prob > .8):
       lead_dict = self.vision_tracks[index].get_lead(model_msg)
 
@@ -473,7 +471,7 @@ class RadarD:
         if (not lead_dict['status']) or (closest_track.dRel < lead_dict['dRel']):
           lead_dict = closest_track.get_RadarState(model_msg, lead_msg.prob, self.vision_tracks[0].yRel)
 
-    return lead_dict
+    return lead_dict, radar
 
 
 # fuses camera and radar data for best lead detection
