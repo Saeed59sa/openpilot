@@ -492,7 +492,7 @@
     </message>
     <message>
         <source>FROGPILOT</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Frogpilot</translation>
     </message>
     <message>
         <source>Drives</source>
@@ -532,979 +532,71 @@
 <context>
     <name>FrogPilotAdvancedDrivingPanel</name>
     <message>
-        <source>Advanced Lateral Tuning</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Advanced settings that control how openpilot manages steering.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Friction (Default: %1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Friction</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The resistance in steering. Higher values provide more stable steering but can make it feel heavy, while lower values allow lighter steering but may feel too sensitive.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kp Factor (Default: %1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kp Factor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How aggressively the car corrects its steering. Higher values offer quicker corrections but may feel jerky, while lower values make steering smoother but slower to respond.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Lateral Accel (Default: %1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Lateral Accel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adjust how fast the car can steer from side to side. Higher values allow quicker lane changes but can feel unstable, while lower values provide smoother steering but may feel sluggish.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Steer Ratio (Default: %1)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Steer Ratio</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adjust how much openpilot needs to turn the wheel to steer. Higher values feel like driving a truck, more stable at high speeds, but harder to steer quickly at low speeds, while lower values feel like a go-kart, easier to steer in tight spots but more sensitive and less stable at high speeds.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>comma&apos;s 2022 Taco Bell Turn Hack</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use comma&apos;s hack they used to help handle left and right turns more precisely during their 2022 &apos;Taco Bell&apos; drive.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Force Auto Tune On</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Forces comma&apos;s auto lateral tuning for unsupported vehicles.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Force Auto Tune Off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Forces comma&apos;s auto lateral tuning off for supported vehicles.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Force Turn Desires Below Lane Change Speed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Force the model to use turn desires when driving below the minimum lane change speed to help make left and right turns more precisely.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Advanced Longitudinal Tuning</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Advanced settings that control how openpilot manages speed and acceleration.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Lead Detection Confidence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How sensitive openpilot is to detecting vehicles ahead. A lower value can help detect vehicles sooner and from farther away, but may occasionally mistake other objects for vehicles.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Maximum Acceleration Rate</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set a cap on how fast openpilot can accelerate to prevent high acceleration at low speeds.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Advanced Quality of Life</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Miscellaneous advanced features to improve your overall openpilot experience.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Force Keep openpilot in the Standstill State</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Keep openpilot in the &apos;standstill&apos; state until the gas pedal or &apos;resume&apos; button is pressed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Force Stop for &apos;Detected&apos; Stop Lights/Signs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Whenever openpilot &apos;detects&apos; a potential stop light/stop sign, force a stop where it originally detected it to prevent running the potential red light/stop sign.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set Speed Offset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How much higher or lower the set speed should be compared to your current set speed. For example, if you prefer to drive 5 mph above the speed limit, this setting will automatically add that difference when you adjust your set speed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Customize Driving Personalities</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Customize the personality profiles to suit your preferences.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Traffic Personality</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Customize the &apos;Traffic&apos; personality profile, tailored for navigating through traffic.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Following Distance</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The minimum following distance in &apos;Traffic Mode.&apos; openpilot will adjust dynamically between this value and the &apos;Aggressive&apos; profile distance based on your speed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Acceleration Sensitivity</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How sensitive openpilot is to changes in acceleration in &apos;Traffic Mode.&apos; Higher values result in smoother, more gradual acceleration and deceleration, while lower values allow for faster changes that may feel more abrupt.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deceleration Sensitivity</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to changes in deceleration in &apos;Traffic Mode.&apos; Higher values result in smoother, more gradual braking, while lower values allow for quicker, more responsive braking that may feel abrupt.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Safety Distance Sensitivity</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adjusts how cautious openpilot is around other vehicles or obstacles in &apos;Traffic Mode.&apos; Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Speed Increase Responsiveness</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Controls how quickly openpilot adjusts speed in &apos;Traffic Mode.&apos; Higher values ensure smoother, more gradual speed changes, while lower values enable quicker adjustments that might feel sharper or less smooth.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Speed Decrease Responsiveness</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets how quickly openpilot adjusts to decreasing speeds in &apos;Traffic Mode.&apos; Higher values ensure smoother transitions when slowing down, while lower values allow for quicker, more responsive speed reductions that might feel sharper.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Restore the &apos;Traffic Mode&apos; settings to their default values.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Aggressive Personality</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Customize the &apos;Aggressive&apos; personality profile, designed for a more assertive driving style.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set the following distance for &apos;Aggressive&apos; mode. This determines roughly how many seconds you&apos;ll follow behind the car ahead.
-
-Default: 1.25 seconds.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to acceleration changes in &apos;Aggressive&apos; mode. Higher values make acceleration and deceleration smoother but slower, while lower values allow quicker changes that may feel jerky.
-
-Default: 0.5.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to deceleration in &apos;Aggressive&apos; mode. Higher values result in smoother braking, while lower values allow for more immediate braking that may feel abrupt.
-
-Default: 0.5.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adjusts how cautious openpilot is around vehicles or obstacles in &apos;Aggressive&apos; mode. Higher values make it more cautious, while lower values allow for closer following, increasing the risk of sudden braking.
-
-Default: 1.0.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Controls how quickly openpilot adjusts speed in &apos;Aggressive&apos; mode. Higher values result in smoother but slower speed changes, while lower values make speed adjustments quicker but potentially more abrupt.
-
-Default: 0.5.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets how quickly openpilot adjusts to speed reductions in &apos;Aggressive&apos; mode. Higher values ensure smoother transitions when slowing down, while lower values allow for quicker, more responsive speed decreases that may feel sharp.
-
-Default: 0.5.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Restore the &apos;Aggressive&apos; settings to their default values.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Standard Personality</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Customize the &apos;Standard&apos; personality profile, optimized for balanced driving.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set the following distance for &apos;Standard&apos; mode. This determines roughly how many seconds you&apos;ll follow behind the car ahead.
-
-Default: 1.45 seconds.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to acceleration changes in &apos;Standard&apos; mode. Higher values make acceleration and deceleration smoother but slower, while lower values allow quicker changes that may feel jerky.
-
-Default: 1.0.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to deceleration in &apos;Standard&apos; mode. Higher values result in smoother braking, while lower values allow for quicker, more immediate braking that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adjusts how cautious openpilot is around vehicles or obstacles in &apos;Standard&apos; mode. Higher values make it more cautious, while lower values allow for closer following, increasing the risk of sudden braking.
-
-Default: 1.0.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Controls how quickly openpilot adjusts speed in &apos;Standard&apos; mode. Higher values result in smoother but slower speed changes, while lower values make speed adjustments quicker but potentially more abrupt.
-
-Default: 1.0.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets how quickly openpilot adjusts to speed reductions in &apos;Standard&apos; mode. Higher values ensure smoother transitions when slowing down, while lower values allow for quicker, more responsive speed decreases that may feel sharp.
-
-Default: 1.0.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Restore the &apos;Standard&apos; settings to their default values.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Relaxed Personality</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Customize the &apos;Relaxed&apos; personality profile, ideal for a more laid-back driving style.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set the following distance for &apos;Relaxed&apos; mode. This determines roughly how many seconds you&apos;ll follow behind the car ahead.
-
-Default: 1.75 seconds.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to acceleration changes in &apos;Relaxed&apos; mode. Higher values make acceleration and deceleration smoother but slower, while lower values allow quicker changes that may feel jerky.
-
-Default: 1.0.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to deceleration in &apos;Relaxed&apos; mode. Higher values result in smoother braking, while lower values allow for quicker, more immediate braking that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adjusts how cautious openpilot is around vehicles or obstacles in &apos;Relaxed&apos; mode. Higher values make it more cautious, while lower values allow for closer following, increasing the risk of sudden braking.
-
-Default: 1.0.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Controls how quickly openpilot adjusts speed in &apos;Relaxed&apos; mode. Higher values result in smoother but slower speed changes, while lower values make speed adjustments quicker but potentially more abrupt.
-
-Default: 1.0.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets how quickly openpilot adjusts to speed reductions in &apos;Relaxed&apos; mode. Higher values ensure smoother transitions when slowing down, while lower values allow for quicker, more responsive speed decreases that may feel sharp.
-
-Default: 1.0.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Restore the &apos;Relaxed&apos; settings to their default values.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Model Management</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Manage the driving models used by openpilot.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Automatically Update and Download Models</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Automatically download new or updated driving models.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Model Randomizer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A random model is selected and can be reviewed at the end of each drive if it&apos;s longer than 15 minutes to help find your preferred model.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Manage Model Blacklist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Control which models are blacklisted and won&apos;t be used for future drives.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset Model Scores</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clear the ratings you&apos;ve given to the driving models.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Review Model Scores</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>View the ratings you&apos;ve assigned to the driving models.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete Model</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove the selected driving model from your device.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download Model</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download undownloaded driving models.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download All Models</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download all undownloaded driving models.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select Model</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select which model openpilot uses to drive.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset Model Calibrations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset calibration settings for the driving models.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>mph</source>
-        <translation type="unfinished">ميل/س</translation>
+        <translation type="obsolete">ميل/س</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">إعادة الضبط</translation>
-    </message>
-    <message>
-        <source> seconds</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">إعادة الضبط</translation>
     </message>
     <message>
         <source>ADD</source>
-        <translation type="unfinished">إضافة</translation>
+        <translation type="obsolete">إضافة</translation>
     </message>
     <message>
         <source>REMOVE</source>
-        <translation type="unfinished">إزالة</translation>
-    </message>
-    <message>
-        <source>There&apos;s no more models to blacklist! The only available model is &quot;%1&quot;!</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">إزالة</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished">موافق</translation>
-    </message>
-    <message>
-        <source>Select a model to add to the blacklist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Are you sure you want to add the &apos;%1&apos; model to the blacklist?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select a model to remove from the blacklist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Are you sure you want to remove the &apos;%1&apos; model from the blacklist?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">موافق</translation>
     </message>
     <message>
         <source>RESET</source>
-        <translation type="unfinished">إعادة الضبط</translation>
-    </message>
-    <message>
-        <source>Reset all model scores?</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">إعادة الضبط</translation>
     </message>
     <message>
         <source>VIEW</source>
-        <translation type="unfinished">عرض</translation>
-    </message>
-    <message>
-        <source>DELETE</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select a model to delete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete the &apos;%1&apos; model?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deleting...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deleted!</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">عرض</translation>
     </message>
     <message>
         <source>DOWNLOAD</source>
-        <translation type="unfinished">تنزيل</translation>
-    </message>
-    <message>
-        <source>CANCEL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select a driving model to download</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Downloading %1...</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">تنزيل</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="unfinished">اختيار</translation>
-    </message>
-    <message>
-        <source>Select a model - 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>WARNING: This is a very experimental model and may drive dangerously!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>I understand the risks.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Start with a fresh calibration for the newly selected model?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reboot required to take effect.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reboot Now</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>RESET ALL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>RESET ONE</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset all of your model calibrations?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select a model to reset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset this model&apos;s calibrations?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &apos;Model Randomizer&apos; only works with downloaded models. Do you want to download all the driving models?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset your settings for the &apos;Traffic Mode&apos; personality?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset your settings for the &apos;Aggressive&apos; personality?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset your settings for the &apos;Standard&apos; personality?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset your settings for the &apos;Relaxed&apos; personality?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>kph</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Downloading models...</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">اختيار</translation>
     </message>
     <message>
         <source>openpilot requires the device to be mounted within 4° left or right and within 5° up or 9° down. openpilot is continuously calibrating, resetting is rarely required.</source>
-        <translation type="unfinished">يحتاج openpilot أن يتم ضبط الجهاز ضمن حدود 4 درجات يميناً أو يساراً و5 درجات نحو الأعلى أو 9 نحو الأسفل. يقوم openpilot بالمعايرة باستمرار، ونادراً ما يحتاج إلى عملية إعادة الضبط.</translation>
+        <translation type="obsolete">يحتاج openpilot أن يتم ضبط الجهاز ضمن حدود 4 درجات يميناً أو يساراً و5 درجات نحو الأعلى أو 9 نحو الأسفل. يقوم openpilot بالمعايرة باستمرار، ونادراً ما يحتاج إلى عملية إعادة الضبط.</translation>
     </message>
     <message>
         <source> Your device is pointed %1° %2 and %3° %4.</source>
-        <translation type="unfinished"> يشير جهازك إلى %1 درجة %2، و%3 درجة %4.</translation>
+        <translation type="obsolete"> يشير جهازك إلى %1 درجة %2، و%3 درجة %4.</translation>
     </message>
     <message>
         <source>down</source>
-        <translation type="unfinished">نحو الأسفل</translation>
+        <translation type="obsolete">نحو الأسفل</translation>
     </message>
     <message>
         <source>up</source>
-        <translation type="unfinished">نحو الأعلى</translation>
+        <translation type="obsolete">نحو الأعلى</translation>
     </message>
     <message>
         <source>left</source>
-        <translation type="unfinished">نحو اليسار</translation>
+        <translation type="obsolete">نحو اليسار</translation>
     </message>
     <message>
         <source>right</source>
-        <translation type="unfinished">نحو اليمين</translation>
+        <translation type="obsolete">نحو اليمين</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotAdvancedVisualsPanel</name>
     <message>
-        <source>Advanced Onroad UI Widgets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Advanced user customizations for the Onroad UI.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Camera View</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Camera view for the onroad UI. This is purely a visual change and doesn&apos;t impact how openpilot drives.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display Stopping Points</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display an image on the screen where openpilot is detecting a potential red light/stop sign.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide Lead Marker</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide the marker for the vehicle ahead on the screen.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide Speed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide the speed indicator in the onroad UI. Additional toggle allows it to be hidden/shown via tapping the speed itself.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide UI Elements</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide the selected UI elements from the onroad screen.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use Wheel Speed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use the wheel speed instead of the cluster speed in the onroad UI.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Developer UI</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show detailed information about openpilot&apos;s internal operations.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Border Metrics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display performance metrics around the edge of the screen while driving.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>FPS Display</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display the &apos;Frames Per Second&apos; (FPS) at the bottom of the screen while driving.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Lateral Metrics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display metrics related to steering control at the top of the screen while driving.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Longitudinal Metrics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display metrics related to acceleration, speed, and desired following distance at the top of the screen while driving.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Numerical Temperature Gauge</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show exact temperature readings instead of general status labels like &apos;GOOD&apos;, &apos;OK&apos;, or &apos;HIGH&apos; in the sidebar.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sidebar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display system information like CPU, GPU, RAM usage, IP address, and storage space in the sidebar.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use International System of Units</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display measurements using the &apos;International System of Units&apos; (SI).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Model UI</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Customize the model visualizations on the screen.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Lane Lines Width</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How thick the lane lines appear on the display.
-
-Default matches the MUTCD standard of 4 inches.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Path Edges Width</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The width of the edges of the driving path to represent different modes and statuses.
-
-Default is 20% of the total path width.
-
-Color Guide:
-- Blue: Navigation
-- Light Blue: &apos;Always On Lateral&apos;
-- Green: Default
-- Orange: &apos;Experimental Mode&apos;
-- Red: &apos;Traffic Mode&apos;
-- Yellow: &apos;Conditional Experimental Mode&apos; Overridden</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Path Width</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How wide the driving path appears on your screen.
-
-Default (6.1 feet / 1.9 meters) matches the width of a 2019 Lexus ES 350.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Road Edges Width</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How thick the road edges appear on the display.
-
-Default matches half of the MUTCD standard lane line width of 4 inches.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&apos;Unlimited&apos; Road UI</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Extend the display of the path, lane lines, and road edges as far as the model can see.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Driver</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Standard</source>
-        <translation type="unfinished">القياسي</translation>
-    </message>
-    <message>
-        <source>Wide</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Control Via UI</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Alerts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Map Icon</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Max Speed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Distance</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Blind Spot</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Steering Torque</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Turn Signal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adjacent Path Metrics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Auto Tune</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Lead Info</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Longitudinal Jerk</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Fahrenheit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>CPU</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>GPU</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>RAM</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SSD Left</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SSD Used</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> inches</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> feet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adjust how thick the lane lines appear on the display.
-
-Default matches the Vienna standard of 10 centimeters.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adjust how thick the road edges appear on the display.
-
-Default matches half of the Vienna standard of 10 centimeters.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> centimeters</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> meters</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adjust how thick the lane lines appear on the display.
-
-Default matches the MUTCD standard of 4 inches.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adjust how thick the road edges appear on the display.
-
-Default matches half of the MUTCD standard of 4 inches.</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">القياسي</translation>
     </message>
 </context>
 <context>
@@ -1530,11 +622,7 @@ Default matches half of the MUTCD standard of 4 inches.</source>
     </message>
     <message>
         <source>DELETE</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>This button provides a swift and secure way to permanently delete all stored driving footage and data from your device. Ideal for maintaining privacy or freeing up space.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">يمسح</translation>
     </message>
     <message>
         <source>Are you sure you want to permanently delete all of your driving footage and data?</source>
@@ -1542,7 +630,7 @@ Default matches half of the MUTCD standard of 4 inches.</source>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">يمسح</translation>
     </message>
     <message>
         <source>Deleting...</source>
@@ -1680,6 +768,10 @@ Default matches half of the MUTCD standard of 4 inches.</source>
         <source>Are you sure you want to restore this toggle backup?</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Permanently deletes all stored driving footage and data from your device. Ideal for maintaining privacy or freeing up space.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotDevicePanel</name>
@@ -1696,15 +788,7 @@ Default matches half of the MUTCD standard of 4 inches.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>How long the device stays on after you stop driving.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Disable Internet Requirement</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The device can work without an internet connection for as long as you need.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1712,15 +796,7 @@ Default matches half of the MUTCD standard of 4 inches.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The device can run at higher temperatures than recommended.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Low Battery Shutdown Threshold</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Shut down the device when the car&apos;s battery gets too low to prevent damage to the 12V battery.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1728,15 +804,7 @@ Default matches half of the MUTCD standard of 4 inches.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Disable all tracking to improve privacy.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Turn Off Data Uploads</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop the device from sending any data to the servers.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1752,15 +820,7 @@ Default matches half of the MUTCD standard of 4 inches.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The screen brightness when you&apos;re not driving.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Screen Brightness (Onroad)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The screen brightness while you&apos;re driving.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1768,23 +828,11 @@ Default matches half of the MUTCD standard of 4 inches.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Display a button in the onroad UI to record the screen.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Screen Timeout (Offroad)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>How long it takes for the screen to turn off when you&apos;re not driving.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Screen Timeout (Onroad)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How long it takes for the screen to turn off while you&apos;re driving.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1835,6 +883,54 @@ Default matches half of the MUTCD standard of 4 inches.</source>
         <source>WARNING: This will prevent your drives from appearing on comma connect which may impact debugging and support!</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Controls how long the device stays on after you stop driving.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Allows the device to work without an internet connection.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Allows the device to run at higher temperatures than recommended.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manages the threshold for shutting down the device to protect the car&apos;s battery from excessive drain and potential damage.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disables all data tracking to improve privacy.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stops the device from sending any data to the servers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls the screen brightness when you&apos;re not driving.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls the screen brightness while you&apos;re driving.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables a button in the onroad UI to record the screen.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how long it takes for the screen to turn off when you&apos;re not driving.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how long it takes for the screen to turn off while you&apos;re driving.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Screen Off</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotLateralPanel</name>
@@ -1853,15 +949,7 @@ Deactivate only occurs with the &apos;Cruise Control&apos; button.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&apos;Always on Lateral&apos; gets turned on or off using the &apos;LKAS&apos; button.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Enable with Cruise Control</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&apos;Always on Lateral&apos; gets turned on by pressing the &apos;Cruise Control&apos; button bypassing the requirement to enable openpilot first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1869,15 +957,7 @@ Deactivate only occurs with the &apos;Cruise Control&apos; button.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&apos;Always on Lateral&apos; pauses when the brake pedal is pressed below the set speed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Hide the Status Bar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The status bar for &apos;Always on Lateral&apos; is hidden.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1889,19 +969,7 @@ Deactivate only occurs with the &apos;Cruise Control&apos; button.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Hands-Free Lane Change</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Lane changes are conducted without needing to touch the steering wheel upon turn signal activation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Lane Change Delay</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How long openpilot waits before changing lanes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1909,23 +977,7 @@ Deactivate only occurs with the &apos;Cruise Control&apos; button.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The minimum lane width for openpilot to detect a lane as a lane.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Minimum Speed for Lane Change</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The minimum speed required for openpilot to perform a lane change.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Single Lane Change Per Signal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Lane changes are limited to one per turn signal activation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1933,23 +985,11 @@ Deactivate only occurs with the &apos;Cruise Control&apos; button.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Settings that control how openpilot manages steering.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Neural Network Feedforward (NNFF)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Twilsonco&apos;s &apos;Neural Network FeedForward&apos; for more precise steering control.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Smooth Curve Handling</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Smoother steering when entering and exiting curves with Twilsonco&apos;s torque adjustments.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1978,11 +1018,11 @@ Deactivate only occurs with the &apos;Cruise Control&apos; button.</source>
     </message>
     <message>
         <source>Reboot required to take effect.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">إعادة التشغيل المطلوبة للخروج.</translation>
     </message>
     <message>
         <source>Reboot Now</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">إعادة التشغيل الآن</translation>
     </message>
     <message>
         <source>kph</source>
@@ -1990,6 +1030,154 @@ Deactivate only occurs with the &apos;Cruise Control&apos; button.</source>
     </message>
     <message>
         <source> meters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Advanced Lateral Tuning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Advanced settings for fine tuning openpilot&apos;s lateral controls.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Friction (Default: %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Friction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjusts the resistance in steering. Higher values provide more stable steering but can make it feel heavy, while lower values allow lighter steering but may feel too sensitive.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Kp Factor (Default: %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Kp Factor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjusts how aggressively the car corrects its steering. Higher values offer quicker corrections but may feel jerky, while lower values make steering smoother but slower to respond.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lateral Accel (Default: %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lateral Accel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjusts how fast the car can steer from side to side. Higher values allow quicker lane changes but can feel unstable, while lower values provide smoother steering but may feel sluggish.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Steer Ratio (Default: %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Steer Ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjusts how much openpilot needs to turn the wheel to steer. Higher values feel like driving a truck, more stable at high speeds, but harder to steer quickly at low speeds, while lower values feel like a go-kart, easier to steer in tight spots but more sensitive and less stable at high speeds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Force Auto Tune On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Forces comma&apos;s auto lateral tuning for unsupported vehicles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Force Auto Tune Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Forces comma&apos;s auto lateral tuning off for supported vehicles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls the current state of &apos;Always on Lateral&apos; with the &apos;LKAS&apos; button.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Activates &apos;Always on Lateral&apos; whenever &apos;Cruise Control&apos; is active bypassing the requirement to enable openpilot first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pauses &apos;Always on Lateral&apos; when the brake pedal is pressed below the set speed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hides status bar for &apos;Always On Lateral&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatic Lane Changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Conducts lane changes without needing to touch the steering wheel upon turn signal activation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delays lane changes by the set time to prevent sudden changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the minimum lane width for openpilot to detect a lane as a lane.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the minimum speed required for openpilot to perform a lane change.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only One Lane Change Per Signal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Limits lane changes to one per turn signal activation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Settings for fine tuning openpilot&apos;s lateral controls.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>comma&apos;s 2022 Taco Bell Turn Hack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses comma&apos;s hack they used to help handle left and right turns more precisely during their 2022 &apos;Taco Bell&apos; drive.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Force Turn Desires Below Lane Change Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Forces the model to use turn desires when driving below the minimum lane change speed to help make left and right turns more precisely.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses Twilsonco&apos;s &apos;Neural Network FeedForward&apos; for more precise steering control.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Smoothens the steering control when entering and exiting curves by using Twilsonco&apos;s torque adjustments.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> seconds</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2000,15 +1188,7 @@ Deactivate only occurs with the &apos;Cruise Control&apos; button.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Automatically switches to &apos;Experimental Mode&apos; when specific conditions are met.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Below</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&apos;Experimental Mode&apos; is active when driving below the set speed without a lead vehicle.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2016,15 +1196,7 @@ Deactivate only occurs with the &apos;Cruise Control&apos; button.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&apos;Experimental Mode&apos; is active when a curve is detected in the road ahead.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Lead Detected Ahead</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&apos;Experimental Mode&apos; is active when a slower or stopped vehicle is detected ahead.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2032,15 +1204,7 @@ Deactivate only occurs with the &apos;Cruise Control&apos; button.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&apos;Experimental Mode&apos; is active based on navigation data, such as upcoming intersections or turns.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>openpilot Wants to Stop In</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&apos;Experimental Mode&apos; is active when openpilot wants to stop such as for a stop sign or red light.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2048,15 +1212,7 @@ Deactivate only occurs with the &apos;Cruise Control&apos; button.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&apos;Experimental Mode&apos; is active when using turn signals below the set speed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Hide the Status Bar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The status bar for &apos;Conditional Experimental Mode&apos; is hidden.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2072,31 +1228,7 @@ Deactivate only occurs with the &apos;Cruise Control&apos; button.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The method used to detect curves.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Curve Detection Failsafe</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Curve control is triggered only when a curve is detected ahead. Use this as a failsafe to prevent false positives when using the &apos;Map Based&apos; method.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Curve Sensitivity</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How sensitive openpilot is to detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Turn Speed Aggressiveness</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>How aggressive openpilot takes turns. Higher values result in quicker turns, while lower values provide gentler turns.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2112,17 +1244,7 @@ Deactivate only occurs with the &apos;Cruise Control&apos; button.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&apos;Experimental Mode&apos; is toggled off/on using the steering wheel buttons or the on-screen controls.
-
-This overrides &apos;Conditional Experimental Mode&apos;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Click the LKAS Button</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&apos;Experimental Mode&apos; is toggled by pressing the &apos;LKAS&apos; button on the steering wheel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2130,15 +1252,7 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&apos;Experimental Mode&apos; is toggled by double-tapping the onroad UI within 0.5 seconds.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Long Press the Distance Button</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&apos;Experimental Mode&apos; is toggled by holding the &apos;distance&apos; button on the steering wheel for 0.5+ seconds.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2154,15 +1268,7 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Choose between a sporty or eco-friendly acceleration rate.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Deceleration Profile</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Choose between a sporty or eco-friendly deceleration rate.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2170,15 +1276,7 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Uses the lead&apos;s acceleration rate when at a takeoff and ramps off the acceleration rate when approaching the maximum set speed for a smoother max speed approach.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Human-Like Following Distance</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Dynamically adjusts the following distance to feel more natural when approaching slower or stopped vehicles.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2202,15 +1300,7 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Interval used when increasing the cruise control speed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Custom Cruise Interval (Long Press)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Interval used when increasing the cruise control speed when holding down the button for 0.5+ seconds.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2218,23 +1308,7 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Map the acceleration and deceleration profiles to the &apos;Eco&apos; or &apos;Sport&apos; gear modes.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Onroad Personality Button</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The current driving personality is displayed on the screen. Tap to switch personalities, or long press for 2.5 seconds to activate &apos;Traffic Mode&apos;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Reverse Cruise Increase</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The long press feature is reversed in order to increase speed by 5 mph instead of 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2242,15 +1316,7 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Automatically adjust your max speed to match the speed limit using &apos;Open Street Maps&apos;, &apos;Navigate on openpilot&apos;, or your car&apos;s dashboard (Toyota/Lexus/HKG only).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Confirm New Speed Limits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Require manual confirmation before using a new speed limit.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2258,17 +1324,7 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Choose what happens when no speed limit data is available.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Override Method</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Choose how you want to override the current speed limit.
-
-</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2276,15 +1332,7 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set the order of priority for speed limit data sources.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Speed Limit Offsets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Manage toggles related to &apos;Speed Limit Controller&apos;s controls.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2292,15 +1340,7 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set the speed limit offset for speeds between 0 and 34 mph.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Speed Limit Offset (35-54 mph)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set the speed limit offset for speeds between 35 and 54 mph.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2308,15 +1348,7 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set the speed limit offset for speeds between 55 and 64 mph.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Speed Limit Offset (65-99 mph)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set the speed limit offset for speeds between 65 and 99 mph.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2328,15 +1360,7 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Force speed limit readings in MPH from the dashboard if it normally displays in KPH.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Prepare for Higher Speed Limits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set a lookahead value to prepare for upcoming higher speed limits based on map data.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2344,39 +1368,7 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set a lookahead value to prepare for upcoming lower speed limits based on map data.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Set Speed to Current Limit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set your max speed to match the current speed limit when enabling openpilot.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Visual Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Manage visual settings for the &apos;Speed Limit Controller&apos;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use Vienna-Style Speed Signs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Switch to Vienna-style (EU) speed limit signs instead of MUTCD (US).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Speed Limit Offset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display the speed limit offset separately in the onroad UI when using the Speed Limit Controller.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2409,10 +1401,6 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
     </message>
     <message>
         <source>Turns</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2476,14 +1464,6 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Gas Pedal Press</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cruise Set Speed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>SELECT</source>
         <translation type="unfinished">اختيار</translation>
     </message>
@@ -2493,7 +1473,7 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
     </message>
     <message>
         <source>Navigation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ملاحة</translation>
     </message>
     <message>
         <source>Offline Maps</source>
@@ -2521,14 +1501,10 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
     </message>
     <message>
         <source>MANAGE</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">يدير</translation>
     </message>
     <message>
         <source> seconds</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Control Via UI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2548,22 +1524,6 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set speed limit offset for limits between 0-34 kph.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set speed limit offset for limits between 35-54 kph.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set speed limit offset for limits between 55-64 kph.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set speed limit offset for limits between 65-99 kph.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>kph</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2572,74 +1532,793 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set speed limit offset for limits between 0-34 mph.</source>
+        <source>Automatically switch to &apos;Experimental Mode&apos; when specific conditions are met.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set speed limit offset for limits between 35-54 mph.</source>
+        <source>Triggers &apos;Experimental Mode&apos; when driving below the set speed without a lead vehicle.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set speed limit offset for limits between 55-64 mph.</source>
+        <source>Triggers &apos;Experimental Mode&apos; when a curve is detected in the road ahead.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set speed limit offset for limits between 65-99 mph.</source>
+        <source>Triggers &apos;Experimental Mode&apos; when a slower or stopped vehicle is detected ahead.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Triggers &apos;Experimental Mode&apos; based on navigation data, such as upcoming intersections or turns.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Triggers &apos;Experimental Mode&apos; when openpilot wants to stop such as for a stop sign or red light.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Triggers &apos;Experimental Mode&apos; when using turn signals below the set speed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hides status bar for &apos;Conditional Experimental Mode&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses data from either the downloaded maps or the model to determine where curves are.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Triggers &apos;Curve Speed Control&apos; only when a curve is detected with the model as well when using the &apos;Map Based&apos; method.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Curve Detection Sensitivity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how sensitive openpilot is to detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Speed Aggressiveness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how aggressive openpilot takes turns. Higher values result in faster turns, while lower values result in slower turns.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Customize Driving Personalities</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Customize the personality profiles to suit your driving style.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Traffic Personality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Customizes the &apos;Traffic&apos; personality profile, tailored for navigating through traffic.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Following Distance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls the minimum following distance in &apos;Traffic&apos; mode. openpilot will automatically dynamically between this value and the &apos;Aggressive&apos; profile distance based on your current speed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Acceleration Sensitivity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how sensitive openpilot is to changes in acceleration in &apos;Traffic&apos; mode. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deceleration Sensitivity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how sensitive openpilot is to changes in deceleration in &apos;Traffic&apos; mode. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Safety Distance Sensitivity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjusts how cautious openpilot is around other vehicles or obstacles in &apos;Traffic&apos; mode. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Speed Increase Responsiveness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how quickly openpilot increases speed in &apos;Traffic&apos; mode. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Speed Decrease Responsiveness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how quickly openpilot adjusts to decreasing speeds in &apos;Traffic&apos; mode. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restores the &apos;Traffic Mode&apos; settings to their default values.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Aggressive Personality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Customize the &apos;Aggressive&apos; personality profile, designed for a more assertive driving style.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the following distance for &apos;Aggressive&apos; mode. This determines roughly how many seconds you&apos;ll follow behind the car ahead.
+
+Default: 1.25 seconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how sensitive openpilot is to changes in acceleration in &apos;Aggressive&apos; mode. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.
+
+Default: 0.5.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how sensitive openpilot is to changes in deceleration in &apos;Aggressive&apos; mode. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.
+
+Default: 0.5.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjusts how cautious openpilot is around other vehicles or obstacles in &apos;Aggressive&apos; mode. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.
+
+Default: 1.0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how quickly openpilot increases speed in &apos;Aggressive&apos; mode. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.
+
+Default: 0.5.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how quickly openpilot adjusts to decreasing speeds in &apos;Aggressive&apos; mode. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.
+
+Default: 0.5.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restores the &apos;Aggressive&apos; settings to their default values.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Standard Personality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Customize the &apos;Standard&apos; personality profile, optimized for balanced driving.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the following distance for &apos;Standard&apos; mode. This determines roughly how many seconds you&apos;ll follow behind the car ahead.
+
+Default: 1.45 seconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how sensitive openpilot is to changes in acceleration in &apos;Standard&apos; mode. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.
+
+Default: 1.0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how sensitive openpilot is to changes in deceleration in &apos;Standard&apos; mode. Higher values result in smoother braking, while lower values allow for quicker, more immediate braking that may feel abrupt.
+
+Default: 1.0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjusts how cautious openpilot is around other vehicles or obstacles in &apos;Standard&apos; mode. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.
+
+Default: 1.0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how quickly openpilot increases speed in &apos;Standard&apos; mode. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.
+
+Default: 1.0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how quickly openpilot adjusts to decreasing speeds in &apos;Standard&apos; mode. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.
+
+Default: 1.0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restores the &apos;Standard&apos; settings to their default values.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Relaxed Personality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Customize the &apos;Relaxed&apos; personality profile, ideal for a more laid-back driving style.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the following distance for &apos;Relaxed&apos; mode. This determines roughly how many seconds you&apos;ll follow behind the car ahead.
+
+Default: 1.75 seconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how sensitive openpilot is to changes in acceleration in &apos;Relaxed&apos; mode. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.
+
+Default: 1.0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how sensitive openpilot is to changes in deceleration in &apos;Relaxed&apos; mode. Higher values result in smoother braking, while lower values allow for quicker, more immediate braking that may feel abrupt.
+
+Default: 1.0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjusts how cautious openpilot is around other vehicles or obstacles in &apos;Relaxed&apos; mode. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.
+
+Default: 1.0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how quickly openpilot increases speed in &apos;Relaxed&apos; mode. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.
+
+Default: 1.0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how quickly openpilot adjusts to decreasing speeds in &apos;Relaxed&apos; mode. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.
+
+Default: 1.0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restores the &apos;Relaxed&apos; settings to their default values.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle &apos;Experimental Mode&apos; on/off using either the steering wheel buttons or screen.
+
+This overrides &apos;Conditional Experimental Mode&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles &apos;Experimental Mode&apos; by pressing the &apos;LKAS&apos; button on the steering wheel.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles &apos;Experimental Mode&apos; by double-tapping the onroad UI within a 0.5 second period.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles &apos;Experimental Mode&apos; by holding down the &apos;distance&apos; button on the steering wheel for 0.5 seconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables either a sporty or eco-friendly acceleration rate. &apos;Sport+&apos; aims to make openpilot accelerate as fast as possible.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables either a sporty or eco-friendly deceleration rate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses the lead&apos;s acceleration rate when at a takeoff and ramps off the acceleration rate when approaching the maximum set speed for a more &apos;human-like&apos; driving experience.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dynamically adjusts the following distance when approaching slower or stopped vehicles for a more &apos;human-like&apos; driving experience.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lead Detection Confidence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how sensitive openpilot is to detecting vehicles ahead. A lower value can help detect vehicles sooner and from farther away, but increases the chance openpilot mistakes other objects for vehicles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum Acceleration Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a cap on how fast openpilot can accelerate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls the interval used when increasing the cruise control speed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls the interval used when increasing the cruise control speed while holding down the button for 0.5+ seconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Force Keep openpilot in the Standstill State</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keeps openpilot in the &apos;standstill&apos; state until the gas pedal or &apos;resume&apos; button is pressed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Force Stop for &apos;Detected&apos; Stop Lights/Signs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Forces a stop whenever openpilot &apos;detects&apos; a potential red light/stop sign to prevent it from running the red light/stop sign.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set Speed Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how much higher or lower the set speed should be compared to your current set speed. For example, if you prefer to drive 5 mph above the speed limit, this setting will automatically add that difference when you adjust your set speed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maps the acceleration and deceleration profiles to your car&apos;s &apos;Eco&apos; or &apos;Sport&apos; gear modes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reverses the long press cruise increase feature to increase the max speed by 5 mph instead of 1 on short presses.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatically adjust your max speed to match the speed limit using downloaded &apos;Open Street Maps&apos; data, &apos;Navigate on openpilot&apos;, or your car&apos;s dashboard (Toyota/Lexus/HKG only).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables manual confirmations before using a new speed limit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls what happens when no speed limit data is available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how the current speed limit is overriden.
+
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Forces speed limit readings from the dashboard to MPH if it normally displays them in KPH.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a lookahead value to prepare for upcoming higher speed limits when using downloaded map data.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a lookahead value to prepare for upcoming lower speed limits when using downloaded map data.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets your max speed to match the current speed limit when enabling openpilot.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the order of priority for speed limit data sources.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set speed limit offsets to drive over the posted speed limit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the speed limit offset for speeds between 0 and 34 mph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the speed limit offset for speeds between 35 and 54 mph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the speed limit offset for speeds between 55 and 64 mph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the speed limit offset for speeds between 65 and 99 mph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished">إعادة الضبط</translation>
+    </message>
+    <message>
+        <source>Set With Gas Pedal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Set Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your settings for &apos;Traffic Mode&apos;?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your settings for the &apos;Aggressive&apos; personality?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your settings for the &apos;Standard&apos; personality?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your settings for the &apos;Relaxed&apos; personality?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the speed limit offset for speeds between 0-34 kph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the speed limit offset for speeds between 35-54 kph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the speed limit offset for speeds between 55-64 kph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the speed limit offset for speeds between 65-99 kph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the speed limit offset for speeds between 0-34 mph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the speed limit offset for speeds between 35-54 mph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the speed limit offset for speeds between 55-64 mph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the speed limit offset for speeds between 65-99 mph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotModelPanel</name>
+    <message>
+        <source>Automatically Update and Download Models</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatically downloads new models and updates them if needed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Model Randomizer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomly selects a model each drive and brings up a prompt at the end of the drive to review the model if it&apos;s longer than 15 minutes to help find your preferred model.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage Model Blacklist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls which models are blacklisted and won&apos;t be used for future drives.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Model Scores</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clears the ratings you&apos;ve given to the driving models.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Review Model Scores</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays the ratings you&apos;ve assigned to the driving models.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete Model</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Removes the selected driving model from your device.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Download Model</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Downloads the selected driving model.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Download All Models</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Downloads all undownloaded driving models.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select Model</source>
+        <translation type="unfinished">حدد النموذج</translation>
+    </message>
+    <message>
+        <source>Selects which model openpilot uses to drive.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Model Calibrations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resets calibration settings for the driving models.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ADD</source>
+        <translation type="unfinished">إضافة</translation>
+    </message>
+    <message>
+        <source>REMOVE</source>
+        <translation type="unfinished">إزالة</translation>
+    </message>
+    <message>
+        <source>There&apos;s no more models to blacklist! The only available model is &quot;%1&quot;!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="unfinished">موافق</translation>
+    </message>
+    <message>
+        <source>Select a model to add to the blacklist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to add the &apos;%1&apos; model to the blacklist?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select a model to remove from the blacklist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove the &apos;%1&apos; model from the blacklist?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RESET</source>
+        <translation type="unfinished">إعادة الضبط</translation>
+    </message>
+    <message>
+        <source>Reset all model scores?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VIEW</source>
+        <translation type="unfinished">عرض</translation>
+    </message>
+    <message>
+        <source>DELETE</source>
+        <translation type="unfinished">يمسح</translation>
+    </message>
+    <message>
+        <source>Select a model to delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete the &apos;%1&apos; model?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">يمسح</translation>
+    </message>
+    <message>
+        <source>Deleting...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deleted!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>DOWNLOAD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>CANCEL</source>
+        <translation type="unfinished">يلغي</translation>
+    </message>
+    <message>
+        <source>Select a driving model to download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Downloading %1...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SELECT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select a model - 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>WARNING: This is a very experimental model and may drive dangerously!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>I understand the risks.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start with a fresh calibration for the newly selected model?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reboot required to take effect.</source>
+        <translation type="unfinished">إعادة التشغيل المطلوبة للخروج.</translation>
+    </message>
+    <message>
+        <source>Reboot Now</source>
+        <translation type="unfinished">إعادة التشغيل الآن</translation>
+    </message>
+    <message>
+        <source>RESET ALL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RESET ONE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset all of your model calibrations?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select a model to reset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset this model&apos;s calibrations?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The &apos;Model Randomizer&apos; only works with downloaded models. Do you want to download all the driving models?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Downloading models...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>openpilot requires the device to be mounted within 4° left or right and within 5° up or 9° down. openpilot is continuously calibrating, resetting is rarely required.</source>
+        <translation type="unfinished">يحتاج openpilot أن يتم ضبط الجهاز ضمن حدود 4 درجات يميناً أو يساراً و5 درجات نحو الأعلى أو 9 نحو الأسفل. يقوم openpilot بالمعايرة باستمرار، ونادراً ما يحتاج إلى عملية إعادة الضبط.</translation>
+    </message>
+    <message>
+        <source> Your device is pointed %1° %2 and %3° %4.</source>
+        <translation type="unfinished"> يشير جهازك إلى %1 درجة %2، و%3 درجة %4.</translation>
+    </message>
+    <message>
+        <source>down</source>
+        <translation type="unfinished">نحو الأسفل</translation>
+    </message>
+    <message>
+        <source>up</source>
+        <translation type="unfinished">نحو الأعلى</translation>
+    </message>
+    <message>
+        <source>left</source>
+        <translation type="unfinished">نحو اليسار</translation>
+    </message>
+    <message>
+        <source>right</source>
+        <translation type="unfinished">نحو اليمين</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotParamManageControl</name>
     <message>
         <source>MANAGE</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">يدير</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotSettingsWindow</name>
     <message>
         <source>Advanced Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">الإعدادات المتقدمة</translation>
     </message>
     <message>
         <source>Alerts and Sounds</source>
-        <translation type="unfinished"></translation>
+        <translation>التنبيهات والأصوات</translation>
     </message>
     <message>
         <source>Driving Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>ضوابط القيادة</translation>
     </message>
     <message>
         <source>Navigation</source>
-        <translation type="unfinished"></translation>
+        <translation>ملاحة</translation>
     </message>
     <message>
         <source>System Management</source>
-        <translation type="unfinished"></translation>
+        <translation>إدارة النظام</translation>
     </message>
     <message>
         <source>Theme and Appearance</source>
-        <translation type="unfinished"></translation>
+        <translation>الموضوع والمظهر</translation>
     </message>
     <message>
         <source>Vehicle Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>ضوابط المركبات</translation>
     </message>
     <message>
         <source>Advanced FrogPilot features for more experienced users.</source>
-        <translation>ميزات FSDPilot المتقدمة للمستخدمين الأكثر خبرة.</translation>
+        <translation type="vanished">ميزات FSDPilot المتقدمة للمستخدمين الأكثر خبرة.</translation>
     </message>
     <message>
         <source>Options to customize FrogPilot&apos;s sound alerts and notifications.</source>
         <translation>خيارات لتخصيص تنبيهات وإشعارات الصوت لـ FSDPilot.</translation>
     </message>
     <message>
-        <source>FrogPilot features than impact acceleration, braking, and steering.</source>
-        <translation>ميزات FSDPilot التي تؤثر على التسارع والفرملة والتوجيه.</translation>
+        <source>FrogPilot features that impact acceleration, braking, and steering.</source>
+        <translation>ميزات FrogPilot التي تؤثر على التسارع والفرملة والتوجيه.</translation>
     </message>
     <message>
         <source>Offline maps downloader and &apos;Navigate On openpilot (NOO)&apos; settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>تنزيل خرائط غير متصل و &quot;تنقل على OpenPilot (NOO)&quot;.</translation>
     </message>
     <message>
         <source>Tools and system utilities used to maintain and troubleshoot FrogPilot.</source>
@@ -2651,46 +2330,78 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
     </message>
     <message>
         <source>Vehicle-specific settings and configurations for supported makes and models.</source>
-        <translation type="unfinished"></translation>
+        <translation>الإعدادات الخاصة بالسيارات والتكوينات للمكانيات المدعومة والموديلات.</translation>
     </message>
     <message>
         <source>DRIVING</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">القيادة</translation>
     </message>
     <message>
         <source>VISUALS</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">صور</translation>
     </message>
     <message>
         <source>MANAGE</source>
-        <translation type="unfinished"></translation>
+        <translation>يدير</translation>
     </message>
     <message>
         <source>GAS / BRAKE</source>
-        <translation type="unfinished"></translation>
+        <translation>الغاز / الفرامل</translation>
     </message>
     <message>
         <source>STEERING</source>
-        <translation type="unfinished"></translation>
+        <translation>توجيه</translation>
     </message>
     <message>
         <source>DATA</source>
-        <translation type="unfinished"></translation>
+        <translation>بيانات</translation>
     </message>
     <message>
         <source>DEVICE</source>
-        <translation type="unfinished"></translation>
+        <translation>جهاز</translation>
     </message>
     <message>
         <source>UTILITIES</source>
-        <translation type="unfinished"></translation>
+        <translation>المرافق</translation>
     </message>
     <message>
         <source>APPEARANCE</source>
-        <translation type="unfinished"></translation>
+        <translation>مظهر</translation>
     </message>
     <message>
         <source>THEME</source>
+        <translation>سمة</translation>
+    </message>
+    <message>
+        <source>Basic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation type="unfinished">القياسي</translation>
+    </message>
+    <message>
+        <source>Advanced</source>
+        <translation type="unfinished">متقدم</translation>
+    </message>
+    <message>
+        <source>Customization Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose your preferred customization level. &apos;Standard&apos; is recommended for most users, offering a balanced experience and automatically managing more &apos;Advanced&apos; features, while &apos;Basic&apos; is designed for those new to customization or seeking simplicity.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>DRIVING MODEL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OFFLINE MAPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PRIMELESS NAVIGATION</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2698,15 +2409,15 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
     <name>FrogPilotSoundsPanel</name>
     <message>
         <source>Alert Volume Controller</source>
-        <translation type="unfinished"></translation>
+        <translation>جهاز التحكم في الحجم التنبيه</translation>
     </message>
     <message>
         <source>Control the volume level for each individual sound in openpilot.</source>
-        <translation type="unfinished"></translation>
+        <translation>تحكم في مستوى مستوى الصوت لكل صوت فردي في OpenPilot.</translation>
     </message>
     <message>
         <source>Disengage Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>حجم فك الارتباط</translation>
     </message>
     <message>
         <source>Related alerts:
@@ -2715,22 +2426,26 @@ Adaptive Cruise Disabled
 Parking Brake Engaged
 Brake Pedal Pressed
 Speed too Low</source>
-        <translation type="unfinished"></translation>
+        <translation>التنبيهات ذات الصلة:
+
+</translation>
     </message>
     <message>
         <source>Engage Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>إشراك الحجم</translation>
     </message>
     <message>
         <source>Related alerts:
 
 NNFF Torque Controller loaded
 openpilot engaged</source>
-        <translation type="unfinished"></translation>
+        <translation>التنبيهات ذات الصلة:
+
+</translation>
     </message>
     <message>
         <source>Prompt Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>حجم موجه</translation>
     </message>
     <message>
         <source>Related alerts:
@@ -2739,97 +2454,139 @@ Car Detected in Blindspot
 Speed too Low
 Steer Unavailable Below &apos;X&apos;
 Take Control, Turn Exceeds Steering Limit</source>
-        <translation type="unfinished"></translation>
+        <translation>التنبيهات ذات الصلة:
+
+</translation>
     </message>
     <message>
         <source>Prompt Distracted Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>حجم صرف الانتباه</translation>
     </message>
     <message>
         <source>Related alerts:
 
 Pay Attention, Driver Distracted
 Touch Steering Wheel, Driver Unresponsive</source>
-        <translation type="unfinished"></translation>
+        <translation>التنبيهات ذات الصلة:
+
+</translation>
     </message>
     <message>
         <source>Refuse Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>الحجم الرفض</translation>
     </message>
     <message>
         <source>Related alerts:
 
 openpilot Unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation>التنبيهات ذات الصلة:
+
+</translation>
     </message>
     <message>
         <source>Warning Soft Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>تحذير حجم لينة</translation>
     </message>
     <message>
         <source>Related alerts:
 
 BRAKE!, Risk of Collision
 TAKE CONTROL IMMEDIATELY</source>
-        <translation type="unfinished"></translation>
+        <translation>التنبيهات ذات الصلة:
+
+</translation>
     </message>
     <message>
         <source>Warning Immediate Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>تحذير المجلد الفوري</translation>
     </message>
     <message>
         <source>Related alerts:
 
 DISENGAGE IMMEDIATELY, Driver Distracted
 DISENGAGE IMMEDIATELY, Driver Unresponsive</source>
-        <translation type="unfinished"></translation>
+        <translation>التنبيهات ذات الصلة:
+
+</translation>
     </message>
     <message>
         <source>Custom Alerts</source>
-        <translation type="unfinished"></translation>
+        <translation>تنبيهات مخصصة</translation>
     </message>
     <message>
         <source>Enable custom alerts for openpilot events.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">تمكين تنبيهات مخصصة لأحداث OpenPilot.</translation>
     </message>
     <message>
         <source>Goat Scream Steering Saturated Alert</source>
-        <translation type="unfinished"></translation>
+        <translation>الماعز صراخ توجيه تنبيه مشبع</translation>
     </message>
     <message>
         <source>Enable the famed &apos;Goat Scream&apos; that has brought both joy and anger to FrogPilot users all around the world!</source>
-        <translation>تمكين الصرخة الشهيرة "صراخ الماعز" التي جلبت الفرح والغضب لمستخدمي FSDPilot حول العالم!</translation>
+        <translation type="vanished">تمكين الصرخة الشهيرة &quot;صراخ الماعز&quot; التي جلبت الفرح والغضب لمستخدمي FSDPilot حول العالم!</translation>
     </message>
     <message>
         <source>Green Light Alert</source>
-        <translation type="unfinished"></translation>
+        <translation>تنبيه الضوء الأخضر</translation>
     </message>
     <message>
         <source>Get an alert when a traffic light changes from red to green.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">احصل على تنبيه عندما تتغير إشارة المرور من اللون الأحمر إلى الأخضر.</translation>
     </message>
     <message>
         <source>Lead Departing Alert</source>
-        <translation type="unfinished"></translation>
+        <translation>تنبيه المغادرة</translation>
     </message>
     <message>
         <source>Get an alert when the lead vehicle starts departing when at a standstill.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">احصل على تنبيه عندما تبدأ السيارة الرائدة في المغادرة عندما تكون في حالة توقف توقف.</translation>
     </message>
     <message>
         <source>Loud Blindspot Alert</source>
-        <translation type="unfinished"></translation>
+        <translation>بصوت عالٍ في حالة تأهب</translation>
     </message>
     <message>
         <source>Enable a louder alert for when a vehicle is detected in the blindspot when attempting to change lanes.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">قم بتمكين تنبيه أعلى عندما يتم اكتشاف مركبة في النطاق العمياء عند محاولة تغيير الممرات.</translation>
     </message>
     <message>
         <source>Speed Limit Change Alert</source>
-        <translation type="unfinished"></translation>
+        <translation>تنبيه الحد الأقصى للسرعة</translation>
     </message>
     <message>
         <source>Trigger an alert when the speed limit changes.</source>
+        <translation type="vanished">تشغيل تنبيه عندما يتغير حد السرعة.</translation>
+    </message>
+    <message>
+        <source>Custom alerts for openpilot events.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables the famed &apos;Goat Scream&apos; that has brought both joy and anger to FrogPilot users all around the world!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Plays an alert when a traffic light changes from red to green.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Plays an alert when the lead vehicle starts departing when at a standstill.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Plays a louder alert for when a vehicle is detected in the blindspot when attempting to change lanes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Plays an alert when the speed limit changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Muted</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2837,218 +2594,266 @@ DISENGAGE IMMEDIATELY, Driver Unresponsive</source>
     <name>FrogPilotThemesPanel</name>
     <message>
         <source>Custom Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>موضوع مخصص</translation>
     </message>
     <message>
         <source>Custom openpilot themes.</source>
-        <translation type="unfinished"></translation>
+        <translation>موضوعات OpenPilot مخصصة.</translation>
     </message>
     <message>
         <source>Color Scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>نظام الألوان</translation>
     </message>
     <message>
         <source>Themed color schemes.
 
 Want to submit your own color scheme? Share it in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
-        <translation>مخططات ألوان مخصصة.
-هل تريد تقديم مخطط الألوان الخاص بك؟ شاركه في قناة "feature-request" على خادم FSDPilot في ديسكورد!</translation>
+        <translation type="vanished">مخططات ألوان مخصصة.
+هل تريد تقديم مخطط الألوان الخاص بك؟ شاركه في قناة &quot;feature-request&quot; على خادم FSDPilot في ديسكورد!</translation>
     </message>
     <message>
         <source>Icon Pack</source>
-        <translation type="unfinished"></translation>
+        <translation>حزمة أيقونة</translation>
     </message>
     <message>
         <source>Themed icon packs.
 
 Want to submit your own icons? Share them in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
-        <translation>حزم أيقونات مخصصة.
-هل تريد تقديم أيقوناتك الخاصة؟ شاركها في قناة "feature-request" على خادم FSDPilot في ديسكورد!</translation>
+        <translation type="vanished">حزم أيقونات مخصصة.
+هل تريد تقديم أيقوناتك الخاصة؟ شاركها في قناة &quot;feature-request&quot; على خادم FSDPilot في ديسكورد!</translation>
     </message>
     <message>
         <source>Sound Pack</source>
-        <translation type="unfinished"></translation>
+        <translation>حزمة الصوت</translation>
     </message>
     <message>
         <source>Themed sound effects.
 
 Want to submit your own sounds? Share them in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
-        <translation>مؤثرات صوتية مخصصة.
-هل تريد تقديم أصواتك الخاصة؟ شاركها في قناة "feature-request" على خادم FSDPilot في ديسكورد!</translation>
+        <translation type="vanished">مؤثرات صوتية مخصصة.
+هل تريد تقديم أصواتك الخاصة؟ شاركها في قناة &quot;feature-request&quot; على خادم FSDPilot في ديسكورد!</translation>
     </message>
     <message>
         <source>Steering Wheel</source>
-        <translation type="unfinished"></translation>
+        <translation>عجلة القيادة</translation>
     </message>
     <message>
         <source>Custom steering wheel icons.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">أيقونات عجلة القيادة المخصصة.</translation>
     </message>
     <message>
         <source>Turn Signal Animation</source>
-        <translation type="unfinished"></translation>
+        <translation>انعطف الإشارة الرسوم المتحركة</translation>
     </message>
     <message>
         <source>Themed turn signal animations.
 
 Want to submit your own animations? Share them in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
-        <translation>رسوم متحركة لإشارات الانعطاف مخصصة.
-هل تريد تقديم رسوماتك المتحركة الخاصة؟ شاركها في قناة "feature-request" على خادم FSDPilot في ديسكورد!</translation>
+        <translation type="vanished">رسوم متحركة لإشارات الانعطاف مخصصة.
+هل تريد تقديم رسوماتك المتحركة الخاصة؟ شاركها في قناة &quot;feature-request&quot; على خادم FSDPilot في ديسكورد!</translation>
     </message>
     <message>
         <source>Download Status</source>
-        <translation type="unfinished"></translation>
+        <translation>تنزيل حالة</translation>
     </message>
     <message>
         <source>Holiday Themes</source>
-        <translation type="unfinished"></translation>
+        <translation>موضوعات العطلات</translation>
     </message>
     <message>
         <source>Change the openpilot theme based on the current holiday. Minor holidays last one day, while major holidays (Easter, Christmas, Halloween, etc.) last a week.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">تغيير موضوع OpenPilot استنادًا إلى العطلة الحالية. </translation>
     </message>
     <message>
         <source>Random Events</source>
-        <translation type="unfinished"></translation>
+        <translation>أحداث عشوائية</translation>
     </message>
     <message>
         <source>Random cosmetic events that happen during certain driving conditions. These events are purely for fun and don&apos;t affect driving controls!</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">أحداث تجميلية عشوائية تحدث خلال بعض ظروف القيادة. </translation>
     </message>
     <message>
         <source>Startup Alert</source>
-        <translation type="unfinished"></translation>
+        <translation>تنبيه بدء التشغيل</translation>
     </message>
     <message>
         <source>Custom &apos;Startup&apos; alert message that appears when you start driving.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">رسالة تنبيه مخصصة &quot;بدء التشغيل&quot; التي تظهر عند البدء في القيادة.</translation>
     </message>
     <message>
         <source>DELETE</source>
-        <translation type="unfinished"></translation>
+        <translation>يمسح</translation>
     </message>
     <message>
         <source>DOWNLOAD</source>
-        <translation type="unfinished">تنزيل</translation>
+        <translation>تحميل</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="unfinished">اختيار</translation>
+        <translation>يختار</translation>
     </message>
     <message>
         <source>Select a color scheme to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد نظام ألوان لحذف</translation>
     </message>
     <message>
         <source>Are you sure you want to delete the &apos;%1&apos; color scheme?</source>
-        <translation type="unfinished"></translation>
+        <translation>هل أنت متأكد من أنك تريد حذف نظام الألوان &quot;٪ 1&quot;؟</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>يمسح</translation>
     </message>
     <message>
         <source>Select a color scheme to download</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد نظام ألوان للتنزيل</translation>
     </message>
     <message>
         <source>Select a color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد نظام الألوان</translation>
     </message>
     <message>
         <source>Select an icon pack to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد حزمة رمز للحذف</translation>
     </message>
     <message>
         <source>Are you sure you want to delete the &apos;%1&apos; icon pack?</source>
-        <translation type="unfinished"></translation>
+        <translation>هل أنت متأكد من أنك تريد حذف حزمة &quot;٪ 1&quot;؟</translation>
     </message>
     <message>
         <source>Select an icon pack to download</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد حزمة أيقونة للتنزيل</translation>
     </message>
     <message>
         <source>Select an icon pack</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد حزمة أيقونة</translation>
     </message>
     <message>
         <source>Select a signal pack to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد حزمة إشارة لحذفها</translation>
     </message>
     <message>
         <source>Are you sure you want to delete the &apos;%1&apos; signal pack?</source>
-        <translation type="unfinished"></translation>
+        <translation>هل أنت متأكد من أنك تريد حذف حزمة إشارة &quot;٪ 1&quot;؟</translation>
     </message>
     <message>
         <source>Select a signal pack to download</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد حزمة إشارة للتنزيل</translation>
     </message>
     <message>
         <source>Select a signal pack</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد حزمة إشارة</translation>
     </message>
     <message>
         <source>Select a sound pack to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد حزمة صوتية لحذفها</translation>
     </message>
     <message>
         <source>Are you sure you want to delete the &apos;%1&apos; sound scheme?</source>
-        <translation type="unfinished"></translation>
+        <translation>هل أنت متأكد من أنك تريد حذف مخطط الصوت &quot;٪ 1&quot;؟</translation>
     </message>
     <message>
         <source>Select a sound pack to download</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد حزمة صوت للتنزيل</translation>
     </message>
     <message>
         <source>Select a sound scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد مخطط الصوت</translation>
     </message>
     <message>
         <source>Select a steering wheel to delete</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد عجلة القيادة لحذفها</translation>
     </message>
     <message>
         <source>Are you sure you want to delete the &apos;%1&apos; steering wheel image?</source>
-        <translation type="unfinished"></translation>
+        <translation>هل أنت متأكد من أنك تريد حذف صورة عجلة القيادة &quot;٪ 1&quot;؟</translation>
     </message>
     <message>
         <source>Select a steering wheel to download</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد عجلة القيادة للتنزيل</translation>
     </message>
     <message>
         <source>Select a steering wheel</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد عجلة القيادة</translation>
     </message>
     <message>
         <source>STOCK</source>
-        <translation type="unfinished"></translation>
+        <translation>مخزون</translation>
     </message>
     <message>
         <source>FROGPILOT</source>
-        <translation type="unfinished"></translation>
+        <translation>Frogpilot</translation>
     </message>
     <message>
         <source>CUSTOM</source>
-        <translation type="unfinished"></translation>
+        <translation>مخصص</translation>
     </message>
     <message>
         <source>CLEAR</source>
-        <translation type="unfinished"></translation>
+        <translation>واضح</translation>
     </message>
     <message>
         <source>Enter your text for the top half</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">أدخل النص الخاص بك للنصف العلوي</translation>
     </message>
     <message>
         <source>Characters: 0/%1</source>
-        <translation type="unfinished"></translation>
+        <translation>الأحرف: 0/٪ 1</translation>
     </message>
     <message>
         <source>Enter your text for the bottom half</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">أدخل النص الخاص بك للنصف السفلي</translation>
     </message>
     <message>
         <source>CANCEL</source>
+        <translation>يلغي</translation>
+    </message>
+    <message>
+        <source>Changes out openpilot&apos;s color scheme.
+
+Want to submit your own color scheme? Share it in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changes out openpilot&apos;s icon pack.
+
+Want to submit your own icons? Share them in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changes out openpilot&apos;s sound effects.
+
+Want to submit your own sounds? Share them in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables a custom steering wheel icon in the top right of the screen.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables themed turn signal animations.
+
+Want to submit your own animations? Share them in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changes the openpilot theme based on the current holiday. Minor holidays last one day, while major holidays (Easter, Christmas, Halloween, etc.) last the entire week.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables random cosmetic events that happen during certain driving conditions. These events are purely for fun and don&apos;t affect driving controls!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls the text of the &apos;Startup&apos; alert message that appears when you start the drive.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the text for the top half</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the text for the bottom half</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3056,143 +2861,203 @@ Want to submit your own animations? Share them in the &apos;feature-request&apos
     <name>FrogPilotVehiclesPanel</name>
     <message>
         <source>Select Make</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد صنع</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="unfinished">اختيار</translation>
+        <translation>يختار</translation>
     </message>
     <message>
         <source>Select a Make</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد صنع</translation>
     </message>
     <message>
         <source>Select Model</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد النموذج</translation>
     </message>
     <message>
         <source>Select a Model</source>
-        <translation type="unfinished"></translation>
+        <translation>حدد نموذجًا</translation>
     </message>
     <message>
         <source>Disable Automatic Fingerprint Detection</source>
-        <translation type="unfinished"></translation>
+        <translation>تعطيل اكتشاف البصمات التلقائي</translation>
     </message>
     <message>
         <source>Forces the selected fingerprint and prevents it from ever changing.</source>
-        <translation type="unfinished"></translation>
+        <translation>يفرض بصمة الإصبع المحددة ويمنعها من التغيير باستمرار.</translation>
     </message>
     <message>
         <source>Disable openpilot Longitudinal Control</source>
-        <translation type="unfinished"></translation>
+        <translation>تعطيل السيطرة الطولية OpenPilot</translation>
     </message>
     <message>
         <source>Disable openpilot longitudinal control and use stock ACC instead.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">تعطيل التحكم الطولي OpenPilot واستخدام المخزون ACC بدلاً من ذلك.</translation>
     </message>
     <message>
         <source>Are you sure you want to completely disable openpilot longitudinal control?</source>
-        <translation type="unfinished"></translation>
+        <translation>هل أنت متأكد من أنك تريد تعطيل التحكم الطولي OpenPilot تمامًا؟</translation>
     </message>
     <message>
         <source>Reboot required to take effect.</source>
-        <translation type="unfinished"></translation>
+        <translation>إعادة التشغيل المطلوبة للخروج.</translation>
     </message>
     <message>
         <source>Reboot Now</source>
-        <translation type="unfinished"></translation>
+        <translation>إعادة التشغيل الآن</translation>
     </message>
     <message>
         <source>2017 Volt Stop and Go Hack</source>
-        <translation type="unfinished"></translation>
+        <translation>2017 Volt Stop and Go Hack</translation>
     </message>
     <message>
         <source>Force stop and go for the 2017 Chevy Volt.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">توقف القوة وتذهب ل Chevy Volt 2017.</translation>
     </message>
     <message>
         <source>Experimental GM Tune</source>
-        <translation type="unfinished"></translation>
+        <translation>لحن GM التجريبي</translation>
     </message>
     <message>
         <source>FrogsGoMoo&apos;s experimental GM tune that is based on nothing but guesswork. Use at your own risk!</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">لحن GM التجريبي من Frogsgomoo والذي يعتمد على شيء سوى التخمين. </translation>
     </message>
     <message>
         <source>Uphill/Downhill Smoothing</source>
-        <translation type="unfinished"></translation>
+        <translation>شاقة/ترفيه أسفل</translation>
     </message>
     <message>
         <source>Smoothen the car’s gas and brake response when driving on slopes.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">قم بتهمة استجابة الغاز والفرامل الخاصة بالسيارة عند القيادة على المنحدرات.</translation>
     </message>
     <message>
         <source>Use comma&apos;s New Longitudinal API</source>
-        <translation type="unfinished"></translation>
+        <translation>استخدم واجهة برمجة تطبيقات الفاصلة الطولية الجديدة</translation>
     </message>
     <message>
         <source>Comma&apos;s new longitudinal control system that has shown great improvement with acceleration and braking, but has a few issues on some GM vehicles.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">نظام التحكم الطولي الجديد في Pama والذي أظهر تحسنًا كبيرًا مع التسارع والكبح ، ولكن لديه بعض المشكلات في بعض مركبات GM.</translation>
     </message>
     <message>
         <source>Use comma&apos;s new longitudinal control system that has shown great improvement with acceleration and braking, but has a few issues on Hyundai/Kia/Genesis.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">استخدم نظام التحكم الطولي الجديد في BASSA والذي أظهر تحسناً كبيراً مع التسارع والكبح ، ولكن لديه بعض المشكلات على Hyundai/KIA/Genesis.</translation>
     </message>
     <message>
         <source>Subaru Crosstrek Torque Increase</source>
-        <translation type="unfinished"></translation>
+        <translation>زيادة عزم الدوران سوبارو كروسستريك</translation>
     </message>
     <message>
         <source>Increases the maximum allowed torque for the Subaru Crosstrek.</source>
-        <translation type="unfinished"></translation>
+        <translation>يزيد من أقصى عزم الدوران المسموح به لسوبارو كروسستريك.</translation>
     </message>
     <message>
         <source>Automatically Lock/Unlock Doors</source>
-        <translation type="unfinished"></translation>
+        <translation>قفل/فتح الأبواب تلقائيا</translation>
     </message>
     <message>
         <source>Automatically lock the doors when in drive and unlock when in park.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">قفل الأبواب تلقائيا عندما تكون في محرك الأقراص وإلغاء قفلها في الحديقة.</translation>
     </message>
     <message>
         <source>Cluster Speed Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>إزاحة سرعة الكتلة</translation>
     </message>
     <message>
         <source>Set the cluster offset openpilot uses to try and match the speed displayed on the dash.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">قم بتعيين إزاحة الكتلة التي يستخدمها OpenPilot لمحاولة مطابقة السرعة المعروضة على القيادة.</translation>
     </message>
     <message>
         <source>FrogsGoMoo&apos;s Personal Tweaks</source>
-        <translation type="unfinished"></translation>
+        <translation>التعديلات الشخصية ل Frogsgomoo</translation>
     </message>
     <message>
         <source>Use FrogsGoMoo&apos;s personal tweaks to the Toyota tune focused around his 2019 Lexus ES 350 to take off a bit quicker and stop a bit smoother.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">استخدم التعديلات الشخصية لـ Frogsgomoo إلى Toyota Tune التي ركزت حول عام 2019 لكزس ES 350 لخلعها بشكل أسرع قليلاً وتوقف أكثر سلاسة.</translation>
     </message>
     <message>
         <source>Stop and Go Hack</source>
-        <translation type="unfinished"></translation>
+        <translation>توقف واذهب اختراق</translation>
     </message>
     <message>
         <source>Force stop and go for vehicles without stock stop and go functionality.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">توقف القوة والذهاب للسيارات دون توقف الأسهم وتذهب وظائف.</translation>
     </message>
     <message>
         <source>Lock</source>
-        <translation type="unfinished"></translation>
+        <translation>قفل</translation>
     </message>
     <message>
         <source>Unlock</source>
+        <translation>فتح</translation>
+    </message>
+    <message>
+        <source>Disables openpilot longitudinal control and uses the car&apos;s stock ACC instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Virtual Torque Blending</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Experimental feature to allow influencing of the steering angle while ALC is active.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hybrid TACC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use a mix between Traffic-Aware Cruise Control (TACC) and openpilot long when a lead vehicle is detected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Forces stop and go for the 2017 Chevy Volt.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables FrogsGoMoo&apos;s experimental GM tune that is based on nothing but guesswork. Use at your own risk!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Smoothens the gas and brake response when driving on slopes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables comma&apos;s new control system that has shown great improvement with acceleration and braking, but has a few issues on some GM vehicles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables comma&apos;s new control system that has shown great improvement with acceleration and braking, but has a few issues on Hyundai/Kia/Genesis.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatically locks the doors when in drive and unlocks when in park.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the cluster offset openpilot uses to try and match the speed displayed on the dash.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>comma&apos;s New Toyota/Lexus Tune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables comma&apos;s latest Toyota tuning, expertly crafted by Shane for enhanced vehicle performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables FrogsGoMoo&apos;s personal tweaks to the Toyota tune focused around his 2019 Lexus ES 350 to take off a bit quicker and stop a bit smoother.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Forces stop and go for vehicles without stock stop and go functionality.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>
-    <message>
-        <source>Onroad UI Widgets</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Custom FrogPilot widgets used in the onroad user interface.</source>
         <translation>عناصر FSDPilot المخصصة المستخدمة في واجهة القيادة.</translation>
@@ -3202,35 +3067,7 @@ Want to submit your own animations? Share them in the &apos;feature-request&apos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A compass in the onroad UI to show the current driving direction.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Dynamic Path Width</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Automatically adjust the width of the driving path display based on the current engagement state:
-
-Fully engaged = 100%
-Always On Lateral Active = 75%
-Fully disengaged = 50%</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Gas/Brake Pedal Indicators</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pedal indicators in the onroad UI that change opacity based on the pressure applied.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Paths</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Projected acceleration path, detected lanes, and vehicles in the blind spot.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3238,23 +3075,7 @@ Fully disengaged = 50%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The current road name is displayed at the bottom of the screen using data from &apos;OpenStreetMap&apos;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Rotating Steering Wheel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The steering wheel in the onroad UI rotates along with your steering wheel movements.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Quality of Life Improvements</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Miscellaneous visual focused features to improve your overall openpilot experience.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3262,23 +3083,7 @@ Fully disengaged = 50%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A larger size of the map in the onroad UI for easier navigation readings.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Map Style</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Custom map styles for the map used during navigation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Screen Standby Mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The screen is turned off after it times out when driving, but it automatically wakes up if engagement state changes or important alerts occur.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3286,23 +3091,7 @@ Fully disengaged = 50%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The driver camera feed is displayed when the vehicle is in reverse.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Stopped Timer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A timer on the onroad UI to indicate how long the vehicle has been stopped.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Acceleration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Adjacent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3371,6 +3160,446 @@ Fully disengaged = 50%</source>
     </message>
     <message>
         <source>Select a map style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Accessibility</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Visual features to improve your overall openpilot experience.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Camera View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changes the camera view display. This is purely a visual change and doesn&apos;t impact how openpilot drives.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Onroad Personality Button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays the current driving personality on the screen. Tap to switch personalities, or long press for 2.5 seconds to activate &apos;Traffic&apos; mode.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays the driver camera feed when the vehicle is in reverse.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Standby Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Turns the screen off when driving and automatically wakes it up if engagement state changes or important alerts occur.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Activates a timer when stopped to indicate how long the vehicle has been stopped for.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Advanced UI Controls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Advanced features to fine tune your personalized UI.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide Current Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hides the current speed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide Lead Marker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hides the marker for the vehicle ahead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide Map Icon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hides the map icon.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide Max Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hides the max speed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide Non-Critical Alerts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hides non-critical alerts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use Wheel Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uses the wheel speed instead of the cluster speed. This is purely a visual change and doesn&apos;t impact how openpilot drives.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Developer Metrics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show detailed information about openpilot&apos;s internal operations.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Border Metrics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays performance metrics around the edge of the screen while driving.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FPS Display</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays the &apos;Frames Per Second&apos; (FPS) at the bottom of the screen while driving.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lateral Metrics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays metrics related to steering control at the top of the screen while driving.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Longitudinal Metrics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays metrics related to acceleration, speed, and desired following distance at the top of the screen while driving.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Numerical Temperature Gauge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shows exact temperature readings instead of status labels like &apos;GOOD&apos;, &apos;OK&apos;, or &apos;HIGH&apos; in the sidebar.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sidebar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays system information like CPU, GPU, RAM usage, IP address, and storage space in the sidebar.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use International System of Units</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays measurements using the &apos;International System of Units&apos; (SI).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Model UI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Customize the model visualizations on the screen.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatically adjusts the width of the driving path display based on the current engagement state:
+
+Fully engaged = 100%
+Always On Lateral Active = 75%
+Fully disengaged = 50%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lane Lines Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls the thickness the lane lines appear on the display.
+
+Default matches the MUTCD standard of 4 inches.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Path Edges Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls the width of the edges of the driving path to represent different modes and statuses.
+
+Default is 20% of the total path width.
+
+Color Guide:
+- Blue: Navigation
+- Light Blue: &apos;Always On Lateral&apos;
+- Green: Default
+- Orange: &apos;Experimental Mode&apos;
+- Red: &apos;Traffic Mode&apos;
+- Yellow: &apos;Conditional Experimental Mode&apos; Overridden</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Path Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how wide the driving path appears on your screen.
+
+Default (6.1 feet / 1.9 meters) matches the width of a 2019 Lexus ES 350.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Road Edges Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how thick the road edges appear on the display.
+
+Default matches half of the MUTCD standard lane line width of 4 inches.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stopping Point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays an image on the screen where openpilot is detecting a potential red light/stop sign.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&apos;Unlimited&apos; Road UI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extends the display of the path, lane lines, and road edges as far as the model can see.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Navigation Widgets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wwidgets focused around navigation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Increases the size of the map for easier navigation readings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Swaps out the stock map style for community created ones.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays the current road name at the bottom of the screen using data from &apos;OpenStreetMap&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Speed Limit Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays the speed limit offset separately in the onroad UI when using &apos;Speed Limit Controller&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use Vienna-Style Speed Signs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Forces Vienna-style (EU) speed limit signs instead of MUTCD (US).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Onroad Screen Widgets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Acceleration Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Projects a path based on openpilot&apos;s current desired acceleration or deceleration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjacent Lanes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Projects paths for the adjascent lanes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blind Spot Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Projects a red path when vehicles are detected in the blind spot for the respective lane.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays a compass to show the current driving direction.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gas / Brake Pedal Indicators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays pedal indicators to indicate when either of the pedals are currently being used.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rotates the steering wheel in the onroad UI rotates along with your steering wheel movements.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Driver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation type="unfinished">القياسي</translation>
+    </message>
+    <message>
+        <source>Wide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Steering Torque</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Turn Signal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjacent Path Metrics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto Tune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjacent Leads</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lead Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jerk Values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fahrenheit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>CPU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>GPU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RAM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SSD Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SSD Used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> inches</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> feet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Distance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust how thick the lane lines appear on the display.
+
+Default matches the Vienna standard of 10 centimeters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust how thick the road edges appear on the display.
+
+Default matches half of the Vienna standard of 10 centimeters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> centimeters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> meters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust how thick the lane lines appear on the display.
+
+Default matches the MUTCD standard of 4 inches.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust how thick the road edges appear on the display.
+
+Default matches half of the MUTCD standard of 4 inches.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3784,6 +4013,30 @@ This may take up to a minute.</source>
         <source>FrogPilot</source>
         <translation>FSDPilot</translation>
     </message>
+    <message>
+        <source>Welcome to FrogPilot! Since you&apos;re new to FrogPilot, the &apos;Basic&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sounds good!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Since you&apos;re fairly new to FrogPilot, the &apos;Basic&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Since you&apos;re experienced with openpilot, the &apos;Standard&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Since you&apos;re experienced with FrogPilot, the &apos;Standard&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Since you&apos;re very experienced with FrogPilot, the &apos;Advanced&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Setup</name>
@@ -4090,7 +4343,7 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Do you want to permanently delete any additional FrogPilot assets? This is 100% unrecoverable and includes backups, downloaded models, themes, and long-term storage toggle settings for easy reinstalls.</source>
-        <translation>هل تريد حذف أي ملفات إضافية لـ FSDPilot بشكل نهائي؟ هذا غير قابل للاسترجاع تماماً ويتضمن النسخ الاحتياطية والنماذج المحملة والسمات وإعدادات التخزين طويلة المدى لتسهيل إعادة التثبيت.</translation>
+        <translation type="vanished">هل تريد حذف أي ملفات إضافية لـ FSDPilot بشكل نهائي؟ هذا غير قابل للاسترجاع تماماً ويتضمن النسخ الاحتياطية والنماذج المحملة والسمات وإعدادات التخزين طويلة المدى لتسهيل إعادة التثبيت.</translation>
     </message>
     <message>
         <source>Error Log</source>
@@ -4102,6 +4355,10 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>View the error log for openpilot crashes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to permanently delete any additional FrogPilot assets? This is 100% unrecoverable and includes backups, models, and long-term storage toggle settings for easy reinstalls.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4347,10 +4604,6 @@ This may take up to a minute.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Use this button to flash the Panda device&apos;s firmware if you&apos;re running into issues.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Are you sure you want to flash the Panda?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4375,10 +4628,6 @@ This may take up to a minute.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Force openpilot either offroad or onroad.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>OFFROAD</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4399,10 +4648,6 @@ This may take up to a minute.</source>
         <translation type="unfinished">إعادة الضبط</translation>
     </message>
     <message>
-        <source>Reset your toggle settings back to their default settings.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Are you sure you want to completely reset all of your toggle settings?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4416,6 +4661,18 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Reset!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flashes the Panda device&apos;s firmware if you&apos;re running into issues.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Forces openpilot either offroad or onroad.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resets your toggle settings back to their default settings.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
