@@ -2852,7 +2852,7 @@ DISENGAGE IMMEDIATELY, Driver Unresponsive</source>
 
 Want to submit your own color scheme? Share it in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
         <translation>مخططات ألوان مخصصة.
-هل تريد تقديم مخطط الألوان الخاص بك؟ شاركه في قناة "feature-request" على خادم FSDPilot في ديسكورد!</translation>
+هل تريد تقديم مخطط الألوان الخاص بك؟ شاركه في قناة "feature-request" على خادم FrogPilot في ديسكورد!</translation>
     </message>
     <message>
         <source>Icon Pack</source>
@@ -2863,7 +2863,7 @@ Want to submit your own color scheme? Share it in the &apos;feature-request&apos
 
 Want to submit your own icons? Share them in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
         <translation>حزم أيقونات مخصصة.
-هل تريد تقديم أيقوناتك الخاصة؟ شاركها في قناة "feature-request" على خادم FSDPilot في ديسكورد!</translation>
+هل تريد تقديم أيقوناتك الخاصة؟ شاركها في قناة "feature-request" على خادم FrogPilot في ديسكورد!</translation>
     </message>
     <message>
         <source>Sound Pack</source>
@@ -2874,7 +2874,7 @@ Want to submit your own icons? Share them in the &apos;feature-request&apos; cha
 
 Want to submit your own sounds? Share them in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
         <translation>مؤثرات صوتية مخصصة.
-هل تريد تقديم أصواتك الخاصة؟ شاركها في قناة "feature-request" على خادم FSDPilot في ديسكورد!</translation>
+هل تريد تقديم أصواتك الخاصة؟ شاركها في قناة "feature-request" على خادم FrogPilot في ديسكورد!</translation>
     </message>
     <message>
         <source>Steering Wheel</source>
@@ -2893,7 +2893,7 @@ Want to submit your own sounds? Share them in the &apos;feature-request&apos; ch
 
 Want to submit your own animations? Share them in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
         <translation>رسوم متحركة لإشارات الانعطاف مخصصة.
-هل تريد تقديم رسوماتك المتحركة الخاصة؟ شاركها في قناة "feature-request" على خادم FSDPilot في ديسكورد!</translation>
+هل تريد تقديم رسوماتك المتحركة الخاصة؟ شاركها في قناة "feature-request" على خادم FrogPilot في ديسكورد!</translation>
     </message>
     <message>
         <source>Download Status</source>
