@@ -202,11 +202,13 @@ class SpeedController:
 
   def _calculate_steer_based_speed(self, current_speed_ms: float, steering_angle_deg: float) -> float:
     steering_decel_angle_deg = 60.0
-    min_curve_speed_ms = np.interp(current_speed_ms, [0.0, self.conv_to_ms(60.0)], [self.conv_to_ms(30.0), self.conv_to_ms(50.0)])
     no_limit_speed = 255.
 
-    if abs(steering_angle_deg) >= steering_decel_angle_deg:
-      steer_based_speed_ms = max(min(current_speed_ms * 0.85, current_speed_ms - 3.0), min_curve_speed_ms)
+    if abs(steering_angle_deg) >= steering_decel_angle_deg * 2:
+      steer_based_speed_ms = max(min(current_speed_ms * 0.70, current_speed_ms - 3.0), self.conv_to_ms(V_CRUISE_MIN))
+      return self.conv_to_clu(steer_based_speed_ms)
+    elif abs(steering_angle_deg) >= steering_decel_angle_deg:
+      steer_based_speed_ms = max(min(current_speed_ms * 0.85, current_speed_ms - 3.0), self.conv_to_ms(V_CRUISE_MIN))
       return self.conv_to_clu(steer_based_speed_ms)
 
     return no_limit_speed
