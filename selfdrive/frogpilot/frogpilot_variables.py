@@ -196,6 +196,7 @@ frogpilot_default_params: list[tuple[str, str | bytes]] = [
   ("MapStyle", "0"),
   ("MaxDesiredAcceleration", "4.0"),
   ("MinimumLaneChangeSpeed", str(LANE_CHANGE_SPEED_MIN / CV.MPH_TO_MS)),
+  ("AALCEnabled", "0"),
   ("Model", DEFAULT_MODEL),
   ("ModelName", DEFAULT_MODEL_NAME),
   ("ModelRandomizer", "0"),
@@ -568,6 +569,7 @@ class FrogPilotVariables:
     toggle.minimum_lane_change_speed = self.params.get_int("MinimumLaneChangeSpeed") * speed_conversion if toggle.lane_change_customizations else LANE_CHANGE_SPEED_MIN
     toggle.nudgeless = toggle.lane_change_customizations and self.params.get_bool("NudgelessLaneChange")
     toggle.one_lane_change = toggle.lane_change_customizations and self.params.get_bool("OneLaneChange")
+    toggle.adaptive_lane_change = toggle.lane_change_customizations and self.params.get_bool("AALCEnabled")
 
     toggle.lateral_tuning = self.params.get_bool("LateralTune")
     toggle.nnff = toggle.lateral_tuning and self.params.get_bool("NNFF")
@@ -872,6 +874,7 @@ class FrogPilotVariables:
       toggle.minimum_lane_change_speed = float(self.default_frogpilot_toggles.MinimumLaneChangeSpeed) * speed_conversion if toggle.lane_change_customizations else LANE_CHANGE_SPEED_MIN
       toggle.nudgeless = toggle.lane_change_customizations and self.default_frogpilot_toggles.NudgelessLaneChange
       toggle.one_lane_change = toggle.lane_change_customizations and self.default_frogpilot_toggles.OneLaneChange
+      toggle.adaptive_lane_change = toggle.lane_change_customizations and self.default_frogpilot_toggles.AALCEnabled
 
       toggle.lateral_tuning = self.default_frogpilot_toggles.LateralTune
       toggle.nnff = toggle.lateral_tuning and self.default_frogpilot_toggles.NNFF
