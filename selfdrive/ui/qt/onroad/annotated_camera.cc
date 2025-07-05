@@ -936,6 +936,7 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
   }
 
   roadNameUI = scene.road_name_ui;
+  showLiveIcon = scene.show_live_status_icon;
 
   bool enableScreenRecorder = scene.screen_recorder && !mapOpen;
   screenRecorder->setVisible(enableScreenRecorder);
@@ -985,6 +986,10 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter) {
 
   if (speedLimitChanged) {
     drawSLCConfirmation(painter);
+  }
+
+  if (showLiveIcon) {
+    drawLiveStatusIcon(painter);
   }
 
   if (turnSignalAnimation && (turnSignalLeft || turnSignalRight) && !bigMapOpen && ((!mapOpen && standstillDuration == 0) || signalStyle != "static")) {
@@ -1352,6 +1357,18 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
     p.drawText(textRect, Qt::AlignCenter | Qt::TextWordWrap, roadName);
   }
 
+  p.restore();
+}
+
+void AnnotatedCameraWidget::drawLiveStatusIcon(QPainter &p) {
+  int radius = 20;
+  int x = width() - radius - 30;
+  int y = 60;
+  QColor color = bg_colors[status];
+  p.save();
+  p.setBrush(color);
+  p.setPen(Qt::NoPen);
+  p.drawEllipse(QPoint(x, y), radius, radius);
   p.restore();
 }
 

@@ -266,6 +266,7 @@ frogpilot_default_params: list[tuple[str, str | bytes]] = [
   ("RoadEdgesWidth", "2"),
   ("RoadNameUI", "1"),
   ("RotatingWheel", "1"),
+  ("LiveStatusIcon", "1"),
   ("ScreenBrightness", "101"),
   ("ScreenBrightnessOnroad", "101"),
   ("ScreenManagement", "1"),
@@ -519,6 +520,7 @@ class FrogPilotVariables:
     toggle.dynamic_pedals_on_ui = toggle.pedals_on_ui and self.params.get_bool("DynamicPedalsOnUI")
     toggle.static_pedals_on_ui = toggle.pedals_on_ui and self.params.get_bool("StaticPedalsOnUI")
     toggle.rotating_wheel = toggle.custom_ui and self.params.get_bool("RotatingWheel")
+    toggle.live_status_icon = toggle.custom_ui and self.params.get_bool("LiveStatusIcon")
 
     toggle.developer_ui = self.params.get_bool("DeveloperUI")
     toggle.border_metrics = toggle.developer_ui and self.params.get_bool("BorderMetrics")
@@ -824,6 +826,7 @@ class FrogPilotVariables:
       toggle.dynamic_pedals_on_ui = toggle.pedals_on_ui and self.default_frogpilot_toggles.DynamicPedalsOnUI
       toggle.static_pedals_on_ui = toggle.pedals_on_ui and self.default_frogpilot_toggles.StaticPedalsOnUI
       toggle.rotating_wheel = toggle.custom_ui and self.default_frogpilot_toggles.RotatingWheel
+      toggle.live_status_icon = toggle.custom_ui and self.default_frogpilot_toggles.LiveStatusIcon
 
       toggle.developer_ui = self.default_frogpilot_toggles.DeveloperUI
       toggle.border_metrics = toggle.developer_ui and self.default_frogpilot_toggles.BorderMetrics

@@ -569,6 +569,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"WD40LiveTorqueParameters", PERSISTENT},
     {"WD40Score", PERSISTENT | FROGPILOT_CONTROLS},
     {"WheelIcon", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_VISUALS},
+    {"LiveStatusIcon", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_VISUALS},
     {"WheelSpeed", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_VISUALS},
     {"WheelToDownload", PERSISTENT},
 };

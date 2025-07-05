@@ -93,6 +93,7 @@ private:
   void drawLeadInfo(QPainter &p);
   void drawSLCConfirmation(QPainter &p);
   void drawStatusBar(QPainter &p);
+  void drawLiveStatusIcon(QPainter &p);
   void drawTurnSignals(QPainter &p);
   void initializeFrogPilotWidgets();
   void paintFrogPilotWidgets(QPainter &painter);
@@ -122,6 +123,7 @@ private:
   bool mapOpen;
   bool onroadDistanceButton;
   bool roadNameUI;
+  bool showLiveIcon;
   bool showAlwaysOnLateralStatusBar;
   bool showConditionalExperimentalStatusBar;
   bool showSLCOffset;

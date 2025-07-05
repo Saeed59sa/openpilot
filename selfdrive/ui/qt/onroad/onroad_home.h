@@ -31,6 +31,7 @@ private:
   bool liveValid;
   bool showBlindspot;
   bool showFPS;
+  bool showLiveIcon;
   bool showJerk;
   bool showSignal;
   bool showSteering;

@@ -32,7 +32,7 @@ private:
 
   std::set<QString> customOnroadUIKeys = {
     "AccelerationPath", "AdjacentPath", "BlindSpotPath",
-    "Compass", "PedalsOnUI", "RotatingWheel"
+    "Compass", "PedalsOnUI", "RotatingWheel", "LiveStatusIcon"
   };
 
   std::set<QString> developerUIKeys = {

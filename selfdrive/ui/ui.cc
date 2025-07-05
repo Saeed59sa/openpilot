@@ -406,6 +406,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.screen_timeout_onroad = scene.frogpilot_toggles.value("screen_timeout_onroad").toDouble();
   scene.show_blind_spot = static_cast<bool>(scene.frogpilot_toggles.value("blind_spot_metrics").toBool());
   scene.show_fps = static_cast<bool>(scene.frogpilot_toggles.value("show_fps").toBool());
+  scene.show_live_status_icon = static_cast<bool>(scene.frogpilot_toggles.value("live_status_icon").toBool());
   scene.show_speed_limit_offset = static_cast<bool>(scene.frogpilot_toggles.value("show_speed_limit_offset").toBool());
   scene.show_stopping_point = static_cast<bool>(scene.frogpilot_toggles.value("show_stopping_point").toBool());
   scene.show_stopping_point_metrics = static_cast<bool>(scene.frogpilot_toggles.value("show_stopping_point_metrics").toBool());

@@ -48,7 +48,8 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     {"BlindSpotPath", tr("Blind Spot Path"), tr("Projects a red path when vehicles are detected in the blind spot for the respective lane."), ""},
     {"Compass", tr("Compass"), tr("Displays a compass to show the current driving direction."), ""},
     {"PedalsOnUI", tr("Gas / Brake Pedal Indicators"), tr("Displays pedal indicators to indicate when either of the pedals are currently being used."), ""},
-    {"RotatingWheel", tr("Rotating Steering Wheel"), tr("Rotates the steering wheel in the onroad UI rotates along with your steering wheel movements."), ""}
+    {"RotatingWheel", tr("Rotating Steering Wheel"), tr("Rotates the steering wheel in the onroad UI rotates along with your steering wheel movements."), ""},
+    {"LiveStatusIcon", tr("Live Status Icon"), tr("Displays a color-coded icon indicating the current system status near the speed display."), ""}
   };
 
   for (const auto &[param, title, desc, icon] : visualToggles) {

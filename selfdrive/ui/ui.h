@@ -191,6 +191,7 @@ typedef struct UIScene {
   bool screen_recorder;
   bool show_blind_spot;
   bool show_fps;
+  bool show_live_status_icon;
   bool show_speed_limit_offset;
   bool show_stopping_point;
   bool show_stopping_point_metrics;

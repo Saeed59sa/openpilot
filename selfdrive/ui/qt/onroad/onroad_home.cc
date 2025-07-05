@@ -95,6 +95,7 @@ void OnroadWindow::updateState(const UIState &s) {
   liveValid = scene.live_valid;
   showBlindspot = scene.show_blind_spot && (blindSpotLeft || blindSpotRight);
   showFPS = scene.show_fps;
+  showLiveIcon = scene.show_live_status_icon;
   showJerk = scene.jerk_metrics;
   showSignal = scene.signal_metrics && (turnSignalLeft || turnSignalRight);
   showSteering = scene.steering_metrics;
@@ -106,7 +107,7 @@ void OnroadWindow::updateState(const UIState &s) {
   turnSignalLeft = scene.turn_signal_left;
   turnSignalRight = scene.turn_signal_right;
 
-  if (showBlindspot || showFPS || (showJerk && hasLead) || showSignal || showSteering || showTuning) {
+  if (showBlindspot || showFPS || showLiveIcon || (showJerk && hasLead) || showSignal || showSteering || showTuning) {
     shouldUpdate = true;
   }
 
