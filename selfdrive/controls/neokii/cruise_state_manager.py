@@ -62,12 +62,7 @@ class CruiseStateManager:
       self.btn_count += 1
 
     for b in CS.buttonEvents:
-      if not b.pressed:
-        if self.btn_count > 0 and not self.btn_long_pressed:
-          btn = b.type
-        self.btn_long_pressed = False
-        self.btn_count = 0
-      elif b.pressed and self.btn_count == 0 and b.type in [
+      if b.pressed and self.btn_count == 0 and b.type in [
           ButtonType.accelCruise,
           ButtonType.decelCruise,
           ButtonType.gapAdjustCruise,
@@ -76,6 +71,11 @@ class CruiseStateManager:
         ]:
         self.btn_count = 1
         self.prev_btn = b.type
+      elif not b.pressed and self.btn_count > 0:
+        if not self.btn_long_pressed:
+          btn = b.type
+        self.btn_long_pressed = False
+        self.btn_count = 0
 
     if self.btn_count > CRUISE_LONG_PRESS:
       self.btn_long_pressed = True
@@ -115,9 +115,6 @@ class CruiseStateManager:
           self.enabled = True
           v_cruise_kph = max(np.clip(round(self.conv_to_clu(self.speed)), V_CRUISE_INITIAL, V_CRUISE_MAX),
                              round(self.conv_to_clu(CS.vEgoCluster)))
-
-          if road_limit_speed is not None and V_CRUISE_INITIAL < road_limit_speed < V_CRUISE_MAX:
-            v_cruise_kph = max(v_cruise_kph, road_limit_speed)
 
     if btn == ButtonType.gapAdjustCruise:
       #if not self.btn_long_pressed:
