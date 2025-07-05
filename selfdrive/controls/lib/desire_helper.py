@@ -49,20 +49,45 @@ class DesireHelper:
     # FrogPilot variables
     self.lane_change_completed = False
 
+    self.aalc_active = False
+    self.aalc_return_direction = LaneChangeDirection.none
+
     self.lane_change_wait_timer = 0.0
 
     self.turn_direction = TurnDirection.none
 
-  def update(self, carstate, lateral_active, lane_change_prob, frogpilotPlan, frogpilot_toggles):
+  def update(self, carstate, lateral_active, lane_change_prob, frogpilotPlan, frogpilot_toggles, radarstate=None):
     v_ego = carstate.vEgo
     one_blinker = carstate.leftBlinker != carstate.rightBlinker
+    if self.aalc_active:
+      one_blinker = True
     below_lane_change_speed = v_ego < frogpilot_toggles.minimum_lane_change_speed
 
+    lane_available_left = frogpilotPlan.laneWidthLeft >= frogpilot_toggles.lane_detection_width
+    lane_available_right = frogpilotPlan.laneWidthRight >= frogpilot_toggles.lane_detection_width
     if not (frogpilot_toggles.lane_detection and one_blinker) or below_lane_change_speed:
       lane_available = True
     else:
       desired_lane = frogpilotPlan.laneWidthLeft if carstate.leftBlinker else frogpilotPlan.laneWidthRight
       lane_available = desired_lane >= frogpilot_toggles.lane_detection_width
+
+    if radarstate is not None and frogpilot_toggles.aalc_enabled and not one_blinker and self.lane_change_state == LaneChangeState.off:
+      lead = radarstate.leadOne
+      if lead.status and v_ego > 80 * CV.KPH_TO_MS and (v_ego - lead.vLead) >= 15 * CV.KPH_TO_MS:
+        if lane_available_left and not carstate.leftBlindspot:
+          self.lane_change_state = LaneChangeState.preLaneChange
+          self.lane_change_direction = LaneChangeDirection.left
+          self.aalc_active = True
+          self.aalc_return_direction = LaneChangeDirection.right
+          self.lane_change_ll_prob = 1.0
+          self.lane_change_wait_timer = 0.0
+        elif lane_available_right and not carstate.rightBlindspot:
+          self.lane_change_state = LaneChangeState.preLaneChange
+          self.lane_change_direction = LaneChangeDirection.right
+          self.aalc_active = True
+          self.aalc_return_direction = LaneChangeDirection.left
+          self.lane_change_ll_prob = 1.0
+          self.lane_change_wait_timer = 0.0
 
     if not lateral_active or self.lane_change_timer > LANE_CHANGE_TIME_MAX:
       self.lane_change_state = LaneChangeState.off
@@ -96,7 +121,7 @@ class DesireHelper:
         if torque_applied:
           self.lane_change_wait_timer = frogpilot_toggles.lane_change_delay
 
-        torque_applied |= frogpilot_toggles.nudgeless
+        torque_applied |= frogpilot_toggles.nudgeless or self.aalc_active
 
         blindspot_detected = ((carstate.leftBlindspot and self.lane_change_direction == LaneChangeDirection.left) or
                               (carstate.rightBlindspot and self.lane_change_direction == LaneChangeDirection.right))
@@ -129,11 +154,23 @@ class DesireHelper:
             self.lane_change_state = LaneChangeState.preLaneChange
           else:
             self.lane_change_state = LaneChangeState.off
+            if self.aalc_active and self.aalc_return_direction != LaneChangeDirection.none:
+              if (self.aalc_return_direction == LaneChangeDirection.left and lane_available_left and not carstate.leftBlindspot) or \
+                 (self.aalc_return_direction == LaneChangeDirection.right and lane_available_right and not carstate.rightBlindspot):
+                self.lane_change_state = LaneChangeState.preLaneChange
+                self.lane_change_direction = self.aalc_return_direction
+                self.lane_change_ll_prob = 1.0
+                self.lane_change_wait_timer = 0.0
+                self.aalc_active = False
+                self.aalc_return_direction = LaneChangeDirection.none
 
     if self.lane_change_state in (LaneChangeState.off, LaneChangeState.preLaneChange):
       self.lane_change_timer = 0.0
     else:
       self.lane_change_timer += DT_MDL
+
+    if self.lane_change_state == LaneChangeState.off and self.aalc_return_direction == LaneChangeDirection.none:
+      self.aalc_active = False
 
     self.lane_change_completed &= one_blinker
     self.prev_one_blinker = one_blinker

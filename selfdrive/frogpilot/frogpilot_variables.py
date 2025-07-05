@@ -220,6 +220,7 @@ frogpilot_default_params: list[tuple[str, str | bytes]] = [
   ("NotreDameScore", "0"),
   ("NoUploads", "0"),
   ("NudgelessLaneChange", "0"),
+  ("AALCEnabled", "0"),
   ("NumericalTemp", "1"),
   ("OfflineMode", "1"),
   ("Offset1", "5"),
@@ -567,6 +568,7 @@ class FrogPilotVariables:
     toggle.lane_detection = toggle.lane_detection_width != 0
     toggle.minimum_lane_change_speed = self.params.get_int("MinimumLaneChangeSpeed") * speed_conversion if toggle.lane_change_customizations else LANE_CHANGE_SPEED_MIN
     toggle.nudgeless = toggle.lane_change_customizations and self.params.get_bool("NudgelessLaneChange")
+    toggle.aalc_enabled = self.params.get_bool("AALCEnabled")
     toggle.one_lane_change = toggle.lane_change_customizations and self.params.get_bool("OneLaneChange")
 
     toggle.lateral_tuning = self.params.get_bool("LateralTune")
@@ -871,6 +873,7 @@ class FrogPilotVariables:
       toggle.lane_detection = toggle.lane_detection_width != 0
       toggle.minimum_lane_change_speed = float(self.default_frogpilot_toggles.MinimumLaneChangeSpeed) * speed_conversion if toggle.lane_change_customizations else LANE_CHANGE_SPEED_MIN
       toggle.nudgeless = toggle.lane_change_customizations and self.default_frogpilot_toggles.NudgelessLaneChange
+      toggle.aalc_enabled = self.default_frogpilot_toggles.AALCEnabled
       toggle.one_lane_change = toggle.lane_change_customizations and self.default_frogpilot_toggles.OneLaneChange
 
       toggle.lateral_tuning = self.default_frogpilot_toggles.LateralTune
