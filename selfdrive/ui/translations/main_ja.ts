@@ -674,14 +674,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>FSDPilot Backups</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Manage your FSDPilot backups.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>BACKUP</source>
         <translation type="unfinished"></translation>
     </message>
@@ -759,6 +751,14 @@
     </message>
     <message>
         <source>Permanently deletes all stored driving footage and data from your device. Ideal for maintaining privacy or freeing up space.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FrogPilot Backups</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage your FrogPilot backups.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1167,6 +1167,14 @@ Deactivate only occurs with the &apos;Cruise Control&apos; button.</source>
     </message>
     <message>
         <source> seconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adaptive Lane Change</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatically changes lanes to pass slow vehicles and returns when clear.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2497,10 +2505,6 @@ DISENGAGE IMMEDIATELY, Driver Unresponsive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enables the famed &apos;Goat Scream&apos; that has brought both joy and anger to FSDPilot users all around the world!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Plays an alert when a traffic light changes from red to green.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2522,6 +2526,10 @@ DISENGAGE IMMEDIATELY, Driver Unresponsive</source>
     </message>
     <message>
         <source>Muted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables the famed &apos;Goat Scream&apos; that has brought both joy and anger to FrogPilot users all around the world!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2692,31 +2700,7 @@ DISENGAGE IMMEDIATELY, Driver Unresponsive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Changes out openpilot&apos;s color scheme.
-
-Want to submit your own color scheme? Share it in the &apos;custom-themes&apos; channel on the FSDPilot Discord!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Changes out openpilot&apos;s icon pack.
-
-Want to submit your own icons? Share them in the &apos;custom-themes&apos; channel on the FSDPilot Discord!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Changes out openpilot&apos;s sound effects.
-
-Want to submit your own sounds? Share them in the &apos;custom-themes&apos; channel on the FSDPilot Discord!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Enables a custom steering wheel icon in the top right of the screen.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enables themed turn signal animations.
-
-Want to submit your own animations? Share them in the &apos;custom-themes&apos; channel on the FSDPilot Discord!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2737,6 +2721,30 @@ Want to submit your own animations? Share them in the &apos;custom-themes&apos; 
     </message>
     <message>
         <source>Enter the text for the bottom half</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changes out openpilot&apos;s color scheme.
+
+Want to submit your own color scheme? Share it in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changes out openpilot&apos;s icon pack.
+
+Want to submit your own icons? Share them in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changes out openpilot&apos;s sound effects.
+
+Want to submit your own sounds? Share them in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables themed turn signal animations.
+
+Want to submit your own animations? Share them in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2901,10 +2909,6 @@ Want to submit your own animations? Share them in the &apos;custom-themes&apos; 
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>
-    <message>
-        <source>Custom FSDPilot widgets used in the onroad user interface.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Compass</source>
         <translation type="unfinished"></translation>
@@ -3445,6 +3449,10 @@ Default matches the MUTCD standard of 4 inches.</source>
 Default matches half of the MUTCD standard of 4 inches.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Custom FrogPilot widgets used in the onroad user interface.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InputDialog</name>
@@ -3835,15 +3843,7 @@ This may take up to a minute.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Welcome to FSDPilot! Since you&apos;re new to FSDPilot, the &apos;Basic&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Sounds good!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Since you&apos;re fairly new to FSDPilot, the &apos;Basic&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3851,11 +3851,19 @@ This may take up to a minute.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Since you&apos;re experienced with FSDPilot, the &apos;Standard&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <source>Welcome to FrogPilot! Since you&apos;re new to FrogPilot, the &apos;Basic&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Since you&apos;re very experienced with FSDPilot, the &apos;Advanced&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <source>Since you&apos;re fairly new to FrogPilot, the &apos;Basic&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Since you&apos;re experienced with FrogPilot, the &apos;Standard&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Since you&apos;re very experienced with FrogPilot, the &apos;Advanced&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

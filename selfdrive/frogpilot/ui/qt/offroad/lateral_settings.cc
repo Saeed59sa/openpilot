@@ -18,6 +18,10 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
 
     {"LaneChangeCustomizations", tr("Lane Change Settings"), tr("How openpilot handles lane changes."), "../frogpilot/assets/toggle_icons/icon_lane.png"},
     {"NudgelessLaneChange", tr("Automatic Lane Changes"), tr("Conducts lane changes without needing to touch the steering wheel upon turn signal activation."), ""},
+    {"AALCEnabled",
+     tr("Adaptive Lane Change"),
+     tr("Automatically changes lanes to pass slow vehicles and returns when clear."),
+     ""},
     {"LaneChangeTime", tr("Lane Change Delay"), tr("Delays lane changes by the set time to prevent sudden changes."), ""},
     {"LaneDetectionWidth", tr("Lane Width Requirement"), tr("Sets the minimum lane width for openpilot to detect a lane as a lane."), ""},
     {"MinimumLaneChangeSpeed", tr("Minimum Speed for Lane Change"), tr("Sets the minimum speed required for openpilot to perform a lane change."), ""},

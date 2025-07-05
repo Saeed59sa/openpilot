@@ -32,8 +32,8 @@ private:
   };
 
   std::set<QString> laneChangeKeys = {
-    "LaneChangeTime", "LaneDetectionWidth", "MinimumLaneChangeSpeed",
-    "NudgelessLaneChange", "OneLaneChange"
+    "AALCEnabled", "LaneChangeTime", "LaneDetectionWidth",
+    "MinimumLaneChangeSpeed", "NudgelessLaneChange", "OneLaneChange"
   };
 
   std::set<QString> lateralTuneKeys = {
