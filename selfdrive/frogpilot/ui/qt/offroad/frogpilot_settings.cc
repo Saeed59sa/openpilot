@@ -103,11 +103,11 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
   };
 
   std::vector<QString> descriptions = {
-    tr("Options to customize FrogPilot's sound alerts and notifications."),
-    tr("FrogPilot features that impact acceleration, braking, and steering."),
+    tr("Options to customize FSDPilot's sound alerts and notifications."),
+    tr("FSDPilot features that impact acceleration, braking, and steering."),
     tr("Offline maps downloader and 'Navigate On openpilot (NOO)' settings."),
-    tr("Tools and system utilities used to maintain and troubleshoot FrogPilot."),
-    tr("Options for customizing FrogPilot's themes, UI appearance, and onroad widgets."),
+    tr("Tools and system utilities used to maintain and troubleshoot FSDPilot."),
+    tr("Options for customizing FSDPilot's themes, UI appearance, and onroad widgets."),
     tr("Vehicle-specific settings and configurations for supported makes and models.")
   };
 

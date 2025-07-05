@@ -685,11 +685,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>FrogPilot Backups</source>
+        <source>FSDPilot Backups</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Manage your FrogPilot backups.</source>
+        <source>Manage your FSDPilot backups.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -733,7 +733,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Are you sure you want to restore this version of FrogPilot?</source>
+        <source>Are you sure you want to restore this version of FSDPilot?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2301,11 +2301,11 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Options to customize FrogPilot&apos;s sound alerts and notifications.</source>
+        <source>Options to customize FSDPilot&apos;s sound alerts and notifications.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>FrogPilot features that impact acceleration, braking, and steering.</source>
+        <source>FSDPilot features that impact acceleration, braking, and steering.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2313,11 +2313,11 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Tools and system utilities used to maintain and troubleshoot FrogPilot.</source>
+        <source>Tools and system utilities used to maintain and troubleshoot FSDPilot.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Options for customizing FrogPilot&apos;s themes, UI appearance, and onroad widgets.</source>
+        <source>Options for customizing FSDPilot&apos;s themes, UI appearance, and onroad widgets.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2508,7 +2508,7 @@ DISENGAGE IMMEDIATELY, Driver Unresponsive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enables the famed &apos;Goat Scream&apos; that has brought both joy and anger to FrogPilot users all around the world!</source>
+        <source>Enables the famed &apos;Goat Scream&apos; that has brought both joy and anger to FSDPilot users all around the world!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2705,19 +2705,19 @@ DISENGAGE IMMEDIATELY, Driver Unresponsive</source>
     <message>
         <source>Changes out openpilot&apos;s color scheme.
 
-Want to submit your own color scheme? Share it in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
+Want to submit your own color scheme? Share it in the &apos;custom-themes&apos; channel on the FSDPilot Discord!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Changes out openpilot&apos;s icon pack.
 
-Want to submit your own icons? Share them in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
+Want to submit your own icons? Share them in the &apos;custom-themes&apos; channel on the FSDPilot Discord!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Changes out openpilot&apos;s sound effects.
 
-Want to submit your own sounds? Share them in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
+Want to submit your own sounds? Share them in the &apos;custom-themes&apos; channel on the FSDPilot Discord!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2727,7 +2727,7 @@ Want to submit your own sounds? Share them in the &apos;custom-themes&apos; chan
     <message>
         <source>Enables themed turn signal animations.
 
-Want to submit your own animations? Share them in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
+Want to submit your own animations? Share them in the &apos;custom-themes&apos; channel on the FSDPilot Discord!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2913,7 +2913,7 @@ Want to submit your own animations? Share them in the &apos;custom-themes&apos; 
 <context>
     <name>FrogPilotVisualsPanel</name>
     <message>
-        <source>Custom FrogPilot widgets used in the onroad user interface.</source>
+        <source>Custom FSDPilot widgets used in the onroad user interface.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3772,7 +3772,7 @@ Default matches half of the MUTCD standard of 4 inches.</source>
         <translation>现在</translation>
     </message>
     <message>
-        <source>FrogPilot</source>
+        <source>FSDPilot</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3844,11 +3844,11 @@ This may take up to a minute.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>FrogPilot</source>
+        <source>FSDPilot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Welcome to FrogPilot! Since you&apos;re new to FrogPilot, the &apos;Basic&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <source>Welcome to FSDPilot! Since you&apos;re new to FSDPilot, the &apos;Basic&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3856,7 +3856,7 @@ This may take up to a minute.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Since you&apos;re fairly new to FrogPilot, the &apos;Basic&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <source>Since you&apos;re fairly new to FSDPilot, the &apos;Basic&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3864,11 +3864,11 @@ This may take up to a minute.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Since you&apos;re experienced with FrogPilot, the &apos;Standard&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <source>Since you&apos;re experienced with FSDPilot, the &apos;Standard&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Since you&apos;re very experienced with FrogPilot, the &apos;Advanced&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <source>Since you&apos;re very experienced with FSDPilot, the &apos;Advanced&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4168,11 +4168,11 @@ This may take up to a minute.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Automatically Update FrogPilot</source>
+        <source>Automatically Update FSDPilot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>FrogPilot will automatically update itself and it&apos;s assets when you&apos;re offroad and connected to Wi-Fi.</source>
+        <source>FSDPilot will automatically update itself and it&apos;s assets when you&apos;re offroad and connected to Wi-Fi.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4188,7 +4188,7 @@ This may take up to a minute.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Do you want to permanently delete any additional FrogPilot assets? This is 100% unrecoverable and includes backups, models, and long-term storage toggle settings for easy reinstalls.</source>
+        <source>Do you want to permanently delete any additional FSDPilot assets? This is 100% unrecoverable and includes backups, models, and long-term storage toggle settings for easy reinstalls.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

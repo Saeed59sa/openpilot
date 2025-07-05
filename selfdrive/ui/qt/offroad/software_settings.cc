@@ -30,8 +30,8 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   addItem(versionLbl);
 
   // automatic updates toggle
-  ParamControl *automaticUpdatesToggle = new ParamControl("AutomaticUpdates", tr("Automatically Update FrogPilot"),
-                                                       tr("FrogPilot will automatically update itself and it's assets when you're offroad and connected to Wi-Fi."), "");
+  ParamControl *automaticUpdatesToggle = new ParamControl("AutomaticUpdates", tr("Automatically Update FSDPilot"),
+                                                       tr("FSDPilot will automatically update itself and it's assets when you're offroad and connected to Wi-Fi."), "");
   connect(automaticUpdatesToggle, &ToggleControl::toggleFlipped, this, updateFrogPilotToggles);
   addItem(automaticUpdatesToggle);
 
@@ -91,7 +91,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   auto uninstallBtn = new ButtonControl(tr("Uninstall %1").arg(getBrand()), tr("UNINSTALL"));
   connect(uninstallBtn, &ButtonControl::clicked, [&]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to uninstall?"), tr("Uninstall"), this)) {
-      if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to permanently delete any additional FrogPilot assets? This is 100% unrecoverable and includes backups, models, and long-term storage toggle settings for easy reinstalls."), this, true)) {
+      if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to permanently delete any additional FSDPilot assets? This is 100% unrecoverable and includes backups, models, and long-term storage toggle settings for easy reinstalls."), this, true)) {
         std::system("rm -rf /data/backups");
         std::system("rm -rf /data/crashes");
         std::system("rm -rf /data/media/screen_recordings");

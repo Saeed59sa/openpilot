@@ -153,7 +153,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
     } else if (id == 2) {
       QString selection = MultiOptionDialog::getSelection(tr("Select a restore point"), backupNames, "", this);
       if (!selection.isEmpty()) {
-        if (ConfirmationDialog::confirm(tr("Are you sure you want to restore this version of FrogPilot?"), tr("Restore"), this)) {
+        if (ConfirmationDialog::confirm(tr("Are you sure you want to restore this version of FSDPilot?"), tr("Restore"), this)) {
           std::thread([=]() {
             device()->resetInteractiveTimeout(300);
 

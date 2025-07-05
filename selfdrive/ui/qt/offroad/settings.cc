@@ -459,7 +459,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     {tr("Network"), new Networking(this)},
     {tr("Toggles"), toggles},
     {tr("Software"), new SoftwarePanel(this)},
-    {tr("FrogPilot"), frogpilotSettingsWindow},
+    {tr("FSDPilot"), frogpilotSettingsWindow},
   };
 
   nav_btns = new QButtonGroup(this);

@@ -685,11 +685,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>FrogPilot Backups</source>
+        <source>FSDPilot Backups</source>
         <translation>النسخ الاحتياطية لـ FSDPilot</translation>
     </message>
     <message>
-        <source>Manage your FrogPilot backups.</source>
+        <source>Manage your FSDPilot backups.</source>
         <translation>إدارة النسخ الاحتياطية لـ FSDPilot.</translation>
     </message>
     <message>
@@ -733,7 +733,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Are you sure you want to restore this version of FrogPilot?</source>
+        <source>Are you sure you want to restore this version of FSDPilot?</source>
         <translation>هل أنت متأكد أنك تريد استعادة هذا الإصدار من FSDPilot؟</translation>
     </message>
     <message>
@@ -2305,27 +2305,27 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation>ضوابط المركبات</translation>
     </message>
     <message>
-        <source>Advanced FrogPilot features for more experienced users.</source>
+        <source>Advanced FSDPilot features for more experienced users.</source>
         <translation type="vanished">ميزات FSDPilot المتقدمة للمستخدمين الأكثر خبرة.</translation>
     </message>
     <message>
-        <source>Options to customize FrogPilot&apos;s sound alerts and notifications.</source>
+        <source>Options to customize FSDPilot&apos;s sound alerts and notifications.</source>
         <translation>خيارات لتخصيص تنبيهات وإشعارات الصوت لـ FSDPilot.</translation>
     </message>
     <message>
-        <source>FrogPilot features that impact acceleration, braking, and steering.</source>
-        <translation>ميزات FrogPilot التي تؤثر على التسارع والفرملة والتوجيه.</translation>
+        <source>FSDPilot features that impact acceleration, braking, and steering.</source>
+        <translation>ميزات FSDPilot التي تؤثر على التسارع والفرملة والتوجيه.</translation>
     </message>
     <message>
         <source>Offline maps downloader and &apos;Navigate On openpilot (NOO)&apos; settings.</source>
         <translation>تنزيل خرائط غير متصل و &quot;تنقل على OpenPilot (NOO)&quot;.</translation>
     </message>
     <message>
-        <source>Tools and system utilities used to maintain and troubleshoot FrogPilot.</source>
+        <source>Tools and system utilities used to maintain and troubleshoot FSDPilot.</source>
         <translation>أدوات ونوافذ نظام تُستخدم لصيانة واستكشاف أخطاء FSDPilot.</translation>
     </message>
     <message>
-        <source>Options for customizing FrogPilot&apos;s themes, UI appearance, and onroad widgets.</source>
+        <source>Options for customizing FSDPilot&apos;s themes, UI appearance, and onroad widgets.</source>
         <translation>خيارات لتخصيص سمات FSDPilot ومظهر الواجهة وعناصر القيادة.</translation>
     </message>
     <message>
@@ -2522,7 +2522,7 @@ DISENGAGE IMMEDIATELY, Driver Unresponsive</source>
         <translation>الماعز صراخ توجيه تنبيه مشبع</translation>
     </message>
     <message>
-        <source>Enable the famed &apos;Goat Scream&apos; that has brought both joy and anger to FrogPilot users all around the world!</source>
+        <source>Enable the famed &apos;Goat Scream&apos; that has brought both joy and anger to FSDPilot users all around the world!</source>
         <translation type="vanished">تمكين الصرخة الشهيرة &quot;صراخ الماعز&quot; التي جلبت الفرح والغضب لمستخدمي FSDPilot حول العالم!</translation>
     </message>
     <message>
@@ -2562,7 +2562,7 @@ DISENGAGE IMMEDIATELY, Driver Unresponsive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enables the famed &apos;Goat Scream&apos; that has brought both joy and anger to FrogPilot users all around the world!</source>
+        <source>Enables the famed &apos;Goat Scream&apos; that has brought both joy and anger to FSDPilot users all around the world!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2607,7 +2607,7 @@ DISENGAGE IMMEDIATELY, Driver Unresponsive</source>
     <message>
         <source>Themed color schemes.
 
-Want to submit your own color scheme? Share it in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
+Want to submit your own color scheme? Share it in the &apos;feature-request&apos; channel on the FSDPilot Discord!</source>
         <translation type="vanished">مخططات ألوان مخصصة.
 هل تريد تقديم مخطط الألوان الخاص بك؟ شاركه في قناة &quot;feature-request&quot; على خادم FSDPilot في ديسكورد!</translation>
     </message>
@@ -2618,7 +2618,7 @@ Want to submit your own color scheme? Share it in the &apos;feature-request&apos
     <message>
         <source>Themed icon packs.
 
-Want to submit your own icons? Share them in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
+Want to submit your own icons? Share them in the &apos;feature-request&apos; channel on the FSDPilot Discord!</source>
         <translation type="vanished">حزم أيقونات مخصصة.
 هل تريد تقديم أيقوناتك الخاصة؟ شاركها في قناة &quot;feature-request&quot; على خادم FSDPilot في ديسكورد!</translation>
     </message>
@@ -2629,7 +2629,7 @@ Want to submit your own icons? Share them in the &apos;feature-request&apos; cha
     <message>
         <source>Themed sound effects.
 
-Want to submit your own sounds? Share them in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
+Want to submit your own sounds? Share them in the &apos;feature-request&apos; channel on the FSDPilot Discord!</source>
         <translation type="vanished">مؤثرات صوتية مخصصة.
 هل تريد تقديم أصواتك الخاصة؟ شاركها في قناة &quot;feature-request&quot; على خادم FSDPilot في ديسكورد!</translation>
     </message>
@@ -2648,7 +2648,7 @@ Want to submit your own sounds? Share them in the &apos;feature-request&apos; ch
     <message>
         <source>Themed turn signal animations.
 
-Want to submit your own animations? Share them in the &apos;feature-request&apos; channel on the FrogPilot Discord!</source>
+Want to submit your own animations? Share them in the &apos;feature-request&apos; channel on the FSDPilot Discord!</source>
         <translation type="vanished">رسوم متحركة لإشارات الانعطاف مخصصة.
 هل تريد تقديم رسوماتك المتحركة الخاصة؟ شاركها في قناة &quot;feature-request&quot; على خادم FSDPilot في ديسكورد!</translation>
     </message>
@@ -2811,19 +2811,19 @@ Want to submit your own animations? Share them in the &apos;feature-request&apos
     <message>
         <source>Changes out openpilot&apos;s color scheme.
 
-Want to submit your own color scheme? Share it in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
+Want to submit your own color scheme? Share it in the &apos;custom-themes&apos; channel on the FSDPilot Discord!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Changes out openpilot&apos;s icon pack.
 
-Want to submit your own icons? Share them in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
+Want to submit your own icons? Share them in the &apos;custom-themes&apos; channel on the FSDPilot Discord!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Changes out openpilot&apos;s sound effects.
 
-Want to submit your own sounds? Share them in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
+Want to submit your own sounds? Share them in the &apos;custom-themes&apos; channel on the FSDPilot Discord!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2833,7 +2833,7 @@ Want to submit your own sounds? Share them in the &apos;custom-themes&apos; chan
     <message>
         <source>Enables themed turn signal animations.
 
-Want to submit your own animations? Share them in the &apos;custom-themes&apos; channel on the FrogPilot Discord!</source>
+Want to submit your own animations? Share them in the &apos;custom-themes&apos; channel on the FSDPilot Discord!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3059,7 +3059,7 @@ Want to submit your own animations? Share them in the &apos;custom-themes&apos; 
 <context>
     <name>FrogPilotVisualsPanel</name>
     <message>
-        <source>Custom FrogPilot widgets used in the onroad user interface.</source>
+        <source>Custom FSDPilot widgets used in the onroad user interface.</source>
         <translation>عناصر FSDPilot المخصصة المستخدمة في واجهة القيادة.</translation>
     </message>
     <message>
@@ -3938,7 +3938,7 @@ Default matches half of the MUTCD standard of 4 inches.</source>
         <translation>الآن</translation>
     </message>
     <message>
-        <source>FrogPilot</source>
+        <source>FSDPilot</source>
         <translation>FSDPilot</translation>
     </message>
 </context>
@@ -4010,11 +4010,11 @@ This may take up to a minute.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>FrogPilot</source>
+        <source>FSDPilot</source>
         <translation>FSDPilot</translation>
     </message>
     <message>
-        <source>Welcome to FrogPilot! Since you&apos;re new to FrogPilot, the &apos;Basic&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <source>Welcome to FSDPilot! Since you&apos;re new to FSDPilot, the &apos;Basic&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4022,7 +4022,7 @@ This may take up to a minute.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Since you&apos;re fairly new to FrogPilot, the &apos;Basic&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <source>Since you&apos;re fairly new to FSDPilot, the &apos;Basic&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4030,11 +4030,11 @@ This may take up to a minute.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Since you&apos;re experienced with FrogPilot, the &apos;Standard&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <source>Since you&apos;re experienced with FSDPilot, the &apos;Standard&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Since you&apos;re very experienced with FrogPilot, the &apos;Advanced&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
+        <source>Since you&apos;re very experienced with FSDPilot, the &apos;Advanced&apos; toggle preset has been applied, but you can change this at any time via the &apos;Customization Level&apos; button!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4334,15 +4334,15 @@ This may take up to a minute.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Automatically Update FrogPilot</source>
+        <source>Automatically Update FSDPilot</source>
         <translation>تحديث FSDPilot تلقائياً</translation>
     </message>
     <message>
-        <source>FrogPilot will automatically update itself and it&apos;s assets when you&apos;re offroad and connected to Wi-Fi.</source>
+        <source>FSDPilot will automatically update itself and it&apos;s assets when you&apos;re offroad and connected to Wi-Fi.</source>
         <translation>سيقوم FSDPilot بتحديث نفسه وموارده تلقائياً عند التوقف عن القيادة والاتصال بشبكة واي فاي.</translation>
     </message>
     <message>
-        <source>Do you want to permanently delete any additional FrogPilot assets? This is 100% unrecoverable and includes backups, downloaded models, themes, and long-term storage toggle settings for easy reinstalls.</source>
+        <source>Do you want to permanently delete any additional FSDPilot assets? This is 100% unrecoverable and includes backups, downloaded models, themes, and long-term storage toggle settings for easy reinstalls.</source>
         <translation type="vanished">هل تريد حذف أي ملفات إضافية لـ FSDPilot بشكل نهائي؟ هذا غير قابل للاسترجاع تماماً ويتضمن النسخ الاحتياطية والنماذج المحملة والسمات وإعدادات التخزين طويلة المدى لتسهيل إعادة التثبيت.</translation>
     </message>
     <message>
@@ -4358,7 +4358,7 @@ This may take up to a minute.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Do you want to permanently delete any additional FrogPilot assets? This is 100% unrecoverable and includes backups, models, and long-term storage toggle settings for easy reinstalls.</source>
+        <source>Do you want to permanently delete any additional FSDPilot assets? This is 100% unrecoverable and includes backups, models, and long-term storage toggle settings for easy reinstalls.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
