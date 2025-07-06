@@ -33,6 +33,7 @@ signals:
   void reviewTrainingGuide();
   void showDriverView();
   void expandToggleDescription(const QString &param);
+  void scrollToToggle(const QString &param);
 
 private:
   QPushButton *sidebar_alert_widget;
@@ -72,6 +73,7 @@ public:
 
 public slots:
   void expandToggleDescription(const QString &param);
+  void scrollToToggle(const QString &param);
 
 private slots:
   void updateState(const UIState &s);
