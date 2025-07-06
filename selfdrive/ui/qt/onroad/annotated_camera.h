@@ -133,6 +133,8 @@ private:
   bool turnSignalLeft;
   bool turnSignalRight;
   bool aalcActive;
+  enum AALCStatus {AALCOff=0, AALCWaiting, AALCChanging, AALCUnsafe};
+  AALCStatus aalcStatus = AALCOff;
   bool useStockColors;
   bool useSI;
   bool useViennaSLCSign;

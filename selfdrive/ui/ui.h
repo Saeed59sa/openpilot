@@ -234,6 +234,7 @@ typedef struct UIScene {
   float lane_line_width;
   float lane_width_left;
   float lane_width_right;
+  float lead_distance;
   float lat_accel;
   float lead_detection_probability;
   float path_edge_width;

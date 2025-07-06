@@ -8,6 +8,8 @@
 #include "selfdrive/ui/qt/onroad/buttons.h"
 #include "selfdrive/ui/qt/util.h"
 
+const float AALC_SPEED_MIN = 50.0f / 3.6f;  // 50 km/h in m/s
+
 // Window that shows camera view and variety of info drawn on top
 AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* parent) : fps_filter(UI_FREQ, 3, 1. / UI_FREQ), CameraWidget("camerad", type, true, parent) {
   pm = std::make_unique<PubMaster, const std::initializer_list<const char *>>({"uiDebug"});
@@ -908,6 +910,24 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
 
   laneDetectionWidth = scene.lane_detection_width;
 
+  // Determine AALC status
+  aalcStatus = AALCOff;
+  if (scene.aalc_enabled && scene.aalc_active) {
+    bool speed_ok = car_state.getVEgo() > AALC_SPEED_MIN;
+    bool lead_ok = scene.lead_distance < 30.0f;
+    bool lane_ok = scene.lane_line_probs[1] > 0.5f && scene.lane_line_probs[2] > 0.5f;
+    bool no_input = !(car_state.getSteeringPressed() || car_state.getBrakePressed());
+    auto lc_state = sm["modelV2"].getModelV2().getMeta().getLaneChangeState();
+
+    if (lc_state != 0) {
+      aalcStatus = AALCChanging;
+    } else if (speed_ok && lead_ok && lane_ok && no_input) {
+      aalcStatus = car_state.getLeftBlindspot() ? AALCUnsafe : AALCWaiting;
+    } else {
+      aalcStatus = AALCUnsafe;
+    }
+  }
+
   leadInfo = scene.lead_metrics;
   obstacleDistance = scene.obstacle_distance;
   obstacleDistanceStock = scene.obstacle_distance_stock;
@@ -988,11 +1008,20 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter) {
     drawSLCConfirmation(painter);
   }
 
-  if (aalcActive && !bigMapOpen) {
+  if (scene.aalc_enabled && scene.aalc_active && !bigMapOpen) {
     painter.save();
-    painter.setPen(Qt::white);
+    QColor c = Qt::blue;
+    QString text = tr("AALC: Waiting");
+    if (aalcStatus == AALCChanging) {
+      c = Qt::green;
+      text = tr("AALC: Changing");
+    } else if (aalcStatus == AALCUnsafe) {
+      c = Qt::red;
+      text = tr("AALC: Unsafe");
+    }
+    painter.setPen(c);
     painter.setFont(InterFont(40, QFont::Bold));
-    painter.drawText(QRect(0, 100, width(), 50), Qt::AlignHCenter, tr("AALC ACTIVE"));
+    painter.drawText(QRect(0, 100, width(), 50), Qt::AlignHCenter, text);
     painter.restore();
   }
 

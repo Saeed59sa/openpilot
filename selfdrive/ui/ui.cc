@@ -137,10 +137,14 @@ void update_model(UIState *s,
 
       if (scene.has_lead) {
         const float lead_d = lead_one.getX()[0] * 2.;
+        scene.lead_distance = lead_d;
         max_distance = std::clamp((float)(lead_d - fmin(lead_d * 0.35, 10.)), 0.0f, max_distance);
+      } else {
+        scene.lead_distance = 1000.0f;
       }
     } else {
       scene.has_lead = false;
+      scene.lead_distance = 1000.0f;
     }
   } else {
     auto lead_one = (*s->sm)["radarState"].getRadarState().getLeadOne();
@@ -148,7 +152,10 @@ void update_model(UIState *s,
 
     if (scene.has_lead) {
       const float lead_d = lead_one.getDRel() * 2.;
+      scene.lead_distance = lead_d;
       max_distance = std::clamp((float)(lead_d - fmin(lead_d * 0.35, 10.)), 0.0f, max_distance);
+    } else {
+      scene.lead_distance = 1000.0f;
     }
   }
   max_idx = get_path_length_idx(plan_position, max_distance);

@@ -332,7 +332,10 @@ def main(demo=False):
       l_lane_change_prob = desire_state[log.Desire.laneChangeLeft]
       r_lane_change_prob = desire_state[log.Desire.laneChangeRight]
       lane_change_prob = l_lane_change_prob + r_lane_change_prob
-      DH.update(sm['carState'], sm['carControl'].latActive, lane_change_prob, sm['frogpilotPlan'], frogpilot_toggles)
+      lane_prob = float(np.mean(model_output.get('lane_lines_prob', [[1,1,1,1]])[0][1:3]))
+      lead_one = sm['radarState'].getRadarState().getLeadOne()
+      lead_dist = lead_one.getDRel() if lead_one.getStatus() else 1000.0
+      DH.update(sm['carState'], sm['carControl'].latActive, lane_change_prob, sm['frogpilotPlan'], frogpilot_toggles, lane_prob, lead_dist)
       modelv2_send.modelV2.meta.laneChangeState = DH.lane_change_state
       modelv2_send.modelV2.meta.laneChangeDirection = DH.lane_change_direction
       modelv2_send.modelV2.meta.turnDirection = DH.turn_direction

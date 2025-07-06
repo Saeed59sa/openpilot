@@ -153,6 +153,7 @@ class LongitudinalPlanner:
 
     self.lead_one = Lead()
     self.lead_two = Lead()
+    self.lead_distance = 1000.0
 
     self.v_desired_trajectory = np.zeros(CONTROL_N)
     self.a_desired_trajectory = np.zeros(CONTROL_N)
@@ -255,6 +256,8 @@ class LongitudinalPlanner:
     else:
       self.lead_one = sm['radarState'].leadOne
       self.lead_two = sm['radarState'].leadTwo
+
+    self.lead_distance = self.lead_one.dRel if self.lead_one.status else 1000.0
 
     self.mpc.set_weights(sm['frogpilotPlan'].accelerationJerk, sm['frogpilotPlan'].dangerJerk, sm['frogpilotPlan'].speedJerk, prev_accel_constraint, personality=sm['controlsState'].personality)
     self.mpc.set_accel_limits(accel_limits_turns[0], accel_limits_turns[1])

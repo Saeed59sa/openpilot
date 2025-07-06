@@ -428,4 +428,8 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
 
     p.drawText(xPos, yPos, fpsDisplayString);
   }
+
+  // draw road edge boundaries
+  p.fillRect(rect.left(), rect.top(), 4, rect.height(), Qt::red);
+  p.fillRect(rect.right() - 4, rect.top(), 4, rect.height(), Qt::red);
 }
