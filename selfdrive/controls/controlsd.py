@@ -32,7 +32,7 @@ from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 from openpilot.system.hardware import HARDWARE
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_acceleration import get_max_allowed_accel
-from openpilot.selfdrive.frogpilot.frogpilot_variables import CRUISING_SPEED, NON_DRIVING_GEARS, get_frogpilot_toggles
+from openpilot.selfdrive.frogpilot.frogpilot_variables import NON_DRIVING_GEARS, get_frogpilot_toggles
 
 SOFT_DISABLE_TIME = 3  # seconds
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
@@ -158,6 +158,8 @@ class Controls:
     self.steer_limited = False
     self.desired_curvature = 0.0
     self.experimental_mode = False
+    self.hazard_end_frame = 0
+    self.hazard_active = False
     self.personality = self.read_personality_param()
     self.v_cruise_helper = VCruiseHelper(self.CP)
     self.recalibrating_seen = False
@@ -480,6 +482,8 @@ class Controls:
   def state_transition(self, CS):
     """Compute conditional state transitions and execute actions on state transitions"""
 
+    prev_state = self.state
+
     self.v_cruise_helper.update_v_cruise(CS, self.enabled, self.is_metric, self.sm['frogpilotPlan'].speedLimitChanged, self.frogpilot_toggles)
 
     # decrement the soft disable timer at every step, as it's reset on
@@ -564,6 +568,10 @@ class Controls:
     if self.active or self.always_on_lateral_active:
       self.current_alert_types.append(ET.WARNING)
 
+    if self.state == State.enabled and prev_state != State.enabled and self.params_memory.get_bool("HazardOnEngage"):
+      self.hazard_end_frame = self.sm.frame + int(2.0 / DT_CTRL)
+      self.hazard_active = True
+
   def state_control(self, CS):
     """Given the state, this function returns a CarControl packet"""
 
@@ -577,8 +585,14 @@ class Controls:
     if self.CP.lateralTuning.which() == 'torque':
       torque_params = self.sm['liveTorqueParameters']
       friction = self.frogpilot_toggles.steer_friction if self.frogpilot_toggles.use_custom_steer_friction else torque_params.frictionCoefficientFiltered
-      lat_accel_factor = self.frogpilot_toggles.steer_lat_accel_factor if self.frogpilot_toggles.use_custom_lat_accel_factor else torque_params.latAccelFactorFiltered
-      if self.sm.all_checks(['liveTorqueParameters']) and (torque_params.useParams or self.frogpilot_toggles.force_auto_tune) and not self.frogpilot_toggles.force_auto_tune_off:
+      lat_accel_factor = (
+        self.frogpilot_toggles.steer_lat_accel_factor
+        if self.frogpilot_toggles.use_custom_lat_accel_factor
+        else torque_params.latAccelFactorFiltered
+      )
+      if self.sm.all_checks(['liveTorqueParameters']) and (
+        torque_params.useParams or self.frogpilot_toggles.force_auto_tune
+      ) and not self.frogpilot_toggles.force_auto_tune_off:
         self.LaC.update_live_torque_params(lat_accel_factor, torque_params.latAccelOffsetFiltered,
                                            friction)
 
@@ -602,6 +616,13 @@ class Controls:
       CC.leftBlinker = model_v2.meta.laneChangeDirection == LaneChangeDirection.left
       CC.rightBlinker = model_v2.meta.laneChangeDirection == LaneChangeDirection.right
 
+    if self.hazard_active:
+      if self.sm.frame >= self.hazard_end_frame:
+        self.hazard_active = False
+      else:
+        CC.leftBlinker = True
+        CC.rightBlinker = True
+
     if CS.leftBlinker or CS.rightBlinker:
       self.last_blinker_frame = self.sm.frame
 
@@ -623,9 +644,15 @@ class Controls:
 
       if self.use_old_long:
         t_since_plan = (self.sm.frame - self.sm.recv_frame['longitudinalPlan']) * DT_CTRL
-        actuators.accel = self.LoC.update_old_long(CC.longActive, CS, long_plan, pid_accel_limits, t_since_plan)
+        actuators.accel = self.LoC.update_old_long(
+          CC.longActive, CS, long_plan, pid_accel_limits, t_since_plan
+        )
       else:
-        actuators.accel = self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop or self.sm['frogpilotPlan'].forcingStopLength <= 0, pid_accel_limits)
+        actuators.accel = self.LoC.update(
+          CC.longActive, CS, long_plan.aTarget,
+          long_plan.shouldStop or self.sm['frogpilotPlan'].forcingStopLength <= 0,
+          pid_accel_limits,
+        )
 
       if len(long_plan.speeds):
         actuators.speed = long_plan.speeds[-1]

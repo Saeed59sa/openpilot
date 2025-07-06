@@ -1,4 +1,7 @@
 #include "selfdrive/frogpilot/ui/qt/offroad/device_settings.h"
+#include <map>
+#include <tuple>
+#include <vector>
 
 FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> deviceToggles {
@@ -9,6 +12,7 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     {"LowVoltageShutdown", tr("Low Battery Shutdown Threshold"), tr("Manages the threshold for shutting down the device to protect the car's battery from excessive drain and potential damage."), ""},
     {"NoLogging", tr("Turn Off Data Tracking"), tr("Disables all data tracking to improve privacy."), ""},
     {"NoUploads", tr("Turn Off Data Uploads"), tr("Stops the device from sending any data to the servers."), ""},
+    {"HazardOnEngage", tr("Flash Hazards On Engage"), tr("Automatically flash the hazard lights when openpilot engages."), ""},
 
     {"ScreenManagement", tr("Screen Settings"), tr("Screen behavior settings."), "../frogpilot/assets/toggle_icons/icon_light.png"},
     {"ScreenBrightness", tr("Screen Brightness (Offroad)"), tr("Controls the screen brightness when you're not driving."), ""},
@@ -47,6 +51,8 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
       std::vector<QString> uploadsToggles{"DisableOnroadUploads"};
       std::vector<QString> uploadsToggleNames{tr("Only Onroad")};
       deviceToggle = new FrogPilotButtonToggleControl(param, title, desc, uploadsToggles, uploadsToggleNames);
+    } else if (param == "HazardOnEngage") {
+      deviceToggle = new ParamControl(param, title, desc, icon);
     } else if (param == "LowVoltageShutdown") {
       deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, 11.8, 12.5, tr(" volts"), std::map<int, QString>(), 0.01);
 

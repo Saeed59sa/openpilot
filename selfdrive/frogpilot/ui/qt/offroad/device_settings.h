@@ -1,6 +1,7 @@
 #pragma once
 
 #include <set>
+#include <map>
 
 #include "selfdrive/frogpilot/ui/qt/offroad/frogpilot_settings.h"
 
@@ -21,7 +22,7 @@ private:
 
   std::set<QString> deviceManagementKeys = {
     "DeviceShutdown", "IncreaseThermalLimits", "LowVoltageShutdown",
-    "NoLogging", "NoUploads", "OfflineMode"
+    "NoLogging", "NoUploads", "OfflineMode", "HazardOnEngage"
   };
 
   std::set<QString> screenKeys = {
