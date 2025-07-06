@@ -52,6 +52,7 @@ class FrogPilotPlanner:
     v_cruise = min(controlsState.vCruise, V_CRUISE_UNSET) * CV.KPH_TO_MS
     v_ego = max(carState.vEgo, 0)
     v_lead = self.lead_one.vLead
+    self.slower_lead = self.lead_one.status and (v_ego - v_lead) >= 15 * CV.KPH_TO_MS
 
     self.frogpilot_acceleration.update(controlsState, frogpilotCarState, v_cruise, v_ego, frogpilot_toggles)
 
@@ -138,6 +139,8 @@ class FrogPilotPlanner:
     frogpilotPlan.slcSpeedLimitOffset = self.frogpilot_vcruise.slc.offset
     frogpilotPlan.speedLimitChanged = self.frogpilot_vcruise.speed_limit_changed
     frogpilotPlan.unconfirmedSlcSpeedLimit = self.frogpilot_vcruise.slc.desired_speed_limit
+
+    frogpilotPlan.aalcActive = self.slower_lead
 
     frogpilotPlan.togglesUpdated = toggles_updated
 

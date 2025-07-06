@@ -302,6 +302,7 @@ static void update_state(UIState *s) {
     scene.stopped_equivalence = frogpilotPlan.getStoppedEquivalenceFactor();
     scene.unconfirmed_speed_limit = frogpilotPlan.getUnconfirmedSlcSpeedLimit();
     scene.vtsc_controlling_curve = frogpilotPlan.getVtscControllingCurve();
+    scene.aalc_active = frogpilotPlan.getAalcActive();
     if (frogpilotPlan.getTogglesUpdated()) {
       scene.frogpilot_toggles = QJsonDocument::fromJson(QString::fromStdString(params.get("FrogPilotToggles")).toUtf8()).object();
       ui_update_params(uiState());
@@ -423,6 +424,8 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.storage_left_metrics = static_cast<bool>(scene.frogpilot_toggles.value("storage_left_metrics").toBool());
   scene.storage_used_metrics = static_cast<bool>(scene.frogpilot_toggles.value("storage_used_metrics").toBool());
   scene.tethering_config = scene.frogpilot_toggles.value("tethering_config").toDouble();
+  scene.aalc_enabled = static_cast<bool>(scene.frogpilot_toggles.value("aalc_enabled").toBool());
+  scene.aalc_stay_left = static_cast<bool>(scene.frogpilot_toggles.value("aalc_stay_left").toBool());
   scene.unlimited_road_ui_length = static_cast<bool>(scene.frogpilot_toggles.value("unlimited_road_ui_length").toBool());
   scene.use_si_metrics = static_cast<bool>(scene.frogpilot_toggles.value("use_si_metrics").toBool());
   scene.use_stock_colors = static_cast<bool>(scene.frogpilot_toggles.value("color_scheme").toString() == "stock");

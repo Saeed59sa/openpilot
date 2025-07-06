@@ -132,6 +132,7 @@ private:
   bool turnSignalAnimation;
   bool turnSignalLeft;
   bool turnSignalRight;
+  bool aalcActive;
   bool useStockColors;
   bool useSI;
   bool useViennaSLCSign;

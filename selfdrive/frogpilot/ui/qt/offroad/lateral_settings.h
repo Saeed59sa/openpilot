@@ -1,6 +1,7 @@
 #pragma once
 
 #include <set>
+#include <map>
 
 #include "selfdrive/frogpilot/ui/qt/offroad/frogpilot_settings.h"
 
@@ -33,7 +34,7 @@ private:
 
   std::set<QString> laneChangeKeys = {
     "LaneChangeTime", "LaneDetectionWidth", "MinimumLaneChangeSpeed",
-    "NudgelessLaneChange", "OneLaneChange"
+    "NudgelessLaneChange", "OneLaneChange", "AALCEnabled", "AALCStayLeft"
   };
 
   std::set<QString> lateralTuneKeys = {

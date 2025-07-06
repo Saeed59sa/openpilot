@@ -85,6 +85,7 @@ FrogPilot offers a wide range of customizable features that are easily toggled o
   - Force comma's auto tuning for unsupported vehicles
   - Lateral control won't disengage on gas or brake
   - Nudgeless lane changes with lane detection to prevent driving into curbs or going offroad
+  - Automatic Adaptive Lane Change (AALC) for safe overtakes with optional stay-left behavior
   - Pause lateral control when below a set speed
   - Pause lateral control when pressing the brake
   - Pause lateral control when turn signals are active

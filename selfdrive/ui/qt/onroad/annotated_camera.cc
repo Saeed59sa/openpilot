@@ -871,6 +871,7 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
   alertHeight = alert_height;
 
   alwaysOnLateralActive = scene.always_on_lateral_active;
+  aalcActive = scene.aalc_active;
   showAlwaysOnLateralStatusBar = scene.aol_status_bar;
 
   blindSpotLeft = scene.blind_spot_left;
@@ -985,6 +986,14 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter) {
 
   if (speedLimitChanged) {
     drawSLCConfirmation(painter);
+  }
+
+  if (aalcActive && !bigMapOpen) {
+    painter.save();
+    painter.setPen(Qt::white);
+    painter.setFont(InterFont(40, QFont::Bold));
+    painter.drawText(QRect(0, 100, width(), 50), Qt::AlignHCenter, tr("AALC ACTIVE"));
+    painter.restore();
   }
 
   if (turnSignalAnimation && (turnSignalLeft || turnSignalRight) && !bigMapOpen && ((!mapOpen && standstillDuration == 0) || signalStyle != "static")) {
