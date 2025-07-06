@@ -104,7 +104,7 @@ class CruiseStateManager:
         if btn == ButtonType.accelCruise:
           v_cruise_kph += (v_cruise_delta - v_cruise_kph % v_cruise_delta)
         elif btn == ButtonType.decelCruise:
-          v_cruise_kph -= (v_cruise_delta - ((-v_cruise_kph) % v_cruise_delta)) % v_cruise_delta
+          v_cruise_kph -= (v_cruise_delta - (-v_cruise_kph) % v_cruise_delta)
     elif not self.enabled and self.available and CS.gearShifter != GearShifter.park:
       if not self.btn_long_pressed:
         if btn == ButtonType.decelCruise:
