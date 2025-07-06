@@ -141,6 +141,7 @@ class FrogPilotPlanner:
     frogpilotPlan.unconfirmedSlcSpeedLimit = self.frogpilot_vcruise.slc.desired_speed_limit
 
     frogpilotPlan.aalcActive = self.slower_lead
+    frogpilotPlan.leadDistance = float(self.lead_one.dRel)
 
     frogpilotPlan.togglesUpdated = toggles_updated
 

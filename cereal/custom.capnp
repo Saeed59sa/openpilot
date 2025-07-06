@@ -78,6 +78,7 @@ struct FrogPilotPlan @0x80ae746ee2596b11 {
   vCruise @28 :Float32;
   vtscControllingCurve @29 :Bool;
   aalcActive @30 :Bool;
+  leadDistance @31 :Float32;
 }
 
 struct CustomReserved5 @0xa5cd762cd951a455 {

@@ -1,6 +1,7 @@
 from cereal import log
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.realtime import DT_MDL
+import random
 
 LaneChangeState = log.LaneChangeState
 LaneChangeDirection = log.LaneChangeDirection
@@ -54,7 +55,6 @@ class DesireHelper:
     self.turn_direction = TurnDirection.none
     self.aalc_active = False
     self.aalc_timer = 0.0
-    self.aalc_active = False
 
   def update(self, carstate, lateral_active, lane_change_prob, frogpilotPlan, frogpilot_toggles):
     v_ego = carstate.vEgo
@@ -67,7 +67,16 @@ class DesireHelper:
       desired_lane = frogpilotPlan.laneWidthLeft if carstate.leftBlinker else frogpilotPlan.laneWidthRight
       lane_available = desired_lane >= frogpilot_toggles.lane_detection_width
 
-    aalc_trigger = frogpilot_toggles.aalc_enabled and frogpilotPlan.aalcActive and lane_available
+
+    lead_distance = frogpilotPlan.leadDistance
+    blindspot_clear = not ((carstate.leftBlindspot and carstate.leftBlinker) or
+                           (carstate.rightBlindspot and carstate.rightBlinker))
+    speed_ok = v_ego > 50 * CV.KPH_TO_MS
+    no_manual = not carstate.steeringPressed and not carstate.brakePressed
+    lanes_valid = frogpilotPlan.laneWidthLeft > 2.5 and frogpilotPlan.laneWidthRight > 2.5
+
+    aalc_trigger = (frogpilot_toggles.aalc_enabled and frogpilotPlan.aalcActive and lane_available
+                    and lead_distance < 30 and blindspot_clear and speed_ok and no_manual and lanes_valid)
     if aalc_trigger and self.lane_change_state == LaneChangeState.off:
       self.lane_change_state = LaneChangeState.laneChangeStarting
       self.lane_change_direction = LaneChangeDirection.left
@@ -139,7 +148,7 @@ class DesireHelper:
           else:
             self.lane_change_state = LaneChangeState.off
           if self.aalc_active:
-            self.aalc_timer = 10.0
+            self.aalc_timer = random.uniform(2.0, 5.0)
             self.aalc_active = False
 
     if self.lane_change_state in (LaneChangeState.off, LaneChangeState.preLaneChange):
@@ -153,9 +162,12 @@ class DesireHelper:
     if self.aalc_timer > 0.0:
       self.aalc_timer = max(0.0, self.aalc_timer - DT_MDL)
       if self.aalc_timer == 0.0 and not frogpilot_toggles.aalc_stay_left:
-        self.lane_change_state = LaneChangeState.preLaneChange
-        self.lane_change_direction = LaneChangeDirection.right
-        self.lane_change_ll_prob = 1.0
+        if not carstate.rightBlindspot:
+          self.lane_change_state = LaneChangeState.preLaneChange
+          self.lane_change_direction = LaneChangeDirection.right
+          self.lane_change_ll_prob = 1.0
+        else:
+          self.aalc_timer = 1.0
 
     if self.turn_direction != TurnDirection.none:
       self.desire = TURN_DESIRES[self.turn_direction]
