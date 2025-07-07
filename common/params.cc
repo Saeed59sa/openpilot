@@ -390,6 +390,8 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"MapSpeedLimit", PERSISTENT},
     {"MapStyle", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_VISUALS},
     {"MapTargetVelocities", PERSISTENT},
+    {"MaxCtrlSpeedOffset", PERSISTENT},
+    {"MaxCtrlSpeedUsage", PERSISTENT},
     {"MaxDesiredAcceleration", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_CONTROLS},
     {"MinimumBackupSize", PERSISTENT},
     {"MinimumLaneChangeSpeed", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_CONTROLS},

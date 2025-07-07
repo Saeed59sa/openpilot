@@ -28,8 +28,6 @@ ButtonType = car.CarState.ButtonEvent.Type
 FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 GearShifter = car.CarState.GearShifter
 EventName = car.CarEvent.EventName
-
-MAX_CTRL_SPEED = (V_CRUISE_MAX + 4) * CV.KPH_TO_MS
 ACCEL_MAX = 2.0
 ACCEL_MIN = -3.5
 FRICTION_THRESHOLD = 0.3
@@ -229,6 +227,13 @@ class CarInterfaceBase(ABC):
 
     self.params = Params()
     self.params_memory = Params("/dev/shm/params")
+    if self.params.get("MaxCtrlSpeedOffset") is None:
+      self.params.put_int("MaxCtrlSpeedOffset", 10)
+    if self.params.get("MaxCtrlSpeedUsage") is None:
+      self.params.put_int("MaxCtrlSpeedUsage", 0)
+    self.max_ctrl_speed = (V_CRUISE_MAX + 10) * CV.KPH_TO_MS
+    self.max_ctrl_speed_usage = self.params.get_int("MaxCtrlSpeedUsage")
+    self.max_ctrl_speed_timer = 0.0
 
     eps_firmware = str(next((fw.fwVersion for fw in CP.carFw if fw.ecu == "eps"), ""))
 
@@ -392,6 +397,20 @@ class CarInterfaceBase(ABC):
     pass
 
   def update(self, c: car.CarControl, can_strings: list[bytes], frogpilot_toggles) -> car.CarState:
+    offset_kph = self.params.get_int("MaxCtrlSpeedOffset")
+    if offset_kph <= 0:
+      offset_kph = 10
+    offset_kph = clip(offset_kph, 0, 10)
+    self.max_ctrl_speed = (V_CRUISE_MAX + offset_kph) * CV.KPH_TO_MS
+
+    if c.enabled:
+      self.max_ctrl_speed_timer += DT_CTRL
+      if self.max_ctrl_speed_timer >= 1.0:
+        self.max_ctrl_speed_timer = 0.0
+        self.max_ctrl_speed_usage += 1
+        self.params.put_int_nonblocking("MaxCtrlSpeedUsage", self.max_ctrl_speed_usage)
+        if self.max_ctrl_speed_usage % 3600 == 0 and offset_kph < 10:
+          self.params.put_int_nonblocking("MaxCtrlSpeedOffset", min(offset_kph + 1, 10))
     # parse can
     for cp in self.can_parsers:
       if cp is not None:
@@ -452,7 +471,7 @@ class CarInterfaceBase(ABC):
       events.add(EventName.stockFcw)
     if cs_out.stockAeb:
       events.add(EventName.stockAeb)
-    if cs_out.vEgo > MAX_CTRL_SPEED:
+    if cs_out.vEgo > self.max_ctrl_speed:
       events.add(EventName.speedTooHigh)
     if cs_out.cruiseState.nonAdaptive:
       events.add(EventName.wrongCruiseMode)
