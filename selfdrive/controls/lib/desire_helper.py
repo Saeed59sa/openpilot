@@ -55,6 +55,7 @@ class DesireHelper:
     self.turn_direction = TurnDirection.none
     self.aalc_active = False
     self.aalc_timer = 0.0
+    self.aalc_delay_timer = 0.0
 
   def update(self, carstate, lateral_active, lane_change_prob, frogpilotPlan, frogpilot_toggles):
     v_ego = carstate.vEgo
@@ -78,9 +79,17 @@ class DesireHelper:
     aalc_trigger = (frogpilot_toggles.aalc_enabled and frogpilotPlan.aalcActive and lane_available
                     and lead_distance < 30 and blindspot_clear and speed_ok and no_manual and lanes_valid)
     if aalc_trigger and self.lane_change_state == LaneChangeState.off:
-      self.lane_change_state = LaneChangeState.laneChangeStarting
-      self.lane_change_direction = LaneChangeDirection.left
-      self.aalc_active = True
+      if self.aalc_delay_timer == 0.0:
+        self.aalc_delay_timer = 10.0
+        self.aalc_active = True
+      else:
+        self.aalc_delay_timer = max(0.0, self.aalc_delay_timer - DT_MDL)
+        if self.aalc_delay_timer == 0.0:
+          self.lane_change_state = LaneChangeState.laneChangeStarting
+          self.lane_change_direction = LaneChangeDirection.left
+    else:
+      self.aalc_delay_timer = 0.0
+      self.aalc_active = False
 
     if not lateral_active or self.lane_change_timer > LANE_CHANGE_TIME_MAX:
       self.lane_change_state = LaneChangeState.off

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QVBoxLayout>
+#include <QElapsedTimer>
 #include <memory>
 
 #include "selfdrive/ui/qt/onroad/buttons.h"
@@ -133,6 +134,8 @@ private:
   bool turnSignalLeft;
   bool turnSignalRight;
   bool aalcActive;
+  double aalcCountdown;
+  QElapsedTimer aalcTimer;
   bool useStockColors;
   bool useSI;
   bool useViennaSLCSign;
