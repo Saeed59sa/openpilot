@@ -98,6 +98,8 @@ class CarState(CarStateBase):
     self.SET_X_3 = cam_cp.vl["FSM3"]["SET_X_3"]
     self.SET_X_4 = cam_cp.vl["FSM3"]["SET_X_4"]
     self.SET_X_5 = cam_cp.vl["FSM3"]["SET_X_5"]
+    # Debug purpose
+    #self.ACC_AccelerationRequest = cam_cp.vl["FSM3"]["ACC_AccelerationRequest"]
 
     self.frame += 1
     return ret, ret_sp
