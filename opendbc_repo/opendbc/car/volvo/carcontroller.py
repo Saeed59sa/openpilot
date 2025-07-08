@@ -86,7 +86,7 @@ class CarController(CarControllerBase):
 
     # Longitudinal control
     if self.CP.openpilotLongitudinalControl:
-      accel = float(np.clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)) * 10
+      accel = float(np.clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)) * 25
       can_sends.append(create_longitudinal(self.packer_pt, accel, CS.SET_X_01, CS.SET_X_02, CS.SET_X_2, CS.SET_X_3, CS.SET_X_4, CS.SET_X_5))
       # Debug purpose
       #can_sends.append(create_longitudinal(self.packer_pt, CS.ACC_AccelerationRequest, CS.SET_X_01, CS.SET_X_02, CS.SET_X_2, CS.SET_X_3, CS.SET_X_4, CS.SET_X_5))
