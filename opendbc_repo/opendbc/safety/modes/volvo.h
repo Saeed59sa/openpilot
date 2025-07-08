@@ -83,8 +83,8 @@ static bool volvo_tx_hook(const CANPacket_t *to_send) {
   //};
 
   const LongitudinalLimits VOLVO_LONG_LIMITS = {
-    .max_accel = 100,
-    .min_accel = -100,
+    .max_accel = 2,
+    .min_accel = -3,
     .inactive_accel = 0,
   };
 
