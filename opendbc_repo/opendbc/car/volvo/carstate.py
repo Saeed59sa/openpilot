@@ -92,14 +92,13 @@ class CarState(CarStateBase):
     self.pscm_stock_values = pt_cp.vl["PSCM1"]
 
     # Messages forwarded for oplong
-    self.SET_X_01 = cam_cp.vl["FSM3"]["SET_X_01"]
-    self.SET_X_02 = cam_cp.vl["FSM3"]["SET_X_02"]
-    self.SET_X_2 = cam_cp.vl["FSM3"]["SET_X_2"]
-    self.SET_X_3 = cam_cp.vl["FSM3"]["SET_X_3"]
-    self.SET_X_4 = cam_cp.vl["FSM3"]["SET_X_4"]
-    self.SET_X_5 = cam_cp.vl["FSM3"]["SET_X_5"]
-    # Debug purpose
-    #self.ACC_AccelerationRequest = cam_cp.vl["FSM3"]["ACC_AccelerationRequest"]
+    self.Byte_01 = cam_cp.vl["FSM3"]["Byte_01"]
+    self.Byte_02 = cam_cp.vl["FSM3"]["Byte_02"]
+    self.Byte_2 = cam_cp.vl["FSM3"]["Byte_2"]
+    self.Byte_3 = cam_cp.vl["FSM3"]["Byte_3"]
+    self.Byte_4 = cam_cp.vl["FSM3"]["Byte_4"]
+    self.Byte_5 = cam_cp.vl["FSM3"]["Byte_5"]
+    self.ACC_Check = cam_cp.vl["FSM3"]["ACC_Check"]
 
     self.frame += 1
     return ret, ret_sp

@@ -155,14 +155,14 @@ BO_ 612 Accessories_03: 8 XXX
 
 BO_ 624 FSM3: 8 FSM
  SG_ ACC_Standstill : 0|1@0+ (1,0) [0|1] "" XXX
- SG_ SET_X_02 : 1|1@0+ (1,0) [0|1] "" XXX
+ SG_ Byte_02 : 1|1@0+ (1,0) [0|1] "" XXX
  SG_ ACC_Check : 2|1@0+ (1,0) [0|1] "" XXX
- SG_ SET_X_01 : 7|5@0+ (1,0) [0|31] "" XXX
+ SG_ Byte_01 : 7|5@0+ (1,0) [0|31] "" XXX
  SG_ ACC_AccelerationRequest : 15|8@0+ (0.03,-3.78) [0|255] "" XXX
- SG_ SET_X_2 : 23|8@0+ (1,0) [0|255] "" XXX
- SG_ SET_X_3 : 31|8@0+ (1,0) [0|255] "" XXX
- SG_ SET_X_4 : 39|8@0+ (1,0) [0|255] "" XXX
- SG_ SET_X_5 : 47|8@0+ (1,0) [0|255] "" XXX
+ SG_ Byte_2 : 23|8@0+ (1,0) [0|255] "" XXX
+ SG_ Byte_3 : 31|8@0+ (1,0) [0|255] "" XXX
+ SG_ Byte_4 : 39|8@0+ (1,0) [0|255] "" XXX
+ SG_ Byte_5 : 47|8@0+ (1,0) [0|255] "" XXX
 
 BO_ 648 BrakePedal: 8 XXX
  SG_ Counter : 0|3@1+ (1,0) [0|6] "" XXX
