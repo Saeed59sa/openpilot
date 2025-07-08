@@ -1,9 +1,10 @@
+import numpy as np
 from opendbc.can.packer import CANPacker
 from openpilot.common.realtime import DT_CTRL
 from opendbc.car import Bus, apply_std_steer_angle_limits
 from opendbc.car.interfaces import CarControllerBase
-from opendbc.car.volvo import volvocan
 from opendbc.car.volvo.values import CANBUS, CarControllerParams, SteerDirection
+from opendbc.car.volvo.volvocan import create_button_msg, create_lka_msg, create_lkas_state_msg, create_acc_state_msg, create_longitudinal
 
 
 class CarController(CarControllerBase):
@@ -37,7 +38,7 @@ class CarController(CarControllerBase):
     # Cancel ACC if engaged when OP is not, but only above minimum steering speed.
     # TODO: is this check needed? it might trying to fix broken standstill behavior
     if pcm_cancel_cmd and CS.out.vEgo > self.CP.minSteerSpeed:
-      can_sends.append(volvocan.create_button_msg(self.packer_pt, cancel=True))
+      can_sends.append(create_button_msg(self.packer_pt, cancel=True))
 
     # run at 50hz
     if self.frame % 2 == 0:
@@ -73,7 +74,7 @@ class CarController(CarControllerBase):
         apply_steer = 0
         apply_steer_dir = SteerDirection.NONE
 
-      can_sends.append(volvocan.create_lka_msg(self.packer_pt, apply_steer, int(apply_steer_dir)))
+      can_sends.append(create_lka_msg(self.packer_pt, apply_steer, int(apply_steer_dir)))
 
       self.apply_steer_prev = apply_steer
       self.apply_steer_dir_prev = apply_steer_dir
@@ -81,7 +82,14 @@ class CarController(CarControllerBase):
 
       # Manipulate data from servo to FSM
       # Avoids faults that will stop servo from accepting steering commands.
-      can_sends.append(volvocan.create_lkas_state_msg(self.packer_pt, CS.out.steeringAngleDeg, CS.pscm_stock_values))
+      can_sends.append(create_lkas_state_msg(self.packer_pt, CS.out.steeringAngleDeg, CS.pscm_stock_values))
+
+    # Longitudinal control
+    if self.CP.openpilotLongitudinalControl:
+      accel = float(np.clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX))
+      can_sends.append(create_longitudinal(self.packer_pt, accel, CC.enabled))
+    else:
+      interface_status = None
 
     # SNG
     # wait 100 cycles since last resume sent
@@ -92,8 +100,8 @@ class CarController(CarControllerBase):
         self.sng_count = 0
       if CS.out.cruiseState.enabled and CS.out.cruiseState.standstill and CS.out.vEgo < 0.01 and self.waiting and CS.acc_distance > self.distance:
         # send 25 messages at a time to increases the likelihood of resume being accepted
-        can_sends.extend([volvocan.create_button_msg(self.packer_pt, resume=True)] * 25)
-        can_sends.extend([volvocan.create_acc_state_msg(self.packer_pt)] * 25)
+        can_sends.extend([create_button_msg(self.packer_pt, resume=True)] * 25)
+        can_sends.extend([create_acc_state_msg(self.packer_pt)] * 25)
         self.sng_count += 1
       # disable sending resume after 5 cycles sent or if no more in standstill
       if self.waiting and (self.sng_count >= 5 or not CS.out.cruiseState.standstill):

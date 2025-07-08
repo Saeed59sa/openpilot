@@ -21,7 +21,7 @@ static const CanMsg VOLVO_EUCD_TX_MSGS[] = {
     {VOLVO_EUCD_CCButtons, VOLVO_MAIN_BUS, 8, .check_relay = false},
     {VOLVO_EUCD_PSCM1,     VOLVO_CAM_BUS,  8, .check_relay = true},
     {VOLVO_EUCD_FSM2,      VOLVO_MAIN_BUS, 8, .check_relay = true},
-    {VOLVO_EUCD_FSM3,      VOLVO_MAIN_BUS, 8, .check_relay = false}
+    {VOLVO_EUCD_FSM3,      VOLVO_MAIN_BUS, 8, .check_relay = true}
   };
 
   // TODO: add counters
@@ -82,6 +82,12 @@ static bool volvo_tx_hook(const CANPacket_t *to_send) {
   //  },
   //};
 
+  const LongitudinalLimits VOLVO_LONG_LIMITS = {
+    .max_accel = 2,
+    .min_accel = -3,
+    .inactive_accel = 0,
+  };
+
   bool tx = true;
   int addr = GET_ADDR(to_send);
   bool violation = false;
@@ -104,6 +110,14 @@ static bool volvo_tx_hook(const CANPacket_t *to_send) {
       violation = true;
     }
   }
+
+  // Longitudinal control
+    if (addr == VOLVO_EUCD_FSM3) {
+      int raw_accel = GET_BYTE(to_send, 1) - 126;
+      if (longitudinal_accel_checks(raw_accel, VOLVO_LONG_LIMITS)) {
+        tx = false;
+      }
+    }
 
   if (violation) {
     tx = false;

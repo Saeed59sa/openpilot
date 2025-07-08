@@ -23,9 +23,13 @@ class CarInterface(CarInterfaceBase):
     ret.radarUnavailable = True
 
     ret.steerControlType = car.CarParams.SteerControlType.angle
-
     ret.steerActuatorDelay = 0.2
     ret.steerLimitTimer = 0.8
+
+    ret.openpilotLongitudinalControl = True
+    ret.longitudinalActuatorDelay = 0.35
+    ret.vEgoStopping = 0.25
+    ret.stopAccel = 0
 
     return ret
 

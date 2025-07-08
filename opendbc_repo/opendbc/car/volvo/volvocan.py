@@ -60,9 +60,17 @@ def create_lka_msg(packer, apply_steer: float, steer_direction: int):
     "SET_X_10": 0x10, # Test 0x10, 0x1c, 0x18, 0x00
     "SET_X_A4": 0xa7, # Test 0xa4, 0xa6, 0xa5, 0xe5, 0xe7
   }
+  
 
   # calculate checksum
   dat = packer.make_can_msg("FSM2", 0, values)[1]
   values["Checksum"] = calculate_lka_checksum(dat)
 
   return packer.make_can_msg("FSM2", 0, values)
+
+def create_longitudinal(packer, accel, enabled):
+  values = {
+    "ACC_AccelerationRequest": accel if enabled else 0,
+  }
+
+  return packer.make_can_msg("FSM3", 0, values)
