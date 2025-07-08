@@ -87,10 +87,8 @@ class CarController(CarControllerBase):
     # Longitudinal control
     if self.CP.openpilotLongitudinalControl:
       accel = float(np.clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX))
-      can_sends.append(create_longitudinal(self.packer_pt, accel, CC.enabled))
-    else:
-      interface_status = None
-
+      can_sends.append(create_longitudinal(self.packer_pt, accel, CS.SET_X_01, CS.SET_X_02, CS.SET_X_2, CS.SET_X_3, CS.SET_X_4, CS.SET_X_5))
+    
     # SNG
     # wait 100 cycles since last resume sent
     if (self.frame - self.last_resume_frame) * DT_CTRL > 1.00:
