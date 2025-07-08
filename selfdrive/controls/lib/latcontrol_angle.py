@@ -19,7 +19,7 @@ class LatControlAngle(LatControl):
     self.filter_speed_matrox = [0, 2.5, 8.3, 13.8, 22.22]
     self.filter_alpha_matrix = [0.05, 0.1, 0.3, 0.6, 1]
 
-  def update(self, active, CS, VM, params, steer_limited_by_controls, desired_curvature, calibrated_pose, curvature_limited):
+  def update(self, active, CS, VM, params, steer_limited_by_controls, desired_curvature, curvature_limited):
     angle_log = log.ControlsState.LateralAngleState.new_message()
 
     if not active:
@@ -40,7 +40,7 @@ class LatControlAngle(LatControl):
     else:
       # for cars which use a method of limiting torque such as a torque signal (Nissan and Toyota)
       # or relying on EPS (Ford Q3), carOutput does not capture maxing out torque  # TODO: this can be improved
-     angle_control_saturated = abs(angle_steers_des - CS.steeringAngleDeg) > STEER_ANGLE_SATURATION_THRESHOLD
+      angle_control_saturated = abs(angle_steers_des - CS.steeringAngleDeg) > STEER_ANGLE_SATURATION_THRESHOLD
     angle_log.saturated = bool(self._check_saturation(angle_control_saturated, CS, False, curvature_limited))
     angle_log.steeringAngleDeg = float(CS.steeringAngleDeg)
     angle_log.steeringAngleDesiredDeg = float(angle_steers_des)
