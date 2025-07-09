@@ -113,7 +113,7 @@ static bool volvo_tx_hook(const CANPacket_t *to_send) {
 
   // Longitudinal control
     if (addr == VOLVO_EUCD_FSM3) {
-      float raw_accel = GET_BYTE(to_send, 1) * 0.04 - 5.04;
+      float raw_accel = (GET_BYTE(to_send, 1) * 0.04) - 5.04;
       if (longitudinal_accel_checks(raw_accel, VOLVO_LONG_LIMITS)) {
         tx = false;
       }
