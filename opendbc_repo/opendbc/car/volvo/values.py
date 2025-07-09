@@ -75,7 +75,7 @@ class CarControllerParams:
   # unwind by itself.
   DEADZONE = 0.2
 
-  ACCEL_MIN = -3.0  # m/s^2
+  ACCEL_MIN = -4.0  # m/s^2
   ACCEL_MAX = 2.0  # m/s^2
 
   def __init__(self, CP):
