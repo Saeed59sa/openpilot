@@ -106,6 +106,7 @@ Pipfile
 .history
 .ionide
 opendbc_repo/opendbc/safety/tests/libsafety/*
+opendbc_repo/opendbc/safety/tests/libsafety/safety.gcda
 msgq_repo/*
 rednose_repo/*
 teleoprtc_repo/*
