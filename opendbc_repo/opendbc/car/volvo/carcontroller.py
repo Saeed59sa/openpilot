@@ -28,7 +28,6 @@ class CarController(CarControllerBase):
     self.distance = 0
     self.waiting = False
     self.sng_count = 0
-    self.acc_check = 1
 
   def update(self, CC, CC_SP, CS, now_nanos):
     can_sends = []
@@ -88,7 +87,9 @@ class CarController(CarControllerBase):
     # Longitudinal control
     if self.CP.openpilotLongitudinalControl:
       accel = float(np.clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX))
-      can_sends.append(create_longitudinal(self.packer_pt, accel, CS.ACC_Check, CS.Byte_01, CS.Byte_02, CS.Byte_2, CS.Byte_3, CS.Byte_4, CS.Byte_5))
+      can_sends.append(create_longitudinal(self.packer_pt, accel, CS.SET_X_01, CS.SET_X_02, CS.SET_X_2, CS.SET_X_3, CS.SET_X_4, CS.SET_X_5))
+      # Debug purpose
+      #can_sends.append(create_longitudinal(self.packer_pt, CS.ACC_AccelerationRequest, CS.SET_X_01, CS.SET_X_02, CS.SET_X_2, CS.SET_X_3, CS.SET_X_4, CS.SET_X_5))
     
     # SNG
     # wait 100 cycles since last resume sent
@@ -97,10 +98,10 @@ class CarController(CarControllerBase):
         self.distance = CS.acc_distance
         self.waiting = True
         self.sng_count = 0
-      if CS.out.cruiseState.enabled and CS.out.cruiseState.standstill and CS.out.vEgo < 0.01 and self.waiting:
+      if CS.out.cruiseState.enabled and CS.out.cruiseState.standstill and CS.out.vEgo < 0.01 and self.waiting and CS.acc_distance > self.distance:
         # send 25 messages at a time to increases the likelihood of resume being accepted
         can_sends.extend([create_button_msg(self.packer_pt, resume=True)] * 25)
-        can_sends.extend([create_longitudinal(self.packer_pt, accel, self.acc_check, CS.Byte_01, CS.Byte_02, CS.Byte_2, CS.Byte_3, CS.Byte_4, CS.Byte_5)])
+        can_sends.extend([create_acc_state_msg(self.packer_pt)] * 25)
         self.sng_count += 1
       # disable sending resume after 5 cycles sent or if no more in standstill
       if self.waiting and (self.sng_count >= 5 or not CS.out.cruiseState.standstill):
