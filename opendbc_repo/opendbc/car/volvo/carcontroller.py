@@ -93,7 +93,7 @@ class CarController(CarControllerBase):
     # SNG
     # wait 100 cycles since last resume sent
     if (self.frame - self.last_resume_frame) * DT_CTRL > 1.00:
-      if CS.out.cruiseState.enabled and CS.out.cruiseState.standstill and CS.out.vEgo < 0.01 and not self.waiting and 0>1:
+      if CS.out.cruiseState.enabled and CS.out.cruiseState.standstill and CS.out.vEgo < 0.01 and not self.waiting:
         self.distance = CS.acc_distance
         self.waiting = True
         self.sng_count = 0
