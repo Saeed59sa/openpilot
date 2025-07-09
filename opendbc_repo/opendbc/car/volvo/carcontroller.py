@@ -95,10 +95,10 @@ class CarController(CarControllerBase):
     if (self.frame - self.last_resume_frame) * DT_CTRL > 1.00:
       if CS.out.cruiseState.enabled and CS.out.cruiseState.standstill and CS.out.vEgo < 0.01 and not self.waiting:
         #self.distance = CS.acc_distance
-        self.accel_status = accel
+        #self.accel_status = accel
         self.waiting = True
         self.sng_count = 0
-      if CS.out.cruiseState.enabled and CS.out.cruiseState.standstill and CS.out.vEgo < 0.01 and self.waiting and accel > self.accel_status:
+      if CS.out.cruiseState.enabled and CS.out.cruiseState.standstill and CS.out.vEgo < 0.01 and self.waiting and accel > 0.1:
         # send 25 messages at a time to increases the likelihood of resume being accepted
         can_sends.extend([create_button_msg(self.packer_pt, resume=True)] * 25)
         can_sends.extend([create_longitudinal(self.packer_pt, accel, self.acc_check, CS.Byte_01, CS.Byte_02, CS.Byte_2, CS.Byte_3, CS.Byte_4, CS.Byte_5)] * 25)
