@@ -4,7 +4,7 @@ from openpilot.common.realtime import DT_CTRL
 from opendbc.car import Bus, apply_std_steer_angle_limits
 from opendbc.car.interfaces import CarControllerBase
 from opendbc.car.volvo.values import CANBUS, CarControllerParams, SteerDirection
-from opendbc.car.volvo.volvocan import create_button_msg, create_lka_msg, create_lkas_state_msg, create_longitudinal
+from opendbc.car.volvo.volvocan import create_button_msg, create_lka_msg, create_lkas_state_msg, create_acc_state_msg, create_longitudinal
 
 
 class CarController(CarControllerBase):
