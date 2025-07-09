@@ -92,13 +92,14 @@ class CarState(CarStateBase):
     self.pscm_stock_values = pt_cp.vl["PSCM1"]
 
     # Messages forwarded for oplong
+    self.ACC_Check = cam_cp.vl["FSM3"]["ACC_Check"]
     self.Byte_01 = cam_cp.vl["FSM3"]["Byte_01"]
     self.Byte_02 = cam_cp.vl["FSM3"]["Byte_02"]
     self.Byte_2 = cam_cp.vl["FSM3"]["Byte_2"]
     self.Byte_3 = cam_cp.vl["FSM3"]["Byte_3"]
     self.Byte_4 = cam_cp.vl["FSM3"]["Byte_4"]
     self.Byte_5 = cam_cp.vl["FSM3"]["Byte_5"]
-    
+        
     self.frame += 1
     return ret, ret_sp
 

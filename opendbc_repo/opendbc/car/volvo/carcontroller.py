@@ -4,7 +4,7 @@ from openpilot.common.realtime import DT_CTRL
 from opendbc.car import Bus, apply_std_steer_angle_limits
 from opendbc.car.interfaces import CarControllerBase
 from opendbc.car.volvo.values import CANBUS, CarControllerParams, SteerDirection
-from opendbc.car.volvo.volvocan import create_button_msg, create_lka_msg, create_lkas_state_msg, create_acc_state_msg, create_longitudinal
+from opendbc.car.volvo.volvocan import create_button_msg, create_lka_msg, create_lkas_state_msg, create_longitudinal
 
 
 class CarController(CarControllerBase):
@@ -87,7 +87,7 @@ class CarController(CarControllerBase):
     # Longitudinal control
     if self.CP.openpilotLongitudinalControl:
       accel = float(np.clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX))
-      can_sends.append(create_longitudinal(self.packer_pt, accel, CS.Byte_01, CS.Byte_02, CS.Byte_2, CS.Byte_3, CS.Byte_4, CS.Byte_5))
+      can_sends.append(create_longitudinal(self.packer_pt, accel, CS.ACC_Check, CS.Byte_01, CS.Byte_02, CS.Byte_2, CS.Byte_3, CS.Byte_4, CS.Byte_5))
     
     # SNG
     # wait 100 cycles since last resume sent
@@ -99,7 +99,7 @@ class CarController(CarControllerBase):
       if CS.out.cruiseState.enabled and CS.out.cruiseState.standstill and CS.out.vEgo < 0.01 and self.waiting and CS.acc_distance > self.distance:
         # send 25 messages at a time to increases the likelihood of resume being accepted
         can_sends.extend([create_button_msg(self.packer_pt, resume=True)] * 25)
-        can_sends.extend([create_acc_state_msg(self.packer_pt)] * 25)
+        can_sends.extend([create_longitudinal(self.packer_pt, acc_check=1)] * 25)
         self.sng_count += 1
       # disable sending resume after 5 cycles sent or if no more in standstill
       if self.waiting and (self.sng_count >= 5 or not CS.out.cruiseState.standstill):

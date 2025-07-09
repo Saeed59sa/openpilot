@@ -9,11 +9,11 @@ def create_button_msg(packer, resume=False, cancel=False, bus=0):
   return packer.make_can_msg("CCButtons", bus, msg)
 
 
-def create_acc_state_msg(packer):
-  msg = {
-    "ACC_Check": 1,
-  }
-  return packer.make_can_msg("FSM3", 0, msg)
+#def create_acc_state_msg(packer):
+#  msg = {
+#    "ACC_Check": 1,
+#  }
+#  return packer.make_can_msg("FSM3", 0, msg)
 
 
 def create_lkas_state_msg(packer, steering_angle: float, stock_values: dict):
@@ -68,9 +68,10 @@ def create_lka_msg(packer, apply_steer: float, steer_direction: int):
 
   return packer.make_can_msg("FSM2", 0, values)
 
-def create_longitudinal(packer, accel, byte_01, byte_02, byte_2, byte_3, byte_4, byte_5):
+def create_longitudinal(packer, accel, acc_check, byte_01, byte_02, byte_2, byte_3, byte_4, byte_5):
   values = {
     "ACC_AccelerationRequest": accel,
+    "ACC_Check": acc_check,
     "Byte_01": byte_01,
     "Byte_02": byte_02,
     "Byte_2": byte_2,
