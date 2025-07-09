@@ -68,15 +68,15 @@ def create_lka_msg(packer, apply_steer: float, steer_direction: int):
 
   return packer.make_can_msg("FSM2", 0, values)
 
-def create_longitudinal(packer, accel, set_x_01, set_x_02, set_x_2, set_x_3, set_x_4, set_x_5):
+def create_longitudinal(packer, accel, byte_01, byte_02, byte_2, byte_3, byte_4, byte_5):
   values = {
     "ACC_AccelerationRequest": accel,
-    "SET_X_01": set_x_01,
-    "SET_X_02": set_x_02,
-    "SET_X_2": set_x_2,
-    "SET_X_3": set_x_3,
-    "SET_X_4": set_x_4,
-    "SET_X_5": set_x_5,
+    "Byte_01": byte_01,
+    "Byte_02": byte_02,
+    "Byte_2": byte_2,
+    "Byte_3": byte_3,
+    "Byte_4": byte_4,
+    "Byte_5": byte_5,
   }
 
   return packer.make_can_msg("FSM3", 0, values)

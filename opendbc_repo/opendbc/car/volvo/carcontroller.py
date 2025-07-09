@@ -87,9 +87,7 @@ class CarController(CarControllerBase):
     # Longitudinal control
     if self.CP.openpilotLongitudinalControl:
       accel = float(np.clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX))
-      can_sends.append(create_longitudinal(self.packer_pt, accel, CS.SET_X_01, CS.SET_X_02, CS.SET_X_2, CS.SET_X_3, CS.SET_X_4, CS.SET_X_5))
-      # Debug purpose
-      #can_sends.append(create_longitudinal(self.packer_pt, CS.ACC_AccelerationRequest, CS.SET_X_01, CS.SET_X_02, CS.SET_X_2, CS.SET_X_3, CS.SET_X_4, CS.SET_X_5))
+      can_sends.append(create_longitudinal(self.packer_pt, accel, CS.Byte_01, CS.Byte_02, CS.Byte_2, CS.Byte_3, CS.Byte_4, CS.Byte_5))
     
     # SNG
     # wait 100 cycles since last resume sent
