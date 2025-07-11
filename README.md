@@ -179,6 +179,16 @@ DO NOT install the "FrogPilot-Development" branch. I'm constantly breaking thing
 
 ![](https://i.imgur.com/swr0kqJ.png)
 
+Voice Assistant
+------
+
+FrogPilot now includes an optional offline voice assistant. A USB microphone is required. Download the [vosk-model-small-en-us-0.15](https://alphacephei.com/vosk/models) model and extract it to `/data/vosk-model-small-en-us-0.15` on the device. Enable the feature by setting the `VoiceAssistantEnabled` parameter to `1`.
+
+Supported commands:
+`start system`, `stop system`, `increase speed`, `decrease speed`, `turn left`, `turn right`, `status check`, `microphone check`, and `log check`.
+
+All actions and warnings are logged to `/data/voice_commands.log`.
+
 Bug reports / Feature Requests
 ------
 
