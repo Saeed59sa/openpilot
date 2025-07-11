@@ -21,7 +21,7 @@ from openpilot.selfdrive.pandad import can_capnp_to_list, can_list_to_can_capnp
 from openpilot.selfdrive.car.cruise import VCruiseHelper
 from openpilot.selfdrive.car.car_specific import MockCarState
 
-from openpilot.selfdrive.controls.neokii.speed_controller import SpeedController
+from openpilot.selfdrive.controls.neokii.cruise_controller import CruiseController
 
 REPLAY = "REPLAY" in os.environ
 
@@ -161,7 +161,7 @@ class Car:
     # card is driven by can recv, expected at 100Hz
     self.rk = Ratekeeper(100, print_delay_threshold=None)
 
-    self.speed_controller = SpeedController(self.CP, self.CI)
+    self.cruise_controller = CruiseController(self.CP, self.CI)
 
   def state_update(self) -> tuple[car.CarState, structs.RadarDataT | None]:
     """carState update loop, driven by can"""
@@ -197,10 +197,10 @@ class Car:
     #CS.vCruise = float(self.v_cruise_helper.v_cruise_kph)
     #CS.vCruiseCluster = float(self.v_cruise_helper.v_cruise_cluster_kph)
 
-    # neokii speed controller
-    self.speed_controller.update_v_cruise(CS, self.sm, self.sm['carControl'].enabled)
-    CS.vCruise = float(self.speed_controller.cruise_speed_kph)
-    CS.vCruiseCluster = float(self.speed_controller.real_set_speed_kph)
+    # neokii cruise controller
+    self.cruise_controller.update_v_cruise(CS, self.sm, self.sm['carControl'].enabled)
+    CS.vCruise = float(self.cruise_controller.cruise_speed_kph)
+    CS.vCruiseCluster = float(self.cruise_controller.real_set_speed_kph)
 
     return CS, RD
 
@@ -248,7 +248,7 @@ class Car:
       # send car controls over can
       now_nanos = self.can_log_mono_time if REPLAY else int(time.monotonic() * 1e9)
       self.last_actuators_output, can_sends = self.CI.apply(CC, now_nanos)
-      self.speed_controller.spam_message(CS, can_sends)
+      self.cruise_controller.spam_message(CS, can_sends)
       self.pm.send('sendcan', can_list_to_can_capnp(can_sends, msgtype='sendcan', valid=CS.canValid))
 
       self.CC_prev = CC
