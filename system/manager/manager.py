@@ -70,7 +70,8 @@ def manager_init() -> None:
     ("RecordFront", "0"),
     ("SshEnabled", "0"),
     ("TetheringEnabled", "0"),
-    ("LongitudinalPersonality", str(log.LongitudinalPersonality.standard))
+    ("LongitudinalPersonality", str(log.LongitudinalPersonality.standard)),
+    ("VoiceAssistantEnabled", "0")
   ]
   if not PC:
     default_params.append(("LastUpdateTime", datetime.datetime.utcnow().isoformat().encode('utf8')))

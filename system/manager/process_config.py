@@ -54,6 +54,9 @@ def run_classic_modeld(started, params, CP: car.CarParams, classic_model, frogpi
 def run_new_modeld(started, params, CP: car.CarParams, classic_model, frogpilot_toggles) -> bool:
   return started and not classic_model
 
+def voice_assistant_enabled(started, params, CP: car.CarParams, classic_model, frogpilot_toggles) -> bool:
+  return params.get_bool("VoiceAssistantEnabled")
+
 procs = [
   DaemonProcess("manage_athenad", "system.athena.manage_athenad", "AthenadPid"),
 
@@ -107,6 +110,7 @@ procs = [
   PythonProcess("fleet_manager", "selfdrive.frogpilot.fleetmanager.fleet_manager", always_run),
   PythonProcess("frogpilot_process", "selfdrive.frogpilot.frogpilot_process", always_run),
   PythonProcess("mapd", "selfdrive.frogpilot.navigation.mapd", always_run),
+  PythonProcess("voice_assistant", "selfdrive.voice.local_voice_assistant", voice_assistant_enabled),
 ]
 
 managed_processes = {p.name: p for p in procs}
