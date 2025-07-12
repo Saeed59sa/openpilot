@@ -10,20 +10,55 @@ from openpilot.common.params import Params
 
 REQUIRED_PACKAGES = ["vosk", "sounddevice", "numpy", "pyttsx3"]
 
-# Auto install missing packages
-for pkg in REQUIRED_PACKAGES:
-    if importlib.util.find_spec(pkg) is None:
-        print(f"Installing required package: {pkg}...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", pkg])
+
+def ensure_packages() -> None:
+    """Install required Python packages if missing."""
+    for pkg in REQUIRED_PACKAGES:
+        if importlib.util.find_spec(pkg) is None:
+            print(f"Installing required package: {pkg}...")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", pkg])
+            print(f"Python package {pkg} installed.")
+        else:
+            print(f"Python package {pkg} already installed.")
+
+
+def ensure_espeak() -> None:
+    """Check for espeak/espeak-ng and install on Debian-based systems."""
+    for cmd in ("espeak", "espeak-ng"):
+        if subprocess.call(["which", cmd], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0:
+            print("Checking for espeak... Found.")
+            return
+    print("espeak not found. Installing...")
+    if os.path.exists("/etc/debian_version"):
+        try:
+            subprocess.check_call(["sudo", "apt-get", "install", "-y", "espeak"])
+            print("espeak installed.")
+        except Exception as e:
+            print(f"Failed to install espeak: {e}")
+    else:
+        print("Unsupported OS. Please install 'espeak' manually.")
+
+
+ensure_packages()
+ensure_espeak()
 
 import sounddevice as sd  # type: ignore
 import numpy as np  # type: ignore
 from vosk import Model, KaldiRecognizer  # type: ignore
-import pyttsx3  # type: ignore
+
+try:
+    import pyttsx3  # type: ignore
+    TTS_AVAILABLE = True
+except Exception:
+    TTS_AVAILABLE = False
+    print("TTS unavailable. Continuing without voice feedback.")
 
 LOG_PATH = "/data/voice_commands.log"
 logging.basicConfig(filename=LOG_PATH, level=logging.INFO,
                     format="%(asctime)s %(message)s")
+
+if not TTS_AVAILABLE:
+    logging.error("TTS unavailable. Continuing without voice feedback.")
 
 MODEL_PATH = os.getenv("VOICE_MODEL_PATH", "/data/vosk-model-small-en-us-0.15")
 SAMPLE_RATE = 16000
@@ -32,12 +67,17 @@ params = Params()
 
 
 def speak(text: str) -> None:
+    global TTS_AVAILABLE
+    if not TTS_AVAILABLE:
+        return
     try:
         engine = pyttsx3.init()
         engine.say(text)
         engine.runAndWait()
     except Exception as e:
         logging.error("TTS error: %s", e)
+        TTS_AVAILABLE = False
+        print("TTS unavailable. Continuing without voice feedback.")
 
 
 def check_microphone() -> bool:
