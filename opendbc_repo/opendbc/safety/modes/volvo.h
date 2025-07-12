@@ -83,8 +83,8 @@ static bool volvo_tx_hook(const CANPacket_t *to_send) {
   //};
 
   const LongitudinalLimits VOLVO_LONG_LIMITS = {
-    .max_accel = 2,
-    .min_accel = -4,
+    .max_accel = 176,// +2.0 m/sˆ2
+    .min_accel = 26, // -4.0 m/sˆ2
     .inactive_accel = 0,
   };
 
@@ -113,7 +113,7 @@ static bool volvo_tx_hook(const CANPacket_t *to_send) {
 
   // Longitudinal control
     if (addr == VOLVO_EUCD_FSM3) {
-      float raw_accel = (GET_BYTE(to_send, 1) * 0.04) - 5.04;
+      int raw_accel = GET_BYTE(to_send, 1);
       if (longitudinal_accel_checks(raw_accel, VOLVO_LONG_LIMITS)) {
         tx = false;
       }
