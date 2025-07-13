@@ -1,6 +1,7 @@
 from openpilot.common.numpy_fast import clip
 from openpilot.selfdrive.car import CanBusBase
 from openpilot.selfdrive.car.hyundai.values import HyundaiFlags
+from openpilot.common.swaglog import cloudlog
 
 
 class CanBus(CanBusBase):
@@ -168,6 +169,7 @@ def create_spas_messages(packer, CAN, frame, left_blink, right_blink):
     "BLINKER_CONTROL": blink,
   }
   ret.append(packer.make_can_msg("SPAS2", CAN.ECAN, values))
+  cloudlog.info(f"CAN BLINKER_CONTROL={blink}")
 
   return ret
 

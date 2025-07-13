@@ -220,7 +220,7 @@ frogpilot_default_params: list[tuple[str, str | bytes]] = [
   ("NotreDameScore", "0"),
   ("NoUploads", "0"),
   ("NudgelessLaneChange", "0"),
-  ("AALCEnabled", "0"),
+  ("AALCEnabled", "1"),
   ("AALCStayLeft", "0"),
   ("NumericalTemp", "1"),
   ("OfflineMode", "1"),

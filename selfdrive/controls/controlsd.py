@@ -32,7 +32,7 @@ from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 from openpilot.system.hardware import HARDWARE
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_acceleration import get_max_allowed_accel
-from openpilot.selfdrive.frogpilot.frogpilot_variables import CRUISING_SPEED, NON_DRIVING_GEARS, get_frogpilot_toggles
+from openpilot.selfdrive.frogpilot.frogpilot_variables import NON_DRIVING_GEARS, get_frogpilot_toggles
 
 SOFT_DISABLE_TIME = 3  # seconds
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
@@ -283,28 +283,38 @@ class Controls:
         self.events.add(EventName.calibrationInvalid)
 
     # Handle lane change
-    if self.sm['modelV2'].meta.laneChangeState == LaneChangeState.preLaneChange:
+    lane_state = self.sm['modelV2'].meta.laneChangeState
+    lane_dir = self.sm['modelV2'].meta.laneChangeDirection
+    cloudlog.info(f"Model laneChangeState={lane_state} dir={lane_dir}")
+    if lane_state == LaneChangeState.preLaneChange:
       direction = self.sm['modelV2'].meta.laneChangeDirection
       if (CS.leftBlindspot and direction == LaneChangeDirection.left) or \
          (CS.rightBlindspot and direction == LaneChangeDirection.right):
         if self.frogpilot_toggles.loud_blindspot_alert:
           self.events.add(EventName.laneChangeBlockedLoud)
+          cloudlog.info("Alert: laneChangeBlockedLoud")
         else:
           self.events.add(EventName.laneChangeBlocked)
+          cloudlog.info("Alert: laneChangeBlocked")
       else:
         if direction == LaneChangeDirection.left:
           if self.sm['frogpilotPlan'].laneWidthLeft >= self.frogpilot_toggles.lane_detection_width:
             self.events.add(EventName.preLaneChangeLeft)
+            cloudlog.info("Alert: preLaneChangeLeft")
           else:
             self.events.add(EventName.noLaneAvailable)
+            cloudlog.info("Alert: noLaneAvailable")
         else:
           if self.sm['frogpilotPlan'].laneWidthRight >= self.frogpilot_toggles.lane_detection_width:
             self.events.add(EventName.preLaneChangeRight)
+            cloudlog.info("Alert: preLaneChangeRight")
           else:
             self.events.add(EventName.noLaneAvailable)
-    elif self.sm['modelV2'].meta.laneChangeState in (LaneChangeState.laneChangeStarting,
-                                                    LaneChangeState.laneChangeFinishing):
+            cloudlog.info("Alert: noLaneAvailable")
+    elif lane_state in (LaneChangeState.laneChangeStarting,
+                        LaneChangeState.laneChangeFinishing):
       self.events.add(EventName.laneChange)
+      cloudlog.info("Alert: laneChange")
 
     for i, pandaState in enumerate(self.sm['pandaStates']):
       # All pandas must match the list of safetyConfigs, and if outside this list, must be silent or noOutput
@@ -577,10 +587,21 @@ class Controls:
     if self.CP.lateralTuning.which() == 'torque':
       torque_params = self.sm['liveTorqueParameters']
       friction = self.frogpilot_toggles.steer_friction if self.frogpilot_toggles.use_custom_steer_friction else torque_params.frictionCoefficientFiltered
-      lat_accel_factor = self.frogpilot_toggles.steer_lat_accel_factor if self.frogpilot_toggles.use_custom_lat_accel_factor else torque_params.latAccelFactorFiltered
-      if self.sm.all_checks(['liveTorqueParameters']) and (torque_params.useParams or self.frogpilot_toggles.force_auto_tune) and not self.frogpilot_toggles.force_auto_tune_off:
-        self.LaC.update_live_torque_params(lat_accel_factor, torque_params.latAccelOffsetFiltered,
-                                           friction)
+      lat_accel_factor = (
+        self.frogpilot_toggles.steer_lat_accel_factor
+        if self.frogpilot_toggles.use_custom_lat_accel_factor
+        else torque_params.latAccelFactorFiltered
+      )
+      if (
+        self.sm.all_checks(['liveTorqueParameters'])
+        and (torque_params.useParams or self.frogpilot_toggles.force_auto_tune)
+        and not self.frogpilot_toggles.force_auto_tune_off
+      ):
+        self.LaC.update_live_torque_params(
+          lat_accel_factor,
+          torque_params.latAccelOffsetFiltered,
+          friction,
+        )
 
     long_plan = self.sm['longitudinalPlan']
     model_v2 = self.sm['modelV2']
@@ -597,10 +618,17 @@ class Controls:
     actuators = CC.actuators
     actuators.longControlState = self.LoC.long_control_state
 
-    # Enable blinkers while lane changing
+    # Enable blinkers while lane changing or during AALC countdown
     if model_v2.meta.laneChangeState != LaneChangeState.off:
       CC.leftBlinker = model_v2.meta.laneChangeDirection == LaneChangeDirection.left
       CC.rightBlinker = model_v2.meta.laneChangeDirection == LaneChangeDirection.right
+      cloudlog.info(
+        f"Set blinkers from model: L={CC.leftBlinker} R={CC.rightBlinker}"
+      )
+    elif self.sm['frogpilotPlan'].aalcActive:
+      CC.leftBlinker = True
+      CC.rightBlinker = False
+      cloudlog.info("Set blinkers during AALC countdown")
 
     if CS.leftBlinker or CS.rightBlinker:
       self.last_blinker_frame = self.sm.frame
@@ -625,7 +653,13 @@ class Controls:
         t_since_plan = (self.sm.frame - self.sm.recv_frame['longitudinalPlan']) * DT_CTRL
         actuators.accel = self.LoC.update_old_long(CC.longActive, CS, long_plan, pid_accel_limits, t_since_plan)
       else:
-        actuators.accel = self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop or self.sm['frogpilotPlan'].forcingStopLength <= 0, pid_accel_limits)
+        actuators.accel = self.LoC.update(
+          CC.longActive,
+          CS,
+          long_plan.aTarget,
+          long_plan.shouldStop or self.sm['frogpilotPlan'].forcingStopLength <= 0,
+          pid_accel_limits,
+        )
 
       if len(long_plan.speeds):
         actuators.speed = long_plan.speeds[-1]
@@ -921,6 +955,13 @@ class Controls:
 
     # Publish data
     self.publish_logs(CS, start_time, CC, lac_log, FPCC)
+
+    if self.sm.frame % int(5.0 / DT_CTRL) == 0:
+      cloudlog.info(
+        f"Sanity laneState={self.sm['modelV2'].meta.laneChangeState} "
+        f"dir={self.sm['modelV2'].meta.laneChangeDirection} "
+        f"blinkers L:{CC.leftBlinker} R:{CC.rightBlinker}"
+      )
 
     self.CS_prev = CS
 

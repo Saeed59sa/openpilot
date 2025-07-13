@@ -52,7 +52,7 @@ class FrogPilotPlanner:
     v_cruise = min(controlsState.vCruise, V_CRUISE_UNSET) * CV.KPH_TO_MS
     v_ego = max(carState.vEgo, 0)
     v_lead = self.lead_one.vLead
-    self.slower_lead = self.lead_one.status and (v_ego - v_lead) >= 15 * CV.KPH_TO_MS
+    self.slower_lead = self.lead_one.status and (v_ego - v_lead) >= 5 * CV.KPH_TO_MS
 
     self.frogpilot_acceleration.update(controlsState, frogpilotCarState, v_cruise, v_ego, frogpilot_toggles)
 
