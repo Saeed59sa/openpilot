@@ -283,28 +283,38 @@ class Controls:
         self.events.add(EventName.calibrationInvalid)
 
     # Handle lane change
-    if self.sm['modelV2'].meta.laneChangeState == LaneChangeState.preLaneChange:
+    lane_state = self.sm['modelV2'].meta.laneChangeState
+    lane_dir = self.sm['modelV2'].meta.laneChangeDirection
+    cloudlog.info(f"Model laneChangeState={lane_state} dir={lane_dir}")
+    if lane_state == LaneChangeState.preLaneChange:
       direction = self.sm['modelV2'].meta.laneChangeDirection
       if (CS.leftBlindspot and direction == LaneChangeDirection.left) or \
          (CS.rightBlindspot and direction == LaneChangeDirection.right):
         if self.frogpilot_toggles.loud_blindspot_alert:
           self.events.add(EventName.laneChangeBlockedLoud)
+          cloudlog.info("Alert: laneChangeBlockedLoud")
         else:
           self.events.add(EventName.laneChangeBlocked)
+          cloudlog.info("Alert: laneChangeBlocked")
       else:
         if direction == LaneChangeDirection.left:
           if self.sm['frogpilotPlan'].laneWidthLeft >= self.frogpilot_toggles.lane_detection_width:
             self.events.add(EventName.preLaneChangeLeft)
+            cloudlog.info("Alert: preLaneChangeLeft")
           else:
             self.events.add(EventName.noLaneAvailable)
+            cloudlog.info("Alert: noLaneAvailable")
         else:
           if self.sm['frogpilotPlan'].laneWidthRight >= self.frogpilot_toggles.lane_detection_width:
             self.events.add(EventName.preLaneChangeRight)
+            cloudlog.info("Alert: preLaneChangeRight")
           else:
             self.events.add(EventName.noLaneAvailable)
-    elif self.sm['modelV2'].meta.laneChangeState in (LaneChangeState.laneChangeStarting,
-                                                    LaneChangeState.laneChangeFinishing):
+            cloudlog.info("Alert: noLaneAvailable")
+    elif lane_state in (LaneChangeState.laneChangeStarting,
+                        LaneChangeState.laneChangeFinishing):
       self.events.add(EventName.laneChange)
+      cloudlog.info("Alert: laneChange")
 
     for i, pandaState in enumerate(self.sm['pandaStates']):
       # All pandas must match the list of safetyConfigs, and if outside this list, must be silent or noOutput
@@ -612,9 +622,13 @@ class Controls:
     if model_v2.meta.laneChangeState != LaneChangeState.off:
       CC.leftBlinker = model_v2.meta.laneChangeDirection == LaneChangeDirection.left
       CC.rightBlinker = model_v2.meta.laneChangeDirection == LaneChangeDirection.right
+      cloudlog.info(
+        f"Set blinkers from model: L={CC.leftBlinker} R={CC.rightBlinker}"
+      )
     elif self.sm['frogpilotPlan'].aalcActive:
       CC.leftBlinker = True
       CC.rightBlinker = False
+      cloudlog.info("Set blinkers during AALC countdown")
 
     if CS.leftBlinker or CS.rightBlinker:
       self.last_blinker_frame = self.sm.frame
@@ -941,6 +955,13 @@ class Controls:
 
     # Publish data
     self.publish_logs(CS, start_time, CC, lac_log, FPCC)
+
+    if self.sm.frame % int(5.0 / DT_CTRL) == 0:
+      cloudlog.info(
+        f"Sanity laneState={self.sm['modelV2'].meta.laneChangeState} "
+        f"dir={self.sm['modelV2'].meta.laneChangeDirection} "
+        f"blinkers L:{CC.leftBlinker} R:{CC.rightBlinker}"
+      )
 
     self.CS_prev = CS
 

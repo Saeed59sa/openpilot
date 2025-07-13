@@ -1,6 +1,7 @@
 from cereal import log
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.realtime import DT_MDL
+from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.controls.lib.aalc_constants import AALC_DELAY
 import random
 
@@ -67,6 +68,8 @@ class DesireHelper:
         frogpilotPlan,
         frogpilot_toggles,
     ):
+        prev_state = self.lane_change_state
+        prev_dir = self.lane_change_direction
         v_ego = carstate.vEgo
         one_blinker = carstate.leftBlinker != carstate.rightBlinker
         below_lane_change_speed = v_ego < frogpilot_toggles.minimum_lane_change_speed
@@ -109,9 +112,11 @@ class DesireHelper:
             if self.aalc_delay_timer == 0.0:
                 self.aalc_delay_timer = AALC_DELAY
                 self.aalc_active = True
+                cloudlog.info("AALC triggered, starting delay timer")
             else:
                 self.aalc_delay_timer = max(0.0, self.aalc_delay_timer - DT_MDL)
                 if self.aalc_delay_timer == 0.0:
+                    cloudlog.info("AALC delay expired, initiating lane change left")
                     self.lane_change_state = LaneChangeState.laneChangeStarting
                     self.lane_change_direction = LaneChangeDirection.left
         else:
@@ -199,6 +204,9 @@ class DesireHelper:
                     >= frogpilot_toggles.lane_change_delay
                 ):
                     self.lane_change_state = LaneChangeState.laneChangeStarting
+                    cloudlog.info(
+                        f"Lane change starting dir={self.lane_change_direction.name}"
+                    )
                     self.lane_change_completed = frogpilot_toggles.one_lane_change
                     self.lane_change_wait_timer = 0.0
 
@@ -212,6 +220,9 @@ class DesireHelper:
                 # 98% certainty
                 if lane_change_prob < 0.02 and self.lane_change_ll_prob < 0.01:
                     self.lane_change_state = LaneChangeState.laneChangeFinishing
+                    cloudlog.info(
+                        f"Lane change finishing dir={self.lane_change_direction.name}"
+                    )
 
             # LaneChangeState.laneChangeFinishing
             elif self.lane_change_state == LaneChangeState.laneChangeFinishing:
@@ -253,6 +264,12 @@ class DesireHelper:
             self.desire = TURN_DESIRES[self.turn_direction]
         else:
             self.desire = DESIRES[self.lane_change_direction][self.lane_change_state]
+
+        if self.lane_change_state != prev_state or self.lane_change_direction != prev_dir:
+            cloudlog.info(
+                f"Lane change state {prev_state.name}->{self.lane_change_state.name}, "
+                f"dir {prev_dir.name}->{self.lane_change_direction.name}"
+            )
 
         # Send keep pulse once per second during LaneChangeStart.preLaneChange
         if self.lane_change_state in (
