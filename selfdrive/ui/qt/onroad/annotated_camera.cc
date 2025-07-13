@@ -3,6 +3,9 @@
 #include <QPainter>
 #include <algorithm>
 #include <cmath>
+#include <vector>
+#include <tuple>
+#include <map>
 
 #include "common/swaglog.h"
 #include "selfdrive/ui/qt/onroad/buttons.h"
@@ -143,8 +146,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
       p.setPen(QPen(QColor::fromRgbF(
         min.redF() + transition * (max.redF() - min.redF()),
         min.greenF() + transition * (max.greenF() - min.greenF()),
-        min.blueF() + transition * (max.blueF() - min.blueF())
-      ), 10));
+        min.blueF() + transition * (max.blueF() - min.blueF())), 10));
     } else if (trafficModeActive) {
       p.setPen(QPen(redColor(), 10));
     } else {
