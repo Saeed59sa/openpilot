@@ -39,6 +39,8 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* par
   map_settings_btn = new MapSettingsButton(this);
   main_layout->addWidget(map_settings_btn, 0, Qt::AlignBottom | Qt::AlignRight);
 
+  aalcCountdown = 0.0;
+
   dm_img = loadPixmap("../assets/img_driver_face.png", {img_size + 5, img_size + 5});
 
   // Initialize FrogPilot widgets
@@ -871,7 +873,16 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
   alertHeight = alert_height;
 
   alwaysOnLateralActive = scene.always_on_lateral_active;
+  if (scene.aalc_active && !aalcActive) {
+    aalcTimer.start();
+    aalcCountdown = 10.0;
+  } else if (!scene.aalc_active) {
+    aalcCountdown = 0.0;
+  }
   aalcActive = scene.aalc_active;
+  if (aalcActive && aalcCountdown > 0.0) {
+    aalcCountdown = fmax(0.0, 10.0 - (aalcTimer.elapsed() / 1000.0));
+  }
   showAlwaysOnLateralStatusBar = scene.aol_status_bar;
 
   blindSpotLeft = scene.blind_spot_left;
@@ -992,15 +1003,23 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter) {
     painter.save();
     painter.setPen(Qt::white);
     painter.setFont(InterFont(40, QFont::Bold));
-    painter.drawText(QRect(0, 100, width(), 50), Qt::AlignHCenter, tr("AALC ACTIVE"));
+    QString msg = aalcCountdown > 0.0 ? tr("AALC in %1s").arg(QString::number(std::ceil(aalcCountdown))) : tr("AALC ACTIVE");
+    painter.drawText(QRect(width()/2, 100, width()/2 - 60, 50), Qt::AlignRight, msg);
     painter.restore();
   }
 
-  if (turnSignalAnimation && (turnSignalLeft || turnSignalRight) && !bigMapOpen && ((!mapOpen && standstillDuration == 0) || signalStyle != "static")) {
+  if (turnSignalAnimation && (turnSignalLeft || turnSignalRight || aalcActive) && !bigMapOpen && ((!mapOpen && standstillDuration == 0) || signalStyle != "static")) {
+    bool tempLeft = turnSignalLeft;
+    bool tempRight = turnSignalRight;
+    if (aalcActive && !turnSignalLeft && !turnSignalRight) {
+      turnSignalLeft = true;
+    }
     if (!animationTimer->isActive()) {
       animationTimer->start(signalAnimationLength);
     }
     drawTurnSignals(painter);
+    turnSignalLeft = tempLeft;
+    turnSignalRight = tempRight;
   } else if (animationTimer->isActive()) {
     animationTimer->stop();
   }
