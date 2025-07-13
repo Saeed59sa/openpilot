@@ -79,14 +79,14 @@ class DesireHelper:
         else:
             desired_lane = (
                 frogpilotPlan.laneWidthLeft
-                if carstate.leftBlinker
+                if carstate.leftBlinker or self.aalc_active
                 else frogpilotPlan.laneWidthRight
             )
             lane_available = desired_lane >= frogpilot_toggles.lane_detection_width
 
         lead_distance = frogpilotPlan.leadDistance
         blindspot_clear = not (
-            (carstate.leftBlindspot and carstate.leftBlinker)
+            (carstate.leftBlindspot and (carstate.leftBlinker or self.aalc_active))
             or (carstate.rightBlindspot and carstate.rightBlinker)
         )
         speed_ok = v_ego > 50 * CV.KPH_TO_MS
@@ -132,7 +132,7 @@ class DesireHelper:
             self.lane_change_direction = LaneChangeDirection.none
             self.turn_direction = (
                 TurnDirection.turnLeft
-                if carstate.leftBlinker
+                if carstate.leftBlinker or self.aalc_active
                 else TurnDirection.turnRight
             )
         else:
@@ -156,7 +156,7 @@ class DesireHelper:
                 # Set lane change direction
                 self.lane_change_direction = (
                     LaneChangeDirection.left
-                    if carstate.leftBlinker
+                    if carstate.leftBlinker or self.aalc_active
                     else LaneChangeDirection.right
                 )
 
