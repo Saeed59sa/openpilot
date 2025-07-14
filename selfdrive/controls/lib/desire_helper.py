@@ -39,6 +39,10 @@ TURN_DESIRES = {
     TurnDirection.turnRight: log.Desire.turnRight,
 }
 
+# mappings to safely log Cap'n Proto enum integers
+LC_STATE_NAME = {v: k.name for k, v in LaneChangeState.schema.enumerants.items()}
+LC_DIR_NAME = {v: k.name for k, v in LaneChangeDirection.schema.enumerants.items()}
+
 
 class DesireHelper:
     def __init__(self):
@@ -205,7 +209,7 @@ class DesireHelper:
                 ):
                     self.lane_change_state = LaneChangeState.laneChangeStarting
                     cloudlog.info(
-                        f"Lane change starting dir={self.lane_change_direction.name}"
+                        f"Lane change starting dir={LC_DIR_NAME.get(self.lane_change_direction, str(self.lane_change_direction))}"
                     )
                     self.lane_change_completed = frogpilot_toggles.one_lane_change
                     self.lane_change_wait_timer = 0.0
@@ -221,7 +225,7 @@ class DesireHelper:
                 if lane_change_prob < 0.02 and self.lane_change_ll_prob < 0.01:
                     self.lane_change_state = LaneChangeState.laneChangeFinishing
                     cloudlog.info(
-                        f"Lane change finishing dir={self.lane_change_direction.name}"
+                        f"Lane change finishing dir={LC_DIR_NAME.get(self.lane_change_direction, str(self.lane_change_direction))}"
                     )
 
             # LaneChangeState.laneChangeFinishing
@@ -267,8 +271,8 @@ class DesireHelper:
 
         if self.lane_change_state != prev_state or self.lane_change_direction != prev_dir:
             cloudlog.info(
-                f"Lane change state {prev_state.name}->{self.lane_change_state.name}, "
-                f"dir {prev_dir.name}->{self.lane_change_direction.name}"
+                f"Lane change state {LC_STATE_NAME.get(prev_state, str(prev_state))}->{LC_STATE_NAME.get(self.lane_change_state, str(self.lane_change_state))}, "
+                f"dir {LC_DIR_NAME.get(prev_dir, str(prev_dir))}->{LC_DIR_NAME.get(self.lane_change_direction, str(self.lane_change_direction))}"
             )
 
         # Send keep pulse once per second during LaneChangeStart.preLaneChange
