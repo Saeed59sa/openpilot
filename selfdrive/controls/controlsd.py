@@ -147,6 +147,7 @@ class Controls:
     self.soft_disable_timer = 0
     self.mismatch_counter = 0
     self.cruise_mismatch_counter = 0
+    self.harness_not_detected_cnt = 0
     self.last_blinker_frame = 0
     self.last_steering_pressed_frame = 0
     self.distance_traveled = 0
@@ -331,6 +332,13 @@ class Controls:
 
       if log.PandaState.FaultType.relayMalfunction in pandaState.faults:
         self.events.add(EventName.relayMalfunction)
+
+      if pandaState.harnessStatus == log.PandaState.HarnessStatus.notConnected:
+        self.harness_not_detected_cnt += 1
+        if self.harness_not_detected_cnt > 200:
+          self.events.add(EventName.harnessNotDetected)
+      else:
+        self.harness_not_detected_cnt = 0
 
     # Handle HW and system malfunctions
     # Order is very intentional here. Be careful when modifying this.

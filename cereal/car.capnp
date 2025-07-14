@@ -146,6 +146,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     vCruise69 @146;
     yourFrogTriedToKillMe @147;
     youveGotMail @148;
+    harnessNotDetected @149;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;

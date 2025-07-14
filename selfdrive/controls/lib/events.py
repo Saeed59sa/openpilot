@@ -987,6 +987,11 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.NO_ENTRY: NoEntryAlert("Harness Relay Malfunction"),
   },
 
+  EventName.harnessNotDetected: {
+    ET.PERMANENT: NormalPermanentAlert("Harness Not Detected", "Check connection"),
+    ET.NO_ENTRY: NoEntryAlert("Harness Not Detected"),
+  },
+
   EventName.speedTooLow: {
     ET.IMMEDIATE_DISABLE: Alert(
       "openpilot Canceled",
