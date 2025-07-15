@@ -264,7 +264,7 @@ class CruiseController:
 
     return steer_based_speed_clu
 
-  def _override_speed(self, CS, cluster_speed_clu: float, v_cruise_kph: float, cruise_btn_pressed: bool):
+  def _target_speed(self, CS, cluster_speed_clu: float, v_cruise_kph: float, cruise_btn_pressed: bool):
     syncing = CS.gasPressed and not cruise_btn_pressed
     sync_margin = 3.
 
@@ -338,12 +338,13 @@ class CruiseController:
       cluster_speed_clu = self.conv.to_clu(CS.vEgoCluster)
       self._cal_max_speed(CS, sm, cluster_speed_clu, v_cruise_kph)
       self.cruise_speed_kph = float(np.clip(v_cruise_kph, V_CRUISE_MIN, self.conv.to_current_unit(self.max_speed_clu)))
-      self._override_speed(CS, cluster_speed_clu, self.real_set_speed_kph, self.CI.CS.cruise_buttons[-1] != Buttons.NONE)
+      self._target_speed(CS, cluster_speed_clu, self.real_set_speed_kph, self.CI.CS.cruise_buttons[-1] != Buttons.NONE)
 
       if CruiseStateManager.instance().cruise_state_control:
         self.cruise_speed_kph = min(self.cruise_speed_kph, max(self.real_set_speed_kph, V_CRUISE_MIN))
 
     else:
+      self.cruise_speed_kph = self.conv.to_clu(CS.vEgoCluster)
       self.reset()
 
     self.v_cruise_kph = v_cruise_kph
@@ -409,12 +410,12 @@ class CruiseController:
 
   def _update_message(self, CS):
     exState = CS.exState
-    exState.vCruiseKph = self.v_cruise_kph
-    exState.cruiseMaxSpeed = self.real_set_speed_kph
-    exState.applyMaxSpeed = self.cruise_speed_kph
-    exState.targetSpeed = self.target_speed_clu
-    exState.maxSpeed = self.max_speed_clu
-    exState.curveSpeed = self.curve_speed_clu
+    exState.vCruiseKph = float(self.v_cruise_kph)
+    exState.cruiseMaxSpeed = float(self.real_set_speed_kph)
+    exState.applyMaxSpeed = float(self.cruise_speed_kph)
+    exState.targetSpeed = float(self.target_speed_clu)
+    exState.maxSpeed = float(self.max_speed_clu)
+    exState.curveSpeed = float(self.curve_speed_clu)
 
 class CruiseStateManager:
   def __init__(self):
