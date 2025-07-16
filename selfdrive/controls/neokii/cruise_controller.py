@@ -28,7 +28,7 @@ V_CRUISE_INITIAL_EXPERIMENTAL_MODE = 105
 CRUISE_LONG_PRESS = 50
 """
 
-NO_LIMIT_SPEED = 255
+NO_LIMIT_SPEED = 255.
 
 ButtonType = structs.CarState.ButtonEvent.Type
 GearShifter = structs.CarState.GearShifter
@@ -107,7 +107,7 @@ class CruiseController:
     self.real_set_speed_kph = 0.
     self.v_cruise_kph = V_CRUISE_UNSET
     self.v_cruise_cluster_kph = V_CRUISE_UNSET
-    self.v_cruise_kph_last = 0
+    self.v_cruise_kph_last = 0.
     self.prev_cruise_enabled = False
 
     self.wait_timer = 0
@@ -152,7 +152,14 @@ class CruiseController:
     road_limit_speed_clu = road_limit_speed * ratio if road_limit_speed else NO_LIMIT_SPEED
 
     # 2. Apply limit speed
-    apply_limit_speed_clu = apply_limit_speed if apply_limit_speed >= self.min_set_speed_clu else NO_LIMIT_SPEED
+    if apply_limit_speed >= self.min_set_speed_clu:
+      apply_limit_speed_clu = apply_limit_speed
+    elif CS is not None and CS.speedLimit > 0 and CS.speedLimitDistance > 0:
+      safety_factor = 105
+      apply_limit_speed_stock = self.calculate_current_speed(CS.speedLimitDistance, CS.speedLimit * safety_factor)
+      apply_limit_speed_clu = min(NO_LIMIT_SPEED, apply_limit_speed_stock)
+    else:
+      apply_limit_speed_clu = NO_LIMIT_SPEED
 
     # 3. Lead limit speed
     lead = sm['radarState'].leadOne
@@ -183,6 +190,27 @@ class CruiseController:
       error = calculated_max_speed_clu - self.max_speed_clu
       kp = 0.01
       self.max_speed_clu += error * kp
+
+  def calculate_current_speed(self, left_dist, safe_speed_kph):
+    safe_time = 7
+    safe_decel_rate = 120
+    safe_speed = self.conv.to_ms(safe_speed_kph)
+    safe_dist = safe_speed * safe_time
+    decel_dist = left_dist - safe_dist
+
+    if decel_dist <= 0:
+      return safe_speed_kph
+
+    # v_i^2 = v_f^2 + 2ad
+    temp = safe_speed**2 + 2 * safe_decel_rate * decel_dist
+
+    if temp < 0:
+      speed_ms = safe_speed
+    else:
+      speed_ms = math.sqrt(temp)
+    safe_speed_clu = max(safe_speed_kph, min(NO_LIMIT_SPEED, self.conv.to_clu(speed_ms)))
+
+    return safe_speed_clu
 
   def _cal_lead_speed(self, lead, cluster_speed_clu: float):
     lead_distance_buffer = 5.
@@ -291,6 +319,7 @@ class CruiseController:
     error = self.target_speed_clu - current_set_speed
     if abs(error) < 0.9:
       return Buttons.NONE
+
     return Buttons.RES_ACCEL if error > 0 else Buttons.SET_DECEL
 
   def _initialize_v_cruise(self, CS):
@@ -303,6 +332,7 @@ class CruiseController:
       self.v_cruise_kph = int(round(np.clip(self.conv.to_clu(CS.vEgo), initial, V_CRUISE_MAX)))
 
     self.v_cruise_cluster_kph = self.v_cruise_kph
+
     return self.v_cruise_kph
 
   def update_v_cruise(self, CS, sm, enabled: bool):
