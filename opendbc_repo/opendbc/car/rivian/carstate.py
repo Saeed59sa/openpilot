@@ -4,6 +4,7 @@ from opendbc.car import Bus, structs
 from opendbc.car.interfaces import CarStateBase
 from opendbc.car.rivian.values import DBC, GEAR_MAP
 from opendbc.car.common.conversions import Conversions as CV
+import math
 
 GearShifter = structs.CarState.GearShifter
 
@@ -16,6 +17,13 @@ class CarState(CarStateBase):
     self.acm_lka_hba_cmd = None
     self.sccm_wheel_touch = None
     self.vdm_adas_status = None
+
+    self.set_speed = 10
+    self.increase_button = False
+    self.decrease_button = False
+    self.distance_button = 0
+    self.increase_counter = 0
+    self.decrease_counter = 0
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -91,6 +99,7 @@ class CarState(CarStateBase):
     self.sccm_wheel_touch = copy.copy(cp.vl["SCCM_WheelTouch"])
     self.vdm_adas_status = copy.copy(cp.vl["VDM_AdasSts"])
 
+    self.update_longitudinal_upgrade(ret, can_parsers)
     return ret
 
   @staticmethod
@@ -121,8 +130,65 @@ class CarState(CarStateBase):
       ("Cluster", 10),
     ]
 
+    alt_messages = [
+        ("WheelButtons", 20),
+        ("BSM_BlindSpotIndicator", 20),
+      ]
+
     return {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], pt_messages, 0),
       Bus.adas: CANParser(DBC[CP.carFingerprint][Bus.pt], adas_messages, 1),
       Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], cam_messages, 2),
+      Bus.alt: CANParser(DBC[CP.carFingerprint][Bus.alt], alt_messages, 5),
     }
+
+
+
+  def update_longitudinal_upgrade(self, ret: structs.CarState, can_parsers) -> None:
+    ButtonType = structs.CarState.ButtonEvent.Type
+    MAX_SET_SPEED = 85 * CV.MPH_TO_MS
+    MIN_SET_SPEED = 20 * CV.MPH_TO_MS
+
+    cp_park = can_parsers[Bus.alt]
+    prev_increase_button = self.increase_button
+    prev_decrease_button = self.decrease_button
+
+    if self.CP.openpilotLongitudinalControl:
+      # distance scroll wheel
+      right_scroll = cp_park.vl["WheelButtons"]["RightButton_Scroll"]
+      if right_scroll != 255:
+        if self.distance_button != right_scroll:
+          ret.buttonEvents = [structs.CarState.ButtonEvent(pressed=False, type=ButtonType.gapAdjustCruise)]
+        self.distance_button = right_scroll
+
+      # button logic for set-speed
+      self.increase_button = cp_park.vl["WheelButtons"]["RightButton_RightClick"] == 2
+      self.decrease_button = cp_park.vl["WheelButtons"]["RightButton_LeftClick"] == 2
+
+      self.increase_counter = self.increase_counter + 1 if self.increase_button else 0
+      self.decrease_counter = self.decrease_counter + 1 if self.decrease_button else 0
+
+      set_speed_mph = self.set_speed * CV.MS_TO_MPH
+
+      if self.increase_button:
+        if self.increase_counter % 66 == 0:
+          self.set_speed = (int(math.ceil((set_speed_mph + 1) / 5.0)) * 5) * CV.MPH_TO_MS
+        elif not prev_increase_button:
+          self.set_speed += CV.MPH_TO_MS
+
+      if self.decrease_button:
+        if self.decrease_counter % 66 == 0:
+          self.set_speed = (int(math.floor((set_speed_mph - 1) / 5.0)) * 5) * CV.MPH_TO_MS
+        elif not prev_decrease_button:
+          self.set_speed -= CV.MPH_TO_MS
+
+      if not ret.cruiseState.enabled:
+        self.set_speed = ret.vEgo
+
+      self.set_speed = max(MIN_SET_SPEED, min(self.set_speed, MAX_SET_SPEED))
+      ret.cruiseState.speed = self.set_speed
+
+    if self.CP.enableBsm:
+      ret.leftBlindspot = cp_park.vl["BSM_BlindSpotIndicator"]["BSM_BlindSpotIndicator_Left"] != 0
+      ret.rightBlindspot = cp_park.vl["BSM_BlindSpotIndicator"]["BSM_BlindSpotIndicator_Right"] != 0
+
