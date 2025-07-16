@@ -171,7 +171,7 @@ class CruiseController:
 
     # 4. Curve limit speed
     model = sm['modelV2']
-    curve_speed = self._cal_curve_speed(model, CS.vEgo, v_cruise_kph)
+    curve_speed = self._cal_curve_speed_adaptive(model, CS.vEgo, v_cruise_kph)
     curve_limit_speed_clu = curve_speed if sm.frame % 20 == 0 else NO_LIMIT_SPEED
 
     # 5. Steering angle based limit speed
@@ -246,41 +246,124 @@ class CruiseController:
 
     return lead_speed_clu
 
-  def _cal_curve_speed(self, model, current_speed_ms: float, v_cruise_kph: float):
+  def _get_model_based_speed(self, model, current_speed_ms: float):
     trajectory_size = ModelConstants.IDX_N
 
     if len(model.position.x) != trajectory_size or len(model.position.y) != trajectory_size:
-      return NO_LIMIT_SPEED
+      return NO_LIMIT_SPEED, 0.0
 
     x = model.position.x
     y = model.position.y
+
     dy = np.gradient(y, x)
     d2y = np.gradient(dy, x)
     curv = d2y / (1 + dy ** 2) ** 1.5
     curv_segment = curv[-10:]
     curv_segment_abs = np.abs(curv_segment)
 
+    curv_variance = np.var(curv_segment_abs)
+    trajectory_length = np.sum(np.sqrt(np.diff(x) ** 2 + np.diff(y) ** 2))
+
+    confidence = min(1.0, trajectory_length / 100.0) * (1.0 / (1.0 + curv_variance * 1000))
+
     a_y_max = 2.975 - current_speed_ms * 0.0375
     v_curvature = np.sqrt(a_y_max / np.clip(curv_segment_abs, 1e-4, None))
     model_speed_ms = float(np.mean(v_curvature)) * 0.85
 
-    min_curve_speed_ms = np.interp(current_speed_ms, [0.0, self.conv.to_ms(60.0)], [self.conv.to_ms(30.0), self.conv.to_ms(50.0)])
-    model_based_speed_ms = float(max(model_speed_ms, min_curve_speed_ms)) \
-    if not math.isnan(model_speed_ms) and model_speed_ms < current_speed_ms else NO_LIMIT_SPEED
+    min_curve_speed_ms = np.interp(current_speed_ms, [0.0, self.conv.to_ms(60.0)],
+                                   [self.conv.to_ms(30.0), self.conv.to_ms(50.0)])
 
+    model_based_speed = float(max(model_speed_ms, min_curve_speed_ms)) \
+      if not math.isnan(model_speed_ms) and model_speed_ms < current_speed_ms else NO_LIMIT_SPEED
+
+    return model_based_speed, confidence
+
+  def _get_acc_based_speed(self, model, current_speed_ms: float):
     orientation_rate = np.array(model.orientationRate.z)
     velocity = np.array(model.velocity.x)
+
+    if len(orientation_rate) == 0 or len(velocity) == 0:
+      return NO_LIMIT_SPEED, 0.0
+
     predicted_lat_acc = float(np.max(np.abs(orientation_rate * velocity)))
     acc_based_curvature = predicted_lat_acc / max(current_speed_ms, 1.0) ** 2
 
-    acc_based_speed_ms = NO_LIMIT_SPEED
+    orientation_stability = 1.0 - min(1.0, np.std(orientation_rate) / (np.mean(np.abs(orientation_rate)) + 1e-6))
+    velocity_stability = 1.0 - min(1.0, np.std(velocity) / (np.mean(velocity) + 1e-6))
+
+    speed_factor = 1.0 if current_speed_ms < self.conv.to_ms(30.0) else 0.7
+    confidence = (orientation_stability + velocity_stability) / 2.0 * speed_factor
+
+    acc_based_speed = NO_LIMIT_SPEED
     if acc_based_curvature > 1e-4:
+      a_y_max = 2.975 - current_speed_ms * 0.0375
       temp_acc_speed_ms = np.sqrt(a_y_max / acc_based_curvature) * 0.85
-      acc_based_speed_ms = float(max(temp_acc_speed_ms, min_curve_speed_ms)) \
+
+      min_curve_speed_ms = np.interp(current_speed_ms, [0.0, self.conv.to_ms(60.0)],
+                                     [self.conv.to_ms(30.0), self.conv.to_ms(50.0)])
+
+      acc_based_speed = float(max(temp_acc_speed_ms, min_curve_speed_ms)) \
         if temp_acc_speed_ms < current_speed_ms else NO_LIMIT_SPEED
 
-    candidates_ms = [s for s in [model_based_speed_ms, acc_based_speed_ms] if s != NO_LIMIT_SPEED]
-    calculated_curve_speed_ms = min(candidates_ms) if candidates_ms else NO_LIMIT_SPEED
+    return acc_based_speed, confidence
+
+  def _cal_curve_speed_adaptive(self, model, current_speed_ms: float, v_cruise_kph: float):
+    model_speed, model_confidence = self._get_model_based_speed(model, current_speed_ms)
+    acc_speed, acc_confidence = self._get_acc_based_speed(model, current_speed_ms)
+
+    if current_speed_ms <= self.conv.to_ms(30.0):
+      model_weight = 0.3
+      acc_weight = 0.7
+    elif current_speed_ms <= self.conv.to_ms(60.0):
+      model_weight = 0.5
+      acc_weight = 0.5
+    else:
+      model_weight = 0.7
+      acc_weight = 0.3
+
+    total_confidence = model_confidence + acc_confidence
+    if total_confidence > 0:
+      model_weight *= model_confidence
+      acc_weight *= acc_confidence
+
+      total_weight = model_weight + acc_weight
+      if total_weight > 0:
+        model_weight /= total_weight
+        acc_weight /= total_weight
+
+    candidates = []
+
+    if model_speed != NO_LIMIT_SPEED:
+      candidates.append((model_speed, model_weight))
+
+    if acc_speed != NO_LIMIT_SPEED:
+      candidates.append((acc_speed, acc_weight))
+
+    if not candidates:
+      calculated_curve_speed_ms = NO_LIMIT_SPEED
+    elif len(candidates) == 1:
+      calculated_curve_speed_ms = candidates[0][0]
+    else:
+      weighted_sum = sum(speed * weight for speed, weight in candidates)
+      weight_sum = sum(weight for _, weight in candidates)
+      calculated_curve_speed_ms = weighted_sum / weight_sum if weight_sum > 0 else NO_LIMIT_SPEED
+
+    curve_speed_ms = min(calculated_curve_speed_ms, self.conv.to_ms(v_cruise_kph))
+    self.curve_speed_clu = self.conv.to_clu(curve_speed_ms)
+
+    return self.curve_speed_clu
+
+  def _cal_curve_speed_conservative(self, model, current_speed_ms: float, v_cruise_kph: float):
+    model_speed, model_confidence = self._get_model_based_speed(model, current_speed_ms)
+    acc_speed, acc_confidence = self._get_acc_based_speed(model, current_speed_ms)
+
+    candidates = []
+    if model_confidence > 0.5 and model_speed != NO_LIMIT_SPEED:
+      candidates.append(model_speed)
+    if acc_confidence > 0.5 and acc_speed != NO_LIMIT_SPEED:
+      candidates.append(acc_speed)
+
+    calculated_curve_speed_ms = min(candidates) if candidates else NO_LIMIT_SPEED
     curve_speed_ms = min(calculated_curve_speed_ms, self.conv.to_ms(v_cruise_kph))
     self.curve_speed_clu = self.conv.to_clu(curve_speed_ms)
 
