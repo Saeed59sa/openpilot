@@ -24,6 +24,9 @@ Example:
 > python tools/car_porting/auto_fingerprint.py '1bbe6bf2d62f58a8|2022-07-14--17-11-43' 'OUTBACK'
 Attempting to add fw version for:  OUTBACK
 ```
+This tool requires openpilot's Python dependencies, including the ``pycapnp``
+package for reading routes. Once installed (e.g. with ``pip install -e .``), you
+can run it with HW4 routes to generate new firmware snippets for your car port.
 
 ### [selfdrive/car/tests/test_car_interfaces.py](/selfdrive/car/tests/test_car_interfaces.py)
 

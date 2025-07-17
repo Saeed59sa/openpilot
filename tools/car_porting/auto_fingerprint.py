@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+"""Auto generate firmware fingerprints from a route.
+
+This script depends on the Python requirements for openpilot, including the
+``pycapnp``/capnp library used by :class:`~openpilot.tools.lib.logreader.LogReader`.
+Install the dependencies first (for example with ``pip install -e .``). Once
+installed, you can run it on HW4 routes to generate new firmware version
+snippets for your car port.
+"""
 
 import argparse
 from collections import defaultdict
