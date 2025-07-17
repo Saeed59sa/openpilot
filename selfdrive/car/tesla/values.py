@@ -15,6 +15,26 @@ class CAR(Platforms):
     CarSpecs(mass=2072., wheelbase=2.890, steerRatio=12.0),
     dbc_dict('tesla_model3_party', None)
   )
+  TESLA_HW4_MODEL3 = PlatformConfig(
+    [CarDocs("Tesla HW4 Model 3", "All")],
+    CarSpecs(mass=1899., wheelbase=2.875, steerRatio=12.0),
+    dbc_dict('tesla_model3_party', None)
+  )
+  TESLA_HW4_MODELY = PlatformConfig(
+    [CarDocs("Tesla HW4 Model Y", "All")],
+    CarSpecs(mass=2072., wheelbase=2.890, steerRatio=12.0),
+    dbc_dict('tesla_model3_party', None)
+  )
+  TESLA_HW4_MODEL3 = PlatformConfig(
+    [CarDocs("Tesla HW4 Model 3", "All")],
+    CarSpecs(mass=1899., wheelbase=2.875, steerRatio=12.0),
+    dbc_dict('tesla_model3_party', None)
+  )
+  TESLA_HW4_MODELY = PlatformConfig(
+    [CarDocs("Tesla HW4 Model Y", "All")],
+    CarSpecs(mass=2072., wheelbase=2.890, steerRatio=12.0),
+    dbc_dict('tesla_model3_party', None)
+  )
 
 
 FW_QUERY_CONFIG = FwQueryConfig(

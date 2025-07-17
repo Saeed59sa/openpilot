@@ -25,4 +25,6 @@ FW_VERSIONS = {
       b'TeMYG4_SingleECU_0.0.0 (33),Y4S002.26',
     ],
   },
+  CAR.TESLA_HW4_MODEL3: {},
+  CAR.TESLA_HW4_MODELY: {},
 }
