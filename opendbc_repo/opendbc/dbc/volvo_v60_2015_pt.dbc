@@ -135,6 +135,12 @@ BO_ 582 PSCM1: 8 PSCM
 
 BO_ 608 FSM1: 8 FSM
  SG_ ACC_Distance : 7|8@0+ (1,0) [0|255] "" XXX
+ SG_ Byte_1 : 15|8@0+ (1,0) [0|255] "" XXX
+ SG_ Byte_2 : 23|8@0+ (1,0) [0|255] "" XXX
+ SG_ Byte_3 : 31|8@0+ (1,0) [0|255] "" XXX
+ SG_ Byte_4 : 39|8@0+ (1,0) [0|255] "" XXX
+ SG_ Byte_5 : 47|8@0+ (1,0) [0|255] "" XXX
+ SG_ Byte_6 : 55|8@0+ (1,0) [0|255] "" XXX
 
 BO_ 609 fromWhere: 8 XXX
  SG_ COUNTER : 3|4@0+ (1,0) [0|15] "" XXX

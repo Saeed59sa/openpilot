@@ -99,7 +99,15 @@ class CarState(CarStateBase):
     self.Byte_3 = cam_cp.vl["FSM3"]["Byte_3"]
     self.Byte_4 = cam_cp.vl["FSM3"]["Byte_4"]
     self.Byte_5 = cam_cp.vl["FSM3"]["Byte_5"]
-        
+
+    # Messages forwarded for radar
+    self.Byte_1_FSM1 = cam_cp.vl["FSM1"]["Byte_1"]
+    self.Byte_2_FSM1 = cam_cp.vl["FSM1"]["Byte_2"]
+    self.Byte_3_FSM1 = cam_cp.vl["FSM1"]["Byte_3"]
+    self.Byte_4_FSM1 = cam_cp.vl["FSM1"]["Byte_4"]
+    self.Byte_5_FSM1 = cam_cp.vl["FSM1"]["Byte_5"]
+    self.Byte_6_FSM1 = cam_cp.vl["FSM1"]["Byte_6"]
+  
     self.frame += 1
     return ret, ret_sp
 

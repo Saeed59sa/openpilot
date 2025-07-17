@@ -81,3 +81,16 @@ def create_longitudinal(packer, accel, acc_check, byte_01, byte_02, byte_2, byte
   }
 
   return packer.make_can_msg("FSM3", 0, values)
+
+def create_radar(packer, byte_1, byte_2, byte_3, byte_4, byte_5, byte_6):
+  values = {
+    "ACC_Distance": 255,
+    "Byte_1": byte_1,
+    "Byte_2": byte_2,
+    "Byte_3": byte_3,
+    "Byte_4": byte_4,
+    "Byte_5": byte_5,
+    "Byte_6": byte_6,
+  }
+
+  return packer.make_can_msg("FSM1", 0, values)
