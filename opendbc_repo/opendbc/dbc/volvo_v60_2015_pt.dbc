@@ -47,7 +47,9 @@ BO_ 32 AccPedal: 8 XXX
  SG_ AccPedal : 17|10@0+ (0.1,0) [0|102.3] "%" XXX
 
 BO_ 81 FSM0: 8 FSM
- SG_ ACCStatus : 18|3@0+ (1,0) [0|7] "" XXX
+ SG_ ACC_FrontCar : 16|1@0+ (1,0) [0|1] "" XXX
+ SG_ ACC_Available : 17|1@0+ (1,0) [0|7] "" XXX
+ SG_ ACC_Enabled : 18|1@0+ (1,0) [0|1] "" XXX
  SG_ ACC_BrakeAlert : 27|1@0+ (1,0) [0|1] "" XXX
 
 BO_ 277 NEW_MSG_7: 8 XXX
@@ -277,7 +279,7 @@ BO_ 2015 diagGlobalReq: 8 XXX
 
 CM_ SG_ 16 SteeringDirection "0 = CCW, 1=CW (turning left or right of center)";
 CM_ SG_ 16 SteeringRateOfChange "Rate of change? Torque?";
-CM_ SG_ 81 ACCStatus "0=Acc Unavailable, 1=???, 2=Acc Ready, 3,4=???, 6= Acc Active, 7=Acc active tracking object (probably)";
+CM_ SG_ 81 ACC_Available "0=Acc Unavailable, 1=???, 2=Acc Ready, 3,4=???, 6= Acc Active, 7=Acc active tracking object (probably)";
 CM_ SG_ 295 ACCMinusBtnInv "Active zero when button pressed.";
 CM_ SG_ 295 TimeGapIncreaseBtnInv "Active zero when button pressed.";
 CM_ SG_ 295 TimeGapDecreaseBtnInv "Active zero when button pressed.";

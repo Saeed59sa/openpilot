@@ -38,7 +38,7 @@ class TestVolvoSafety(common.PandaCarSafetyTest, common.AngleSteeringSafetyTest)
     return self.packer.make_can_msg_panda("PSCM1", self.VOLVO_MAIN_BUS, values)
 
   def _pcm_status_msg(self, enable):
-    values = {"ACCStatus": 6 if enable else 0}
+    values = {"ACC_Enabled": enable}
     return self.packer.make_can_msg_panda("FSM0", self.VOLVO_CAM_BUS, values)
 
   def _speed_msg(self, speed: float):

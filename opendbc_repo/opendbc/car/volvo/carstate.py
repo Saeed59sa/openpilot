@@ -48,8 +48,8 @@ class CarState(CarStateBase):
 
     # cruise state
     ret.cruiseState.speed = pt_cp.vl["ACC_Speed"]["ACC_Speed"] * CV.KPH_TO_MS
-    ret.cruiseState.available = cam_cp.vl["FSM0"]["ACCStatus"] in (2, 6, 7)
-    ret.cruiseState.enabled = cam_cp.vl["FSM0"]["ACCStatus"] in (6, 7)
+    ret.cruiseState.available = bool(cam_cp.vl["FSM0"]["ACC_Available"])
+    ret.cruiseState.enabled = bool(cam_cp.vl["FSM0"]["ACC_Enabled"])
     ret.cruiseState.standstill = cam_cp.vl["FSM3"]["ACC_Standstill"] == 1
     ret.cruiseState.nonAdaptive = False  # TODO
     ret.accFaulted = False
