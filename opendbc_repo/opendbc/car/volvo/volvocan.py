@@ -68,29 +68,35 @@ def create_lka_msg(packer, apply_steer: float, steer_direction: int):
 
   return packer.make_can_msg("FSM2", 0, values)
 
-def create_longitudinal(packer, accel, acc_check, byte_01, byte_02, byte_2, byte_3, byte_4, byte_5):
-  values = {
+def create_longitudinal(packer, stock_fsm3, accel, acc_check):
+  values = {s: stock_fsm3[s] for s in (
+    "Byte_01",
+    "Byte_02",
+    "Byte_2",
+    "Byte_3",
+    "Byte_4",
+    "Byte_5",
+  )}
+
+  values |= {
     "ACC_AccelerationRequest": accel,
     "ACC_Check": acc_check,
-    "Byte_01": byte_01,
-    "Byte_02": byte_02,
-    "Byte_2": byte_2,
-    "Byte_3": byte_3,
-    "Byte_4": byte_4,
-    "Byte_5": byte_5,
   }
 
   return packer.make_can_msg("FSM3", 0, values)
 
-def create_radar(packer, byte_1, byte_2, byte_3, byte_4, byte_5, byte_6):
-  values = {
+def create_radar(packer, stock_fsm1):
+  values = {s: stock_fsm1[s] for s in (
+    "Byte_1",
+    "Byte_2",
+    "Byte_3",
+    "Byte_4",
+    "Byte_5",
+    "Byte_6",
+  )}
+  
+  values |= {
     "ACC_Distance": 255,
-    "Byte_1": byte_1,
-    "Byte_2": byte_2,
-    "Byte_3": byte_3,
-    "Byte_4": byte_4,
-    "Byte_5": byte_5,
-    "Byte_6": byte_6,
   }
 
   return packer.make_can_msg("FSM1", 0, values)

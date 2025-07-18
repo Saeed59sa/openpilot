@@ -1,3 +1,4 @@
+import copy
 from cereal import car
 from opendbc.can.parser import CANParser
 from openpilot.common.conversions import Conversions as CV
@@ -91,23 +92,11 @@ class CarState(CarStateBase):
     # FSM (camera) checks if LKAActive & LKATorque active when not requested
     self.pscm_stock_values = pt_cp.vl["PSCM1"]
 
-    # Messages forwarded for oplong
+    # Messages forwarded for oplong and radar
+    self.stock_FSM1 = copy.copy(cam_cp.vl["FSM1"])
+    self.stock_FSM3 = copy.copy(cam_cp.vl["FSM3"])
     self.ACC_Check = cam_cp.vl["FSM3"]["ACC_Check"]
-    self.Byte_01 = cam_cp.vl["FSM3"]["Byte_01"]
-    self.Byte_02 = cam_cp.vl["FSM3"]["Byte_02"]
-    self.Byte_2 = cam_cp.vl["FSM3"]["Byte_2"]
-    self.Byte_3 = cam_cp.vl["FSM3"]["Byte_3"]
-    self.Byte_4 = cam_cp.vl["FSM3"]["Byte_4"]
-    self.Byte_5 = cam_cp.vl["FSM3"]["Byte_5"]
 
-    # Messages forwarded for radar
-    self.Byte_1_FSM1 = cam_cp.vl["FSM1"]["Byte_1"]
-    self.Byte_2_FSM1 = cam_cp.vl["FSM1"]["Byte_2"]
-    self.Byte_3_FSM1 = cam_cp.vl["FSM1"]["Byte_3"]
-    self.Byte_4_FSM1 = cam_cp.vl["FSM1"]["Byte_4"]
-    self.Byte_5_FSM1 = cam_cp.vl["FSM1"]["Byte_5"]
-    self.Byte_6_FSM1 = cam_cp.vl["FSM1"]["Byte_6"]
-  
     self.frame += 1
     return ret, ret_sp
 
