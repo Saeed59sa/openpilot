@@ -51,9 +51,9 @@ class CarController(CarControllerBase):
       if CC.latActive and CS.out.vEgo > self.CP.minSteerSpeed:
         #apply_steer = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_steer_prev, CS.out.vEgoRaw, CS.out.steeringAngleDeg, CC.latActive, CarControllerParams.ANGLE_LIMITS)
         
-        self.apply_torque_last = apply_torque
-        can_sends.append(create_lka_steering(self.packer, self.frame, apply_torque, CC.enabled, CC.latActive))
-        
+        new_torque = int(round(CC.actuators.torque * steer_max))
+        apply_torque = apply_driver_steer_torque_limits(new_torque, self.apply_torque_last, CS.out.steeringTorque, CarControllerParams, steer_max)        
+
         #apply_steer_dir = SteerDirection.LEFT if apply_steer > 0 else SteerDirection.RIGHT
         apply_steer_dir = SteerDirection.LEFT if apply_torque > 0 else SteerDirection.RIGHT
 
@@ -90,6 +90,7 @@ class CarController(CarControllerBase):
       can_sends.append(create_lka_msg(self.packer_pt, apply_torque, int(apply_steer_dir)))
 
       #self.apply_steer_prev = apply_steer
+      self.apply_torque_last = apply_torque
       self.apply_steer_dir_prev = apply_steer_dir
       self.latActive_prev = CC.latActive
 
