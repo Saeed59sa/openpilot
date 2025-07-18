@@ -30,11 +30,16 @@ class CarController(CarControllerBase):
     self.sng_count = 0
     self.acc_check = 1
 
+    self.apply_torque_last = 0
+
   def update(self, CC, CC_SP, CS, now_nanos):
     can_sends = []
 
     actuators = CC.actuators
     pcm_cancel_cmd = CC.cruiseControl.cancel
+
+    apply_torque = 0
+    steer_max = round(float(np.interp(CS.out.vEgoRaw, CarControllerParams.STEER_MAX_LOOKUP[0], CarControllerParams.STEER_MAX_LOOKUP[1])))
 
     # Cancel ACC if engaged when OP is not, but only above minimum steering speed.
     # TODO: is this check needed? it might trying to fix broken standstill behavior
@@ -44,11 +49,16 @@ class CarController(CarControllerBase):
     # run at 50hz
     if self.frame % 2 == 0:
       if CC.latActive and CS.out.vEgo > self.CP.minSteerSpeed:
-        #apply_steer = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_steer_prev, CS.out.vEgoRaw, CarControllerParams)
-        apply_steer = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_steer_prev, CS.out.vEgoRaw, CS.out.steeringAngleDeg, CC.latActive, CarControllerParams.ANGLE_LIMITS)
-        apply_steer_dir = SteerDirection.LEFT if apply_steer > 0 else SteerDirection.RIGHT
+        #apply_steer = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_steer_prev, CS.out.vEgoRaw, CS.out.steeringAngleDeg, CC.latActive, CarControllerParams.ANGLE_LIMITS)
+        
+        self.apply_torque_last = apply_torque
+        can_sends.append(create_lka_steering(self.packer, self.frame, apply_torque, CC.enabled, CC.latActive))
+        
+        #apply_steer_dir = SteerDirection.LEFT if apply_steer > 0 else SteerDirection.RIGHT
+        apply_steer_dir = SteerDirection.LEFT if apply_torque > 0 else SteerDirection.RIGHT
 
-        error = CS.out.steeringAngleDeg - apply_steer
+        #error = CS.out.steeringAngleDeg - apply_steer
+        error = CS.out.steeringAngleDeg - apply_torque
         error_with_deadzone = 0 if abs(error) < CarControllerParams.DEADZONE else error
 
         # Update prev with desired if just enabled.
@@ -72,12 +82,14 @@ class CarController(CarControllerBase):
           apply_steer_dir = self.apply_steer_dir_prev
 
       else:
-        apply_steer = 0
+        #apply_steer = 0
+        apply_torque = 0
         apply_steer_dir = SteerDirection.NONE
 
-      can_sends.append(create_lka_msg(self.packer_pt, apply_steer, int(apply_steer_dir)))
+      #can_sends.append(create_lka_msg(self.packer_pt, apply_steer, int(apply_steer_dir)))
+      can_sends.append(create_lka_msg(self.packer_pt, apply_torque, int(apply_steer_dir)))
 
-      self.apply_steer_prev = apply_steer
+      #self.apply_steer_prev = apply_steer
       self.apply_steer_dir_prev = apply_steer_dir
       self.latActive_prev = CC.latActive
 
@@ -110,7 +122,9 @@ class CarController(CarControllerBase):
         self.last_resume_frame = self.frame
 
     new_actuators = actuators.as_builder()
-    new_actuators.steeringAngleDeg = self.apply_steer_prev
+    #new_actuators.steeringAngleDeg = self.apply_steer_prev
+    new_actuators.torque = apply_torque / steer_max
+    new_actuators.torqueOutputCan = apply_torque
 
     self.frame += 1
     return new_actuators, can_sends

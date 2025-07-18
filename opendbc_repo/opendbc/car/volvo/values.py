@@ -78,6 +78,8 @@ class CarControllerParams:
   ACCEL_MIN = -4.0  # m/s^2
   ACCEL_MAX = 2.0  # m/s^2
 
+  STEER_MAX_LOOKUP = [9, 17], [350, 250]
+
   def __init__(self, CP):
     can_define = CANDefine(DBC[CP.carFingerprint][Bus.pt])
     #pass
