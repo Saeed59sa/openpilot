@@ -78,8 +78,15 @@ class CarControllerParams:
   ACCEL_MIN = -4.0  # m/s^2
   ACCEL_MAX = 2.0  # m/s^2
 
+  STEER_MAX = 250  # 350 is intended to maintain lateral accel, not increase it
   STEER_MAX_LOOKUP = [9, 17], [350, 250]
-
+  STEER_STEP = 1
+  STEER_DELTA_UP = 3  # torque increase per refresh
+  STEER_DELTA_DOWN = 5  # torque decrease per refresh
+  STEER_DRIVER_ALLOWANCE = 100  # allowed driver torque before start limiting
+  STEER_DRIVER_MULTIPLIER = 2  # weight driver torque
+  STEER_DRIVER_FACTOR = 100
+  
   def __init__(self, CP):
     can_define = CANDefine(DBC[CP.carFingerprint][Bus.pt])
     #pass
