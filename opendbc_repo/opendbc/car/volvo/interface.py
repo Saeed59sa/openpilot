@@ -22,7 +22,10 @@ class CarInterface(CarInterfaceBase):
 
     ret.radarUnavailable = True
 
-    ret.steerControlType = car.CarParams.SteerControlType.angle
+    #ret.steerControlType = car.CarParams.SteerControlType.angle
+    ret.steerControlType = structs.CarParams.SteerControlType.torque
+    CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
+
     ret.steerActuatorDelay = 0.2
     ret.steerLimitTimer = 0.8
 
