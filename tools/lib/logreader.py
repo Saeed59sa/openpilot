@@ -21,7 +21,7 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.tools.lib.comma_car_segments import get_url as get_comma_segments_url
 from openpilot.tools.lib.openpilotci import get_url
 from openpilot.tools.lib.filereader import DATA_ENDPOINT, FileReader, file_exists, internal_source_available
-from openpilot.tools.lib.route import Route, SegmentRange
+from openpilot.tools.lib.route import QCAMERA_FILENAMES, CAMERA_FILENAMES, DCAMERA_FILENAMES, ECAMERA_FILENAMES, Route, SegmentRange
 from openpilot.tools.lib.log_time_series import msgs_to_time_series
 
 LogMessage = type[capnp._DynamicStructReader]
@@ -104,10 +104,10 @@ class ReadMode(enum.StrEnum):
 class FileName(enum.Enum):
   RLOG = ("rlog.zst", "rlog.bz2")
   QLOG = ("qlog.zst", "qlog.bz2")
-  QCAMERA = ("qcamera.ts",)
-  FCAMERA = ("fcamera.hevc",)
-  ECAMERA = ("ecamera.hevc",)
-  DCAMERA = ("dcamera.hevc",)
+  QCAMERA = tuple(QCAMERA_FILENAMES)
+  FCAMERA = tuple(CAMERA_FILENAMES)
+  ECAMERA = tuple(ECAMERA_FILENAMES)
+  DCAMERA = tuple(DCAMERA_FILENAMES)
 
 
 LogPath = str | None
@@ -146,12 +146,6 @@ def openpilotci_source(sr: SegmentRange, fns: FileName) -> list[LogPath]:
 
 def comma_car_segments_source(sr: SegmentRange, fns: FileName) -> list[LogPath]:
   return eval_source([get_comma_segments_url(sr.route_name, seg) for seg in sr.seg_idxs])
-
-
-def testing_closet_source(sr: SegmentRange, fns: FileName) -> list[LogPath]:
-  if not internal_source_available('http://testing.comma.life'):
-    raise InternalUnavailableException
-  return eval_source([f"http://testing.comma.life/download/{sr.route_name.replace('|', '/')}/{seg}/rlog" for seg in sr.seg_idxs])
 
 
 def direct_source(file_or_url: str) -> list[str]:
@@ -274,8 +268,7 @@ class LogReader:
   def __init__(self, identifier: str | list[str], default_mode: ReadMode = ReadMode.RLOG,
                sources: list[Source] = None, sort_by_time=False, only_union_types=False):
     if sources is None:
-      sources = [internal_source, openpilotci_source, comma_api_source,
-                 comma_car_segments_source, testing_closet_source]
+      sources = [internal_source, openpilotci_source, comma_api_source, comma_car_segments_source]
 
     self.default_mode = default_mode
     self.sources = sources
