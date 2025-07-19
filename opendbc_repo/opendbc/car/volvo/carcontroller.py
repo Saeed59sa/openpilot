@@ -1,7 +1,7 @@
 import numpy as np
 from opendbc.can.packer import CANPacker
 from openpilot.common.realtime import DT_CTRL
-from opendbc.car import Bus, apply_std_steer_angle_limits
+from opendbc.car import Bus, apply_std_steer_angle_limits, apply_driver_steer_torque_limits
 from opendbc.car.interfaces import CarControllerBase
 from opendbc.car.volvo.values import CANBUS, CarControllerParams, SteerDirection
 from opendbc.car.volvo.volvocan import create_button_msg, create_lka_msg, create_lkas_state_msg, create_longitudinal, create_radar
