@@ -9,7 +9,6 @@ from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.car.cruise import (V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_UNSET, V_CRUISE_INITIAL, V_CRUISE_INITIAL_EXPERIMENTAL_MODE,
                                             CRUISE_LONG_PRESS, IMPERIAL_INCREMENT)
 from opendbc.car.hyundai.values import Buttons, HyundaiFlags
-from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 
 """
@@ -91,23 +90,26 @@ class CruiseController:
     self.CI = CI
 
     self.params = Params()
-    self.conv = UnitConverter()
-    self.btn_handler = CruiseButtonHandler()
-
     self.experimental_mode = self.params.get_bool("ExperimentalMode")
 
+    self.conv = UnitConverter()
+    self.btn_handler = CruiseButtonHandler()
     self.min_set_speed_clu = self.conv.to_current_unit(V_CRUISE_MIN) if CruiseStateManager.instance().cruise_state_control else self.conv.to_current_unit(V_CRUISE_INITIAL)
     self.max_set_speed_clu = self.conv.to_current_unit(V_CRUISE_MAX)
 
     self.btn = Buttons.NONE
     self.target_speed_clu = 0.
-    self.limit_speed_clu = 0.
+    self.apply_limit_speed_clu = 0.
     self.curve_speed_clu = 0.
     self.cruise_speed_kph = 0.
     self.real_set_speed_kph = 0.
     self.v_cruise_kph = V_CRUISE_UNSET
     self.v_cruise_cluster_kph = V_CRUISE_UNSET
     self.v_cruise_kph_last = 0.
+    self.road_limit_speed_clu = 0.
+    self.camera_limit_speed_clu = 0.
+    self.steer_limit_speed_clu = 0.
+    self.lead_limit_speed_clu = 0.
     self.prev_cruise_enabled = False
     self.decelerating = False
     self.steer_decel_active = False
@@ -138,63 +140,64 @@ class CruiseController:
     self.wait_timer = 0
     self.alive_timer = 0
     self.target_speed_clu = 0.
-    self.limit_speed_clu = 0.
+    self.apply_limit_speed_clu = 0.
     self.curve_speed_clu = 0.
 
   def _cal_limit_speed(self, CS, sm, current_speed_ms: float, cluster_speed_clu: float, v_cruise_kph: float):
-    apply_limit_speed, is_limit_zone = SpeedLimiter.instance().get_max_speed(cluster_speed_clu, self.conv.is_metric)
+    # 1. Road limit speed
     road_limit_speed_nda = SpeedLimiter.instance().get_road_limit_speed()
     road_limit_speed_stock = CS.exState.navLimitSpeed
     road_limit_speed = next((s for s in [road_limit_speed_nda, road_limit_speed_stock] if s is not None and s > 0), None)
     ratio = np.interp(road_limit_speed, [self.conv.to_current_unit(10.0), self.conv.to_current_unit(100.0)], [1.30, 1.10])
-
-    # init current speed
-    current_max_speed_clu = self.conv.to_current_unit(v_cruise_kph)
-
-    # 1. Road limit speed
     road_limit_speed_clu = road_limit_speed * ratio if road_limit_speed else NO_LIMIT_SPEED
+    self.road_limit_speed_clu = road_limit_speed_clu
 
-    # 2. Apply limit speed
-    if apply_limit_speed >= self.min_set_speed_clu:
-      apply_limit_speed_clu = apply_limit_speed
+    # 2. Camera limit speed
+    nda_active = SpeedLimiter.instance().get_active()
+    camera_limit_speed, is_limit_zone = SpeedLimiter.instance().get_max_speed(cluster_speed_clu, self.conv.is_metric)
+    if nda_active and camera_limit_speed >= self.min_set_speed_clu:
+      camera_limit_speed_clu = camera_limit_speed
     elif CS is not None and CS.speedLimit > 0 and CS.speedLimitDistance > 0:
       safety_factor = 105
-      apply_limit_speed_stock, is_limit_zone = self.calculate_current_speed(CS.speedLimitDistance, CS.speedLimit * safety_factor)
-      apply_limit_speed_clu = min(NO_LIMIT_SPEED, apply_limit_speed_stock)
+      camera_limit_speed_stock, is_limit_zone = self._cal_current_speed(CS.speedLimitDistance, CS.speedLimit * safety_factor)
+      camera_limit_speed_clu = min(NO_LIMIT_SPEED, camera_limit_speed_stock)
     else:
-      apply_limit_speed_clu = NO_LIMIT_SPEED
+      camera_limit_speed_clu = NO_LIMIT_SPEED
+    self.camera_limit_speed_clu = camera_limit_speed_clu
 
     # 3. Lead limit speed
     lead = sm['radarState'].leadOne
     lead_speed = self._cal_lead_speed(lead, cluster_speed_clu)
     lead_limit_speed_clu = lead_speed if self.CP.openpilotLongitudinalControl and lead.status else NO_LIMIT_SPEED
+    self.lead_limit_speed_clu = lead_limit_speed_clu
 
     # 4. Curve limit speed
     model = sm['modelV2']
-    curve_speed = self._cal_curve_speed_adaptive(model, current_speed_ms, v_cruise_kph)
-    curve_limit_speed_clu = curve_speed if sm.frame % 20 == 0 else NO_LIMIT_SPEED
+    curve_limit_speed_clu = self._cal_curve_speed_adaptive(model, current_speed_ms, v_cruise_kph)
+    self.curve_speed_clu = curve_limit_speed_clu
 
     # 5. Steering angle based limit speed
     steer_limit_speed_clu = self._cal_steer_based_speed(current_speed_ms, CS.steeringAngleDeg)
+    self.steer_limit_speed_clu = steer_limit_speed_clu
 
     speed_candidates = [
-      current_max_speed_clu,
       road_limit_speed_clu,
-      apply_limit_speed_clu,
+      camera_limit_speed_clu,
       lead_limit_speed_clu,
       curve_limit_speed_clu,
       steer_limit_speed_clu
     ]
-    calculated_max_speed_clu = min(s for s in speed_candidates if s >= self.min_set_speed_clu and s != NO_LIMIT_SPEED)
+    valid_limits = [s for s in speed_candidates if s >= self.min_set_speed_clu and s != NO_LIMIT_SPEED]
+    calculated_max_speed_clu = min(v_cruise_kph, min(valid_limits)) if valid_limits else v_cruise_kph
 
-    if not self.CP.openpilotLongitudinalControl or self.limit_speed_clu <= 0 or is_limit_zone:
-      self.limit_speed_clu = calculated_max_speed_clu
+    if not self.CP.openpilotLongitudinalControl or self.apply_limit_speed_clu <= 0 or is_limit_zone:
+      self.apply_limit_speed_clu = calculated_max_speed_clu
     else:
-      error = calculated_max_speed_clu - self.limit_speed_clu
+      error = calculated_max_speed_clu - self.apply_limit_speed_clu
       kp = 0.01
-      self.limit_speed_clu += error * kp
+      self.apply_limit_speed_clu += error * kp
 
-  def calculate_current_speed(self, left_dist, safe_speed_kph):
+  def _cal_current_speed(self, left_dist, safe_speed_kph):
     safe_time = 7
     safe_decel_rate = 120
     safe_speed = self.conv.to_ms(safe_speed_kph)
@@ -242,16 +245,11 @@ class CruiseController:
     deceleration_ms = -relative_speed / time
     speed_delta_clu = self.conv.to_clu(deceleration_ms) * lead_accel_gain
     new_speed_clu = cluster_speed_clu + speed_delta_clu
-    lead_speed_clu = max(new_speed_clu, self.min_set_speed_clu)
+    lead_limit_speed_clu = max(new_speed_clu, self.min_set_speed_clu)
 
-    return lead_speed_clu
+    return lead_limit_speed_clu
 
-  def _get_model_based_speed(self, model, current_speed_ms: float):
-    trajectory_size = ModelConstants.IDX_N
-
-    if len(model.position.x) != trajectory_size or len(model.position.y) != trajectory_size:
-      return NO_LIMIT_SPEED, 0.0
-
+  def _get_model_based_speed(self, model, current_speed_ms: float, min_curve_speed_ms: float):
     x = model.position.x
     y = model.position.y
 
@@ -267,23 +265,16 @@ class CruiseController:
     confidence = min(1.0, trajectory_length / 100.0) * (1.0 / (1.0 + curv_variance * 1000))
 
     a_y_max = 2.975 - current_speed_ms * 0.0375
-    v_curvature = np.sqrt(a_y_max / np.clip(curv_segment_abs, 1e-4, None))
-    model_speed_ms = float(np.mean(v_curvature)) * 0.85
-
-    min_curve_speed_ms = np.interp(current_speed_ms, [0.0, self.conv.to_ms(60.0)],
-                                   [self.conv.to_ms(30.0), self.conv.to_ms(50.0)])
+    model_speed_ms = float(np.mean(np.sqrt(a_y_max / np.clip(curv_segment_abs, 1e-4, None)))) * 0.85
 
     model_based_speed = float(max(model_speed_ms, min_curve_speed_ms)) \
       if not math.isnan(model_speed_ms) and model_speed_ms < current_speed_ms else NO_LIMIT_SPEED
 
     return model_based_speed, confidence
 
-  def _get_acc_based_speed(self, model, current_speed_ms: float):
+  def _get_acc_based_speed(self, model, current_speed_ms: float, min_curve_speed_ms: float):
     orientation_rate = np.array(model.orientationRate.z)
     velocity = np.array(model.velocity.x)
-
-    if len(orientation_rate) == 0 or len(velocity) == 0:
-      return NO_LIMIT_SPEED, 0.0
 
     predicted_lat_acc = float(np.max(np.abs(orientation_rate * velocity)))
     acc_based_curvature = predicted_lat_acc / max(current_speed_ms, 1.0) ** 2
@@ -294,32 +285,23 @@ class CruiseController:
     speed_factor = 1.0 if current_speed_ms < self.conv.to_ms(30.0) else 0.7
     confidence = (orientation_stability + velocity_stability) / 2.0 * speed_factor
 
-    acc_based_speed = NO_LIMIT_SPEED
-    if acc_based_curvature > 1e-4:
-      a_y_max = 2.975 - current_speed_ms * 0.0375
-      temp_acc_speed_ms = np.sqrt(a_y_max / acc_based_curvature) * 0.85
+    a_y_max = 2.975 - current_speed_ms * 0.0375
+    acc_speed_ms = np.sqrt(a_y_max / np.clip(acc_based_curvature, 1e-4, None)) * 0.85
 
-      min_curve_speed_ms = np.interp(current_speed_ms, [0.0, self.conv.to_ms(60.0)],
-                                     [self.conv.to_ms(30.0), self.conv.to_ms(50.0)])
-
-      acc_based_speed = float(max(temp_acc_speed_ms, min_curve_speed_ms)) \
-        if temp_acc_speed_ms < current_speed_ms else NO_LIMIT_SPEED
+    acc_based_speed = float(max(acc_speed_ms, min_curve_speed_ms)) \
+      if not math.isnan(acc_speed_ms) and acc_speed_ms < current_speed_ms else NO_LIMIT_SPEED
 
     return acc_based_speed, confidence
 
   def _cal_curve_speed_adaptive(self, model, current_speed_ms: float, v_cruise_kph: float):
-    model_speed, model_confidence = self._get_model_based_speed(model, current_speed_ms)
-    acc_speed, acc_confidence = self._get_acc_based_speed(model, current_speed_ms)
+    min_curve_speed_ms = max(self.conv.to_ms(30.0), current_speed_ms * 0.5)
+    model_speed, model_confidence = self._get_model_based_speed(model, current_speed_ms, min_curve_speed_ms)
+    acc_speed, acc_confidence = self._get_acc_based_speed(model, current_speed_ms, min_curve_speed_ms)
 
-    if current_speed_ms <= self.conv.to_ms(30.0):
-      model_weight = 0.3
-      acc_weight = 0.7
-    elif current_speed_ms <= self.conv.to_ms(60.0):
-      model_weight = 0.5
-      acc_weight = 0.5
-    else:
-      model_weight = 0.7
-      acc_weight = 0.3
+    model_weight = np.interp(current_speed_ms,
+                             [self.conv.to_ms(30.0), self.conv.to_ms(60.0), self.conv.to_ms(100.0)],
+                             [0.3, 0.5, 0.7])
+    acc_weight = 1.0 - model_weight
 
     total_confidence = model_confidence + acc_confidence
     if total_confidence > 0:
@@ -331,43 +313,19 @@ class CruiseController:
         model_weight /= total_weight
         acc_weight /= total_weight
 
-    candidates = []
+    valid_speeds = [(speed, weight) for speed, weight in
+                    [(model_speed, model_weight), (acc_speed, acc_weight)]
+                    if speed != NO_LIMIT_SPEED]
 
-    if model_speed != NO_LIMIT_SPEED:
-      candidates.append((model_speed, model_weight))
-
-    if acc_speed != NO_LIMIT_SPEED:
-      candidates.append((acc_speed, acc_weight))
-
-    if not candidates:
-      calculated_curve_speed_ms = NO_LIMIT_SPEED
-    elif len(candidates) == 1:
-      calculated_curve_speed_ms = candidates[0][0]
-    else:
-      weighted_sum = sum(speed * weight for speed, weight in candidates)
-      weight_sum = sum(weight for _, weight in candidates)
-      calculated_curve_speed_ms = weighted_sum / weight_sum if weight_sum > 0 else NO_LIMIT_SPEED
+    calculated_curve_speed_ms = (
+      sum(s * w for s, w in valid_speeds) / sum(w for _, w in valid_speeds)
+      if valid_speeds else NO_LIMIT_SPEED
+    )
 
     curve_speed_ms = min(calculated_curve_speed_ms, self.conv.to_ms(v_cruise_kph))
-    self.curve_speed_clu = self.conv.to_clu(curve_speed_ms)
+    curve_speed_clu = self.conv.to_clu(curve_speed_ms)
 
-    return self.curve_speed_clu
-
-  def _cal_curve_speed_conservative(self, model, current_speed_ms: float, v_cruise_kph: float):
-    model_speed, model_confidence = self._get_model_based_speed(model, current_speed_ms)
-    acc_speed, acc_confidence = self._get_acc_based_speed(model, current_speed_ms)
-
-    candidates = []
-    if model_confidence > 0.5 and model_speed != NO_LIMIT_SPEED:
-      candidates.append(model_speed)
-    if acc_confidence > 0.5 and acc_speed != NO_LIMIT_SPEED:
-      candidates.append(acc_speed)
-
-    calculated_curve_speed_ms = min(candidates) if candidates else NO_LIMIT_SPEED
-    curve_speed_ms = min(calculated_curve_speed_ms, self.conv.to_ms(v_cruise_kph))
-    self.curve_speed_clu = self.conv.to_clu(curve_speed_ms)
-
-    return self.curve_speed_clu
+    return curve_speed_clu
 
   def _cal_steer_based_speed(self, current_speed_ms: float, steering_angle_deg: float):
     start_decel_angle = 45.
@@ -396,9 +354,9 @@ class CruiseController:
       target_speed_ms = current_speed_ms * speed_multiplier
       min_allowed_speed_ms = self.conv.to_ms(V_CRUISE_MIN)
       steer_based_speed_ms = max(target_speed_ms, min_allowed_speed_ms)
-      steer_based_speed_clu = self.conv.to_clu(steer_based_speed_ms)
+      steer_limit_speed_clu = self.conv.to_clu(steer_based_speed_ms)
 
-      return steer_based_speed_clu
+      return steer_limit_speed_clu
 
     return NO_LIMIT_SPEED
 
@@ -412,8 +370,8 @@ class CruiseController:
         v_cruise_kph = int(round(self.conv.to_current_unit(set_speed)))
 
       self.target_speed_clu = self.conv.to_current_unit(v_cruise_kph)
-      if self.limit_speed_clu > V_CRUISE_INITIAL:
-        self.target_speed_clu = np.clip(self.target_speed_clu, V_CRUISE_INITIAL, self.limit_speed_clu)
+      if self.apply_limit_speed_clu > V_CRUISE_INITIAL:
+        self.target_speed_clu = np.clip(self.target_speed_clu, V_CRUISE_INITIAL, self.apply_limit_speed_clu)
 
     elif CS.cruiseState.enabled:
       if syncing and cluster_speed_clu + sync_margin > self.conv.to_current_unit(v_cruise_kph):
@@ -478,7 +436,7 @@ class CruiseController:
     self.real_set_speed_kph = v_cruise_kph
     if CS.cruiseState.enabled and 1 < CS.cruiseState.speed < V_CRUISE_UNSET:
       self._cal_limit_speed(CS, sm, current_speed_ms, cluster_speed_clu, v_cruise_kph)
-      self.cruise_speed_kph = float(np.clip(v_cruise_kph, V_CRUISE_MIN, self.conv.to_current_unit(self.limit_speed_clu)))
+      self.cruise_speed_kph = float(np.clip(v_cruise_kph, V_CRUISE_MIN, self.conv.to_current_unit(self.apply_limit_speed_clu)))
       self._target_speed(CS, cluster_speed_clu, self.real_set_speed_kph, self.CI.CS.cruise_buttons[-1] != Buttons.NONE)
 
       if CruiseStateManager.instance().cruise_state_control:
@@ -552,19 +510,25 @@ class CruiseController:
   def _update_message(self, CS):
     exState = CS.exState
     exState.vCruiseKph = float(self.v_cruise_kph)
+    exState.vEgo = float(self.conv.to_clu(CS.vEgo))
+    exState.vEgoCluster = float(self.conv.to_clu(CS.vEgoCluster))
     exState.cruiseMaxSpeed = float(self.real_set_speed_kph)
     exState.applyMaxSpeed = float(self.cruise_speed_kph)
     exState.targetSpeed = float(self.target_speed_clu)
-    exState.limitSpeed = float(self.limit_speed_clu)
     exState.curveSpeed = float(self.curve_speed_clu)
+    exState.roadSpeed = float(self.road_limit_speed_clu)
+    exState.cameraSpeed = float(self.camera_limit_speed_clu)
+    exState.steerSpeed = float(self.steer_limit_speed_clu)
+    exState.leadSpeed = float(self.lead_limit_speed_clu)
+    exState.applyLimitSpeed = float(self.apply_limit_speed_clu)
 
 class CruiseStateManager:
   def __init__(self):
     self.params = Params()
+    self.cruise_state_control = self.params.get_bool('CruiseStateControl')
+
     self.conv = UnitConverter()
     self.btn_handler = CruiseButtonHandler()
-
-    self.cruise_state_control = self.params.get_bool('CruiseStateControl')
 
     self.available = False
     self.enabled = False
