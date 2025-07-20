@@ -52,7 +52,7 @@ class CarController(CarControllerBase):
         #apply_steer = apply_std_steer_angle_limits(actuators.steeringAngleDeg, self.apply_steer_prev, CS.out.vEgoRaw, CS.out.steeringAngleDeg, CC.latActive, CarControllerParams.ANGLE_LIMITS)
         
         new_torque = int(round(CC.actuators.torque * steer_max))
-        apply_torque = apply_driver_steer_torque_limits(new_torque, self.apply_torque_last, CS.out.steeringTorque, CarControllerParams, steer_max)        
+        apply_torque = apply_driver_steer_torque_limits(new_torque, self.apply_torque_last, CS.out.steeringTorqueEps, CarControllerParams, steer_max)        
 
         #apply_steer_dir = SteerDirection.LEFT if apply_steer > 0 else SteerDirection.RIGHT
         apply_steer_dir = SteerDirection.LEFT if apply_torque > 0 else SteerDirection.RIGHT
