@@ -1480,7 +1480,7 @@ If you&apos;d like to proceed, use https://flash.comma.ai to restore your device
     </message>
     <message>
         <source>Record and Upload Microphone Audio</source>
-        <translation>마이크 오디오를 기록하고 업로드하세요</translation>
+        <translation>마이크 오디오 녹음 및 업로드</translation>
     </message>
     <message>
         <source>Record and store microphone audio while driving. The audio will be included in the dashcam video in comma connect.</source>
