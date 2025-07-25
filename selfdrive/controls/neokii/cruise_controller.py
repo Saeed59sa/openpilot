@@ -194,7 +194,7 @@ class CruiseController:
       self.apply_limit_speed_clu = calculated_max_speed_clu
     else:
       error = calculated_max_speed_clu - self.apply_limit_speed_clu
-      kp = 0.01
+      kp = np.interp(abs(error), [0, 2, 5, 10], [0.01, 0.05, 0.10, 0.20])
       self.apply_limit_speed_clu += error * kp
 
   def _cal_current_speed(self, left_dist, safe_speed_kph):
