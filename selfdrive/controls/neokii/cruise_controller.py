@@ -144,25 +144,30 @@ class CruiseController:
     self.curve_speed_clu = 0.
 
   def _cal_limit_speed(self, CS, sm, current_speed_ms: float, cluster_speed_clu: float, v_cruise_kph: float):
-    # 1. Road limit speed
+    nda_active = SpeedLimiter.instance().get_active()
     road_limit_speed_nda = SpeedLimiter.instance().get_road_limit_speed()
     road_limit_speed_stock = CS.exState.navLimitSpeed
-    road_limit_speed = next((s for s in [road_limit_speed_nda, road_limit_speed_stock] if s is not None and s > 0), None)
+    camera_limit_speed, is_limit_zone = SpeedLimiter.instance().get_max_speed(cluster_speed_clu, self.conv.is_metric)
+
+    # 1. Road limit speed
+    road_limit_speed = None
+    if nda_active and road_limit_speed_nda is not None and road_limit_speed_nda > 0:
+      road_limit_speed = road_limit_speed_nda
+    elif road_limit_speed_stock is not None and road_limit_speed_stock > 0:
+      road_limit_speed = road_limit_speed_stock
+
     ratio = np.interp(road_limit_speed, [self.conv.to_current_unit(10.0), self.conv.to_current_unit(100.0)], [1.30, 1.10])
     road_limit_speed_clu = road_limit_speed * ratio if road_limit_speed else NO_LIMIT_SPEED
     self.road_limit_speed_clu = road_limit_speed_clu
 
     # 2. Camera limit speed
-    nda_active = SpeedLimiter.instance().get_active()
-    camera_limit_speed, is_limit_zone = SpeedLimiter.instance().get_max_speed(cluster_speed_clu, self.conv.is_metric)
+    camera_limit_speed_clu = NO_LIMIT_SPEED
     if nda_active and camera_limit_speed >= self.min_set_speed_clu:
       camera_limit_speed_clu = camera_limit_speed
     elif CS is not None and CS.speedLimit > 0 and CS.speedLimitDistance > 0:
       safety_factor = 105
       camera_limit_speed_stock, is_limit_zone = self._cal_current_speed(CS.speedLimitDistance, CS.speedLimit * safety_factor)
       camera_limit_speed_clu = min(NO_LIMIT_SPEED, camera_limit_speed_stock)
-    else:
-      camera_limit_speed_clu = NO_LIMIT_SPEED
     self.camera_limit_speed_clu = camera_limit_speed_clu
 
     # 3. Lead limit speed
@@ -199,7 +204,7 @@ class CruiseController:
 
   def _cal_current_speed(self, left_dist, safe_speed_kph):
     safe_time = 7
-    safe_decel_rate = 120
+    safe_decel_rate = 1.2
     safe_speed = self.conv.to_ms(safe_speed_kph)
     safe_dist = safe_speed * safe_time
     decel_dist = left_dist - safe_dist
@@ -581,13 +586,19 @@ class CruiseStateManager:
     self.prev_main_button = current_main_button
 
   def _button_press(self, CS, btn, long_pressed):
+    nda_active = SpeedLimiter.instance().get_active()
+    road_limit_speed_nda = SpeedLimiter.instance().get_road_limit_speed()
+    road_limit_speed_stock = CS.exState.navLimitSpeed
+
+    road_limit_speed = None
+    if nda_active and road_limit_speed_nda is not None and road_limit_speed_nda > 0:
+      road_limit_speed = road_limit_speed_nda
+    elif road_limit_speed_stock is not None and road_limit_speed_stock > 0:
+      road_limit_speed = road_limit_speed_stock
+
     v_cruise_delta = 10 if self.conv.is_metric else IMPERIAL_INCREMENT * 5
     v_cruise_kph = int(round(self.conv.to_clu(self.speed_ms)))
     cluster_speed_clu = self.conv.to_clu(CS.vEgoCluster)
-
-    road_limit_speed_nda = SpeedLimiter.instance().get_road_limit_speed()
-    road_limit_speed_stock = CS.exState.navLimitSpeed
-    road_limit_speed = next((s for s in [road_limit_speed_nda, road_limit_speed_stock] if s is not None and s > 0), None)
 
     if btn == ButtonType.accelCruise:
       if self.enabled:
