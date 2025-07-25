@@ -804,6 +804,11 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.NO_ENTRY: NoEntryAlert("방해 수준이 너무높습니다"),
   },
 
+  EventName.excessiveActuation: {
+    ET.SOFT_DISABLE: soft_disable_alert("과도한 동작"),
+    ET.NO_ENTRY: NoEntryAlert("과도한 동작"),
+  },
+
   EventName.overheat: {
     ET.PERMANENT: overheat_alert,
     ET.SOFT_DISABLE: soft_disable_alert("장치 과열됨"),
