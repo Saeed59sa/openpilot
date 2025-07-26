@@ -225,6 +225,18 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     x += longControlTextWidth + 24;
   }
 
+  // RadarTrack
+  if (params.getBool("RadarTrackEnable")) {
+    QString radarTrackText = "RadarTrack";
+    int radarTrackTextWidth = p.fontMetrics().horizontalAdvance(radarTrackText);
+    int radarTrackTextHeight = p.fontMetrics().height();
+    p.setPen(Qt::NoPen);
+    p.setBrush(blackColor(200));
+    p.drawRoundedRect(x - 10, y - 20, radarTrackTextWidth + 20, radarTrackTextHeight + 10, 15, 15);
+    drawTextColor(p, x, y, 30, radarTrackText, limeColor(200), "L");
+    x += radarTrackTextWidth + 24;
+  }
+
   // N direction icon
   x = surface_rect.right() - (btn_size / 2) - (UI_BORDER_SIZE * 2) - (btn_size * 3);
   y = (btn_size / 2) + (UI_BORDER_SIZE * 2);
