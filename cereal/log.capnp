@@ -128,12 +128,13 @@ struct OnroadEvent @0xc4fa6047f024e718 {
     personalityChanged @91;
     aeb @92;
     userFlag @95;
+    excessiveActuation @96;
 
     ding @97;
     dong @98;
 
     turningIndicatorOn @99;
-    autoLaneChange @96;
+    autoLaneChange @100;
 
     soundsUnavailableDEPRECATED @47;
   }
