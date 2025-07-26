@@ -39,6 +39,7 @@ protected:
 
   QPixmap home_img, flag_img, settings_img, mic_img, c3x_img;
   bool onroad, recording_audio, flag_pressed, settings_pressed, mic_indicator_pressed;
+  bool commit_check_done;
   const QMap<cereal::DeviceState::NetworkType, QString> network_type = {
     {cereal::DeviceState::NetworkType::NONE, tr("--")},
     {cereal::DeviceState::NetworkType::WIFI, tr("Wi-Fi")},

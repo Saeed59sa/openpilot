@@ -26,7 +26,7 @@ void Sidebar::drawMetric(QPainter &p, const QPair<QString, QString> &label, QCol
   p.drawText(rect.adjusted(22, 0, 0, 0), Qt::AlignCenter, label.first + "\n" + label.second);
 }
 
-Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(false), settings_pressed(false), mic_indicator_pressed(false), scene(uiState()->scene) {
+Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(false), settings_pressed(false), mic_indicator_pressed(false), scene(uiState()->scene), commit_check_done(false) {
   home_img = loadPixmap("../assets/images/button_home.png", home_btn.size());
   flag_img = loadPixmap("../assets/images/button_flag.png", home_btn.size());
   settings_img = loadPixmap("../assets/images/button_settings.png", settings_btn.size(), Qt::IgnoreAspectRatio);
@@ -66,8 +66,10 @@ void Sidebar::mouseReleaseEvent(QMouseEvent *event) {
     //MessageBuilder msg;
     //msg.initEvent().initUserFlag();
     //pm->send("userFlag", msg);
-    QProcess::execute("sh /data/openpilot/scripts/gitpull.sh");
-
+    QString commit_compare = QString("%1").arg(QString::fromStdString(params.get("CommitCompare")));
+    if (commit_compare.contains("!=")) {
+      QProcess::execute("sh /data/openpilot/scripts/gitpull.sh");
+    }
   } else if (settings_btn.contains(event->pos())) {
     emit openSettings();
   } else if (recording_audio && mic_indicator_btn.contains(event->pos())) {
@@ -91,6 +93,18 @@ void Sidebar::updateState(const UIState &s) {
   setProperty("netType", tethering_on ? "Hotspot": network_type[deviceState.getNetworkType()]);
   int strength = tethering_on ? 4 : (int)deviceState.getNetworkStrength();
   setProperty("netStrength", strength > 0 ? strength + 1 : 0);
+
+  if (strength > 0 && !commit_check_done) {
+    QString commit_compare = QString("%1").arg(QString::fromStdString(params.get("CommitCompare")));
+    if (commit_compare.isEmpty()) {
+      QProcess::execute("sh /data/openpilot/scripts/commit_compare.sh");
+      commit_check_done = true;
+    }
+  }
+
+  if (strength == 0) {
+    commit_check_done = false;
+  }
 
   ItemStatus connectStatus;
   auto last_ping = deviceState.getLastAthenaPingTime();
@@ -134,6 +148,7 @@ void Sidebar::paintEvent(QPaintEvent *event) {
   p.fillRect(rect(), QColor(57, 57, 57));
 
   QString c3x_position = QString("%1").arg(QString::fromStdString(params.get("DevicePosition")));
+  QString commit_compare = QString("%1").arg(QString::fromStdString(params.get("CommitCompare")));
 
   // buttons
   p.setOpacity(settings_pressed ? 0.65 : 1.0);
@@ -152,9 +167,12 @@ void Sidebar::paintEvent(QPaintEvent *event) {
   p.drawPixmap(home_btn.x(), home_btn.y(), c3x_img);
 
   const QRect r3 = QRect(0, 967, event->rect().width(), 50);
+  const QRect r4 = QRect(0, 977, event->rect().width(), 50);
+
   p.setFont(InterFont(30));
   p.setPen(QColor(0xff, 0xff, 0xff));
   p.drawText(r3, Qt::AlignCenter, c3x_position);
+  p.drawText(r4, Qt::AlignCenter, commit_compare);
 
   p.setOpacity(1.0);
 

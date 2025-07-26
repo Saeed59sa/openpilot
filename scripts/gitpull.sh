@@ -49,27 +49,15 @@ set_time_settings() {
 }
 
 check_network() {
-  local max_attempts=3
-  local attempt=1
+  log_message "Checking network connectivity..."
 
-  while [ $attempt -le $max_attempts ]; do
-    log_message "Checking network connectivity (attempt $attempt/$max_attempts)..."
-
-    if ping -c 3 -W 5 8.8.8.8 > /dev/null 2>&1; then
-      log_message "${GREEN}Network connectivity confirmed${NC}"
-      return 0
-    fi
-
-    if [ $attempt -lt $max_attempts ]; then
-      log_message "${YELLOW}Network check failed, retrying in 3 seconds...${NC}"
-      sleep 3
-    fi
-
-    ((attempt++))
-  done
-
-  log_message "${RED}Network connectivity failed after $max_attempts attempts${NC}"
-  return 1
+  if ping -c 3 -W 5 8.8.8.8 > /dev/null 2>&1; then
+    log_message "${GREEN}Network connectivity confirmed${NC}"
+    return 0
+  else
+    log_message "${RED}Network connectivity failed${NC}"
+    return 1
+  fi
 }
 
 recover_submodules() {
@@ -146,7 +134,7 @@ configure_git() {
 
 safe_fetch_and_reset() {
   local branch="$1"
-  local max_retries=3
+  local max_retries=2
   local retry=1
   local needs_repo_cleaning=false
 
@@ -198,7 +186,7 @@ safe_submodule_update() {
   git submodule sync --recursive
 
   log_message "${GREEN}Updating submodules...${NC}"
-  local max_retries=3
+  local max_retries=2
   local retry=1
 
   while [ $retry -le $max_retries ]; do
@@ -241,8 +229,8 @@ cleanup_gone_branches() {
 compare_commits() {
   local branch="$1"
 
-  local remote_commit=$(git ls-remote origin "$branch" | awk '{print $1}' 2>/dev/null || echo "")
-  local local_commit=$(git rev-parse HEAD 2>/dev/null || echo "")
+  local remote_commit=$(git ls-remote origin "$branch" | awk '{print substr($1,1,7)}' 2>/dev/null || echo "")
+  local local_commit=$(git rev-parse --short=7 HEAD 2>/dev/null || echo "")
 
   if [ -z "$remote_commit" ] || [ -z "$local_commit" ]; then
     log_message "${RED}Could not retrieve commit information${NC}"
@@ -252,33 +240,17 @@ compare_commits() {
   local remote_time=$(date -d @"$(git show -s --format=%ct "origin/$branch" 2>/dev/null || echo "0")" '+%Y-%m-%d %H:%M:%S' 2>/dev/null || echo "Unknown")
   local local_time=$(date -d @"$(git show -s --format=%ct HEAD 2>/dev/null || echo "0")" '+%Y-%m-%d %H:%M:%S' 2>/dev/null || echo "Unknown")
 
-  echo -e "  Remote Commit: [ ${GREEN}${BOLD} $remote_commit ${NC} ] - $remote_time"
-  echo -e "   Local Commit: [ ${GREEN}${BOLD} $local_commit ${NC} ] - $local_time"
-
-  if [ "$remote_commit" = "$local_commit" ]; then
-    echo -e "\nCommit is ${GREEN}${BOLD}match${NC}. Proceeding with restart...\n"
-    return 0
-  else
-    echo -e "\nCommit is ${RED}${BOLD}not match${NC}. Update may have failed.\n"
-    return 1
-  fi
+  echo -e "\n Local Commit: ($local_time) [ ${GREEN}${BOLD}$local_commit${NC} ]"
+  echo -e "Remote Commit: ($remote_time) [ ${GREEN}${BOLD}$remote_commit${NC} ]"
 }
 
 main() {
-  log_message "${GREEN}Starting gitpull script...${NC}"
-
-  # Check if we're in the right directory
-  if [ ! -d "/data/openpilot" ]; then
-    log_message "${RED}/data/openpilot directory not found${NC}"
-    exit 1
-  fi
-
-  cd /data/openpilot
+  log_message "${GREEN}Starting Git pull script...${NC}"
 
   if [ -f "/data/openpilot/prebuilt" ]; then
     echo -n "0" > /data/params/d/PrebuiltEnable 2>/dev/null || true
     sudo rm -f prebuilt
-    log_message "Removed prebuilt flag"
+    log_message "Removed prebuilt"
   fi
 
   if ! check_network; then
@@ -322,20 +294,22 @@ main() {
     log_message "${YELLOW}Submodule update had issues, but continuing...${NC}"
   fi
 
-  log_message "${GREEN}Git operations completed successfully!${NC}"
+  log_message "${GREEN}Git pull process completed${NC}"
 
   cleanup_gone_branches
 
   if compare_commits "$branch"; then
+  echo -e "\nCommit Compare [${GREEN}${BOLD} match ${NC}]\n"
     if [ -x "/data/openpilot/scripts/restart.sh" ]; then
-      log_message "${GREEN}Executing restart script...${NC}"
+      log_message "${GREEN}Executing restart script...\n${NC}"
       exec /data/openpilot/scripts/restart.sh
     else
-      log_message "${RED}Restart script not found or not executable${NC}"
+      log_message "${RED}Restart script not found, exiting\n${NC}"
       exit 1
     fi
   else
-    log_message "${YELLOW}Commits don't match, manual intervention may be required${NC}"
+    echo -e "\nCommit Compare [${RED}${BOLD} not match ${NC}]\n"
+    log_message "${YELLOW}Git pull process failed, exiting\n${NC}"
     exit 1
   fi
 }
