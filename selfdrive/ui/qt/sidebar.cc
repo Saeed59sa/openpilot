@@ -167,7 +167,7 @@ void Sidebar::paintEvent(QPaintEvent *event) {
   p.drawPixmap(home_btn.x(), home_btn.y(), c3x_img);
 
   const QRect r3 = QRect(0, 967, event->rect().width(), 50);
-  const QRect r4 = QRect(0, 977, event->rect().width(), 50);
+  const QRect r4 = QRect(0, 1007, event->rect().width(), 50);
 
   p.setFont(InterFont(30));
   p.setPen(QColor(0xff, 0xff, 0xff));

@@ -191,7 +191,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
 
   // CameraScc Setting
   if (params.getBool("CameraSccEnable")) {
-    QString cameraSccText = "CameraScc";
+    QString cameraSccText = "CamScc";
     int cameraSccTextWidth = p.fontMetrics().horizontalAdvance(cameraSccText);
     int cameraSccTextHeight = p.fontMetrics().height();
     p.setPen(Qt::NoPen);
@@ -215,7 +215,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
 
   // LongitudinalControl Setting
   if (params.getBool("AlphaLongitudinalEnabled")) {
-    QString longControlText = "LongControl";
+    QString longControlText = "Long";
     int longControlTextWidth = p.fontMetrics().horizontalAdvance(longControlText);
     int longControlTextHeight = p.fontMetrics().height();
     p.setPen(Qt::NoPen);
@@ -227,7 +227,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
 
   // RadarTrack
   if (params.getBool("RadarTrackEnable")) {
-    QString radarTrackText = "RadarTrack";
+    QString radarTrackText = "Radar";
     int radarTrackTextWidth = p.fontMetrics().horizontalAdvance(radarTrackText);
     int radarTrackTextHeight = p.fontMetrics().height();
     p.setPen(Qt::NoPen);
