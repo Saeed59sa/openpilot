@@ -68,7 +68,7 @@ recover_submodules() {
   for submodule in $submodules; do
     if [ -d "$submodule" ]; then
       log_message "Cleaning submodule: $submodule"
-      (cd "$submodule" && git clean -fd --exclude="__pycache__" --exclude="*.pyc" && git reset --hard HEAD) || {
+      (cd "$submodule" && git clean -fd --exclude="__pycache__" --exclude="*.pyc") || {
         log_message "${YELLOW}Removing corrupted submodule: $submodule${NC}"
         rm -rf "$submodule"
       }
@@ -129,13 +129,10 @@ configure_git() {
   git config --global http.lowSpeedLimit 1000
   git config --global http.lowSpeedTime 300
   git config --global core.preloadindex true
-  git config --global core.fscache true
-  git config --global gc.auto 256
-
   git config --global transfer.bundleURI true
-  git config --global fetch.parallel 4
-  git config --global submodule.fetchJobs 4
-  git config --global core.compression 1
+  git config --global fetch.parallel 8
+  git config --global submodule.fetchJobs 8
+  git config --global diff.ignoreSubmodules untracked
 }
 
 safe_fetch_and_reset() {
@@ -159,7 +156,7 @@ safe_fetch_and_reset() {
 
     if [ $time_diff -lt 3600 ] && [ $retry -eq 1 ]; then
       log_message "${GREEN}Attempting incremental fetch (last fetch was ${time_diff}s ago)...${NC}"
-      if timeout 60 git fetch origin "$branch" --depth=10; then
+      if timeout 300 git fetch origin "$branch" --depth=10; then
         log_message "${GREEN}Incremental fetch completed successfully${NC}"
         break
       else
@@ -168,7 +165,7 @@ safe_fetch_and_reset() {
     fi
 
     log_message "${GREEN}Performing full fetch with progress...${NC}"
-    if timeout 300 git fetch --all --prune --progress; then
+    if timeout 600 git fetch --all --prune --progress; then
       log_message "${GREEN}Fetch completed successfully${NC}"
       break
     else
@@ -176,7 +173,7 @@ safe_fetch_and_reset() {
       needs_repo_cleaning=true
 
       if [ $fetch_exit_code -eq 124 ]; then
-        log_message "${YELLOW}Fetch timed out after 300 seconds${NC}"
+        log_message "${YELLOW}Fetch timed out after 600 seconds${NC}"
       else
         log_message "${YELLOW}Fetch failed with exit code: $fetch_exit_code${NC}"
       fi
