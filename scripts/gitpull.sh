@@ -82,8 +82,6 @@ clean_git_repo() {
   log_message "${GREEN}Cleaning git repository (preserving __pycache__)...${NC}"
 
   git clean -fd --exclude="__pycache__" --exclude="*.pyc"
-
-  git reset --hard HEAD
   git gc --auto
   git fsck --full || {
     log_message "${YELLOW}Git fsck found issues, attempting repair...${NC}"
@@ -151,7 +149,7 @@ safe_fetch_and_reset() {
 
     if [ $retry -gt 1 ] && [ "$needs_repo_cleaning" = true ]; then
       log_message "${YELLOW}Cleaning repository before retry...${NC}"
-      clean_git_repo
+      git clean -fd --exclude="__pycache__" --exclude="*.pyc"
       needs_repo_cleaning=false
     fi
 
@@ -186,7 +184,7 @@ safe_fetch_and_reset() {
       if [ $retry -eq $max_retries ]; then
         log_message "${RED}Fetch failed after $max_retries attempts${NC}"
         log_message "${YELLOW}Performing final repository cleanup...${NC}"
-        clean_git_repo
+        git clean -fd --exclude="__pycache__" --exclude="*.pyc"
         return 1
       fi
       log_message "${YELLOW}Fetch failed, retrying in 15 seconds...${NC}"
@@ -305,7 +303,6 @@ main() {
     clean_git_repo
   else
     log_message "${GREEN}Repository is clean, skipping cleanup${NC}"
-    git reset --hard HEAD
   fi
 
   if ! safe_fetch_and_reset "$branch"; then

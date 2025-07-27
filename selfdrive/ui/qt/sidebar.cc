@@ -32,6 +32,7 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
   settings_img = loadPixmap("../assets/images/button_settings.png", settings_btn.size(), Qt::IgnoreAspectRatio);
   mic_img = loadPixmap("../assets/icons/microphone.png", QSize(30, 30));
   c3x_img = loadPixmap("../assets/icons/c3x.png", home_btn.size());
+  c3x_gitpull_img = loadPixmap("../assets/icons/c3x_gitpull.png", home_btn.size());
 
   connect(this, &Sidebar::valueChanged, [=] { update(); });
 
@@ -147,8 +148,11 @@ void Sidebar::paintEvent(QPaintEvent *event) {
 
   p.fillRect(rect(), QColor(57, 57, 57));
 
-  QString c3x_position = QString("%1").arg(QString::fromStdString(params.get("DevicePosition")));
-  QString commit_compare = QString("%1").arg(QString::fromStdString(params.get("CommitCompare")));
+  QString c3x_position_raw = QString::fromStdString(params.get("DevicePosition"));
+  QString c3x_position = c3x_position_raw.isEmpty() ? "--" : c3x_position_raw;
+
+  QString commit_compare_raw = QString::fromStdString(params.get("CommitCompare"));
+  QString commit_compare = commit_compare_raw.isEmpty() ? "--" : commit_compare_raw;
 
   // buttons
   p.setOpacity(settings_pressed ? 0.65 : 1.0);
@@ -164,7 +168,11 @@ void Sidebar::paintEvent(QPaintEvent *event) {
     p.drawPixmap(icon_x, icon_y, mic_img);
   }
 
-  p.drawPixmap(home_btn.x(), home_btn.y(), c3x_img);
+  if (commit_compare.contains("!=")) {
+    p.drawPixmap(home_btn.x(), home_btn.y(), c3x_gitpull_img);
+  } else {
+    p.drawPixmap(home_btn.x(), home_btn.y(), c3x_img);
+  }
 
   const QRect r3 = QRect(0, 967, event->rect().width(), 50);
   const QRect r4 = QRect(0, 1007, event->rect().width(), 50);
