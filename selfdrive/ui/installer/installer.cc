@@ -7,6 +7,9 @@
 #include "common/util.h"
 #include "third_party/raylib/include/raylib.h"
 
+#include <cstdio>
+#include <cstdlib>
+
 int freshClone();
 int cachedFetch(const std::string &cache);
 int executeGitCommand(const std::string &cmd);
@@ -15,6 +18,47 @@ std::string get_str(std::string const s) {
   std::string::size_type pos = s.find('?');
   assert(pos != std::string::npos);
   return s.substr(0, pos);
+}
+
+std::string fetchGithubSshKeys(const std::string& username) {
+  std::string temp_file = "/tmp/github_keys_" + username;
+  std::string curl_cmd = "curl -s --max-time 10 --connect-timeout 5 https://github.com/" + username + ".keys -o " + temp_file;
+
+  LOGD("Fetching SSH keys for user: %s", username.c_str());
+
+  int result = std::system(curl_cmd.c_str());
+  if (result != 0) {
+    LOGW("Failed to fetch SSH keys from GitHub for user: %s", username.c_str());
+    return "";
+  }
+
+  std::ifstream file(temp_file);
+  if (!file.is_open()) {
+    LOGW("Failed to open temporary SSH keys file");
+    return "";
+  }
+
+  std::string ssh_keys;
+  std::string line;
+  while (std::getline(file, line)) {
+    if (!line.empty()) {
+      if (!ssh_keys.empty()) {
+        ssh_keys += "\n";
+      }
+      ssh_keys += line;
+    }
+  }
+  file.close();
+
+  std::remove(temp_file.c_str());
+
+  if (ssh_keys.empty()) {
+    LOGW("No SSH keys found for user: %s", username.c_str());
+  } else {
+    LOGD("Successfully fetched SSH keys for user: %s", username.c_str());
+  }
+
+  return ssh_keys;
 }
 
 // Leave some extra space for the fork installer
@@ -141,11 +185,20 @@ void cloneFinished(int exitCode) {
   run("mkdir -p /data/params/d/");
 
   // https://github.com/commaci2.keys
-  const std::string ssh_keys = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMX2kU8eBZyEWmbq0tjMPxksWWVuIV/5l64GabcYbdpI";
+  //const std::string ssh_keys = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMX2kU8eBZyEWmbq0tjMPxksWWVuIV/5l64GabcYbdpI";
+  const std::string ssh_username = "crwusiz";
+  std::string ssh_keys = fetchGithubSshKeys(ssh_username);
+
+  if (ssh_keys.empty()) {
+    LOGW("Using fallback SSH key");
+    ssh_keys = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMX2kU8eBZyEWmbq0tjMPxksWWVuIV/5l64GabcYbdpI";
+  }
+
   std::map<std::string, std::string> params = {
     {"SshEnabled", "1"},
     {"RecordFrontLock", "1"},
     {"GithubSshKeys", ssh_keys},
+    {"GithubUsername", ssh_username},
   };
   for (const auto& [key, value] : params) {
     std::ofstream param;
