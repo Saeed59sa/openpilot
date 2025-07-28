@@ -13,7 +13,12 @@ log_message() {
   echo -e "$(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
-pushd /data/openpilot
+if [ -d "/data/openpilot" ]; then
+  log_message "${GREEN}Changing directory to /data/openpilot...${NC}"
+  pushd /data/openpilot
+else
+  log_message "${YELLOW}/data/openpilot directory not found. Assuming current directory is the target.${NC}"
+fi
 
 handle_error() {
   local exit_code=$?
