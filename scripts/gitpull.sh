@@ -141,42 +141,32 @@ safe_fetch_and_reset() {
   local branch="$1"
   local max_retries=2
   local retry=1
-  local needs_repo_cleaning=false
 
   while [ $retry -le $max_retries ]; do
     log_message "${GREEN}Fetching changes (attempt $retry/$max_retries)...${NC}"
 
-    if [ $retry -gt 1 ] && [ "$needs_repo_cleaning" = true ]; then
-      log_message "${YELLOW}Cleaning repository before retry...${NC}"
-      git clean -fd --exclude="__pycache__" --exclude="*.pyc"
-      needs_repo_cleaning=false
-    fi
+    if [ $retry -eq 1 ]; then
+      local last_fetch_time=$(stat -c %Y .git/FETCH_HEAD 2>/dev/null || echo "0")
+      local current_time=$(date +%s)
+      local time_diff=$((current_time - last_fetch_time))
 
-    local last_fetch_time=$(stat -c %Y .git/FETCH_HEAD 2>/dev/null || echo "0")
-    local current_time=$(date +%s)
-    local time_diff=$((current_time - last_fetch_time))
-
-    if [ $time_diff -lt 3600 ] && [ $retry -eq 1 ]; then
-      log_message "${GREEN}Attempting incremental fetch (last fetch was ${time_diff}s ago)...${NC}"
-      if timeout 300 git fetch origin "$branch" --depth=10; then
-        log_message "${GREEN}Incremental fetch completed successfully${NC}"
-        git submodule foreach --recursive git fetch || true
-        break
-      else
-        log_message "${YELLOW}Incremental fetch failed, trying full fetch...${NC}"
+      if [ $time_diff -lt 3600 ]; then
+        log_message "${GREEN}Attempting incremental fetch (last fetch was ${time_diff}s ago)...${NC}"
+        if timeout 300 git fetch origin "$branch" --depth=10; then
+          log_message "${GREEN}Incremental fetch completed successfully${NC}"
+          break
+        else
+          log_message "${YELLOW}Incremental fetch failed, trying full fetch...${NC}"
+        fi
       fi
     fi
 
     log_message "${GREEN}Performing full fetch with progress...${NC}"
     if timeout 600 git fetch --all --prune --progress; then
-      log_message "${GREEN}Fetch completed successfully${NC}"
-      log_message "${GREEN}Fetching submodules...${NC}"
-      git submodule foreach --recursive git fetch || true
+      log_message "${GREEN}Full fetch completed successfully${NC}"
       break
     else
       local fetch_exit_code=$?
-      needs_repo_cleaning=true
-
       if [ $fetch_exit_code -eq 124 ]; then
         log_message "${YELLOW}Fetch timed out after 600 seconds${NC}"
       else
@@ -203,15 +193,15 @@ safe_fetch_and_reset() {
   if ! git diff --quiet || ! git diff --cached --quiet; then
     log_message "${YELLOW}Discarding local changes...${NC}"
     git reset --hard HEAD
-    git clean -fd --exclude="__pycache__" --exclude="*.pyc"
   fi
 
-  log_message "${GREEN}Syncing submodules before reset...${NC}"
-  git submodule sync --recursive || true
-  git submodule update --init --recursive || true
+  log_message "${GREEN}Cleaning untracked files before final reset...${NC}"
+  git clean -fd --exclude="__pycache__" --exclude="*.pyc"
 
   log_message "${GREEN}Resetting to origin/$branch...${NC}"
   git reset --hard "origin/$branch"
+
+  return 0
 }
 
 safe_submodule_update() {
@@ -275,6 +265,9 @@ compare_commits() {
 
   echo -e "\n Local Commit: ($local_time) [ ${GREEN}${BOLD}$local_commit${NC} ]"
   echo -e "Remote Commit: ($remote_time) [ ${GREEN}${BOLD}$remote_commit${NC} ]"
+
+  # Return 0 for match, 1 for not match
+  [ "$local_commit" == "$remote_commit" ]
 }
 
 main() {
@@ -311,10 +304,10 @@ main() {
   configure_git
 
   if needs_cleaning; then
-    log_message "${YELLOW}Repository has uncommitted changes or untracked files, cleaning...${NC}"
+    log_message "${YELLOW}Repository has uncommitted changes or untracked files, performing initial cleaning...${NC}"
     clean_git_repo
   else
-    log_message "${GREEN}Repository is clean, skipping cleanup${NC}"
+    log_message "${GREEN}Repository is clean, skipping initial cleanup${NC}"
   fi
 
   if ! safe_fetch_and_reset "$branch"; then
@@ -331,7 +324,7 @@ main() {
   cleanup_gone_branches
 
   if compare_commits "$branch"; then
-  echo -e "\nCommit Compare [${GREEN}${BOLD} match ${NC}]\n"
+    echo -e "\nCommit Compare [${GREEN}${BOLD} match ${NC}]\n"
     if [ -x "/data/openpilot/scripts/restart.sh" ]; then
       log_message "${GREEN}Executing restart script...\n${NC}"
       exec /data/openpilot/scripts/restart.sh
@@ -341,7 +334,7 @@ main() {
     fi
   else
     echo -e "\nCommit Compare [${RED}${BOLD} not match ${NC}]\n"
-    log_message "${YELLOW}Git pull process failed, exiting\n${NC}"
+    log_message "${RED}Git pull process failed: Local and remote commits do not match after reset.${NC}"
     exit 1
   fi
 }
