@@ -174,14 +174,20 @@ void Sidebar::paintEvent(QPaintEvent *event) {
     p.drawPixmap(home_btn.x(), home_btn.y(), c3x_img);
   }
 
-  const QRect r3 = QRect(0, 967, event->rect().width(), 50);
-  const QRect r4 = QRect(0, 1007, event->rect().width(), 50);
+  const QRect r3 = QRect(0, 950, event->rect().width(), 40);
+  const QRect r4 = QRect(0, 1000, event->rect().width(), 60);
 
-  p.setFont(InterFont(30));
+  p.setFont(InterFont(30, QFont::DemiBold));
   p.setPen(QColor(0xff, 0xff, 0xff));
   p.drawText(r3, Qt::AlignCenter, c3x_position);
-  p.drawText(r4, Qt::AlignCenter, commit_compare);
 
+  if (commit_compare.contains("!=")) {
+    p.setPen(QColor(0xc9, 0x22, 0x31));
+    p.drawText(r4, Qt::AlignCenter, commit_compare);
+  } else {
+    p.setPen(QColor(0x80, 0xd8, 0xa6));
+    p.drawText(r4, Qt::AlignCenter, commit_compare);
+  }
   p.setOpacity(1.0);
 
   // network
