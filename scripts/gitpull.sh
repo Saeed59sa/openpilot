@@ -13,6 +13,8 @@ log_message() {
   echo -e "$(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
+pushd /data/openpilot
+
 handle_error() {
   local exit_code=$?
   log_message "${RED}Error occurred at line $1. Exit code: $exit_code${NC}"
@@ -68,7 +70,7 @@ recover_submodules() {
   for submodule in $submodules; do
     if [ -d "$submodule" ]; then
       log_message "Cleaning submodule: $submodule"
-      (cd "$submodule" && git clean -fd --exclude="__pycache__" --exclude="*.pyc") || {
+      (cd "$submodule" && git clean -fd --exclude="__pycache__" --exclude="*.pyc" && git reset --hard HEAD) || {
         log_message "${YELLOW}Removing corrupted submodule: $submodule${NC}"
         rm -rf "$submodule"
       }
@@ -158,6 +160,7 @@ safe_fetch_and_reset() {
       log_message "${GREEN}Attempting incremental fetch (last fetch was ${time_diff}s ago)...${NC}"
       if timeout 300 git fetch origin "$branch" --depth=10; then
         log_message "${GREEN}Incremental fetch completed successfully${NC}"
+        git submodule foreach --recursive git fetch || true
         break
       else
         log_message "${YELLOW}Incremental fetch failed, trying full fetch...${NC}"
@@ -167,6 +170,8 @@ safe_fetch_and_reset() {
     log_message "${GREEN}Performing full fetch with progress...${NC}"
     if timeout 600 git fetch --all --prune --progress; then
       log_message "${GREEN}Fetch completed successfully${NC}"
+      log_message "${GREEN}Fetching submodules...${NC}"
+      git submodule foreach --recursive git fetch || true
       break
     else
       local fetch_exit_code=$?
@@ -194,6 +199,16 @@ safe_fetch_and_reset() {
     log_message "${RED}Remote branch origin/$branch does not exist${NC}"
     return 1
   fi
+
+  if ! git diff --quiet || ! git diff --cached --quiet; then
+    log_message "${YELLOW}Discarding local changes...${NC}"
+    git reset --hard HEAD
+    git clean -fd --exclude="__pycache__" --exclude="*.pyc"
+  fi
+
+  log_message "${GREEN}Syncing submodules before reset...${NC}"
+  git submodule sync --recursive || true
+  git submodule update --init --recursive || true
 
   log_message "${GREEN}Resetting to origin/$branch...${NC}"
   git reset --hard "origin/$branch"
