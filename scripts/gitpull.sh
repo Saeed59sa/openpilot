@@ -75,7 +75,7 @@ recover_submodules() {
   for submodule in $submodules; do
     if [ -d "$submodule" ]; then
       log_message "Cleaning submodule: $submodule"
-      (cd "$submodule" && git clean -fd --exclude="__pycache__" --exclude="*.pyc" && git reset --hard HEAD) || {
+      (cd "$submodule" && git reset --hard HEAD) || {
         log_message "${YELLOW}Removing corrupted submodule: $submodule${NC}"
         rm -rf "$submodule"
       }
@@ -87,8 +87,7 @@ recover_submodules() {
 
 clean_git_repo() {
   log_message "${GREEN}Cleaning git repository (preserving __pycache__)...${NC}"
-
-  git clean -fd --exclude="__pycache__" --exclude="*.pyc"
+  git clean -fd
   git gc --auto
   git fsck --full || {
     log_message "${YELLOW}Git fsck found issues, attempting repair...${NC}"
@@ -180,8 +179,7 @@ safe_fetch_and_reset() {
 
       if [ $retry -eq $max_retries ]; then
         log_message "${RED}Fetch failed after $max_retries attempts${NC}"
-        log_message "${YELLOW}Performing final repository cleanup...${NC}"
-        git clean -fd --exclude="__pycache__" --exclude="*.pyc"
+        clean_git_repo
         return 1
       fi
       log_message "${YELLOW}Fetch failed, retrying in 15 seconds...${NC}"
@@ -199,9 +197,6 @@ safe_fetch_and_reset() {
     log_message "${YELLOW}Discarding local changes...${NC}"
     git reset --hard HEAD
   fi
-
-  log_message "${GREEN}Cleaning untracked files before final reset...${NC}"
-  git clean -fd --exclude="__pycache__" --exclude="*.pyc"
 
   log_message "${GREEN}Resetting to origin/$branch...${NC}"
   git reset --hard "origin/$branch"
