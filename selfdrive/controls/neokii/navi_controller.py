@@ -16,7 +16,6 @@ from collections import deque
 from threading import Thread
 from cereal import messaging
 from openpilot.common.realtime import Ratekeeper
-from openpilot.common.conversions import Conversions as CV
 
 CAMERA_SPEED_FACTOR = 1.05
 terminate_flag = threading.Event()
@@ -228,7 +227,7 @@ class NaviServer:
 
   def check(self):
     now = time.monotonic()
-    if now - self.last_updated > 6.:
+    if now - self.last_updated > 3.:
       try:
         self.lock.acquire()
         self.json_road_limit = None
@@ -236,7 +235,7 @@ class NaviServer:
       finally:
         self.lock.release()
 
-    if now - self.last_updated_active > 6.:
+    if now - self.last_updated_active > 3.:
       self.active = 0
       self.remote_addr = None
 
@@ -294,7 +293,7 @@ def send_obstacle(cam_type, distance, speed, v_ego, s):
 def publish_thread(server):
   sm = server.sm
   naviData = messaging.pub_sock('naviData')
-  rk = Ratekeeper(3.0, print_delay_threshold=None)
+  rk = Ratekeeper(10.0, print_delay_threshold=None)
   v_ego_q = deque(maxlen=3)
 
   while not terminate_flag.is_set():
@@ -373,6 +372,9 @@ class SpeedLimiter:
     self.naviData = None
     self.logMonoTime = 0
 
+    self.last_recv_time = 0
+    self.recv_interval = 0.1
+
   @classmethod
   def instance(cls):
     if not hasattr(cls, "_instance"):
@@ -381,6 +383,11 @@ class SpeedLimiter:
 
   def recv(self):
     try:
+      current_time = time.monotonic()
+      if current_time - self.last_recv_time < self.recv_interval:
+        return
+
+      self.last_recv_time = current_time
       dat = messaging.recv_sock(self.sock, wait=False)
       if dat is not None:
         self.logMonoTime = dat.logMonoTime
@@ -400,7 +407,7 @@ class SpeedLimiter:
       return self.naviData.roadLimitSpeed
     return 0
 
-  def get_max_speed(self, cluster_speed, is_metric):
+  def get_max_speed(self, cluster_speed, conv):
     self.recv()
 
     if self.naviData is None:
@@ -436,7 +443,7 @@ class SpeedLimiter:
 
       if cam_limit_speed_left_dist is not None and cam_limit_speed is not None and cam_limit_speed_left_dist > 0:
 
-        v_ego = cluster_speed * (CV.KPH_TO_MS if is_metric else CV.MPH_TO_MS)
+        v_ego = conv.to_ms(cluster_speed)
         diff_speed = cluster_speed - (cam_limit_speed * cam_speed_factor)
 
         if cam_type == 22:
@@ -497,6 +504,47 @@ class SpeedLimiter:
 
     self.decelerating = False
     return 0, False
+
+  def get_camera_limit_speed_stock(self, speed_limit_distance, speed_limit, conv):
+    if speed_limit_distance <= 0 or speed_limit <= 0:
+      return 0, False
+
+    safety_factor = 1.05
+    safe_speed_kph = speed_limit * safety_factor
+
+    return self._calculate_deceleration_speed(speed_limit_distance, safe_speed_kph, conv)
+
+  def _calculate_deceleration_speed(self, left_dist, safe_speed_kph, conv):
+    safe_time = 7
+    safe_decel_rate = 1.2
+
+    safe_speed_ms = conv.to_ms(safe_speed_kph)
+
+    safe_dist = safe_speed_ms * safe_time
+    decel_dist = left_dist - safe_dist
+
+    is_limit_zone = False
+    if decel_dist > 0:
+      if not self.decelerating:
+        self.decelerating = True
+        is_limit_zone = True
+
+    if decel_dist <= 0:
+      self.decelerating = False
+      return safe_speed_kph, is_limit_zone
+
+    # v_i^2 = v_f^2 + 2ad (physics formula)
+    temp = safe_speed_ms**2 + 2 * safe_decel_rate * decel_dist
+
+    if temp < 0:
+      speed_ms = safe_speed_ms
+    else:
+      speed_ms = np.sqrt(temp)
+
+    calculated_speed = conv.to_clu(speed_ms)
+    safe_speed_clu = max(safe_speed_kph, min(255., calculated_speed))
+
+    return safe_speed_clu, is_limit_zone
 
 def signal_handler(sig, frame):
   print('Ctrl+C pressed, exiting.')

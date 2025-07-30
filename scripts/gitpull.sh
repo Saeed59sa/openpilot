@@ -95,19 +95,6 @@ clean_git_repo() {
   }
 }
 
-needs_cleaning() {
-  if ! git diff --quiet || ! git diff --cached --quiet; then
-    return 0
-  fi
-
-  local untracked_files=$(git ls-files --others --exclude-standard --exclude="__pycache__" --exclude="*.pyc")
-  if [ -n "$untracked_files" ]; then
-    return 0
-  fi
-
-  return 1
-}
-
 configure_git() {
   log_message "${GREEN}Configuring git settings...${NC}"
 
@@ -302,13 +289,6 @@ main() {
   log_message "Current branch: $branch"
 
   configure_git
-
-  if needs_cleaning; then
-    log_message "${YELLOW}Repository has uncommitted changes or untracked files, performing initial cleaning...${NC}"
-    clean_git_repo
-  else
-    log_message "${GREEN}Repository is clean, skipping initial cleanup${NC}"
-  fi
 
   if ! safe_fetch_and_reset "$branch"; then
     log_message "${RED}Failed to fetch and reset${NC}"

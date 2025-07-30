@@ -147,7 +147,7 @@ class CruiseController:
     nda_active = SpeedLimiter.instance().get_active()
     road_limit_speed_nda = SpeedLimiter.instance().get_road_limit_speed()
     road_limit_speed_stock = CS.exState.navLimitSpeed
-    camera_limit_speed, is_limit_zone = SpeedLimiter.instance().get_max_speed(cluster_speed_clu, self.conv.is_metric)
+    is_limit_zone = False
 
     # 1. Road limit speed
     road_limit_speed = None
@@ -162,12 +162,14 @@ class CruiseController:
 
     # 2. Camera limit speed
     camera_limit_speed_clu = NO_LIMIT_SPEED
-    if nda_active and camera_limit_speed >= self.min_set_speed_clu:
+    if nda_active:
+      camera_limit_speed, is_limit_zone = (
+        SpeedLimiter.instance().get_max_speed(cluster_speed_clu, self.conv))
       camera_limit_speed_clu = camera_limit_speed
     elif CS is not None and CS.speedLimit > 0 and CS.speedLimitDistance > 0:
-      safety_factor = 105
-      camera_limit_speed_stock, is_limit_zone = self._cal_current_speed(CS.speedLimitDistance, CS.speedLimit * safety_factor)
-      camera_limit_speed_clu = min(NO_LIMIT_SPEED, camera_limit_speed_stock)
+      camera_limit_speed_stock, is_limit_zone = (
+        SpeedLimiter.instance().get_camera_limit_speed_stock(CS.speedLimitDistance, CS.speedLimit, self.conv))
+      camera_limit_speed_clu = camera_limit_speed_stock
     self.camera_limit_speed_clu = camera_limit_speed_clu
 
     # 3. Lead limit speed
@@ -201,34 +203,6 @@ class CruiseController:
       error = calculated_max_speed_clu - self.apply_limit_speed_clu
       kp = np.interp(abs(error), [0, 2, 5, 10], [0.01, 0.05, 0.10, 0.20])
       self.apply_limit_speed_clu += error * kp
-
-  def _cal_current_speed(self, left_dist, safe_speed_kph):
-    safe_time = 7
-    safe_decel_rate = 1.2
-    safe_speed = self.conv.to_ms(safe_speed_kph)
-    safe_dist = safe_speed * safe_time
-    decel_dist = left_dist - safe_dist
-
-    is_limit_zone = False
-    if decel_dist > 0:
-      if not self.decelerating:
-        self.decelerating = True
-        is_limit_zone = True
-
-    if decel_dist <= 0:
-      self.decelerating = False
-      return safe_speed_kph, is_limit_zone
-
-    # v_i^2 = v_f^2 + 2ad
-    temp = safe_speed**2 + 2 * safe_decel_rate * decel_dist
-
-    if temp < 0:
-      speed_ms = safe_speed
-    else:
-      speed_ms = math.sqrt(temp)
-    safe_speed_clu = max(safe_speed_kph, min(NO_LIMIT_SPEED, self.conv.to_clu(speed_ms)))
-
-    return safe_speed_clu, is_limit_zone
 
   def _cal_lead_speed(self, lead, cluster_speed_clu: float):
     lead_distance_buffer = 5.
@@ -443,10 +417,8 @@ class CruiseController:
       self._cal_limit_speed(CS, sm, current_speed_ms, cluster_speed_clu, v_cruise_kph)
       self.cruise_speed_kph = float(np.clip(v_cruise_kph, V_CRUISE_MIN, self.conv.to_current_unit(self.apply_limit_speed_clu)))
       self._target_speed(CS, cluster_speed_clu, self.real_set_speed_kph, self.CI.CS.cruise_buttons[-1] != Buttons.NONE)
-
       if CruiseStateManager.instance().cruise_state_control:
         self.cruise_speed_kph = min(self.cruise_speed_kph, max(self.real_set_speed_kph, V_CRUISE_MIN))
-
     else:
       self.cruise_speed_kph = cluster_speed_clu
       self.reset()
