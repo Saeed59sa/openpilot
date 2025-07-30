@@ -746,7 +746,19 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>Device failed to register with the comma.ai backend. It will not connect or upload to comma.ai servers, and receives no support from comma.ai. If this is a device purchased at comma.ai/shop, open a ticket at https://comma.ai/support.</source>
-        <translation>장치는 comma.ai 백엔드에 등록하지 못했습니다. comma.ai 서버에 연결하거나 업로드하지 않으며 comma.ai로부터 지원을받지 않습니다. Comma.ai shop에서 구매 한 장치 인 경우 https://comma.ai/support에서 티켓을 여십시오.</translation>
+        <translation>장치를 comma.ai 백엔드에 등록하지 못했습니다. comma.ai 서버에 연결하거나 업로드하지 않으며 comma.ai로부터 지원을받지 않습니다. comma.ai shop에서 구매 한 장치 인 경우 https://comma.ai/support에서 티켓을 여십시오.</translation>
+    </message>
+    <message>
+        <source>Acknowledge Excessive Actuation</source>
+        <translation>과도한 작동을 인정하십시오</translation>
+    </message>
+    <message>
+        <source>Snooze Update</source>
+        <translation>업데이트 일시 중지</translation>
+    </message>
+    <message>
+        <source>openpilot has detected excessive %1 actuation. This may be due to a software bug. Please contact support at https://comma.ai/support.</source>
+        <translation>오픈파일럿은 과도한 %1 작동을 감지했습니다. 소프트웨어 버그 때문일 수 있습니다. https://comma.ai/support 에 문의하여 지원받으세요.</translation>
     </message>
 </context>
 <context>
