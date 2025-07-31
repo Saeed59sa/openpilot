@@ -172,24 +172,33 @@ class CruiseController:
       camera_limit_speed_clu = camera_limit_speed_stock
     self.camera_limit_speed_clu = camera_limit_speed_clu
 
-    # 3. Lead limit speed
+    # 3. Section limit speed
+    section_limit_speed, section_left_dist = SpeedLimiter.instance().get_section_limit_speed()
+    section_limit_speed_clu = NO_LIMIT_SPEED
+
+    if nda_active and section_limit_speed > 0 and section_left_dist > 0:
+      section_limit_speed_clu = self.conv.to_current_unit(section_limit_speed)
+      is_limit_zone = True
+
+    # 4. Lead limit speed
     lead = sm['radarState'].leadOne
     lead_speed = self._cal_lead_speed(lead, cluster_speed_clu)
     lead_limit_speed_clu = lead_speed if self.CP.openpilotLongitudinalControl and lead.status else NO_LIMIT_SPEED
     self.lead_limit_speed_clu = lead_limit_speed_clu
 
-    # 4. Curve limit speed
+    # 5. Curve limit speed
     model = sm['modelV2']
     curve_limit_speed_clu = self._cal_curve_speed_adaptive(model, current_speed_ms, v_cruise_kph)
     self.curve_speed_clu = curve_limit_speed_clu
 
-    # 5. Steering angle based limit speed
+    # 6. Steering angle based limit speed
     steer_limit_speed_clu = self._cal_steer_based_speed(current_speed_ms, CS.steeringAngleDeg)
     self.steer_limit_speed_clu = steer_limit_speed_clu
 
     speed_candidates = [
       road_limit_speed_clu,
       camera_limit_speed_clu,
+      section_limit_speed_clu,
       lead_limit_speed_clu,
       curve_limit_speed_clu,
       steer_limit_speed_clu

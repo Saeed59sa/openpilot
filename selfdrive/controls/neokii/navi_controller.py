@@ -407,6 +407,12 @@ class SpeedLimiter:
       return self.naviData.roadLimitSpeed
     return 0
 
+  def get_section_limit_speed(self):
+    self.recv()
+    if self.naviData is not None:
+      return self.naviData.sectionLimitSpeed, self.naviData.sectionLeftDist
+    return 0, 0
+
   def get_max_speed(self, cluster_speed, conv):
     self.recv()
 
