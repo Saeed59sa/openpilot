@@ -25,8 +25,8 @@ rm -rf $BUILD_DIR
 mkdir -p $BUILD_DIR
 cd $BUILD_DIR
 git init
-git remote add origin git@github.com:commaai/openpilot.git
-git checkout --orphan $RELEASE_BRANCH
+git remote add origin git@github.com:sunnypilot/sunnypilot.git
+git checkout --orphan $SOURCE_BRANCH
 
 # do the files copy
 echo "[-] copying files T=$SECONDS"
@@ -74,7 +74,6 @@ find . -name '__pycache__' -delete
 rm -rf .sconsign.dblite Jenkinsfile release/
 rm selfdrive/modeld/models/driving_vision.onnx
 rm selfdrive/modeld/models/driving_policy.onnx
-rm sunnypilot/modeld*/models/supercombo.onnx
 
 find third_party/ -name '*x86*' -exec rm -r {} +
 find third_party/ -name '*Darwin*' -exec rm -r {} +
@@ -88,7 +87,7 @@ touch prebuilt
 
 # Add built files to git
 git add -f .
-git commit --amend -m "openpilot v$VERSION"
+git commit --amend -m "sunnypilot v$VERSION"
 
 # Run tests
 cd $BUILD_DIR
