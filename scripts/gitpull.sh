@@ -57,14 +57,19 @@ set_time_settings() {
 
 check_network() {
   log_message "Checking network connectivity..."
+  local dns_servers=("8.8.8.8" "8.8.4.4" "1.1.1.1" "1.0.0.1")
 
-  if ping -c 3 -W 5 8.8.8.8 > /dev/null 2>&1; then
-    log_message "${GREEN}Network connectivity confirmed${NC}"
-    return 0
-  else
-    log_message "${RED}Network connectivity failed${NC}"
-    return 1
-  fi
+  for dns in "${dns_servers[@]}"; do
+    if ping -c 3 -W 5 "$dns" > /dev/null 2>&1; then
+      log_message "${GREEN}Network connectivity confirmed via $dns${NC}"
+      return 0
+    else
+      log_message "${YELLOW}Failed to reach $dns${NC}"
+    fi
+  done
+
+  log_message "${RED}All network connectivity tests failed${NC}"
+  return 1
 }
 
 recover_submodules() {
