@@ -207,4 +207,13 @@ inline static std::unordered_map<std::string, uint32_t> keys = {
     {"OsmStateTitle", PERSISTENT},
     {"OsmWayTest", PERSISTENT},
     {"RoadName", CLEAR_ON_ONROAD_TRANSITION},
+
+    // Tuning keys
+    {"EnableHkgTuningAngleSmoothingFactor", PERSISTENT | BACKUP},
+    {"HkgTuningAngleMinTorqueReductionGain", PERSISTENT | BACKUP},
+    {"HkgTuningAngleMaxTorqueReductionGain", PERSISTENT | BACKUP},
+    {"HkgTuningAngleActiveTorqueReductionGain", PERSISTENT | BACKUP},
+    {"HkgTuningOverridingCycles", PERSISTENT | BACKUP},
+    {"HkgAngleLiveTuning", CLEAR_ON_MANAGER_START}
+    
 };

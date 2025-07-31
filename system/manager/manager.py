@@ -74,6 +74,12 @@ def manager_init() -> None:
     ("QuickBootToggle", "0"),
     ("QuietMode", "0"),
     ("ShowAdvancedControls", "0" if build_metadata.tested_channel else "1"),
+    ("EnableHkgTuningAngleSmoothingFactor", "1"),
+    ("HkgTuningAngleMinTorqueReductionGain", "10"),
+    ("HkgTuningAngleActiveTorqueReductionGain", "60"),
+    ("HkgTuningAngleMaxTorqueReductionGain", "100"),
+    ("HkgTuningOverridingCycles", "17"),
+    ("HkgAngleLiveTuning", "0"),
   ]
 
   # device boot mode
