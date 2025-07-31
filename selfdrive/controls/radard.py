@@ -68,7 +68,7 @@ class Track:
     self.cnt = 0
     self.aLeadTau = FirstOrderFilter(_LEAD_ACCEL_TAU, 0.45, DT_MDL)
 
-  def update(self, d_rel, y_rel, v_rel, v_lead, a_lead, j_lead, measured):
+  def update(self, d_rel: float, y_rel: float, v_rel: float, v_lead: float, a_lead: float, j_lead: float, measured: float, yv_lead: float):
     self.dRel = d_rel   # LONG_DIST
     self.yRel = y_rel   # -LAT_DIST
     self.vRel = v_rel   # REL_SPEED
@@ -76,6 +76,8 @@ class Track:
     self.vLead = self.vLeadK = v_lead
     self.aLead = self.aLeadK = a_lead
     self.jLead = j_lead
+    self.yvLead = yv_lead
+
     self.measured = measured   # measured or estimate
 
     if abs(a_lead) < 0.5 and abs(j_lead) < 0.5:
@@ -98,6 +100,7 @@ class Track:
       "aLeadK": float(self.aLeadK),
       "aLeadTau": float(self.aLeadTau.x),
       "jLead": float(self.jLead),
+      "vLat": float(self.yvLead),
       "status": True,
       "fcw": self.is_potential_fcw(model_prob),
       "modelProb": model_prob,
@@ -168,6 +171,7 @@ class VisionTrack:
       "aLeadK": self.aLeadK,
       "aLeadTau": self.aLeadTau,
       "jLead": 0.0,
+      "vLat": 0.0,
       "fcw": False,
       "modelProb": self.prob,
       "status": self.status,
@@ -228,6 +232,7 @@ class VisionTrack:
       self.cnt += 1
     else:
       self.reset()
+      self.cnt = 0
       self.dPath = float(self.yRel + np.interp(v_ego ** 2 / (2 * 2.5), model_msg.position.x, model_msg.position.y))
 
     self.dRel_last = self.dRel
@@ -389,8 +394,8 @@ class RadarD:
 
     ar_pts = {}
     for pt in rr.points:
-      y_rel = -leads_v3[0].y[0] if pt.trackId == 0 and pt.yRel == 0 and leads_v3 and leads_v3[0].prob > LEAD_PROB_THRESHOLD else pt.yRel
-      ar_pts[pt.trackId] = [pt.dRel, y_rel, pt.vRel, pt.measured, pt.vLead, pt.aLead, pt.jLead]
+      pt_yRel = -leads_v3[0].y[0] if pt.trackId in [0, 1] and pt.yRel == 0 and self.ready and leads_v3[0].prob > LEAD_PROB_THRESHOLD else pt.yRel
+      ar_pts[pt.trackId] = [pt.dRel, pt_yRel, pt.vRel, pt.measured, pt.vLead, pt.aLead, pt.jLead, pt.yvRel]
 
     # *** remove missing points from meta data ***
     for ids in list(self.tracks.keys()):
@@ -406,11 +411,12 @@ class RadarD:
       v_lead = rpt[4] # carrot
       a_lead = rpt[5]
       j_lead = rpt[6]
+      yv_lead = rpt[7]
 
       # create the track if it doesn't exist or it's a new track
       if ids not in self.tracks:
         self.tracks[ids] = Track(ids)
-      self.tracks[ids].update(rpt[0], rpt[1], rpt[2], v_lead, a_lead, j_lead, rpt[3])
+      self.tracks[ids].update(rpt[0], rpt[1], rpt[2], v_lead, a_lead, j_lead, rpt[3], yv_lead)
 
     # *** publish radarState ***
     self.radar_state_valid = sm.all_checks()
