@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-import time
 import shutil
 import threading
 from pathlib import Path
@@ -74,11 +73,8 @@ def deleter_thread(exit_event: threading.Event):
             for delete_dir_external in sorted(dirs_external):
               delete_path_external = os.path.join(Paths.log_root_external(), delete_dir_external)
               try:
-                start = time.monotonic()
                 cloudlog.warning(f"deleting {delete_path_external}")
                 shutil.rmtree(delete_path_external)
-                elapsed = time.monotonic() - start
-                cloudlog.warning(f"deleting {delete_path_external} DONE in {elapsed:.2f}s")
                 break
               except OSError:
                 cloudlog.exception(f"issue deleting {delete_path_external}")
@@ -86,22 +82,16 @@ def deleter_thread(exit_event: threading.Event):
           # move directory from internal to external
           path_external = os.path.join(Paths.log_root_external(), delete_dir)
           try:
-            start = time.monotonic()
             cloudlog.warning(f"moving {delete_path} to {path_external}")
             shutil.move(delete_path, path_external)
-            elapsed = time.monotonic() - start
-            cloudlog.warning(f"moving {delete_path} to {path_external} DONE in {elapsed:.2f}s")
             break
           except Exception as e:
             cloudlog.exception(f"issue moving {delete_path} to {path_external}: {str(e)}")
           continue
 
         try:
-          start = time.monotonic()
           cloudlog.warning(f"deleting {delete_path}")
           shutil.rmtree(delete_path)
-          elapsed = time.monotonic() - start
-          cloudlog.warning(f"deleting {delete_path} DONE in {elapsed:.2f}s")
           break
         except OSError:
           cloudlog.exception(f"issue deleting {delete_path}")
