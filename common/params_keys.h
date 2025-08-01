@@ -181,37 +181,37 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"SunnylinkEnabled", {PERSISTENT, BOOL}},
 
     // Backup Manager params
-    {"BackupManager_CreateBackup", PERSISTENT},
-    {"BackupManager_RestoreVersion", PERSISTENT},
+    {"BackupManager_CreateBackup", {PERSISTENT, BOOL}},
+    {"BackupManager_RestoreVersion", {PERSISTENT, STRING}},
 
     // sunnypilot car specific params
-    {"HyundaiLongitudinalTuning", PERSISTENT | BACKUP},
+    {"HyundaiLongitudinalTuning", {PERSISTENT | BACKUP, INT}},
 
-    {"DynamicExperimentalControl", PERSISTENT | BACKUP},
-    {"BlindSpot", PERSISTENT | BACKUP},
+    {"DynamicExperimentalControl", {PERSISTENT | BACKUP, BOOL}},
+    {"BlindSpot", {PERSISTENT | BACKUP, BOOL}},
 
     // model panel params
-    {"LagdToggle", PERSISTENT | BACKUP},
-    {"LagdToggleDesc", PERSISTENT},
-    {"LagdToggledelay", PERSISTENT | BACKUP},
+    {"LagdToggle", {PERSISTENT | BACKUP, BOOL}},
+    {"LagdToggleDesc", {PERSISTENT, STRING}},
+    {"LagdToggleDelay", {PERSISTENT | BACKUP, FLOAT}},
 
     // mapd
-    {"MapAdvisorySpeedLimit", CLEAR_ON_ONROAD_TRANSITION},
-    {"MapdVersion", PERSISTENT},
-    {"MapSpeedLimit", CLEAR_ON_ONROAD_TRANSITION},
-    {"NextMapSpeedLimit", CLEAR_ON_ONROAD_TRANSITION},
-    {"Offroad_OSMUpdateRequired", CLEAR_ON_MANAGER_START},
-    {"OsmDbUpdatesCheck", CLEAR_ON_MANAGER_START},  // mapd database update happens with device ON, reset on boot
-    {"OSMDownloadBounds", PERSISTENT},
-    {"OsmDownloadedDate", PERSISTENT},
-    {"OSMDownloadLocations", PERSISTENT},
-    {"OSMDownloadProgress", CLEAR_ON_MANAGER_START},
-    {"OsmLocal", PERSISTENT},
-    {"OsmLocationName", PERSISTENT},
-    {"OsmLocationTitle", PERSISTENT},
-    {"OsmLocationUrl", PERSISTENT},
-    {"OsmStateName", PERSISTENT},
-    {"OsmStateTitle", PERSISTENT},
-    {"OsmWayTest", PERSISTENT},
-    {"RoadName", CLEAR_ON_ONROAD_TRANSITION},
+    {"MapAdvisorySpeedLimit", {CLEAR_ON_ONROAD_TRANSITION, FLOAT}},
+    {"MapdVersion", {PERSISTENT, STRING}},
+    {"MapSpeedLimit", {CLEAR_ON_ONROAD_TRANSITION, FLOAT}},
+    {"NextMapSpeedLimit", {CLEAR_ON_ONROAD_TRANSITION, FLOAT}},
+    {"Offroad_OSMUpdateRequired", {CLEAR_ON_MANAGER_START, STRING}},
+    {"OsmDbUpdatesCheck", {CLEAR_ON_MANAGER_START, BOOL}},  // mapd database update happens with device ON, reset on boot
+    {"OSMDownloadBounds", {PERSISTENT, STRING}},
+    {"OsmDownloadedDate", {PERSISTENT, STRING}},
+    {"OSMDownloadLocations", {PERSISTENT, JSON}},
+    {"OSMDownloadProgress", {CLEAR_ON_MANAGER_START, JSON}},
+    {"OsmLocal", {PERSISTENT, BOOL}},
+    {"OsmLocationName", {PERSISTENT, STRING}},
+    {"OsmLocationTitle", {PERSISTENT, STRING}},
+    {"OsmLocationUrl", {PERSISTENT, STRING}},
+    {"OsmStateName", {PERSISTENT, STRING}},
+    {"OsmStateTitle", {PERSISTENT, STRING}},
+    {"OsmWayTest", {PERSISTENT, STRING}},
+    {"RoadName", {CLEAR_ON_ONROAD_TRANSITION, STRING}},
 };
