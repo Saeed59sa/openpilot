@@ -30,7 +30,7 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"CurrentRoute", {CLEAR_ON_MANAGER_START | CLEAR_ON_ONROAD_TRANSITION, STRING}},
     {"DisableLogging", {CLEAR_ON_MANAGER_START | CLEAR_ON_ONROAD_TRANSITION, BOOL}},
     {"DisablePowerDown", {PERSISTENT | BACKUP, BOOL}},
-    {"DisableUpdates", {PERSISTENT | BACKUP, BOOL}},
+    {"DisableUpdates", {PERSISTENT | BACKUP, BOOL, "0"}},
     {"DisengageOnAccelerator", {PERSISTENT | BACKUP, BOOL, "0"}},
     {"DongleId", {PERSISTENT, STRING}},
     {"DoReboot", {CLEAR_ON_MANAGER_START, BOOL}},
@@ -131,45 +131,45 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
 
     // --- sunnypilot params --- //
     {"ApiCache_DriveStats", {PERSISTENT, JSON}},
-    {"AutoLaneChangeBsmDelay", {PERSISTENT | BACKUP, BOOL}},
+    {"AutoLaneChangeBsmDelay", {PERSISTENT | BACKUP, BOOL, "0"}},
     {"AutoLaneChangeTimer", {PERSISTENT | BACKUP, INT, "0"}},
-    {"BlinkerMinLateralControlSpeed", {PERSISTENT | BACKUP, INT}},
-    {"BlinkerPauseLateralControl", {PERSISTENT | BACKUP, INT}},
-    {"Brightness", {PERSISTENT | BACKUP, INT}},
+    {"BlinkerMinLateralControlSpeed", {PERSISTENT | BACKUP, INT, "20"}},  // MPH or km/h
+    {"BlinkerPauseLateralControl", {PERSISTENT | BACKUP, INT, "0"}},
+    {"Brightness", {PERSISTENT | BACKUP, INT, "0"}},
     {"CarParamsSP", {CLEAR_ON_MANAGER_START | CLEAR_ON_ONROAD_TRANSITION, BYTES}},
     {"CarParamsSPCache", {CLEAR_ON_MANAGER_START, BYTES}},
     {"CarParamsSPPersistent", {PERSISTENT, BYTES}},
     {"CarPlatformBundle", {PERSISTENT | BACKUP, JSON, "{}"}},
-    {"ChevronInfo", {PERSISTENT | BACKUP, INT}},
-    {"CustomAccIncrementsEnabled", {PERSISTENT | BACKUP, BOOL}},
-    {"CustomAccLongPressIncrement", {PERSISTENT | BACKUP, INT}},
-    {"CustomAccShortPressIncrement", {PERSISTENT | BACKUP, INT}},
-    {"DeviceBootMode", {PERSISTENT | BACKUP, INT}},
+    {"ChevronInfo", {PERSISTENT | BACKUP, INT, "4"}},
+    {"CustomAccIncrementsEnabled", {PERSISTENT | BACKUP, BOOL, "0"}},
+    {"CustomAccLongPressIncrement", {PERSISTENT | BACKUP, INT, "5"}},
+    {"CustomAccShortPressIncrement", {PERSISTENT | BACKUP, INT, "1"}},
+    {"DeviceBootMode", {PERSISTENT | BACKUP, INT, "0"}},
     {"EnableGithubRunner", {PERSISTENT | BACKUP, BOOL}},
-    {"InteractivityTimeout", {PERSISTENT | BACKUP, INT}},
+    {"InteractivityTimeout", {PERSISTENT | BACKUP, INT, "0"}},
     {"IsDevelopmentBranch", {CLEAR_ON_MANAGER_START, BOOL}},
-    {"MaxTimeOffroad", {PERSISTENT | BACKUP, INT}},
+    {"MaxTimeOffroad", {PERSISTENT | BACKUP, INT, "1800"}},
     {"ModelRunnerTypeCache", {CLEAR_ON_ONROAD_TRANSITION, INT}},
     {"OffroadMode", {CLEAR_ON_MANAGER_START, BOOL}},
-    {"QuickBootToggle", {PERSISTENT | BACKUP, BOOL}},
-    {"QuietMode", {PERSISTENT | BACKUP, BOOL}},
-    {"ShowAdvancedControls", {PERSISTENT | BACKUP, BOOL}},
+    {"QuickBootToggle", {PERSISTENT | BACKUP, BOOL, "0"}},
+    {"QuietMode", {PERSISTENT | BACKUP, BOOL, "0"}},
+    {"ShowAdvancedControls", {PERSISTENT | BACKUP, BOOL, "0"}},
 
     // MADS params
-    {"Mads", {PERSISTENT | BACKUP, BOOL}},
-    {"MadsMainCruiseAllowed", {PERSISTENT | BACKUP, BOOL}},
+    {"Mads", {PERSISTENT | BACKUP, BOOL, "1"}},
+    {"MadsMainCruiseAllowed", {PERSISTENT | BACKUP, BOOL, "1"}},
     {"MadsSteeringMode", {PERSISTENT | BACKUP, INT, "0"}},
-    {"MadsUnifiedEngagementMode", {PERSISTENT | BACKUP, BOOL}},
+    {"MadsUnifiedEngagementMode", {PERSISTENT | BACKUP, BOOL, "1"}},
 
     // Model Manager params
     {"ModelManager_ActiveBundle", {PERSISTENT, JSON}},
     {"ModelManager_ClearCache", {CLEAR_ON_MANAGER_START, BOOL}},
     {"ModelManager_DownloadIndex", {CLEAR_ON_MANAGER_START | CLEAR_ON_ONROAD_TRANSITION, INT}},
-    {"ModelManager_LastSyncTime", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION, INT}},
-    {"ModelManager_ModelsCache", {PERSISTENT | BACKUP, STRING}},
+    {"ModelManager_LastSyncTime", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION, INT, "0"}},
+    {"ModelManager_ModelsCache", {PERSISTENT | BACKUP, STRING, ""}},
 
     // Neural Network Lateral Control
-    {"NeuralNetworkLateralControl", {PERSISTENT | BACKUP, BOOL}},
+    {"NeuralNetworkLateralControl", {PERSISTENT | BACKUP, BOOL, "0"}},
 
     // sunnylink params
     {"EnableSunnylinkUploader", {PERSISTENT | BACKUP, BOOL}},
@@ -187,13 +187,13 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     // sunnypilot car specific params
     {"HyundaiLongitudinalTuning", {PERSISTENT | BACKUP, INT, "0"}},
 
-    {"DynamicExperimentalControl", {PERSISTENT | BACKUP, BOOL}},
-    {"BlindSpot", {PERSISTENT | BACKUP, BOOL}},
+    {"DynamicExperimentalControl", {PERSISTENT | BACKUP, BOOL, "0"}},
+    {"BlindSpot", {PERSISTENT | BACKUP, BOOL, "0"}},
 
     // model panel params
-    {"LagdToggle", {PERSISTENT | BACKUP, BOOL}},
+    {"LagdToggle", {PERSISTENT | BACKUP, BOOL, "1"}},
     {"LagdToggleDesc", {PERSISTENT, STRING}},
-    {"LagdToggleDelay", {PERSISTENT | BACKUP, FLOAT}},
+    {"LagdToggleDelay", {PERSISTENT | BACKUP, FLOAT, "0.2"}},
 
     // mapd
     {"MapAdvisorySpeedLimit", {CLEAR_ON_ONROAD_TRANSITION, FLOAT}},

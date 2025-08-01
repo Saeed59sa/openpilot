@@ -35,40 +35,8 @@ def manager_init() -> None:
   if build_metadata.release_channel:
     params.clear_all(ParamKeyFlag.DEVELOPMENT_ONLY)
 
-  sunnypilot_default_params: list[tuple[str, str | bytes]] = [
-    ("AutoLaneChangeTimer", "0"),
-    ("AutoLaneChangeBsmDelay", "0"),
-    ("BlindSpot", "0"),
-    ("BlinkerMinLateralControlSpeed", "20"),  # MPH or km/h
-    ("BlinkerPauseLateralControl", "0"),
-    ("Brightness", "0"),
-    ("ChevronInfo", "4"),
-    ("CustomAccIncrementsEnabled", "0"),
-    ("CustomAccLongPressIncrement", "5"),
-    ("CustomAccShortPressIncrement", "1"),
-    ("DeviceBootMode", "0"),
-    ("DisableUpdates", "0"),
-    ("DynamicExperimentalControl", "0"),
-    ("HyundaiLongitudinalTuning", "0"),
-    ("InteractivityTimeout", "0"),
-    ("LagdToggle", "1"),
-    ("LagdToggleDelay", "0.2"),
-    ("Mads", "1"),
-    ("MadsMainCruiseAllowed", "1"),
-    ("MadsSteeringMode", "0"),
-    ("MadsUnifiedEngagementMode", "1"),
-    ("MapdVersion", f"{VERSION}"),
-    ("MaxTimeOffroad", "1800"),
-    ("ModelManager_LastSyncTime", "0"),
-    ("ModelManager_ModelsCache", ""),
-    ("NeuralNetworkLateralControl", "0"),
-    ("QuickBootToggle", "0"),
-    ("QuietMode", "0"),
-    ("ShowAdvancedControls", "0" if build_metadata.tested_channel else "1"),
-  ]
-
   # device boot mode
-  if params.get("DeviceBootMode") == b"1": # start in always offroad mode
+  if params.get("DeviceBootMode") == 1:  # start in Always Offroad mode
     params.put_bool("OffroadMode", True)
 
   if params.get_bool("RecordFrontLock"):
