@@ -46,7 +46,7 @@ public:
   Params(const Params&) = delete;
   Params& operator=(const Params&) = delete;
 
-  std::vector<std::string> allKeys(ParamKeyType type = ALL) const;
+  std::vector<std::string> allKeys(ParamKeyFlag flag = ALL) const;
   bool checkKey(const std::string &key);
   ParamKeyFlag getKeyFlag(const std::string &key);
   ParamKeyType getKeyType(const std::string &key);
