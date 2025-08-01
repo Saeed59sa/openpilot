@@ -101,6 +101,8 @@ procs = [
   NativeProcess("bridge", "cereal/messaging", ["./bridge"], notcar),
   PythonProcess("webrtcd", "system.webrtc.webrtcd", notcar),
   PythonProcess("webjoystick", "tools.bodyteleop.web", notcar),
+  PythonProcess("msg_sync", "selfdrive.golden.msg_sync", always_run),
+  PythonProcess("phone_control", "selfdrive.golden.phone_control", always_run),
 
   # FrogPilot processes
   NativeProcess("classic_modeld", "selfdrive/classic_modeld", ["./classic_modeld"], run_classic_modeld),

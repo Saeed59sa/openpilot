@@ -164,6 +164,7 @@ FrogPilot offers a wide range of customizable features that are easily toggled o
   - Numerical temperature gauge
   - Retain tethering status between reboots
   - Screenrecorder
+  - Broadcast openpilot data over Wi-Fi for integration with external apps
   - Toggle "Experimental Mode" via the "Lane Departure Alert" button, holding down the "Distance" button for 0.5+ seconds, or by double tapping the screen
 
 How to Install
