@@ -103,7 +103,7 @@ def ws_recv(ws: WebSocket, end_event: threading.Event) -> None:
       elif opcode in (ABNF.OPCODE_PING, ABNF.OPCODE_PONG):
         cloudlog.debug("sunnylinkd.ws_recv.pong")
         last_ping = int(time.monotonic() * 1e9)
-        Params().put("LastSunnylinkPingTime", str(last_ping))
+        Params().put("LastSunnylinkPingTime", last_ping)
     except WebSocketTimeoutException:
       ns_since_last_ping = int(time.monotonic() * 1e9) - last_ping
       if ns_since_last_ping > SUNNYLINK_RECONNECT_TIMEOUT_S * 1e9:

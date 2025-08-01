@@ -156,29 +156,29 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"ShowAdvancedControls", {PERSISTENT | BACKUP, BOOL}},
 
     // MADS params
-    {"Mads", PERSISTENT | BACKUP},
-    {"MadsMainCruiseAllowed", PERSISTENT | BACKUP},
-    {"MadsSteeringMode", PERSISTENT | BACKUP},
-    {"MadsUnifiedEngagementMode", PERSISTENT | BACKUP},
+    {"Mads", {PERSISTENT | BACKUP, BOOL}},
+    {"MadsMainCruiseAllowed", {PERSISTENT | BACKUP, BOOL}},
+    {"MadsSteeringMode", {PERSISTENT | BACKUP, INT}},
+    {"MadsUnifiedEngagementMode", {PERSISTENT | BACKUP, BOOL}},
 
     // Model Manager params
-    {"ModelManager_ActiveBundle", PERSISTENT},
-    {"ModelManager_ClearCache", CLEAR_ON_MANAGER_START},
-    {"ModelManager_DownloadIndex", CLEAR_ON_MANAGER_START | CLEAR_ON_ONROAD_TRANSITION},
-    {"ModelManager_LastSyncTime", CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION},
-    {"ModelManager_ModelsCache", PERSISTENT | BACKUP},
+    {"ModelManager_ActiveBundle", {PERSISTENT, JSON}},
+    {"ModelManager_ClearCache", {CLEAR_ON_MANAGER_START, BOOL}},
+    {"ModelManager_DownloadIndex", {CLEAR_ON_MANAGER_START | CLEAR_ON_ONROAD_TRANSITION, STRING}},
+    {"ModelManager_LastSyncTime", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION, INT}},
+    {"ModelManager_ModelsCache", {PERSISTENT | BACKUP, JSON}},
 
     // Neural Network Lateral Control
-    {"NeuralNetworkLateralControl", PERSISTENT | BACKUP},
+    {"NeuralNetworkLateralControl", {PERSISTENT | BACKUP, BOOL}},
 
     // sunnylink params
-    {"EnableSunnylinkUploader", PERSISTENT | BACKUP},
-    {"LastSunnylinkPingTime", CLEAR_ON_MANAGER_START},
-    {"SunnylinkCache_Roles", PERSISTENT},
-    {"SunnylinkCache_Users", PERSISTENT},
-    {"SunnylinkDongleId", PERSISTENT},
-    {"SunnylinkdPid", PERSISTENT},
-    {"SunnylinkEnabled", PERSISTENT},
+    {"EnableSunnylinkUploader", {PERSISTENT | BACKUP, BOOL}},
+    {"LastSunnylinkPingTime", {CLEAR_ON_MANAGER_START, INT}},
+    {"SunnylinkCache_Roles", {PERSISTENT, STRING}},
+    {"SunnylinkCache_Users", {PERSISTENT, STRING}},
+    {"SunnylinkDongleId", {PERSISTENT, STRING}},
+    {"SunnylinkdPid", {PERSISTENT, INT}},
+    {"SunnylinkEnabled", {PERSISTENT, BOOL}},
 
     // Backup Manager params
     {"BackupManager_CreateBackup", PERSISTENT},
