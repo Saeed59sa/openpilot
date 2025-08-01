@@ -88,7 +88,7 @@ class ModelCache:
   def _is_expired(self) -> bool:
     """Checks if the cache has expired"""
     current_time = int(time.monotonic() * 1e9)
-    last_sync = int(self.params.get(self._LAST_SYNC_KEY, encoding="utf-8") or 0)
+    last_sync = self.params.get(self._LAST_SYNC_KEY)
     return last_sync == 0 or (current_time - last_sync) >= self.cache_timeout
 
   def get(self) -> tuple[dict, bool]:
@@ -98,7 +98,7 @@ class ModelCache:
     If no cached data exists or on error, returns an empty dict
     """
     try:
-      cached_data = self.params.get(self._CACHE_KEY, encoding="utf-8")
+      cached_data = self.params.get(self._CACHE_KEY)
       if not cached_data:
         cloudlog.warning("No cached model data available")
         return {}, True

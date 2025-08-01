@@ -31,7 +31,7 @@ SUNNYLINK_RECONNECT_TIMEOUT_S = 70  # FYI changing this will also would require 
 DISALLOW_LOG_UPLOAD = threading.Event()
 
 params = Params()
-sunnylink_dongle_id = params.get("SunnylinkDongleId", encoding='utf-8')
+sunnylink_dongle_id = params.get("SunnylinkDongleId")
 sunnylink_api = SunnylinkApi(sunnylink_dongle_id)
 
 
@@ -68,7 +68,7 @@ def handle_long_poll(ws: WebSocket, exit_event: threading.Event | None) -> None:
         end_event.set()
         comma_prime_cellular_end_event.set()
 
-      prime_type = params.get("PrimeType", encoding='utf-8') or 0
+      prime_type = params.get("PrimeType") or 0
       metered = sm['deviceState'].networkMetered
 
       if DISALLOW_LOG_UPLOAD.is_set() and not comma_prime_cellular_end_event.is_set():

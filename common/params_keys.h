@@ -132,14 +132,14 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     // --- sunnypilot params --- //
     {"ApiCache_DriveStats", {PERSISTENT, JSON}},
     {"AutoLaneChangeBsmDelay", {PERSISTENT | BACKUP, BOOL}},
-    {"AutoLaneChangeTimer", {PERSISTENT | BACKUP, INT}},
+    {"AutoLaneChangeTimer", {PERSISTENT | BACKUP, INT, "0"}},
     {"BlinkerMinLateralControlSpeed", {PERSISTENT | BACKUP, INT}},
     {"BlinkerPauseLateralControl", {PERSISTENT | BACKUP, INT}},
     {"Brightness", {PERSISTENT | BACKUP, INT}},
     {"CarParamsSP", {CLEAR_ON_MANAGER_START | CLEAR_ON_ONROAD_TRANSITION, BYTES}},
     {"CarParamsSPCache", {CLEAR_ON_MANAGER_START, BYTES}},
     {"CarParamsSPPersistent", {PERSISTENT, BYTES}},
-    {"CarPlatformBundle", {PERSISTENT | BACKUP, JSON}},
+    {"CarPlatformBundle", {PERSISTENT | BACKUP, JSON, "{}"}},
     {"ChevronInfo", {PERSISTENT | BACKUP, INT}},
     {"CustomAccIncrementsEnabled", {PERSISTENT | BACKUP, BOOL}},
     {"CustomAccLongPressIncrement", {PERSISTENT | BACKUP, INT}},
@@ -149,7 +149,7 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"InteractivityTimeout", {PERSISTENT | BACKUP, INT}},
     {"IsDevelopmentBranch", {CLEAR_ON_MANAGER_START, BOOL}},
     {"MaxTimeOffroad", {PERSISTENT | BACKUP, INT}},
-    {"ModelRunnerTypeCache", {CLEAR_ON_ONROAD_TRANSITION, STRING}},
+    {"ModelRunnerTypeCache", {CLEAR_ON_ONROAD_TRANSITION, INT}},
     {"OffroadMode", {CLEAR_ON_MANAGER_START, BOOL}},
     {"QuickBootToggle", {PERSISTENT | BACKUP, BOOL}},
     {"QuietMode", {PERSISTENT | BACKUP, BOOL}},
@@ -164,9 +164,9 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     // Model Manager params
     {"ModelManager_ActiveBundle", {PERSISTENT, JSON}},
     {"ModelManager_ClearCache", {CLEAR_ON_MANAGER_START, BOOL}},
-    {"ModelManager_DownloadIndex", {CLEAR_ON_MANAGER_START | CLEAR_ON_ONROAD_TRANSITION, STRING}},
+    {"ModelManager_DownloadIndex", {CLEAR_ON_MANAGER_START | CLEAR_ON_ONROAD_TRANSITION, INT}},
     {"ModelManager_LastSyncTime", {CLEAR_ON_MANAGER_START | CLEAR_ON_OFFROAD_TRANSITION, INT}},
-    {"ModelManager_ModelsCache", {PERSISTENT | BACKUP, JSON}},
+    {"ModelManager_ModelsCache", {PERSISTENT | BACKUP, STRING}},
 
     // Neural Network Lateral Control
     {"NeuralNetworkLateralControl", {PERSISTENT | BACKUP, BOOL}},
@@ -185,7 +185,7 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"BackupManager_RestoreVersion", {PERSISTENT, STRING}},
 
     // sunnypilot car specific params
-    {"HyundaiLongitudinalTuning", {PERSISTENT | BACKUP, INT}},
+    {"HyundaiLongitudinalTuning", {PERSISTENT | BACKUP, INT, "0"}},
 
     {"DynamicExperimentalControl", {PERSISTENT | BACKUP, BOOL}},
     {"BlindSpot", {PERSISTENT | BACKUP, BOOL}},
@@ -197,21 +197,21 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
 
     // mapd
     {"MapAdvisorySpeedLimit", {CLEAR_ON_ONROAD_TRANSITION, FLOAT}},
-    {"MapdVersion", {PERSISTENT, STRING}},
-    {"MapSpeedLimit", {CLEAR_ON_ONROAD_TRANSITION, FLOAT}},
-    {"NextMapSpeedLimit", {CLEAR_ON_ONROAD_TRANSITION, FLOAT}},
+    {"MapdVersion", {PERSISTENT, STRING, ""}},
+    {"MapSpeedLimit", {CLEAR_ON_ONROAD_TRANSITION, FLOAT, "0.0"}},
+    {"NextMapSpeedLimit", {CLEAR_ON_ONROAD_TRANSITION, JSON}},
     {"Offroad_OSMUpdateRequired", {CLEAR_ON_MANAGER_START, STRING}},
     {"OsmDbUpdatesCheck", {CLEAR_ON_MANAGER_START, BOOL}},  // mapd database update happens with device ON, reset on boot
     {"OSMDownloadBounds", {PERSISTENT, STRING}},
-    {"OsmDownloadedDate", {PERSISTENT, STRING}},
-    {"OSMDownloadLocations", {PERSISTENT, JSON}},
+    {"OsmDownloadedDate", {PERSISTENT, STRING, "0.0"}},
+    {"OSMDownloadLocations", {PERSISTENT, STRING}},
     {"OSMDownloadProgress", {CLEAR_ON_MANAGER_START, JSON}},
     {"OsmLocal", {PERSISTENT, BOOL}},
     {"OsmLocationName", {PERSISTENT, STRING}},
     {"OsmLocationTitle", {PERSISTENT, STRING}},
     {"OsmLocationUrl", {PERSISTENT, STRING}},
-    {"OsmStateName", {PERSISTENT, STRING}},
+    {"OsmStateName", {PERSISTENT, STRING, "All"}},
     {"OsmStateTitle", {PERSISTENT, STRING}},
     {"OsmWayTest", {PERSISTENT, STRING}},
-    {"RoadName", {CLEAR_ON_ONROAD_TRANSITION, STRING}},
+    {"RoadName", {CLEAR_ON_ONROAD_TRANSITION, STRING, ""}},
 };
