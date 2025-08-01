@@ -28,6 +28,7 @@ CRUISE_LONG_PRESS = 50
 """
 
 NO_LIMIT_SPEED = 255.
+BUMP_SPEED = 27.
 
 ButtonType = structs.CarState.ButtonEvent.Type
 GearShifter = structs.CarState.GearShifter
@@ -163,9 +164,12 @@ class CruiseController:
     # 2. Camera limit speed
     camera_limit_speed_clu = NO_LIMIT_SPEED
     if nda_active:
-      camera_limit_speed, is_limit_zone = (
+      camera_limit_speed, is_limit_zone, cam_type = (
         SpeedLimiter.instance().get_max_speed(cluster_speed_clu, self.conv))
-      camera_limit_speed_clu = camera_limit_speed
+      if cam_type == 22 and is_limit_zone:
+        camera_limit_speed_clu = BUMP_SPEED
+      else:
+        camera_limit_speed_clu = camera_limit_speed
     elif CS is not None and CS.speedLimit > 0 and CS.speedLimitDistance > 0:
       camera_limit_speed_stock, is_limit_zone = (
         SpeedLimiter.instance().get_camera_limit_speed_stock(CS.speedLimitDistance, CS.speedLimit, self.conv))

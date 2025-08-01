@@ -32,7 +32,6 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
   settings_img = loadPixmap("../assets/images/button_settings.png", settings_btn.size(), Qt::IgnoreAspectRatio);
   mic_img = loadPixmap("../assets/icons/microphone.png", QSize(30, 30));
   c3x_img = loadPixmap("../assets/icons/c3x.png", home_btn.size());
-  c3x_gitpull_img = loadPixmap("../assets/icons/c3x_gitpull.png", home_btn.size());
 
   connect(this, &Sidebar::valueChanged, [=] { update(); });
 
@@ -67,10 +66,7 @@ void Sidebar::mouseReleaseEvent(QMouseEvent *event) {
     //MessageBuilder msg;
     //msg.initEvent().initUserFlag();
     //pm->send("userFlag", msg);
-    QString commit_compare = QString("%1").arg(QString::fromStdString(params.get("CommitCompare")));
-    if (commit_compare.contains("!=")) {
-      QProcess::execute("sh /data/openpilot/scripts/gitpull.sh");
-    }
+    QProcess::execute("sh /data/openpilot/scripts/gitpull.sh");
   } else if (settings_btn.contains(event->pos())) {
     emit openSettings();
   } else if (recording_audio && mic_indicator_btn.contains(event->pos())) {
@@ -168,11 +164,7 @@ void Sidebar::paintEvent(QPaintEvent *event) {
     p.drawPixmap(icon_x, icon_y, mic_img);
   }
 
-  if (commit_compare.contains("!=")) {
-    p.drawPixmap(home_btn.x(), home_btn.y(), c3x_gitpull_img);
-  } else {
-    p.drawPixmap(home_btn.x(), home_btn.y(), c3x_img);
-  }
+  p.drawPixmap(home_btn.x(), home_btn.y(), c3x_img);
 
   const QRect r3 = QRect(0, 970, event->rect().width(), 40);
   const QRect r4 = QRect(0, 1020, event->rect().width(), 60);
