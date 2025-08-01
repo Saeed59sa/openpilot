@@ -165,8 +165,8 @@ procs += [
   PythonProcess("backup_manager", "sunnypilot.sunnylink.backups.manager", and_(only_offroad, sunnylink_ready_shim)),
 
   # mapd
-  NativeProcess("mapd", Paths.mapd_root(), [MAPD_PATH], mapd_ready),
-  PythonProcess("mapd_manager", "sunnypilot.mapd.mapd_manager", always_run),
+  # NativeProcess("mapd", Paths.mapd_root(), [MAPD_PATH], mapd_ready),
+  # PythonProcess("mapd_manager", "sunnypilot.mapd.mapd_manager", always_run),
 ]
 
 if os.path.exists("./github_runner.sh"):
