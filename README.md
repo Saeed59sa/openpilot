@@ -179,6 +179,11 @@ DO NOT install the "FrogPilot-Development" branch. I'm constantly breaking thing
 
 ![](https://i.imgur.com/swr0kqJ.png)
 
+SDpilot HUD Broadcast
+------
+The `sdpilotHUD` process publishes JSON messages with HUD data over ZMQ.
+Connect a SUB socket to `tcp://<device_ip>:8008` to receive updates.
+
 Bug reports / Feature Requests
 ------
 
