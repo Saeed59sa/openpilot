@@ -105,8 +105,8 @@ class LongitudinalPlanner:
 
     vCluRatio = sm['carState'].exState.vCluRatio
     if vCluRatio > 0.5:
-      v_cruise *= vCluRatio
-      v_cruise = int(v_cruise + 0.069444)
+      v_cruise /= vCluRatio
+      v_cruise += 0.069444
 
     long_control_off = sm['controlsState'].longControlState == LongCtrlState.off
     force_slow_decel = sm['controlsState'].forceDecel
