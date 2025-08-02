@@ -106,7 +106,7 @@ class LongitudinalPlanner:
     vCluRatio = sm['carState'].exState.vCluRatio
     if vCluRatio > 0.5:
       v_cruise *= vCluRatio
-      v_cruise = int(v_cruise * CV.MS_TO_KPH + 0.25) * CV.KPH_TO_MS
+      v_cruise = int(v_cruise + 0.069444)
 
     long_control_off = sm['controlsState'].longControlState == LongCtrlState.off
     force_slow_decel = sm['controlsState'].forceDecel
@@ -114,8 +114,7 @@ class LongitudinalPlanner:
     # Reset current state when not engaged, or user is controlling the speed
     reset_state = long_control_off if self.CP.openpilotLongitudinalControl else not sm['selfdriveState'].enabled
     # PCM cruise speed may be updated a few cycles later, check if initialized
-    reset_state = reset_state or not v_cruise_initialized
-    reset_state = reset_state or sm['carState'].gasPressed or sm['carState'].brakePressed
+    reset_state = any([reset_state, not v_cruise_initialized, sm['carState'].gasPressed, sm['carState'].brakePressed])
 
     # No change cost when user is controlling the speed, or when standstill
     prev_accel_constraint = not (reset_state or sm['carState'].standstill)
@@ -185,7 +184,7 @@ class LongitudinalPlanner:
   def publish(self, sm, pm):
     plan_send = messaging.new_message('longitudinalPlan')
 
-    plan_send.valid = sm.all_checks(service_list=['carState', 'controlsState', 'selfdriveState'])
+    plan_send.valid = sm.all_checks(service_list=['carState', 'controlsState', 'selfdriveState', 'radarState'])
 
     longitudinalPlan = plan_send.longitudinalPlan
     longitudinalPlan.modelMonoTime = sm.logMonoTime['modelV2']
