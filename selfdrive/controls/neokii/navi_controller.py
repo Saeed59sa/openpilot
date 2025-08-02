@@ -413,10 +413,11 @@ class SpeedLimiter:
 
   def get_max_speed(self, cluster_speed, conv):
     self.recv()
+    default_return_value = (0, False, 0)
 
     if self.naviData is None:
       self.decelerating = False
-      return 0, False, 0
+      return default_return_value
 
     try:
       road_limit_speed = self.naviData.roadLimitSpeed
@@ -434,19 +435,12 @@ class SpeedLimiter:
       min_limit = 40 if is_highway else 20
       max_limit = 120 if is_highway else 100
 
-      if cam_type == 22:  # speed bump
-        min_limit = 10
-
       if cam_limit_speed_left_dist is not None and cam_limit_speed is not None and cam_limit_speed_left_dist > 0:
         v_ego = conv.to_ms(cluster_speed)
         diff_speed = cluster_speed - (cam_limit_speed * cam_speed_factor)
 
-        if cam_type == 22:
-          safe_dist = v_ego * 4.
-          starting_dist = v_ego * 8.
-        else:
-          safe_dist = v_ego * 7.
-          starting_dist = v_ego * 30.
+        safe_dist = v_ego * 3. if cam_type == 22 else v_ego * 8.
+        starting_dist = v_ego * 6. if cam_type == 22 else v_ego * 30.
 
         if self.decelerating and self.last_limit_speed_left_dist > 0 and \
            cam_limit_speed_left_dist < (self.last_limit_speed_left_dist - (v_ego * 5)):
@@ -470,9 +464,6 @@ class SpeedLimiter:
 
           return cam_limit_speed * cam_speed_factor + int(pp * diff_speed), is_limit_zone, cam_type
 
-        self.decelerating = False
-        return 0, False, cam_type
-
       elif section_left_dist is not None and section_limit_speed is not None and section_left_dist > 0:
         if min_limit <= section_limit_speed <= max_limit:
 
@@ -487,14 +478,11 @@ class SpeedLimiter:
 
           return section_limit_speed * cam_speed_factor + speed_diff, is_limit_zone, 0
 
-        self.decelerating = False
-        return 0, False, 0
-
     except Exception:
       pass
 
     self.decelerating = False
-    return 0, False, 0
+    return default_return_value
 
   def get_camera_limit_speed_stock(self, speed_limit_distance, speed_limit, conv):
     if speed_limit_distance <= 0 or speed_limit <= 0:
