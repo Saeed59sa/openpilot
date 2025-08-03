@@ -120,6 +120,8 @@ class HudRenderer(Widget):
     button_y = rect.y + UI_CONFIG.border_size
     self._exp_button.render(rl.Rectangle(button_x, button_y, UI_CONFIG.button_size, UI_CONFIG.button_size))
 
+    self._draw_hybrid_tacc(rect)
+
   def handle_mouse_event(self) -> bool:
     return bool(self._exp_button.handle_mouse_event())
 
@@ -177,3 +179,20 @@ class HudRenderer(Widget):
     unit_text_size = measure_text_cached(self._font_medium, unit_text, FONT_SIZES.speed_unit)
     unit_pos = rl.Vector2(rect.x + rect.width / 2 - unit_text_size.x / 2, 290 - unit_text_size.y / 2)
     rl.draw_text_ex(self._font_medium, unit_text, unit_pos, FONT_SIZES.speed_unit, 0, COLORS.white_translucent)
+
+  def _draw_hybrid_tacc(self, rect: rl.Rectangle) -> None:
+    if not ui_state.params.get_bool("HybridTACCEnabled"):
+      return
+    status = ui_state.sm['controlsState'].hybridTaccStatus
+    if not status:
+      return
+    text = f"HybridTACC: {status.capitalize()}"
+    if (ui_state.params.get("HybridTACCMode") or b"Auto").decode() == "Auto":
+      text += " Auto-Tuned"
+    if ui_state.params.get_bool("HybridTACCLearnerEnabled"):
+      text += " Learner Active"
+
+    text_size = measure_text_cached(self._font_medium, text, 40)
+    x = rect.x + (rect.width - text_size.x) / 2
+    y = rect.y + rect.height - 80
+    rl.draw_text_ex(self._font_medium, text, rl.Vector2(x, y), 40, 0, COLORS.white)

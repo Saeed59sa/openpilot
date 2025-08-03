@@ -254,6 +254,10 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
                                        priority=Priority.LOWEST),
   },
 
+  EventName.hybridTaccActive: {
+    ET.WARNING: NormalPermanentAlert("HybridTACC active"),
+  },
+
   EventName.invalidLkasSetting: {
     ET.PERMANENT: invalid_lkas_setting_alert,
     ET.NO_ENTRY: NoEntryAlert("Invalid LKAS setting"),
