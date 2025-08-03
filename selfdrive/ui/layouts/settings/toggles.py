@@ -84,6 +84,11 @@ class TogglesLayout(Widget):
       toggle_item(
         "Use Metric System", DESCRIPTIONS["IsMetric"], self._params.get_bool("IsMetric"), icon="monitoring.png"
       ),
+      toggle_item(
+        "HybridTACC (Beta)",
+        "",
+        self._params.get_bool("HybridTACCEnabled"),
+      ),
     ]
 
     self._scroller = Scroller(items, line_separator=True, spacing=0)

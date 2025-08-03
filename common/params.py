@@ -3,6 +3,15 @@ assert Params
 assert ParamKeyType
 assert UnknownKeyName
 
+# Default values for HybridTACC parameters
+HYBRID_TACC_DEFAULTS = {
+  "HybridTACCEnabled": "0",
+  "HybridTACCMode": "Auto",
+  "HybridTACCSmoothness": "0.5",
+  "HybridTACCSwitchDelay": "1.0",
+  "HybridTACCLearnerEnabled": "0",
+}
+
 if __name__ == "__main__":
   import sys
 

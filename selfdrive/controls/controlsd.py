@@ -22,6 +22,7 @@ from openpilot.selfdrive.controls.lib.longcontrol import LongControl
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
 
 from openpilot.sunnypilot.selfdrive.controls.controlsd_ext import ControlsExt
+from openpilot.selfdrive.controls.hybrid_tacc_learner import HybridTACCLearner
 
 State = log.SelfdriveState.OpenpilotState
 LaneChangeState = log.LaneChangeState
@@ -44,7 +45,7 @@ class Controls(ControlsExt):
 
     self.sm = messaging.SubMaster(['liveParameters', 'liveTorqueParameters', 'modelV2', 'selfdriveState',
                                    'liveCalibration', 'livePose', 'longitudinalPlan', 'carState', 'carOutput',
-                                   'driverMonitoringState', 'onroadEvents', 'driverAssistance', 'liveDelay'] + self.sm_services_ext,
+                                   'driverMonitoringState', 'onroadEvents', 'driverAssistance', 'liveDelay', 'radarState'] + self.sm_services_ext,
                                   poll='selfdriveState')
     self.pm = messaging.PubMaster(['carControl', 'controlsState'] + self.pm_services_ext)
 
@@ -64,6 +65,23 @@ class Controls(ControlsExt):
       self.LaC = LatControlPID(self.CP, self.CP_SP, self.CI)
     elif self.CP.lateralTuning.which() == 'torque':
       self.LaC = LatControlTorque(self.CP, self.CP_SP, self.CI)
+
+    # HybridTACC setup
+    self.hybrid_params = {
+      "enabled": self.params.get_bool("HybridTACCEnabled"),
+      "mode": (self.params.get("HybridTACCMode") or b"Auto").decode(),
+      "smoothness": float(self.params.get("HybridTACCSmoothness") or b"0.5"),
+      "switch_delay": float(self.params.get("HybridTACCSwitchDelay") or b"1.0"),
+      "learner_enabled": self.params.get_bool("HybridTACCLearnerEnabled"),
+    }
+    self.hybrid_learner = HybridTACCLearner() if self.hybrid_params["learner_enabled"] else None
+    if self.hybrid_params["mode"] == "Auto" and self.hybrid_learner:
+      self.hybrid_params["smoothness"] = self.hybrid_learner.smoothness
+      self.hybrid_params["switch_delay"] = self.hybrid_learner.switch_delay
+    self.hybrid_source = "vision"
+    self.hybrid_accel = 0.0
+    self.hybrid_last_switch = 0.0
+    self.hybrid_status = ""
 
   def update(self):
     self.sm.update(15)
@@ -128,6 +146,40 @@ class Controls(ControlsExt):
     # accel PID loop
     pid_accel_limits = self.CI.get_pid_accel_limits(self.CP, CS.vEgo, CS.vCruise * CV.KPH_TO_MS)
     actuators.accel = float(self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop, pid_accel_limits))
+
+    if self.hybrid_params["enabled"]:
+      radar_state = self.sm['radarState']
+      radar_valid = getattr(radar_state.leadOne, "status", False) and getattr(radar_state.leadOne, "radar", False)
+      target_source = "radar" if radar_valid else "vision"
+
+      # use learner or manual parameters
+      alpha = self.hybrid_params["smoothness"]
+      delay = self.hybrid_params["switch_delay"]
+      if self.hybrid_params["mode"] == "Auto" and self.hybrid_learner:
+        alpha = self.hybrid_learner.smoothness
+        delay = self.hybrid_learner.switch_delay
+
+      t = time.monotonic()
+      if target_source != self.hybrid_source and t - self.hybrid_last_switch >= delay:
+        self.hybrid_source = target_source
+        self.hybrid_last_switch = t
+
+      source = self.hybrid_source
+      if source == "radar" and radar_valid:
+        target_accel = radar_state.leadOne.aRel
+      else:
+        target_accel = long_plan.aTarget
+        source = "vision"
+
+      self.hybrid_accel = alpha * self.hybrid_accel + (1.0 - alpha) * target_accel
+      actuators.accel = float(self.hybrid_accel)
+      self.hybrid_status = source
+
+      if self.hybrid_params["learner_enabled"] and self.hybrid_learner:
+        self.hybrid_params["smoothness"], self.hybrid_params["switch_delay"] = self.hybrid_learner.update(
+          source, CS, radar_state, model_v2)
+    else:
+      self.hybrid_status = ""
 
     # Steering PID loop and lateral MPC
     # Reset desired curvature to current to avoid violating the limits on engage
@@ -209,6 +261,8 @@ class Controls(ControlsExt):
     cs.ufAccelCmd = float(self.LoC.pid.f)
     cs.forceDecel = bool((self.sm['driverMonitoringState'].awarenessStatus < 0.) or
                          (self.sm['selfdriveState'].state == State.softDisabling))
+    if self.hybrid_status:
+      cs.hybridTaccStatus = self.hybrid_status
 
     lat_tuning = self.CP.lateralTuning.which()
     if self.CP.steerControlType == car.CarParams.SteerControlType.angle:
