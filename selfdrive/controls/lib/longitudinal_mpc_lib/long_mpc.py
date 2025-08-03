@@ -17,7 +17,7 @@ else:
 
 from casadi import SX, vertcat
 
-from openpilot.common.conversions import Conversions as CV
+from openpilot.common.constants import CV
 from openpilot.common.filter_simple import StreamingMovingAverage
 from enum import Enum
 
