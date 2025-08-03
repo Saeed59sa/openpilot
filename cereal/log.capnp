@@ -128,6 +128,7 @@ struct OnroadEvent @0xc4fa6047f024e718 {
     personalityChanged @91;
     aeb @92;
     userFlag @95;
+    hybridTaccActive @96;
 
     soundsUnavailableDEPRECATED @47;
   }
@@ -863,6 +864,7 @@ struct ControlsState @0x97ff69c53601abf1 {
   curvature @37 :Float32;  # path curvature from vehicle model
   desiredCurvature @61 :Float32;  # lag adjusted curvatures used by lateral controllers
   forceDecel @51 :Bool;
+  hybridTaccStatus @63 :Text;
 
   lateralControlState :union {
     pidState @53 :LateralPIDState;

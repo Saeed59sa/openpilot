@@ -30,6 +30,15 @@ class TogglesLayout(Widget):
   def __init__(self):
     super().__init__()
     self._params = Params()
+    hybrid_checked = Params().get_bool("HybridTACCEnabled")
+    self._hybrid_tacc_toggle = toggle_item(
+        "HybridTACC (Beta)",
+        "",
+        hybrid_checked,
+    )
+
+    self._hybrid_tacc_last = hybrid_checked
+
     items = [
       toggle_item(
         "Enable openpilot",
@@ -84,12 +93,17 @@ class TogglesLayout(Widget):
       toggle_item(
         "Use Metric System", DESCRIPTIONS["IsMetric"], self._params.get_bool("IsMetric"), icon="monitoring.png"
       ),
+      self._hybrid_tacc_toggle,
     ]
 
     self._scroller = Scroller(items, line_separator=True, spacing=0)
 
   def _render(self, rect):
     self._scroller.render(rect)
+    current = self._hybrid_tacc_toggle.action_item.toggle.get_state()
+    if current != self._hybrid_tacc_last:
+      self._hybrid_tacc_last = current
+      Params().put_bool("HybridTACCEnabled", current)
 
   def _set_longitudinal_personality(self, button_index: int):
     self._params.put("LongitudinalPersonality", str(button_index))

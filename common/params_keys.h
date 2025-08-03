@@ -181,6 +181,12 @@ inline static std::unordered_map<std::string, uint32_t> keys = {
     {"DynamicExperimentalControl", PERSISTENT},
     {"BlindSpot", PERSISTENT | BACKUP},
 
+    {"HybridTACCEnabled", PERSISTENT | BACKUP},
+    {"HybridTACCMode", PERSISTENT | BACKUP},
+    {"HybridTACCSmoothness", PERSISTENT | BACKUP},
+    {"HybridTACCSwitchDelay", PERSISTENT | BACKUP},
+    {"HybridTACCLearnerEnabled", PERSISTENT | BACKUP},
+
     // model panel params
     {"LagdToggle", PERSISTENT | BACKUP},
     {"LagdToggleDesc", PERSISTENT},
