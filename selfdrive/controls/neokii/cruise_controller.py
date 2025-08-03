@@ -339,9 +339,9 @@ class CruiseController:
     self.prev_steering_angle = abs_steer_angle
 
     if self.steer_decel_active:
-      speed_multiplier = np.interp(abs_steer_angle, [start_decel_angle, end_decel_angle], [0.95, 0.7])
+      speed_multiplier = np.interp(abs_steer_angle, [start_decel_angle, end_decel_angle], [0.95, 0.75])
       target_speed_ms = current_speed_ms * speed_multiplier
-      min_allowed_speed_ms = self.conv.to_ms(V_CRUISE_MIN)
+      min_allowed_speed_ms = self.conv.to_ms(20)
       steer_based_speed_ms = max(target_speed_ms, min_allowed_speed_ms)
       steer_limit_speed_clu = self.conv.to_clu(steer_based_speed_ms)
 
@@ -475,7 +475,7 @@ class CruiseController:
       self.wait_timer -= 1
     elif ascc_enabled and CS.vEgo > 0.1:
       if self.alive_timer == 0:
-        current_set_speed_clu = int(round(self.conv.to_clu(CS.cruiseState.speed)))
+        current_set_speed_clu = round(self.conv.to_clu(CS.cruiseState.speed))
         self.btn = self._get_button_to_adjust_speed(current_set_speed_clu)
         self.alive_count = self._get_alive_count()
 
