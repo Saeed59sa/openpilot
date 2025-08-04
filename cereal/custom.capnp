@@ -1,4 +1,5 @@
 using Cxx = import "./include/c++.capnp";
+using Car = import "car.capnp";
 $Cxx.namespace("cereal");
 
 @0xb526ba661d550a59;
@@ -151,6 +152,8 @@ struct OnroadEventSP @0xda96579883444c35 {
     experimentalModeSwitched @14;
     wrongCarModeAlertOnly @15;
     pedalPressedAlertOnly @16;
+    hybridTaccActive @17;
+    hybridTaccAutoSwitch @18;
   }
 }
 
@@ -159,6 +162,9 @@ struct CarParamsSP @0x80ae746ee2596b11 {
   safetyParam @1 : Int16;  # flags for sunnypilot's custom safety flags
 
   neuralNetworkLateralControl @2 :NeuralNetworkLateralControl;
+  HybridTACC_Smoothness @3 :Float32;
+  HybridTACC_Responsiveness @4 :Float32;
+  HybridTACC_SwitchBias @5 :Float32;
 
   struct NeuralNetworkLateralControl {
     model @0 :Model;
@@ -174,6 +180,9 @@ struct CarParamsSP @0x80ae746ee2596b11 {
 struct CarControlSP @0xa5cd762cd951a455 {
   mads @0 :ModularAssistiveDrivingSystem;
   params @1 :List(Param);
+  hybridTACCEnabled @2 :Bool;
+  experimentalMode @3 :Bool;
+  visualAlert @4 :Car.CarControl.HUDControl.VisualAlert;
 
   struct Param {
     key @0 :Text;

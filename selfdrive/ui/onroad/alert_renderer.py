@@ -1,7 +1,8 @@
 import time
 import pyray as rl
 from dataclasses import dataclass
-from cereal import messaging, log
+from cereal import messaging, log, custom
+import os
 from openpilot.system.hardware import TICI
 from openpilot.system.ui.lib.application import gui_app, FontWeight, DEFAULT_FPS
 from openpilot.system.ui.lib.label import gui_text_box
@@ -35,6 +36,7 @@ class Alert:
   text2: str = ""
   size: int = 0
   status: int = 0
+  icon: str | None = None
 
 
 # Pre-defined alert instances
@@ -89,11 +91,25 @@ class AlertRenderer(Widget):
           return ALERT_CRITICAL_REBOOT
 
     # No alert if size is none
-    if ss.alertSize == 0:
-      return None
+    if ss.alertSize != 0:
+      return Alert(text1=ss.alertText1, text2=ss.alertText2, size=ss.alertSize, status=ss.alertStatus)
 
-    # Return current alert
-    return Alert(text1=ss.alertText1, text2=ss.alertText2, size=ss.alertSize, status=ss.alertStatus)
+    for e in sm['onroadEventsSP'].events:
+      if e.name == custom.OnroadEventSP.EventName.hybridTaccAutoSwitch:
+        return Alert(
+          text1="Hybrid TACC Auto Switch",
+          size=log.SelfdriveState.AlertSize.mid,
+          status=log.SelfdriveState.AlertStatus.userPrompt,
+          icon="hybrid_tacc.png",
+        )
+      if e.name == custom.OnroadEventSP.EventName.hybridTaccActive:
+        return Alert(
+          text1="Hybrid TACC Active",
+          size=log.SelfdriveState.AlertSize.small,
+          status=log.SelfdriveState.AlertStatus.normal,
+          icon="hybrid_tacc.png",
+        )
+    return None
 
   def _render(self, rect: rl.Rectangle) -> bool:
     alert = self.get_alert(ui_state.sm)
@@ -136,6 +152,12 @@ class AlertRenderer(Widget):
       rl.draw_rectangle_rec(rect, color)
 
   def _draw_text(self, rect: rl.Rectangle, alert: Alert) -> None:
+    if alert.icon:
+      icon_tex = gui_app.texture(os.path.join("icons", alert.icon), 80, 80)
+      rl.draw_texture(icon_tex, int(rect.x), int(rect.y + (rect.height - 80) / 2), rl.WHITE)
+      rect.x += 100
+      rect.width -= 100
+
     if alert.size == log.SelfdriveState.AlertSize.small:
       self._draw_centered(alert.text1, rect, self.font_bold, ALERT_FONT_MEDIUM)
 

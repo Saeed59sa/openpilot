@@ -20,6 +20,10 @@ class ControlsExt:
     self.params = params
     self.blinker_pause_lateral = BlinkerPauseLateral()
     self.param_store = ParamStore(self.CP)
+    self.hybrid_tacc_enabled = False
+    self.hybrid_tacc_smoothness = 0.5
+    self.hybrid_tacc_responsiveness = 0.5
+    self.hybrid_tacc_switch_bias = 0.5
     self.get_params_sp()
 
     cloudlog.info("controlsd_ext is waiting for CarParamsSP")
@@ -32,6 +36,10 @@ class ControlsExt:
   def get_params_sp(self) -> None:
     self.param_store.update(self.params)
     self.blinker_pause_lateral.get_params()
+    self.hybrid_tacc_enabled = self.params.get_bool("HybridTACCEnabled")
+    self.hybrid_tacc_smoothness = float(self.params.get("HybridTACC_Smoothness", encoding='utf8') or "0.5")
+    self.hybrid_tacc_responsiveness = float(self.params.get("HybridTACC_Responsiveness", encoding='utf8') or "0.5")
+    self.hybrid_tacc_switch_bias = float(self.params.get("HybridTACC_SwitchBias", encoding='utf8') or "0.5")
 
   def get_lat_active(self, sm: messaging.SubMaster) -> bool:
     if self.blinker_pause_lateral.update(sm['carState']):
@@ -49,8 +57,10 @@ class ControlsExt:
 
     # MADS state
     CC_SP.mads = sm['selfdriveStateSP'].mads
-
     CC_SP.params = self.param_store.publish()
+    CC_SP.hybridTACCEnabled = self.hybrid_tacc_enabled
+    CC_SP.experimentalMode = sm['selfdriveState'].experimentalMode
+    CC_SP.visualAlert = sm['selfdriveState'].alertHudVisual
 
     return CC_SP
 
