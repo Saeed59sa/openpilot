@@ -132,6 +132,22 @@ EVENTS_SP: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventNameSP.pedalPressedAlertOnly: {
     ET.WARNING: NoEntryAlert("Pedal Pressed")
-  }
+  },
+
+  EventNameSP.hybridTaccActive: {
+    ET.WARNING: Alert(
+      "Hybrid TACC Active",
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, 1.),
+  },
+
+  EventNameSP.hybridTaccAutoSwitch: {
+    ET.WARNING: Alert(
+      "Hybrid TACC Auto Switch",
+      "",
+      AlertStatus.userPrompt, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.none, 1.),
+  },
 
 }

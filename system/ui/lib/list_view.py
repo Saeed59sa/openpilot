@@ -199,6 +199,22 @@ class MultipleButtonAction(ItemAction):
     return False
 
 
+class SliderAction(ItemAction):
+  def __init__(self, initial: float = 0.0, callback: Callable[[float], None] | None = None, width: int = 400):
+    super().__init__(width)
+    self.value = initial
+    self.callback = callback
+
+  def _render(self, rect: rl.Rectangle) -> bool:
+    slider_rect = rl.Rectangle(rect.x, rect.y + (rect.height - 40) / 2, self._rect.width, 40)
+    new_val = rl.gui_slider_bar(slider_rect, "", "", self.value, 0.0, 1.0)
+    if abs(new_val - self.value) > 1e-3:
+      self.value = new_val
+      if self.callback:
+        self.callback(self.value)
+    return False
+
+
 class ListItem(Widget):
   def __init__(self, title: str = "", icon: str | None = None, description: str | Callable[[], str] | None = None,
                description_visible: bool = False, callback: Callable | None = None,
@@ -365,4 +381,9 @@ def dual_button_item(left_text: str, right_text: str, left_callback: Callable = 
 def multiple_button_item(title: str, description: str, buttons: list[str], selected_index: int,
                          button_width: int = BUTTON_WIDTH, callback: Callable = None, icon: str = ""):
   action = MultipleButtonAction(buttons, button_width, selected_index, callback=callback)
+  return ListItem(title=title, description=description, icon=icon, action_item=action)
+
+
+def slider_item(title: str, description: str, initial: float, callback: Callable[[float], None] | None = None, icon: str = ""):
+  action = SliderAction(initial, callback)
   return ListItem(title=title, description=description, icon=icon, action_item=action)
