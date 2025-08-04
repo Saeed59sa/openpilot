@@ -4,7 +4,7 @@ import threading
 import time
 from typing import SupportsFloat
 
-from cereal import car, log
+from cereal import car, log, custom
 import cereal.messaging as messaging
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
@@ -46,11 +46,13 @@ class Controls(ControlsExt):
                                    'liveCalibration', 'livePose', 'longitudinalPlan', 'carState', 'carOutput',
                                    'driverMonitoringState', 'onroadEvents', 'driverAssistance', 'liveDelay'] + self.sm_services_ext,
                                   poll='selfdriveState')
-    self.pm = messaging.PubMaster(['carControl', 'controlsState'] + self.pm_services_ext)
+    self.pm = messaging.PubMaster(['carControl', 'controlsState', 'onroadEventsSP'] + self.pm_services_ext)
 
     self.steer_limited_by_controls = False
     self.curvature = 0.0
     self.desired_curvature = 0.0
+    self.hybrid_tacc_active = False
+    self.hybrid_tacc_auto_switch = False
 
     self.pose_calibrator = PoseCalibrator()
     self.calibrated_pose: Pose | None = None
@@ -98,6 +100,17 @@ class Controls(ControlsExt):
 
     long_plan = self.sm['longitudinalPlan']
     model_v2 = self.sm['modelV2']
+    hybrid_prev_active = self.hybrid_tacc_active
+    self.hybrid_tacc_auto_switch = False
+    if self.hybrid_tacc_enabled:
+      if self.sm['selfdriveState'].experimentalMode and self.hybrid_tacc_switch_bias >= 0.5:
+        self.hybrid_tacc_active = True
+      else:
+        self.hybrid_tacc_active = False
+      if self.hybrid_tacc_active != hybrid_prev_active:
+        self.hybrid_tacc_auto_switch = True
+    else:
+      self.hybrid_tacc_active = False
 
     CC = car.CarControl.new_message()
     CC.enabled = self.sm['selfdriveState'].enabled
@@ -127,7 +140,12 @@ class Controls(ControlsExt):
 
     # accel PID loop
     pid_accel_limits = self.CI.get_pid_accel_limits(self.CP, CS.vEgo, CS.vCruise * CV.KPH_TO_MS)
-    actuators.accel = float(self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop, pid_accel_limits))
+    a_target = long_plan.aTarget
+    if self.hybrid_tacc_enabled:
+      a_target *= self.hybrid_tacc_smoothness
+    actuators.accel = float(self.LoC.update(CC.longActive, CS, a_target, long_plan.shouldStop, pid_accel_limits))
+    if self.hybrid_tacc_enabled:
+      actuators.accel *= self.hybrid_tacc_responsiveness
 
     # Steering PID loop and lateral MPC
     # Reset desired curvature to current to avoid violating the limits on engage
@@ -149,6 +167,17 @@ class Controls(ControlsExt):
       if not math.isfinite(attr):
         cloudlog.error(f"actuators.{p} not finite {actuators.to_dict()}")
         setattr(actuators, p, 0.0)
+
+    if self.hybrid_tacc_enabled:
+      bias_changed = False
+      if self.hybrid_tacc_active and CS.brakePressed:
+        self.hybrid_tacc_switch_bias = max(0.0, self.hybrid_tacc_switch_bias - 0.01)
+        bias_changed = True
+      elif not self.hybrid_tacc_active and CS.gasPressed:
+        self.hybrid_tacc_switch_bias = min(1.0, self.hybrid_tacc_switch_bias + 0.01)
+        bias_changed = True
+      if bias_changed:
+        self.params.put("HybridTACC_SwitchBias", f"{self.hybrid_tacc_switch_bias:.2f}")
 
     return CC, lac_log
 
@@ -225,6 +254,21 @@ class Controls(ControlsExt):
     cc_send.valid = CS.canValid
     cc_send.carControl = CC
     self.pm.send('carControl', cc_send)
+
+    if self.hybrid_tacc_enabled:
+      events = []
+      if self.hybrid_tacc_active:
+        e = custom.OnroadEventSP.Event.new_message()
+        e.name = custom.OnroadEventSP.EventName.hybridTaccActive
+        events.append(e)
+      if self.hybrid_tacc_auto_switch:
+        e = custom.OnroadEventSP.Event.new_message()
+        e.name = custom.OnroadEventSP.EventName.hybridTaccAutoSwitch
+        events.append(e)
+      if events:
+        ce_send = messaging.new_message('onroadEventsSP')
+        ce_send.onroadEventsSP.events = events
+        self.pm.send('onroadEventsSP', ce_send)
 
   def params_thread(self, evt):
     while not evt.is_set():

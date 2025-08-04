@@ -1,4 +1,4 @@
-from openpilot.system.ui.lib.list_view import multiple_button_item, toggle_item
+from openpilot.system.ui.lib.list_view import multiple_button_item, toggle_item, slider_item
 from openpilot.system.ui.lib.scroller import Scroller
 from openpilot.system.ui.lib.widget import Widget
 from openpilot.common.params import Params
@@ -84,6 +84,33 @@ class TogglesLayout(Widget):
       toggle_item(
         "Use Metric System", DESCRIPTIONS["IsMetric"], self._params.get_bool("IsMetric"), icon="monitoring.png"
       ),
+      toggle_item(
+        "HybridTACC (Beta)",
+        initial_state=self._params.get_bool("HybridTACCEnabled"),
+        icon="hybrid_tacc.png",
+        callback=self._toggle_hybrid_tacc,
+      ),
+      slider_item(
+        "Smoothness",
+        "Smooth \u2194 Aggressive",
+        float(self._params.get("HybridTACC_Smoothness") or 0.5),
+        lambda v: self._params.put("HybridTACC_Smoothness", f"{v:.2f}"),
+        icon="smoothness.png",
+      ),
+      slider_item(
+        "Responsiveness",
+        "Comfort \u2194 Responsive",
+        float(self._params.get("HybridTACC_Responsiveness") or 0.5),
+        lambda v: self._params.put("HybridTACC_Responsiveness", f"{v:.2f}"),
+        icon="responsiveness.png",
+      ),
+      slider_item(
+        "Switch Bias",
+        "Conservative \u2194 Experimental",
+        float(self._params.get("HybridTACC_SwitchBias") or 0.5),
+        lambda v: self._params.put("HybridTACC_SwitchBias", f"{v:.2f}"),
+        icon="switch_bias.png",
+      ),
     ]
 
     self._scroller = Scroller(items, line_separator=True, spacing=0)
@@ -93,3 +120,6 @@ class TogglesLayout(Widget):
 
   def _set_longitudinal_personality(self, button_index: int):
     self._params.put("LongitudinalPersonality", str(button_index))
+
+  def _toggle_hybrid_tacc(self):
+    self._params.put_bool("HybridTACCEnabled", not self._params.get_bool("HybridTACCEnabled"))

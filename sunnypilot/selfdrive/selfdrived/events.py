@@ -126,6 +126,14 @@ EVENTS_SP: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.WARNING: NormalPermanentAlert("Experimental Mode Switched", duration=1.5)
   },
 
+  EventNameSP.hybridTaccActive: {
+    ET.WARNING: NormalPermanentAlert("Hybrid TACC Active", duration=1.5)
+  },
+
+  EventNameSP.hybridTaccAutoSwitch: {
+    ET.WARNING: NormalPermanentAlert("Hybrid TACC Auto Switch", duration=1.5)
+  },
+
   EventNameSP.wrongCarModeAlertOnly: {
     ET.WARNING: wrong_car_mode_alert,
   },

@@ -17,8 +17,24 @@ class ParamStore:
   values: dict[str, str]
 
   def __init__(self, CP: structs.CarParams):
-    universal_params: list[str] = []
+    universal_params: list[str] = [
+      "HybridTACCEnabled",
+      "HybridTACC_Smoothness",
+      "HybridTACC_Responsiveness",
+      "HybridTACC_SwitchBias",
+    ]
     brand_params: list[str] = []
+
+    p = Params()
+    defaults = {
+      "HybridTACCEnabled": "0",
+      "HybridTACC_Smoothness": "0.5",
+      "HybridTACC_Responsiveness": "0.5",
+      "HybridTACC_SwitchBias": "0.5",
+    }
+    for k, v in defaults.items():
+      if p.get(k) is None:
+        p.put(k, v)
 
     self.keys = universal_params + brand_params
     self.values = {}

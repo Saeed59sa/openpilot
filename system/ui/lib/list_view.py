@@ -199,6 +199,44 @@ class MultipleButtonAction(ItemAction):
     return False
 
 
+class SliderAction(ItemAction):
+  def __init__(self, initial_value: float = 0.5, callback: Callable[[float], None] | None = None,
+               enabled: bool | Callable[[], bool] = True):
+    super().__init__(width=400, enabled=enabled)
+    self.value = initial_value
+    self.callback = callback
+    self._dragging = False
+
+  def _render(self, rect: rl.Rectangle) -> bool:
+    track_height = 20
+    track_rect = rl.Rectangle(rect.x, rect.y + (rect.height - track_height) / 2, self._rect.width, track_height)
+    rl.draw_rectangle_rounded(track_rect, 1.0, 20, rl.Color(57, 57, 57, 255))
+    knob_radius = 15
+    knob_x = track_rect.x + self.value * track_rect.width
+    knob_center = rl.Vector2(knob_x, track_rect.y + track_rect.height / 2)
+    rl.draw_circle_v(knob_center, knob_radius, rl.WHITE)
+
+    mouse = rl.get_mouse_position()
+    changed = False
+    if self.enabled:
+      if rl.is_mouse_button_pressed(rl.MouseButton.MOUSE_BUTTON_LEFT) and rl.check_collision_point_rec(
+          mouse, rl.Rectangle(track_rect.x - knob_radius, track_rect.y - knob_radius,
+                               track_rect.width + knob_radius * 2, track_rect.height + knob_radius * 2)):
+        self._dragging = True
+      if self._dragging:
+        if rl.is_mouse_button_down(rl.MouseButton.MOUSE_BUTTON_LEFT):
+          self.value = max(0.0, min(1.0, (mouse.x - track_rect.x) / track_rect.width))
+          changed = True
+        else:
+          self._dragging = False
+
+    if changed and self.callback:
+      self.callback(self.value)
+    return changed
+
+
+
+
 class ListItem(Widget):
   def __init__(self, title: str = "", icon: str | None = None, description: str | Callable[[], str] | None = None,
                description_visible: bool = False, callback: Callable | None = None,
@@ -365,4 +403,9 @@ def dual_button_item(left_text: str, right_text: str, left_callback: Callable = 
 def multiple_button_item(title: str, description: str, buttons: list[str], selected_index: int,
                          button_width: int = BUTTON_WIDTH, callback: Callable = None, icon: str = ""):
   action = MultipleButtonAction(buttons, button_width, selected_index, callback=callback)
+  return ListItem(title=title, description=description, icon=icon, action_item=action)
+
+
+def slider_item(title: str, description: str, initial_value: float, callback: Callable[[float], None], icon: str = ""):
+  action = SliderAction(initial_value, callback=callback)
   return ListItem(title=title, description=description, icon=icon, action_item=action)
