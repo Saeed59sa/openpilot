@@ -4,7 +4,7 @@ import threading
 import time
 from typing import SupportsFloat
 
-from cereal import car, log
+from cereal import car, log, custom
 import cereal.messaging as messaging
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
@@ -39,6 +39,7 @@ class Controls(ControlsExt):
 
     # Initialize sunnypilot controlsd extension
     ControlsExt.__init__(self, self.CP, self.params)
+    self.prev_experimental_mode = self.experimental_mode
 
     self.CI = interfaces[self.CP.carFingerprint](self.CP, self.CP_SP)
 
@@ -110,7 +111,14 @@ class Controls(ControlsExt):
 
     CC.latActive = _lat_active and not CS.steerFaultTemporary and not CS.steerFaultPermanent and \
                    (not standstill or self.CP.steerAtStandstill)
-    CC.longActive = CC.enabled and not any(e.overrideLongitudinal for e in self.sm['onroadEvents']) and self.CP.openpilotLongitudinalControl
+    base_long_active = CC.enabled and not any(e.overrideLongitudinal for e in self.sm['onroadEvents'])
+    if self.hybrid_tacc_enabled:
+      if self.experimental_mode:
+        CC.longActive = base_long_active
+      else:
+        CC.longActive = False
+    else:
+      CC.longActive = base_long_active and self.CP.openpilotLongitudinalControl
 
     actuators = CC.actuators
     actuators.longControlState = self.LoC.long_control_state
@@ -127,7 +135,12 @@ class Controls(ControlsExt):
 
     # accel PID loop
     pid_accel_limits = self.CI.get_pid_accel_limits(self.CP, CS.vEgo, CS.vCruise * CV.KPH_TO_MS)
-    actuators.accel = float(self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop, pid_accel_limits))
+    if self.hybrid_tacc_enabled:
+      pid_accel_limits = tuple(l * self.hybrid_tacc_responsiveness for l in pid_accel_limits)
+      a_target = long_plan.aTarget * self.hybrid_tacc_smoothness
+    else:
+      a_target = long_plan.aTarget
+    actuators.accel = float(self.LoC.update(CC.longActive, CS, a_target, long_plan.shouldStop, pid_accel_limits))
 
     # Steering PID loop and lateral MPC
     # Reset desired curvature to current to avoid violating the limits on engage
@@ -140,6 +153,13 @@ class Controls(ControlsExt):
                                                        self.calibrated_pose, curvature_limited)  # TODO what if not available
     actuators.torque = float(steer)
     actuators.steeringAngleDeg = float(steeringAngleDeg)
+    if self.hybrid_tacc_enabled:
+      if self.experimental_mode and CS.brakePressed:
+        self.hybrid_tacc_switch_bias = max(0.0, self.hybrid_tacc_switch_bias - 0.01)
+        self.params.put("HybridTACC_SwitchBias", f"{self.hybrid_tacc_switch_bias:.3f}")
+      if not self.experimental_mode and CS.gasPressed:
+        self.hybrid_tacc_switch_bias = min(1.0, self.hybrid_tacc_switch_bias + 0.01)
+        self.params.put("HybridTACC_SwitchBias", f"{self.hybrid_tacc_switch_bias:.3f}")
     # Ensure no NaNs/Infs
     for p in ACTUATOR_FIELDS:
       attr = getattr(actuators, p)
@@ -225,6 +245,22 @@ class Controls(ControlsExt):
     cc_send.valid = CS.canValid
     cc_send.carControl = CC
     self.pm.send('carControl', cc_send)
+
+    if self.hybrid_tacc_enabled:
+      events_sp = []
+      if self.experimental_mode:
+        e = custom.OnroadEventSP.Event.new_message()
+        e.name = custom.OnroadEventSP.EventName.hybridTaccActive
+        events_sp.append(e)
+        if not self.prev_experimental_mode:
+          e2 = custom.OnroadEventSP.Event.new_message()
+          e2.name = custom.OnroadEventSP.EventName.hybridTaccAutoSwitch
+          events_sp.append(e2)
+      if events_sp:
+        evt = messaging.new_message('onroadEventsSP')
+        evt.onroadEventsSP.events = events_sp
+        self.pm.send('onroadEventsSP', evt)
+      self.prev_experimental_mode = self.experimental_mode
 
   def params_thread(self, evt):
     while not evt.is_set():

@@ -1,7 +1,7 @@
 import time
 import pyray as rl
 from dataclasses import dataclass
-from cereal import messaging, log
+from cereal import messaging, log, custom
 from openpilot.system.hardware import TICI
 from openpilot.system.ui.lib.application import gui_app, FontWeight, DEFAULT_FPS
 from openpilot.system.ui.lib.label import gui_text_box
@@ -35,6 +35,7 @@ class Alert:
   text2: str = ""
   size: int = 0
   status: int = 0
+  icon: str | None = None
 
 
 # Pre-defined alert instances
@@ -69,6 +70,14 @@ class AlertRenderer(Widget):
   def get_alert(self, sm: messaging.SubMaster) -> Alert | None:
     """Generate the current alert based on selfdrive state."""
     ss = sm['selfdriveState']
+    if sm.updated.get('onroadEventsSP', False):
+      for e in sm['onroadEventsSP'].events:
+        if e.name == custom.OnroadEventSP.EventName.hybridTaccActive:
+          return Alert(text1="Hybrid TACC Active", size=log.SelfdriveState.AlertSize.small,
+                       status=log.SelfdriveState.AlertStatus.normal, icon="hybrid_tacc.png")
+        if e.name == custom.OnroadEventSP.EventName.hybridTaccAutoSwitch:
+          return Alert(text1="Hybrid TACC Auto Switch", size=log.SelfdriveState.AlertSize.small,
+                       status=log.SelfdriveState.AlertStatus.userPrompt, icon="hybrid_tacc.png")
 
     # Check if selfdriveState messages have stopped arriving
     if not sm.updated['selfdriveState']:
@@ -136,6 +145,12 @@ class AlertRenderer(Widget):
       rl.draw_rectangle_rec(rect, color)
 
   def _draw_text(self, rect: rl.Rectangle, alert: Alert) -> None:
+    if alert.icon:
+      icon_tex = gui_app.texture(f"icons/{alert.icon}", 100, 100)
+      rl.draw_texture(icon_tex, int(rect.x), int(rect.y), rl.WHITE)
+      rect.x += icon_tex.width + 20
+      rect.width -= icon_tex.width + 20
+
     if alert.size == log.SelfdriveState.AlertSize.small:
       self._draw_centered(alert.text1, rect, self.font_bold, ALERT_FONT_MEDIUM)
 
