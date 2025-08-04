@@ -82,12 +82,12 @@ class LongControl:
         output_accel = min(output_accel, 0.0)
         self.stopping_accel_weight = 1.0
         if self.prev_long_control_state == LongCtrlState.starting:
-          output_accel -= self.CP.stoppingDecelRate * 2.0 * DT_CTRL
+          output_accel -= self.CP.stoppingDecelRate * 1.5 * DT_CTRL
         else:
           m_accel = -0.6
           d_accel = np.interp(output_accel,
                            [m_accel - 0.5, m_accel, m_accel + 0.5],
-                           [self.CP.stoppingDecelRate * 1.2, 0.0, self.CP.stoppingDecelRate * 1.2])
+                           [self.CP.stoppingDecelRate, 0.05, self.CP.stoppingDecelRate])
 
           output_accel -= d_accel * DT_CTRL
       else:
@@ -106,7 +106,7 @@ class LongControl:
       output_accel = self.pid.update(error, speed=CS.vEgo,
                                      feedforward=long_plan.aTarget)
 
-      self.stopping_accel_weight = max(self.stopping_accel_weight - 3. * DT_CTRL, 0.)
+      self.stopping_accel_weight = max(self.stopping_accel_weight - 2. * DT_CTRL, 0.)
       output_accel = self.last_output_accel * self.stopping_accel_weight + output_accel * (1. - self.stopping_accel_weight)
 
     self.last_output_accel = np.clip(output_accel, accel_limits[0], accel_limits[1])
