@@ -170,6 +170,7 @@ class CruiseController:
       section_limit_speed, section_left_dist = SpeedLimiter.instance().get_section_limit_speed()
       if cam_type == 22:
         camera_limit_speed_clu = BUMP_SPEED
+        is_limit_zone = True
       elif section_limit_speed > 0 and section_left_dist > 0:
         section_limit_speed_clu = section_limit_speed
         is_limit_zone = True
@@ -204,7 +205,7 @@ class CruiseController:
       curve_limit_speed_clu,
       steer_limit_speed_clu
     ]
-    valid_limits = [s for s in speed_candidates if s >= self.min_set_speed_clu and s != NO_LIMIT_SPEED]
+    valid_limits = [s for s in speed_candidates if s >= V_CRUISE_MIN and s != NO_LIMIT_SPEED]
     calculated_max_speed_clu = min(v_cruise_kph, min(valid_limits)) if valid_limits else v_cruise_kph
 
     if not self.CP.openpilotLongitudinalControl or self.apply_limit_speed_clu <= 0 or is_limit_zone:
