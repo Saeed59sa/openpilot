@@ -41,7 +41,7 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
 
   QObject::connect(uiState(), &UIState::uiUpdate, this, &Sidebar::updateState);
 
-  pm = std::make_unique<PubMaster>(std::vector<const char*>{"userFlag"});
+  pm = std::make_unique<PubMaster>(std::vector<const char*>{"bookmarkButton"});
 }
 
 void Sidebar::mousePressEvent(QMouseEvent *event) {
@@ -64,8 +64,8 @@ void Sidebar::mouseReleaseEvent(QMouseEvent *event) {
   }
   if (onroad && home_btn.contains(event->pos())) {
     //MessageBuilder msg;
-    //msg.initEvent().initUserFlag();
-    //pm->send("userFlag", msg);
+    //msg.initEvent().initBookmarkButton();
+    //pm->send("bookmarkButton", msg);
     QProcess::execute("sh /data/openpilot/scripts/gitpull.sh");
   } else if (settings_btn.contains(event->pos())) {
     emit openSettings();
