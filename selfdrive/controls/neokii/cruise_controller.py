@@ -28,7 +28,6 @@ CRUISE_LONG_PRESS = 50
 """
 
 NO_LIMIT_SPEED = 255.
-BUMP_SPEED = 27.
 
 ButtonType = structs.CarState.ButtonEvent.Type
 GearShifter = structs.CarState.GearShifter
@@ -163,17 +162,12 @@ class CruiseController:
 
     # 2. Camera limit speed
     camera_limit_speed_clu = NO_LIMIT_SPEED
-    section_limit_speed_clu = NO_LIMIT_SPEED
     if nda_active:
-      camera_limit_speed, is_limit_zone, cam_type = (
+      camera_limit_speed, is_limit_zone = (
         SpeedLimiter.instance().get_max_speed(cluster_speed_clu, self.conv))
       section_limit_speed, section_left_dist = SpeedLimiter.instance().get_section_limit_speed()
-      if cam_type == 22:
-        camera_limit_speed_clu = BUMP_SPEED
-        is_limit_zone = True
-      elif section_limit_speed > 0 and section_left_dist > 0:
-        section_limit_speed_clu = section_limit_speed
-        is_limit_zone = True
+      if section_limit_speed > 0 and section_left_dist > 0:
+        camera_limit_speed_clu = section_limit_speed
       else:
         camera_limit_speed_clu = camera_limit_speed
     elif CS is not None and CS.speedLimit > 0 and CS.speedLimitDistance > 0:
@@ -197,15 +191,18 @@ class CruiseController:
     steer_limit_speed_clu = self._cal_steer_based_speed(current_speed_ms, CS.steeringAngleDeg)
     self.steer_limit_speed_clu = steer_limit_speed_clu
 
+    cam_type = SpeedLimiter.instance().get_cam_type()
+    if cam_type == 22:
+      road_limit_speed_clu = min(road_limit_speed_clu, camera_limit_speed_clu)
+
     speed_candidates = [
       road_limit_speed_clu,
       camera_limit_speed_clu,
-      section_limit_speed_clu,
       lead_limit_speed_clu,
       curve_limit_speed_clu,
       steer_limit_speed_clu
     ]
-    valid_limits = [s for s in speed_candidates if s >= V_CRUISE_MIN and s != NO_LIMIT_SPEED]
+    valid_limits = [s for s in speed_candidates if s >= self.min_set_speed_clu and s != NO_LIMIT_SPEED]
     calculated_max_speed_clu = min(v_cruise_kph, min(valid_limits)) if valid_limits else v_cruise_kph
 
     if not self.CP.openpilotLongitudinalControl or self.apply_limit_speed_clu <= 0 or is_limit_zone:

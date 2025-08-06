@@ -411,9 +411,15 @@ class SpeedLimiter:
       return self.naviData.sectionLimitSpeed, self.naviData.sectionLeftDist
     return 0, 0
 
+  def get_cam_type(self):
+    self.recv()
+    if self.naviData is not None:
+      return self.naviData.camType
+    return 0
+
   def get_max_speed(self, cluster_speed, conv):
     self.recv()
-    default_return_value = (0, False, 0)
+    default_return_value = (0, False)
 
     if self.naviData is None:
       self.decelerating = False
@@ -462,7 +468,13 @@ class SpeedLimiter:
 
           self.last_limit_speed_left_dist = cam_limit_speed_left_dist
 
-          return cam_limit_speed * cam_speed_factor + int(pp * diff_speed), is_limit_zone, cam_type
+          if cam_type == 22:
+            bump_speed = 28.
+            target_speed = bump_speed + int(pp * diff_speed)
+          else:
+            target_speed = cam_limit_speed * cam_speed_factor + int(pp * diff_speed)
+
+          return target_speed, is_limit_zone
 
       elif section_left_dist is not None and section_limit_speed is not None and section_left_dist > 0:
         if min_limit <= section_limit_speed <= max_limit:
@@ -476,7 +488,9 @@ class SpeedLimiter:
             speed_diff = (section_limit_speed - section_avg_speed) / 2.
             speed_diff *= np.interp(section_left_dist, [500, 1000], [0., 1.])
 
-          return section_limit_speed * cam_speed_factor + speed_diff, is_limit_zone, 0
+          target_speed = section_limit_speed * cam_speed_factor + speed_diff
+
+          return target_speed, is_limit_zone
 
     except Exception:
       pass
