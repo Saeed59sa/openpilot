@@ -144,6 +144,7 @@ class CruiseController:
     self.curve_speed_clu = 0.
 
   def _cal_limit_speed(self, CS, sm, current_speed_ms: float, cluster_speed_clu: float, v_cruise_kph: float):
+    cam_type = SpeedLimiter.instance().get_cam_type()
     nda_active = SpeedLimiter.instance().get_active()
     road_limit_speed_nda = SpeedLimiter.instance().get_road_limit_speed()
     road_limit_speed_stock = CS.exState.navLimitSpeed
@@ -176,6 +177,9 @@ class CruiseController:
       camera_limit_speed_clu = camera_limit_speed_stock
     self.camera_limit_speed_clu = camera_limit_speed_clu
 
+    if cam_type == 22 or camera_limit_speed_clu <= 30:
+      road_limit_speed_clu = min(road_limit_speed_clu, camera_limit_speed_clu)
+
     # 3. Lead limit speed
     lead = sm['radarState'].leadOne
     lead_speed = self._cal_lead_speed(lead, cluster_speed_clu)
@@ -191,10 +195,6 @@ class CruiseController:
     steer_limit_speed_clu = self._cal_steer_based_speed(current_speed_ms, CS.steeringAngleDeg)
     self.steer_limit_speed_clu = steer_limit_speed_clu
 
-    cam_type = SpeedLimiter.instance().get_cam_type()
-    if cam_type == 22:
-      road_limit_speed_clu = min(road_limit_speed_clu, camera_limit_speed_clu)
-
     speed_candidates = [
       road_limit_speed_clu,
       camera_limit_speed_clu,
@@ -203,7 +203,7 @@ class CruiseController:
       steer_limit_speed_clu
     ]
     valid_limits = [s for s in speed_candidates if s >= self.min_set_speed_clu and s != NO_LIMIT_SPEED]
-    calculated_max_speed_clu = min(v_cruise_kph, min(valid_limits)) if valid_limits else v_cruise_kph
+    calculated_max_speed_clu = min(v_cruise_kph, min(valid_limits)) if valid_limits else self.apply_limit_speed_clu
 
     if not self.CP.openpilotLongitudinalControl or self.apply_limit_speed_clu <= 0 or is_limit_zone:
       self.apply_limit_speed_clu = calculated_max_speed_clu

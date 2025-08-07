@@ -34,7 +34,8 @@ HudRenderer::HudRenderer() {
   // neokii add
   autohold_warning_img = loadPixmap("../assets/icons/autohold_warning.png", {img_size, img_size});
   autohold_active_img = loadPixmap("../assets/icons/autohold_active.png", {img_size, img_size});
-  speed_bump_img = loadPixmap("../assets/icons/safety_speed_bump.png");
+  speed_bump_img = loadPixmap("../assets/icons/speed_bump.png");
+  speed_camera_img = loadPixmap("../assets/icons/speed_camera.png");
 }
 
 static const QColor get_tpms_color(float tpms) {
@@ -160,13 +161,14 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   }
 
   // speed_bump icon
+  w = 150;
+  h = 150;
+  x = 440;
+  y = (UI_BORDER_SIZE * 3.5);
   if (cam_type == 22) {
-    w = 158;
-    h = 120;
-    x = 440;
-    y = (UI_BORDER_SIZE * 3.5);
     p.drawPixmap(x, y, w, h, speed_bump_img);
-  }
+  } else if (camLimitSpeed > 0 && camLimitSpeedLeftDist > 0)
+    p.drawPixmap(x, y, w, h, speed_camera_img);
 
   // upper left info
   x = surface_rect.left() + 20;
@@ -445,13 +447,29 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   p.drawRoundedRect(max_speed_box, 15, 15);
 
   int max_text_y = max_speed_box.top() + max_speed_box.height() / 4;
-  int value_text_y = max_speed_box.top() + (max_speed_box.height() / 4 * 3);
+  int max_speed_y = max_speed_box.top() + (max_speed_box.height() / 4 * 3);
 
-  maxSpeedStr = QString::number(std::nearbyint((nda_state > 0) ? apply_speed : cruise_speed));
+  maxSpeedStr = QString::number(std::nearbyint(cruise_speed));
 
-  drawTextColor(p, max_speed_box.center().x(), max_text_y, 30, nda_state > 0 ? "SET" : "MAX", whiteColor(200));
-  drawTextColor(p, max_speed_box.center().x(), value_text_y, 60, is_cruise_set ? maxSpeedStr : "─", speedColor);
+  drawTextColor(p, max_speed_box.center().x(), max_text_y, 30, "MAX", whiteColor(200));
+  drawTextColor(p, max_speed_box.center().x(), max_speed_y, 60, is_cruise_set ? maxSpeedStr : "─", speedColor);
 
+  // set speed
+  if (nda_state > 0) {
+    QRect set_speed_box(speed_box.left() + 5, speed_box.bottom() + 5, 160, 160);
+    p.setPen(QPen(whiteColor(200), 2));
+    p.drawRoundedRect(set_speed_box, 15, 15);
+
+    int set_text_y = set_speed_box.top() + set_speed_box.height() / 4;
+    int set_speed_y = set_speed_box.top() + (set_speed_box.height() / 4 * 3);
+
+    applySpeedStr = QString::number(std::nearbyint(apply_speed));
+
+    drawTextColor(p, set_speed_box.center().x(), set_text_y, 30, "SET", whiteColor(200));
+    drawTextColor(p, set_speed_box.center().x(), set_speed_y, 60, is_cruise_set ? applySpeedStr : "─", speedColor);
+  }
+
+  // traffic box
   QRect traffic_box(max_speed_box.right() + 5, speed_box.top() + 5, 85, 160);
   p.setPen(QPen(whiteColor(200), 2));
   p.drawRoundedRect(traffic_box, 15, 15);

@@ -66,7 +66,7 @@ void Sidebar::mouseReleaseEvent(QMouseEvent *event) {
     //MessageBuilder msg;
     //msg.initEvent().initBookmarkButton();
     //pm->send("bookmarkButton", msg);
-    QProcess::execute("sh /data/openpilot/scripts/gitpull.sh");
+    QProcess::startDetached("sh /data/openpilot/scripts/gitpull.sh");
   } else if (settings_btn.contains(event->pos())) {
     emit openSettings();
   } else if (recording_audio && mic_indicator_btn.contains(event->pos())) {
@@ -94,7 +94,7 @@ void Sidebar::updateState(const UIState &s) {
   if (strength > 0 && !commit_check_done) {
     QString commit_compare = QString("%1").arg(QString::fromStdString(params.get("CommitCompare")));
     if (commit_compare.isEmpty()) {
-      QProcess::execute("sh /data/openpilot/scripts/commit_compare.sh");
+      QProcess::startDetached("sh /data/openpilot/scripts/commit_compare.sh");
       commit_check_done = true;
     }
   }

@@ -35,10 +35,10 @@ private:
   QPixmap turnsignal_l_img, turnsignal_r_img;
   QPixmap traffic_off_img, traffic_green_img, traffic_red_img;
   QPixmap lka_on_img, lka_off_img;
-  QPixmap autohold_warning_img, autohold_active_img, speed_bump_img;
+  QPixmap autohold_warning_img, autohold_active_img, speed_bump_img, speed_camera_img;
 
   QString leftDistStr, altitudeStr, accuracyStr, infoGps;
-  QString maxSpeedStr;
+  QString maxSpeedStr, applySpeedStr;
 
   bool hideBottomIcons = false;
   bool longControl = false;

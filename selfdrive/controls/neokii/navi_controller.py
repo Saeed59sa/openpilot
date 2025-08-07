@@ -500,31 +500,24 @@ class SpeedLimiter:
 
   def get_camera_limit_speed_stock(self, speed_limit_distance, speed_limit, conv):
     if speed_limit_distance <= 0 or speed_limit <= 0:
+      self.decelerating = False
       return 0, False
 
     safety_factor = 1.05
     safe_speed_kph = speed_limit * safety_factor
 
-    return self._calculate_deceleration_speed(speed_limit_distance, safe_speed_kph, conv)
-
-  def _calculate_deceleration_speed(self, left_dist, safe_speed_kph, conv):
     safe_time = 7
     safe_decel_rate = 1.2
 
     safe_speed_ms = conv.to_ms(safe_speed_kph)
 
     safe_dist = safe_speed_ms * safe_time
-    decel_dist = left_dist - safe_dist
+    decel_dist = speed_limit_distance - safe_dist
 
-    is_limit_zone = False
+    is_limit_zone = not self.decelerating
     if decel_dist > 0:
       if not self.decelerating:
         self.decelerating = True
-        is_limit_zone = True
-
-    if decel_dist <= 0:
-      self.decelerating = False
-      return safe_speed_kph, is_limit_zone
 
     # v_i^2 = v_f^2 + 2ad (physics formula)
     temp = safe_speed_ms**2 + 2 * safe_decel_rate * decel_dist
