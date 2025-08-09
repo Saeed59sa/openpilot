@@ -30,6 +30,10 @@ HudRenderer::HudRenderer() {
   traffic_red_img = loadPixmap("../assets/icons/traffic_red.png", {img_size, img_size});
   lka_on_img = loadPixmap("../assets/icons/lka_on.png", {img_size, img_size});
   lka_off_img = loadPixmap("../assets/icons/lka_off.png", {img_size, img_size});
+  dist_1_img = loadPixmap("../assets/icons/dist_1.png", {img_size, img_size});
+  dist_2_img = loadPixmap("../assets/icons/dist_2.png", {img_size, img_size});
+  dist_3_img = loadPixmap("../assets/icons/dist_3.png", {img_size, img_size});
+  dist_4_img = loadPixmap("../assets/icons/dist_4.png", {img_size, img_size});
 
   // neokii add
   autohold_warning_img = loadPixmap("../assets/icons/autohold_warning.png", {img_size, img_size});
@@ -322,6 +326,22 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
       drawIcon(p, QPoint(x, y), autohold_state > 1 ? autohold_warning_img : autohold_active_img, icon_bg, autohold_state ? 0.8 : 0.2);
     } else {
       drawIcon(p, QPoint(x, y), brake_img, icon_bg, brake_press ? 0.8 : 0.2);
+    }
+
+    // distance
+    w = 80;
+    h = 288;
+    x = surface_rect.left() + (UI_BORDER_SIZE * 2);
+    y = surface_rect.height() - (UI_BORDER_SIZE * 2) - h * 2;
+
+    if (params.get("LongitudinalPersonality") == "0") {
+      p.drawPixmap(x, y, w, h, dist_1_img);
+    } else if (params.get("LongitudinalPersonality") == "1") {
+      p.drawPixmap(x, y, w, h, dist_2_img);
+    } else if (params.get("LongitudinalPersonality") == "2") {
+      p.drawPixmap(x, y, w, h, dist_3_img);
+    } else {
+      p.drawPixmap(x, y, w, h, dist_4_img);
     }
 
     // tpms
