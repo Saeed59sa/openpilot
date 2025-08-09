@@ -270,7 +270,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   QPushButton* cameraview_btn = new QPushButton(tr("Camera View"));
   cameraview_btn->setObjectName("cameraview_btn");
   QObject::connect(cameraview_btn, &QPushButton::clicked, this, []() {
-    QProcess::execute("/data/openpilot/selfdrive/ui/watch3");
+    QProcess::execute("/data/openpilot/selfdrive/ui/watch3.py");
   });
 
   QString buttonStyle = R"(
