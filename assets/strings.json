@@ -1,0 +1,6 @@
+{
+  "SDR_MENU_TITLE": { "en": "SDRaceMode", "ar": "وضع SDRaceMode" },
+  "SDR_MENU_DESC":  { "en": "Performance mode (track use only)", "ar": "وضع الأداء (للاستخدام في الحلبات فقط)" },
+  "SDR_OPEN":       { "en": "Open SDRaceMode", "ar": "فتح SDRaceMode" },
+  "SDR_SETTINGS":   { "en": "SDRaceMode Settings", "ar": "إعدادات SDRaceMode" }
+}
