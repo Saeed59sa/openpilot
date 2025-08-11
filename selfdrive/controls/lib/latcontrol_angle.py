@@ -11,7 +11,7 @@ class LatControlAngle(LatControl):
   def __init__(self, CP, CI):
     super().__init__(CP, CI)
     self.sat_check_min_speed = 5.
-    self.use_steer_limited_by_controls = CP.brand == "tesla"
+    self.use_steer_limited_by_safety = CP.brand == "tesla"
 
     # Initialize the filtered curvature to zero (or an appropriate initial value)
     self.filtered_curvature = 0.0
@@ -19,7 +19,7 @@ class LatControlAngle(LatControl):
     self.filter_speed_matrox = [0, 2.5, 8.3, 13.8, 22.22]
     self.filter_alpha_matrix = [0.05, 0.1, 0.3, 0.6, 1]
 
-  def update(self, active, CS, VM, params, steer_limited_by_controls, desired_curvature, curvature_limited):
+  def update(self, active, CS, VM, params, steer_limited_by_safety, desired_curvature, curvature_limited):
     angle_log = log.ControlsState.LateralAngleState.new_message()
 
     if not active:
@@ -34,9 +34,9 @@ class LatControlAngle(LatControl):
       angle_steers_des = math.degrees(VM.get_steer_from_curvature(-self.filtered_curvature, CS.vEgo, params.roll))
       angle_steers_des += params.angleOffsetDeg
 
-    if self.use_steer_limited_by_controls:
+    if self.use_steer_limited_by_safety:
       # these cars' carcontrollers calculate max lateral accel and jerk, so we can rely on carOutput for saturation
-      angle_control_saturated = steer_limited_by_controls
+      angle_control_saturated = steer_limited_by_safety
     else:
       # for cars which use a method of limiting torque such as a torque signal (Nissan and Toyota)
       # or relying on EPS (Ford Q3), carOutput does not capture maxing out torque  # TODO: this can be improved

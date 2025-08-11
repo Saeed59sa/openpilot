@@ -31,6 +31,7 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
   flag_img = loadPixmap("../assets/images/button_flag.png", home_btn.size());
   settings_img = loadPixmap("../assets/images/button_settings.png", settings_btn.size(), Qt::IgnoreAspectRatio);
   mic_img = loadPixmap("../assets/icons/microphone.png", QSize(30, 30));
+  link_img = loadPixmap("../assets/icons/link.png", QSize(60, 60));
   c3x_img = loadPixmap("../assets/icons/c3x.png", home_btn.size());
 
   connect(this, &Sidebar::valueChanged, [=] { update(); });
@@ -193,6 +194,14 @@ void Sidebar::paintEvent(QPaintEvent *event) {
 
   p.setFont(InterFont(30));
   p.setPen(QColor(0xff, 0xff, 0xff));
+  /*
+  const QRect r = QRect(58, 247, width() - 100, 50);
+
+  if (net_type == "Hotspot") {
+    p.drawPixmap(r.x(), r.y() + (r.height() - link_img.height()) / 2, link_img);
+  } else {
+    p.drawText(r, Qt::AlignLeft | Qt::AlignVCenter, net_type);
+  }*/
   const QRect r2 = QRect(0, 267, event->rect().width(), 50);
 
   if (net_type == network_type[cereal::DeviceState::NetworkType::WIFI])
