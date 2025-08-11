@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # =============================================================================
-# SDpilot cruise helper (single-file version)
+# SDpilot cruise helper (single-file version, safe)
 # - Dynamic V_CRUISE_MAX from Params (default 160 kph)
-# - Cluster/UI spoof: show chosen max even if actual/PCM cap is lower
-# - Minimal dependencies; compatible with typical OP/SDpilot forks
+# - Safe read if key doesn't exist (no crash)
+# - Cluster/UI spoof: show chosen max even if actual cap is lower
 # =============================================================================
 
 from __future__ import annotations
@@ -63,8 +63,20 @@ def _read_user_max_kph(default=160) -> int:
   """
   Read user-selectable cruise max from Params (string int),
   clamp to a sane range to avoid accidental extremes.
+  SAFE: if Params rejects unknown key, fall back to default.
   """
-  v = _safe_int(Params().get("UserVCruiseMaxKph"), default)
+  raw = None
+  try:
+    p = Params()
+    # Some builds throw on unknown keys; wrap get in try/except
+    try:
+      raw = p.get("UserVCruiseMaxKph")
+    except Exception:
+      raw = None
+  except Exception:
+    raw = None
+
+  v = _safe_int(raw, default)
   return max(120, min(180, v))
 
 # ----- User override for max -----
