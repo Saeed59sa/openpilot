@@ -10,26 +10,18 @@ class CarInterface(CarInterfaceBase):
   CarController = CarController
 
   @staticmethod
-  def _get_params(ret: structs.CarParams, candidate, fingerprint, car_fw, alpha_long):
-    # --- brand / safety ---
+  def _get_params(ret: structs.CarParams, candidate, fingerprint, car_fw, alpha_long, is_release, docs) -> structs.CarParams:
     ret.brand = "tesla"
+
     ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.tesla)]
 
-    # --- steering dyn ---
     ret.steerLimitTimer = 0.4
     ret.steerActuatorDelay = 0.1
     ret.steerAtStandstill = True
-    ret.steerControlType = structs.CarParams.SteerControlType.angle
 
-    # --- radar ---
+    ret.steerControlType = structs.CarParams.SteerControlType.angle
     ret.radarUnavailable = True
 
-    # --- SPEED LIMITS ---
-    if not hasattr(ret, "vCruiseMin"):
-      ret.vCruiseMin = 30
-    ret.vCruiseMax = 160  # Updated max cruise speed
-
-    # --- longitudinal control ---
     ret.alphaLongitudinalAvailable = True
     if alpha_long:
       ret.openpilotLongitudinalControl = True
