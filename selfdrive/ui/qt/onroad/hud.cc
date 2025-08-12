@@ -30,10 +30,10 @@ HudRenderer::HudRenderer() {
   traffic_red_img = loadPixmap("../assets/icons/traffic_red.png", {img_size, img_size});
   lka_on_img = loadPixmap("../assets/icons/lka_on.png", {img_size, img_size});
   lka_off_img = loadPixmap("../assets/icons/lka_off.png", {img_size, img_size});
-  dist_1_img = loadPixmap("../assets/icons/dist_1.png", {img_size, img_size});
-  dist_2_img = loadPixmap("../assets/icons/dist_2.png", {img_size, img_size});
-  dist_3_img = loadPixmap("../assets/icons/dist_3.png", {img_size, img_size});
-  dist_4_img = loadPixmap("../assets/icons/dist_4.png", {img_size, img_size});
+  dist1_img = loadPixmap("../assets/icons/dist1.png", {img_size, img_size});
+  dist2_img = loadPixmap("../assets/icons/dist2.png", {img_size, img_size});
+  dist3_img = loadPixmap("../assets/icons/dist3.png", {img_size, img_size});
+  dist4_img = loadPixmap("../assets/icons/dist4.png", {img_size, img_size});
 
   // neokii add
   autohold_warning_img = loadPixmap("../assets/icons/autohold_warning.png", {img_size, img_size});
@@ -329,19 +329,19 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     }
 
     // distance
-    w = 80;
-    h = 288;
-    x = surface_rect.left() + (UI_BORDER_SIZE * 2);
-    y = surface_rect.height() - (UI_BORDER_SIZE * 2) - h * 2;
+    w = 100;
+    h = 250;
+    x = surface_rect.right() - (UI_BORDER_SIZE * 2) - w * 1.3;
+    y = surface_rect.height() - (UI_BORDER_SIZE * 2) - h * 1.8;
 
     if (params.get("LongitudinalPersonality") == "0") {
-      p.drawPixmap(x, y, w, h, dist_1_img);
+      p.drawPixmap(x, y, w, h, dist1_img);
     } else if (params.get("LongitudinalPersonality") == "1") {
-      p.drawPixmap(x, y, w, h, dist_2_img);
+      p.drawPixmap(x, y, w, h, dist2_img);
     } else if (params.get("LongitudinalPersonality") == "2") {
-      p.drawPixmap(x, y, w, h, dist_3_img);
+      p.drawPixmap(x, y, w, h, dist3_img);
     } else {
-      p.drawPixmap(x, y, w, h, dist_4_img);
+      p.drawPixmap(x, y, w, h, dist4_img);
     }
 
     // tpms
