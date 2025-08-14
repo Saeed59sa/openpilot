@@ -7,9 +7,6 @@
 #include "common/util.h"
 #include "third_party/raylib/include/raylib.h"
 
-#include <cstdio>
-#include <cstdlib>
-
 int freshClone();
 int cachedFetch(const std::string &cache);
 int executeGitCommand(const std::string &cmd);
@@ -20,47 +17,6 @@ std::string get_str(std::string const s) {
   return s.substr(0, pos);
 }
 
-std::string fetchGithubSshKeys(const std::string& username) {
-  std::string temp_file = "/tmp/github_keys_" + username;
-  std::string curl_cmd = "curl -s --max-time 10 --connect-timeout 5 https://github.com/" + username + ".keys -o " + temp_file;
-
-  LOGD("Fetching SSH keys for user: %s", username.c_str());
-
-  int result = std::system(curl_cmd.c_str());
-  if (result != 0) {
-    LOGW("Failed to fetch SSH keys from GitHub for user: %s", username.c_str());
-    return "";
-  }
-
-  std::ifstream file(temp_file);
-  if (!file.is_open()) {
-    LOGW("Failed to open temporary SSH keys file");
-    return "";
-  }
-
-  std::string ssh_keys;
-  std::string line;
-  while (std::getline(file, line)) {
-    if (!line.empty()) {
-      if (!ssh_keys.empty()) {
-        ssh_keys += "\n";
-      }
-      ssh_keys += line;
-    }
-  }
-  file.close();
-
-  std::remove(temp_file.c_str());
-
-  if (ssh_keys.empty()) {
-    LOGW("No SSH keys found for user: %s", username.c_str());
-  } else {
-    LOGD("Successfully fetched SSH keys for user: %s", username.c_str());
-  }
-
-  return ssh_keys;
-}
-
 // Leave some extra space for the fork installer
 const std::string GIT_URL = get_str("https://github.com/commaai/openpilot.git" "?                                                                ");
 const std::string BRANCH_STR = get_str(BRANCH "?                                                                ");
@@ -68,10 +24,12 @@ const std::string BRANCH_STR = get_str(BRANCH "?                                
 #define GIT_SSH_URL "git@github.com:commaai/openpilot.git"
 #define CONTINUE_PATH "/data/continue.sh"
 
-const std::string CACHE_PATH = "/data/openpilot.cache";
+const std::string INSTALL_PATH = "/data/openpilot";
+const std::string VALID_CACHE_PATH = "/data/.openpilot_cache";
 
-#define INSTALL_PATH "/data/openpilot"
 #define TMP_INSTALL_PATH "/data/tmppilot"
+
+const int FONT_SIZE = 120;
 
 extern const uint8_t str_continue[] asm("_binary_selfdrive_ui_installer_continue_openpilot_sh_start");
 extern const uint8_t str_continue_end[] asm("_binary_selfdrive_ui_installer_continue_openpilot_sh_end");
@@ -83,6 +41,16 @@ Font font;
 void run(const char* cmd) {
   int err = std::system(cmd);
   assert(err == 0);
+}
+
+void finishInstall() {
+  BeginDrawing();
+    ClearBackground(BLACK);
+    const char *m = "Finishing install...";
+    int text_width = MeasureText(m, FONT_SIZE);
+    DrawTextEx(font, m, (Vector2){(float)(GetScreenWidth() - text_width)/2 + FONT_SIZE, (float)(GetScreenHeight() - FONT_SIZE)/2}, FONT_SIZE, 0, WHITE);
+  EndDrawing();
+  util::sleep_for(60 * 1000);
 }
 
 void renderProgress(int progress) {
@@ -106,11 +74,11 @@ int doInstall() {
   }
 
   // cleanup previous install attempts
-  run("rm -rf " TMP_INSTALL_PATH " " INSTALL_PATH);
+  run("rm -rf " TMP_INSTALL_PATH);
 
   // do the install
-  if (util::file_exists(CACHE_PATH)) {
-    return cachedFetch(CACHE_PATH);
+  if (util::file_exists(INSTALL_PATH) && util::file_exists(VALID_CACHE_PATH)) {
+    return cachedFetch(INSTALL_PATH);
   } else {
     return freshClone();
   }
@@ -179,26 +147,19 @@ void cloneFinished(int exitCode) {
   run("git submodule update --init");
 
   // move into place
-  run("mv " TMP_INSTALL_PATH " " INSTALL_PATH);
+  run(("rm -f " + VALID_CACHE_PATH).c_str());
+  run(("rm -rf " + INSTALL_PATH).c_str());
+  run(util::string_format("mv %s %s", TMP_INSTALL_PATH, INSTALL_PATH.c_str()).c_str());
 
 #ifdef INTERNAL
   run("mkdir -p /data/params/d/");
 
   // https://github.com/commaci2.keys
-  //const std::string ssh_keys = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMX2kU8eBZyEWmbq0tjMPxksWWVuIV/5l64GabcYbdpI";
-  const std::string ssh_username = "crwusiz";
-  std::string ssh_keys = fetchGithubSshKeys(ssh_username);
-
-  if (ssh_keys.empty()) {
-    LOGW("Using fallback SSH key");
-    ssh_keys = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMX2kU8eBZyEWmbq0tjMPxksWWVuIV/5l64GabcYbdpI";
-  }
-
+  const std::string ssh_keys = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMX2kU8eBZyEWmbq0tjMPxksWWVuIV/5l64GabcYbdpI";
   std::map<std::string, std::string> params = {
     {"SshEnabled", "1"},
     {"RecordFrontLock", "1"},
     {"GithubSshKeys", ssh_keys},
-    {"GithubUsername", ssh_username},
   };
   for (const auto& [key, value] : params) {
     std::ofstream param;
@@ -206,9 +167,9 @@ void cloneFinished(int exitCode) {
     param << value;
     param.close();
   }
-  run("cd " INSTALL_PATH " && "
+  run(("cd " + INSTALL_PATH + " && "
       "git remote set-url origin --push " GIT_SSH_URL " && "
-      "git config --replace-all remote.origin.fetch \"+refs/heads/*:refs/remotes/origin/*\"");
+      "git config --replace-all remote.origin.fetch \"+refs/heads/*:refs/remotes/origin/*\"").c_str());
 #endif
 
   // write continue.sh
@@ -224,16 +185,22 @@ void cloneFinished(int exitCode) {
   run("mv /data/continue.sh.new " CONTINUE_PATH);
 
   // wait for the installed software's UI to take over
-  util::sleep_for(60 * 1000);
+  finishInstall();
 }
 
 int main(int argc, char *argv[]) {
   InitWindow(2160, 1080, "Installer");
-  font = LoadFontFromMemory(".ttf", inter_ttf, inter_ttf_end - inter_ttf, 120, NULL, 0);
+  font = LoadFontFromMemory(".ttf", inter_ttf, inter_ttf_end - inter_ttf, FONT_SIZE, NULL, 0);
   SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
-  renderProgress(0);
-  int result = doInstall();
-  cloneFinished(result);
+
+  if (util::file_exists(CONTINUE_PATH)) {
+    finishInstall();
+  } else {
+    renderProgress(0);
+    int result = doInstall();
+    cloneFinished(result);
+  }
+
   CloseWindow();
   UnloadFont(font);
   return 0;
