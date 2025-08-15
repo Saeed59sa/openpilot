@@ -16,6 +16,7 @@ from collections import deque
 from threading import Thread
 from cereal import messaging
 from openpilot.common.realtime import Ratekeeper
+from openpilot.common.constants import UnitConverter
 
 CAMERA_SPEED_FACTOR = 1.05
 terminate_flag = threading.Event()
@@ -377,6 +378,7 @@ class SpeedLimiter:
     self.sock = messaging.sub_sock("naviData")
     self.naviData = None
     self.logMonoTime = 0
+    self.conv = UnitConverter()
 
   @classmethod
   def instance(cls):
@@ -417,7 +419,7 @@ class SpeedLimiter:
       return self.naviData.camType
     return 0
 
-  def get_max_speed(self, cluster_speed, conv):
+  def get_max_speed(self, cluster_speed):
     self.recv()
     default_return_value = (0, False)
 
@@ -442,7 +444,7 @@ class SpeedLimiter:
       max_limit = 120 if is_highway else 100
 
       if cam_limit_speed_left_dist is not None and cam_limit_speed is not None and cam_limit_speed_left_dist > 0:
-        v_ego = conv.to_ms(cluster_speed)
+        v_ego = self.conv.to_ms(cluster_speed)
         diff_speed = cluster_speed - (cam_limit_speed * cam_speed_factor)
 
         safe_dist = v_ego * 3. if cam_type == 22 else v_ego * 8.
@@ -498,7 +500,7 @@ class SpeedLimiter:
     self.decelerating = False
     return default_return_value
 
-  def get_camera_limit_speed_stock(self, speed_limit_distance, speed_limit, conv):
+  def get_camera_limit_speed_stock(self, speed_limit_distance, speed_limit):
     if speed_limit_distance <= 0 or speed_limit <= 0:
       self.decelerating = False
       return 0, False
@@ -509,7 +511,7 @@ class SpeedLimiter:
     safe_time = 7
     safe_decel_rate = 1.2
 
-    safe_speed_ms = conv.to_ms(safe_speed_kph)
+    safe_speed_ms = self.conv.to_ms(safe_speed_kph)
 
     safe_dist = safe_speed_ms * safe_time
     decel_dist = speed_limit_distance - safe_dist
@@ -527,7 +529,7 @@ class SpeedLimiter:
     else:
       speed_ms = np.sqrt(temp)
 
-    calculated_speed = conv.to_clu(speed_ms)
+    calculated_speed = self.conv.to_clu(speed_ms)
     safe_speed_clu = max(safe_speed_kph, min(255., calculated_speed))
 
     return safe_speed_clu, is_limit_zone

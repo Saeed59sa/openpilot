@@ -1,5 +1,7 @@
 import numpy as np
 
+from openpilot.common.params import Params
+
 # conversions
 class CV:
   # Speed
@@ -21,3 +23,18 @@ class CV:
 
 
 ACCELERATION_DUE_TO_GRAVITY = 9.81  # m/s^2
+
+
+class UnitConverter:
+  def __init__(self):
+    self.params = Params()
+    self.is_metric = self.params.get_bool('IsMetric')
+
+  def to_ms(self, speed: float) -> float:
+    return speed * CV.KPH_TO_MS if self.is_metric else speed * CV.MPH_TO_MS
+
+  def to_clu(self, speed: float) -> float:
+    return speed * CV.MS_TO_KPH if self.is_metric else speed * CV.MS_TO_MPH
+
+  def to_current_unit(self, speed_kph: float) -> float:
+    return speed_kph if self.is_metric else speed_kph * CV.KPH_TO_MPH

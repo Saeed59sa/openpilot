@@ -5,7 +5,7 @@ import numpy as np
 
 from opendbc.car import structs
 from openpilot.common.params import Params
-from openpilot.common.constants import CV
+from openpilot.common.constants import UnitConverter
 from openpilot.selfdrive.car.cruise import (V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_UNSET, V_CRUISE_INITIAL, V_CRUISE_INITIAL_EXPERIMENTAL_MODE,
                                             CRUISE_LONG_PRESS, IMPERIAL_INCREMENT)
 from opendbc.car.hyundai.values import Buttons, HyundaiFlags
@@ -31,21 +31,6 @@ NO_LIMIT_SPEED = 255.
 
 ButtonType = structs.CarState.ButtonEvent.Type
 GearShifter = structs.CarState.GearShifter
-
-
-class UnitConverter:
-  def __init__(self):
-    self.params = Params()
-    self.is_metric = self.params.get_bool('IsMetric')
-
-  def to_ms(self, speed: float) -> float:
-    return speed * CV.KPH_TO_MS if self.is_metric else speed * CV.MPH_TO_MS
-
-  def to_clu(self, speed: float) -> float:
-    return speed * CV.MS_TO_KPH if self.is_metric else speed * CV.MS_TO_MPH
-
-  def to_current_unit(self, speed_kph: float) -> float:
-    return speed_kph if self.is_metric else speed_kph * CV.KPH_TO_MPH
 
 
 class CruiseButtonHandler:
@@ -165,7 +150,7 @@ class CruiseController:
     camera_limit_speed_clu = NO_LIMIT_SPEED
     if nda_active:
       camera_limit_speed, is_limit_zone = (
-        SpeedLimiter.instance().get_max_speed(cluster_speed_clu, self.conv))
+        SpeedLimiter.instance().get_max_speed(cluster_speed_clu))
       section_limit_speed, section_left_dist = SpeedLimiter.instance().get_section_limit_speed()
       if section_limit_speed > 0 and section_left_dist > 0:
         camera_limit_speed_clu = section_limit_speed
@@ -173,7 +158,7 @@ class CruiseController:
         camera_limit_speed_clu = camera_limit_speed
     elif CS is not None and CS.speedLimit > 0 and CS.speedLimitDistance > 0:
       camera_limit_speed_stock, is_limit_zone = (
-        SpeedLimiter.instance().get_camera_limit_speed_stock(CS.speedLimitDistance, CS.speedLimit, self.conv))
+        SpeedLimiter.instance().get_camera_limit_speed_stock(CS.speedLimitDistance, CS.speedLimit))
       camera_limit_speed_clu = camera_limit_speed_stock
     self.camera_limit_speed_clu = camera_limit_speed_clu
 

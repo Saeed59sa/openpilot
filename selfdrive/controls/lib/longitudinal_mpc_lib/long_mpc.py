@@ -17,7 +17,7 @@ else:
 
 from casadi import SX, vertcat
 
-from openpilot.common.constants import CV
+from openpilot.common.constants import UnitConverter
 from openpilot.common.filter_simple import StreamingMovingAverage
 from enum import Enum
 
@@ -270,6 +270,7 @@ class LongitudinalMpc:
 
     self.a_change_cost = A_CHANGE_COST
     self.j_lead = 0.0
+    self.conv = UnitConverter()
 
     self.solver = AcadosOcpSolverCython(MODEL_NAME, ACADOS_SOLVER_TYPE, N)
     self.reset()
@@ -539,58 +540,52 @@ class LongitudinalMpc:
     CS = sm['carState']
     model = sm['modelV2']
     radar = sm['radarState']
-    v_ego = CS.vEgo
-    a_ego = CS.aEgo
-    v_ego_kph = v_ego * CV.MS_TO_KPH
 
-    x = model.position.x
-    y = model.position.y
-    v = model.velocity.x
-
-    self.xStop = self._update_stop_dist(x[31])
+    self.xStop = self._update_stop_dist(model.position.x[31])
     filtered_stop_dist = self.xStop
 
     lead = radar.leadOne.status
     d_rel = radar.leadOne.dRel if lead else 1000
-    self._check_model_stopping(v, v_ego, a_ego, x[-1], y, d_rel)
+
+    self._check_model_stopping(model.velocity.x, CS.vEgo, CS.aEgo, model.position.x[-1], model.position.y, d_rel)
 
     if self.xState == XState.e2eStopped:
+      self.stopping_count = max(0, int(self.stopping_count) - 1)
       if CS.gasPressed:
         self.xState = XState.e2ePrepare
-      elif lead and (radar.leadOne.dRel - filtered_stop_dist) < 2.0:
+      elif lead and (d_rel - filtered_stop_dist) < 2.0:
         self.xState = XState.lead
-      elif self.stopping_count == 0:
-        if self.trafficState == TrafficState.green and not CS.leftBlinker:
-          self.xState = XState.e2ePrepare
-      self.stopping_count = max(0, int(self.stopping_count) - 1)
+      elif self.stopping_count == 0 and self.trafficState == TrafficState.green and not CS.leftBlinker:
+        self.xState = XState.e2ePrepare
+
     elif self.xState == XState.e2eStop:
       self.stopping_count = 0
-      if CS.gasPressed:  # Stop detecting traffic signal for 10 seconds
+      if CS.gasPressed:
         self.xState = XState.e2eCruise
         self.traffic_starting_count = 10.0 / DT_MDL
-      elif lead and (radar.leadOne.dRel - filtered_stop_dist) < 2.0:
+      elif lead and (d_rel - filtered_stop_dist) < 2.0:
         self.xState = XState.lead
-      else:
-        if self.trafficState == TrafficState.green:
+      elif self.trafficState == TrafficState.green:
           self.xState = XState.e2eCruise
-        else:
-          self.trafficStopAdjustRatio = np.interp(v_ego_kph, [0, 100], [1.0, 0.7])
-          stop_dist = self.xStop * np.interp(self.xStop, [0, 100], [1.0, self.trafficStopAdjustRatio])
-          if stop_dist > 10.0:
-            self.adjusted_stop_dist = stop_dist
-          filtered_stop_dist = 0
-          if v_ego < 0.3:
-            self.stopping_count = int(0.5 / DT_MDL)
-            self.xState = XState.e2eStopped
+      else:
+        self.trafficStopAdjustRatio = np.interp(self.conv.to_clu(CS.vEgo), [0, 100], [1.0, 0.7])
+        stop_dist = self.xStop * np.interp(self.xStop, [0, 100], [1.0, self.trafficStopAdjustRatio])
+        if stop_dist > 10.0:
+          self.adjusted_stop_dist = stop_dist
+        filtered_stop_dist = 0.0
+        if CS.vEgo < 0.3:
+          self.stopping_count = int(0.5 / DT_MDL)
+          self.xState = XState.e2eStopped
+
     elif self.xState == XState.e2ePrepare:
       if lead:
         self.xState = XState.lead
-      elif v_ego_kph < 5.0 and self.trafficState != TrafficState.green:
+      elif self.conv.to_clu(CS.vEgo) < 5.0 and self.trafficState != TrafficState.green:
         self.xState = XState.e2eStop
-        self.adjusted_stop_dist = 5.0 #2.0
-      elif v_ego_kph > 5.0: # and filtered_stop_dist > 30.0:
+        self.adjusted_stop_dist = 5.0
+      elif self.conv.to_clu(CS.vEgo) > 5.0:
         self.xState = XState.e2eCruise
-    else: #XState.lead, XState.cruise, XState.e2eCruise
+    else: # XState.lead, XState.e2eCruise
       self.traffic_starting_count = max(0, self.traffic_starting_count - 1)
       if lead:
         self.xState = XState.lead
@@ -603,7 +598,7 @@ class LongitudinalMpc:
     if self.trafficState in [TrafficState.off, TrafficState.green] or self.xState not in [XState.e2eStop, XState.e2eStopped]:
       filtered_stop_dist = 1000.0
 
-    self.adjusted_stop_dist = max(0, self.adjusted_stop_dist - (v_ego * DT_MDL))
+    self.adjusted_stop_dist = max(0, self.adjusted_stop_dist - (CS.vEgo * DT_MDL))
 
     if filtered_stop_dist == 1000.0: ##  e2eCruise, lead
       self.adjusted_stop_dist = 0.0
@@ -611,7 +606,7 @@ class LongitudinalMpc:
       filtered_stop_dist = 0.0
 
     stop_dist = filtered_stop_dist + self.adjusted_stop_dist
-    stop_dist = max(stop_dist, v_ego ** 2 / (COMFORT_BRAKE * 2))
+    stop_dist = max(stop_dist, CS.vEgo ** 2 / (COMFORT_BRAKE * 2))
 
     return stop_dist
 
@@ -621,13 +616,12 @@ class LongitudinalMpc:
     return stop_dist
 
   def _check_model_stopping(self, v, v_ego, a_ego, model_x, y, d_rel):
-    v_ego_kph = v_ego * CV.MS_TO_KPH
     model_v = self.vFilter.process(v[-1])
     start_sign = model_v > 5.0 or model_v > (v[0] + 2)
 
-    if v_ego_kph < 1.0:
+    if self.conv.to_clu(v_ego) < 1.0:
       stop_sign = model_x < 20.0 and model_v < 10.0
-    elif v_ego_kph < 82.0:
+    elif self.conv.to_clu(v_ego) < 82.0:
       stop_sign = (model_x < d_rel - 3.0 and
                   model_x < np.interp(v[0], [60/3.6, 80/3.6], [120.0, 150]) and
                   ((model_v < 3.0) or (model_v < v[0]*0.7)) and
