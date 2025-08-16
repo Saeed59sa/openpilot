@@ -9,6 +9,18 @@ Ecu = CarParams.Ecu
 
 FW_VERSIONS = {
   CAR.HYUNDAI_AZERA_6TH_GEN: {
+  CAR.HYUNDAI_SONATA_DN8: {
+    Ecu.fwdCamera: [
+      # TODO: Replace with full string from LOG
+      b'\xf1\x00DN8  MFC  AT MES LHD 1.00 1.01 99211-L1800',
+    ],
+    Ecu.fwdRadar: [
+      b'\xf1\x00DN8_RDR',
+    ],
+    Ecu.eps: [
+      b'\xf1\x00DN8  MDPS C 1.00 1.02 56310-L1100 134A25A6',
+    ],
+  },
     (Ecu.fwdRadar, 0x7d0, None): [
       b'\xf1\x00IG__ SCC F-CU-      1.00 1.00 99110-G8100         ',
     ],

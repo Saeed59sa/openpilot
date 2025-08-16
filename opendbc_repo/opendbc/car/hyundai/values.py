@@ -164,6 +164,7 @@ class HyundaiCanFDPlatformConfig(PlatformConfig):
 
 
 class CAR(Platforms):
+  HYUNDAI_SONATA_DN8 = "HYUNDAI SONATA DN8"
   # Hyundai
   HYUNDAI_AZERA_6TH_GEN = HyundaiPlatformConfig(
     [HyundaiCarDocs("Hyundai Azera 2022", "All", car_parts=CarParts.common([CarHarness.hyundai_k]))],
@@ -804,3 +805,13 @@ LEGACY_SAFETY_MODE_CAR = CAR.with_flags(HyundaiFlags.LEGACY)
 UNSUPPORTED_LONGITUDINAL_CAR = CAR.with_flags(HyundaiFlags.LEGACY) | CAR.with_flags(HyundaiFlags.UNSUPPORTED_LONGITUDINAL)
 
 DBC = CAR.create_dbc_map()
+
+# === Added for Hyundai Sonata DN8 (CAN-FD) ===
+HYUNDAI_SONATA_DN8_CONFIG = HyundaiCanFDPlatformConfig(
+  mass=1615.0,
+  wheelbase=2.840,
+  steerRatio=13.27,
+  tireStiffnessFactor=0.82,
+  canfd=True,
+)
+PLATFORM_CONFIGS[CAR.HYUNDAI_SONATA_DN8] = HYUNDAI_SONATA_DN8_CONFIG
