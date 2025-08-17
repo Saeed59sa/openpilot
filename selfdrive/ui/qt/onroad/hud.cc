@@ -334,6 +334,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     x = surface_rect.right() - (UI_BORDER_SIZE * 2) - w * 1.3;
     y = surface_rect.height() - (UI_BORDER_SIZE * 2) - h * 1.8;
 
+    p.setOpacity(0.8);
     if (params.get("LongitudinalPersonality") == "0") {
       p.drawPixmap(x, y, w, h, dist1_img);
     } else if (params.get("LongitudinalPersonality") == "1") {
@@ -351,6 +352,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     y = surface_rect.height() - h - (UI_BORDER_SIZE * 2);
 
     p.drawPixmap(x, y, w, h, tpms_img);
+    p.setOpacity(1.0);
 
     drawTextColor(p, x + 25, y + 56, 30, get_tpms_text(fl), get_tpms_color(fl));
     drawTextColor(p, x + 133, y + 56, 30, get_tpms_text(fr), get_tpms_color(fr));
