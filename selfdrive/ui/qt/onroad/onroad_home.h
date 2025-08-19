@@ -46,6 +46,7 @@ private:
   float speedJerk;
   float speedJerkDifference;
   float steer;
+  Params params;
 
   int steeringAngleDeg;
 
