@@ -66,6 +66,11 @@ class Controls:
   def __init__(self, CI=None):
     self.params = Params()
 
+    self.d_camera_hardware_missing = self.params.get_bool("DriverCameraHardwareMissing")
+    if self.d_camera_hardware_missing:
+      IGNORE_PROCESSES.update({"dmonitoringd", "dmonitoringmodeld"})
+      self.camera_packets.remove("driverCameraState")
+
     if CI is None:
       cloudlog.info("controlsd is waiting for CarParams")
       with car.CarParams.from_bytes(self.params.get("CarParams", block=True)) as msg:
@@ -875,7 +880,8 @@ class Controls:
     controlsState.ufAccelCmd = float(self.LoC.pid.f)
     controlsState.cumLagMs = -self.rk.remaining * 1000.
     controlsState.startMonoTime = int(start_time * 1e9)
-    controlsState.forceDecel = bool(force_decel)
+    controlsState.forceDecel = bool((self.sm['driverMonitoringState'].awarenessStatus < 0.) or
+                         (self.sm['selfdriveState'].state == State.softDisabling))
     controlsState.experimentalMode = self.experimental_mode
     controlsState.personality = self.personality
 
