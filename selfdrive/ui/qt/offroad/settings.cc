@@ -108,6 +108,16 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
     addItem(toggle);
     toggles[param.toStdString()] = toggle;
 
+    // base icon
+  int offset = (UI_BORDER_SIZE * 3) + (btn_size / 2);
+  int x = rightHandDM ? width() - offset : offset;
+  int y = height() - offset - (UI_BORDER_SIZE * 3);
+  float opacity = dmActive ? 0.8 : 0.2;
+  bool dm_missing = params.getBool("DriverCameraHardwareMissing");
+  if (!dm_missing) {
+    drawIcon(painter, QPoint(x, y), dm_img, blackColor(100), opacity);
+  }
+
     // insert longitudinal personality after NDOG toggle
     if (param == "DisengageOnAccelerator") {
       addItem(long_personality_setting);
