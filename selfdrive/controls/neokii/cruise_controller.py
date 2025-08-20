@@ -129,10 +129,10 @@ class CruiseController:
     self.curve_speed_clu = 0.
 
   def _cal_limit_speed(self, CS, sm, current_speed_ms: float, cluster_speed_clu: float, v_cruise_kph: float):
-    cam_type = SpeedLimiter.instance().get_cam_type()
     nda_active = SpeedLimiter.instance().get_active()
     road_limit_speed_nda = SpeedLimiter.instance().get_road_limit_speed()
     road_limit_speed_stock = CS.exState.navLimitSpeed
+    road_signs = CS.exState.roadSigns
     is_limit_zone = False
 
     # 1. Road limit speed
@@ -160,9 +160,13 @@ class CruiseController:
       camera_limit_speed_stock, is_limit_zone = (
         SpeedLimiter.instance().get_camera_limit_speed_stock(CS.speedLimitDistance, CS.speedLimit))
       camera_limit_speed_clu = camera_limit_speed_stock
+    if road_signs == 1:
+      camera_limit_speed_clu = self.conv.to_current_unit(30.0)
+    # if speed_bump:
+      # camera_limit_speed_clu = self.conv.to_current_unit(28.0)
     self.camera_limit_speed_clu = camera_limit_speed_clu
 
-    if cam_type == 22 or camera_limit_speed_clu <= 30:
+    if camera_limit_speed_clu <= 30 or road_signs == 1:
       road_limit_speed_clu = min(road_limit_speed_clu, camera_limit_speed_clu)
 
     # 3. Lead limit speed

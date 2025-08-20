@@ -28,17 +28,32 @@ EOF
 
 upload_file() {
   local filename="$1"
-  local remote_path="/tmux_log/${LOG_FOLDER_NAME}/$2"
+  local remote_filename="$2"
+  local remote_path="/tmux_log/${LOG_FOLDER_NAME}/${TODAY}_${CAR}_${ID}/${remote_filename}"
   curl -v -T "$filename" -u "$FTP_USER:$FTP_PASSWORD" "ftp://${FTP_HOST}:${FTP_PORT}${remote_path}"
     if [ $? -ne 0 ]; then
-        echo "$(date) - Failed to upload $2" >&2
+        echo "$(date) - Failed to upload ${remote_filename}" >&2
         exit 2
     fi
 }
 
 upload_file "${LOG_FOLDER}/qcamera.ts" "qcamera.ts"
-upload_file "${LOG_FOLDER}/rlog.zst" "rlog.zst"
-upload_file "${LOG_FOLDER}/qlog.zst" "qlog.zst"
+
+for rlog_file in "${LOG_FOLDER}"/rlog.*; do
+    if [ -f "$rlog_file" ]; then
+        filename=$(basename "$rlog_file")
+        echo "$(date) - Uploading ${filename}"
+        upload_file "$rlog_file" "$filename"
+    fi
+done
+
+for qlog_file in "${LOG_FOLDER}"/qlog.*; do
+    if [ -f "$qlog_file" ]; then
+        filename=$(basename "$qlog_file")
+        echo "$(date) - Uploading ${filename}"
+        upload_file "$qlog_file" "$filename"
+    fi
+done
 
 echo "$(date) - Upload complete"
 exit 0

@@ -131,11 +131,12 @@ struct OnroadEvent @0xc4fa6047f024e718 {
     excessiveActuation @96;
     audioFeedback @97;
 
-    ding @101;
-    dong @98;
+    turningIndicatorOn @98;
+    autoLaneChange @99;
 
-    turningIndicatorOn @99;
-    autoLaneChange @100;
+    ding @100;
+    dong @101;
+    beep @102;
 
     soundsUnavailableDEPRECATED @47;
   }
@@ -2644,8 +2645,8 @@ struct Event {
     # DON'T change the ID (e.g. @107)
     # DON'T change which struct it points to
     naviData @107 :Custom.NaviData;
-    naviGps @108 :Custom.NaviGps;
-    naviObstacles @109 :Custom.NaviObstacles;
+    customReserved1 @108 :Custom.CustomReserved1;
+    customReserved2 @109 :Custom.CustomReserved2;
     customReserved3 @110 :Custom.CustomReserved3;
     customReserved4 @111 :Custom.CustomReserved4;
     customReserved5 @112 :Custom.CustomReserved5;

@@ -39,6 +39,7 @@ HudRenderer::HudRenderer() {
   autohold_warning_img = loadPixmap("../assets/icons/autohold_warning.png", {img_size, img_size});
   autohold_active_img = loadPixmap("../assets/icons/autohold_active.png", {img_size, img_size});
   speed_bump_img = loadPixmap("../assets/icons/speed_bump.png");
+  school_zone_img = loadPixmap("../assets/icons/school_zone.png");
   speed_camera_img = loadPixmap("../assets/icons/speed_camera.png");
 }
 
@@ -116,8 +117,8 @@ void HudRenderer::updateState(const UIState &s) {
   rl = ce.getExState().getTpms().getRl();
   rr = ce.getExState().getTpms().getRr();
   navLimitSpeed = ce.getExState().getNavLimitSpeed();
+  road_signs = ce.getExState().getRoadSigns();
   nda_state = nd.getActive();
-  cam_type = nd.getCamType();
   roadLimitSpeed = nd.getRoadLimitSpeed();
   camLimitSpeed = nd.getCamLimitSpeed();
   camLimitSpeedLeftDist = nd.getCamLimitSpeedLeftDist();
@@ -164,15 +165,18 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     p.drawPixmap(x, y, w, h, traffic_off_img);
   }
 
-  // speed_bump icon
+  // road signs icon
   w = 150;
   h = 150;
   x = 440;
   y = (UI_BORDER_SIZE * 3.5);
-  if (cam_type == 22) {
-    p.drawPixmap(x, y, w, h, speed_bump_img);
-  } else if (camLimitSpeed > 0 && camLimitSpeedLeftDist > 0)
+  //if (road_signs == 1) {
+  //  p.drawPixmap(x, y, w, h, speed_bump_img);
+  if (road_signs == 1) {
+    p.drawPixmap(x, y, w, h, school_zone_img);
+  } else if (camLimitSpeed > 0 && camLimitSpeedLeftDist > 0) {
     p.drawPixmap(x, y, w, h, speed_camera_img);
+  }
 
   // upper left info
   x = surface_rect.left() + 20;

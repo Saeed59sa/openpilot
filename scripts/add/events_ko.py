@@ -1088,6 +1088,11 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.PERMANENT: Alert("", "", AlertStatus.normal, AlertSize.none,
                         Priority.MID, VisualAlert.none, AudibleAlert.dong, 1.),
   },
+
+  EventName.beep: {
+    ET.PERMANENT: Alert("", "", AlertStatus.normal, AlertSize.none,
+                        Priority.MID, VisualAlert.none, AudibleAlert.beep, 1.),
+  },
 }
 
 
