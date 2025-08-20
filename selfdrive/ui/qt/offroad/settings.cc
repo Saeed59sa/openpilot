@@ -108,7 +108,7 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
     addItem(toggle);
     toggles[param.toStdString()] = toggle;
 
-addItem(toggle);
+    addItem(toggle);
 toggles[param.toStdString()] = toggle;
 
 // DM icon disabled (removed block completely)
@@ -116,8 +116,7 @@ toggles[param.toStdString()] = toggle;
 // insert longitudinal personality after NDOG toggle
 if (param == "DisengageOnAccelerator") {
   addItem(long_personality_setting);
-}opacity);
-  }
+}
 
     // insert longitudinal personality after NDOG toggle
     if (param == "DisengageOnAccelerator") {
