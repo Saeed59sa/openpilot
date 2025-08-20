@@ -115,7 +115,7 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   float opacity = dmActive ? 0.8 : 0.2;
   bool dm_missing = params.getBool("DriverCameraHardwareMissing");
   if (!dm_missing) {
-    drawIcon(painter, QPoint(x, y), dm_img, blackColor(100), opacity);
+  //  drawIcon(painter, QPoint(x, y), dm_img, blackColor(100), opacity);
   }
 
     // insert longitudinal personality after NDOG toggle
