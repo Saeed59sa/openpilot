@@ -109,7 +109,7 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
     toggles[param.toStdString()] = toggle;
 
     // base icon
-  int offset = (UI_BORDER_SIZE * 3) + (btn_size / 2);
+ // int offset = (UI_BORDER_SIZE * 3) + (btn_size / 2);
  //int x = rightHandDM ? width() - offset : offset;
   int y = height() - offset - (UI_BORDER_SIZE * 3);
   //float opacity = dmActive ? 0.8 : 0.2;
