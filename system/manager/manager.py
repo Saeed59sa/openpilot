@@ -186,6 +186,13 @@ def manager_thread() -> None:
 
     started = sm['deviceState'].started
 
+    if params.get_bool("DriverCameraHardwareMissing"):
+      if "dmonitoringd" not in ignore:
+        ignore += ["dmonitoringd", "dmonitoringmodeld"]
+    else:
+      if "dmonitoringd" in ignore:
+        ignore = [p for p in ignore if p not in ("dmonitoringd", "dmonitoringmodeld")]
+
     if started and not started_prev:
       params.clear_all(ParamKeyType.CLEAR_ON_ONROAD_TRANSITION)
 

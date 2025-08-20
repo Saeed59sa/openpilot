@@ -345,6 +345,11 @@ class Controls:
           self.events.add(EventName.cameraMalfunction)
           if not self.sm.all_alive(['driverCameraState']) and not self.d_camera_hardware_missing:
             self.d_camera_hardware_missing = True
+            IGNORE_PROCESSES.update({"dmonitoringd", "dmonitoringmodeld"})
+            if 'driverCameraState' in self.camera_packets:
+              self.camera_packets.remove('driverCameraState')
+              self.sm.ignore_alive.append('driverCameraState')
+            self.sm.ignore_alive.append('driverMonitoringState')
             self.params.put_bool_nonblocking("DriverCameraHardwareMissing", True)
         elif not self.sm.all_freq_ok(self.camera_packets):
           self.events.add(EventName.cameraFrameRate)
