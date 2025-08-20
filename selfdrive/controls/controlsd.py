@@ -92,6 +92,10 @@ class Controls:
       IGNORE_PROCESSES.update({"dmonitoringd", "dmonitoringmodeld"})
       self.camera_packets.remove("driverCameraState")
 
+    self.speaker_hardware_missing = self.params.get_bool("SpeakerHardwareMissing")
+    if self.speaker_hardware_missing:
+      IGNORE_PROCESSES.add("soundd")
+
     self.log_sock = messaging.sub_sock('androidLog')
 
     # TODO: de-couple controlsd with card/conflate on carState without introducing controls mismatches
@@ -122,6 +126,11 @@ class Controls:
 
     # detect sound card presence and ensure successful init
     sounds_available = HARDWARE.get_sound_card_online()
+    if not sounds_available and not self.speaker_hardware_missing:
+      self.events.add(EventName.soundsUnavailable)
+      self.params.put_bool_nonblocking("SpeakerHardwareMissing", True)
+      self.speaker_hardware_missing = True
+      IGNORE_PROCESSES.add("soundd")
 
     car_recognized = self.CP.carName != 'mock'
 
@@ -172,8 +181,6 @@ class Controls:
 
     self.startup_event = get_startup_event(car_recognized, not self.CP.passive, len(self.CP.carFw) > 0)
 
-    if not sounds_available:
-      self.events.add(EventName.soundsUnavailable, static=True)
     if not car_recognized:
       self.events.add(EventName.carUnrecognized, static=True)
       if len(self.CP.carFw) > 0:
@@ -334,6 +341,13 @@ class Controls:
     num_events = len(self.events)
 
     not_running = {p.name for p in self.sm['managerState'].processes if not p.running and p.shouldBeRunning}
+    if "soundd" in not_running:
+      if not self.speaker_hardware_missing:
+        self.events.add(EventName.soundsUnavailable)
+        self.params.put_bool_nonblocking("SpeakerHardwareMissing", True)
+        self.speaker_hardware_missing = True
+      IGNORE_PROCESSES.add("soundd")
+      not_running.remove("soundd")
     if self.sm.recv_frame['managerState'] and (not_running - IGNORE_PROCESSES):
       self.events.add(EventName.processNotRunning)
       if not_running != self.not_running_prev:
@@ -345,6 +359,11 @@ class Controls:
           self.events.add(EventName.cameraMalfunction)
           if not self.sm.all_alive(['driverCameraState']) and not self.d_camera_hardware_missing:
             self.d_camera_hardware_missing = True
+            IGNORE_PROCESSES.update({"dmonitoringd", "dmonitoringmodeld"})
+            if 'driverCameraState' in self.camera_packets:
+              self.camera_packets.remove('driverCameraState')
+              self.sm.ignore_alive.append('driverCameraState')
+            self.sm.ignore_alive.append('driverMonitoringState')
             self.params.put_bool_nonblocking("DriverCameraHardwareMissing", True)
         elif not self.sm.all_freq_ok(self.camera_packets):
           self.events.add(EventName.cameraFrameRate)

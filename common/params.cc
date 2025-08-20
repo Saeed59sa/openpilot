@@ -208,6 +208,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"UpdaterLastFetchTime", PERSISTENT},
     {"Version", PERSISTENT},
     {"DriverCameraHardwareMissing", PERSISTENT},
+    {"SpeakerHardwareMissing", PERSISTENT},
 
     // FrogPilot parameters
     {"AccelerationPath", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_VISUALS},

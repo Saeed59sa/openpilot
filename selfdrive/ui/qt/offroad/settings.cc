@@ -66,6 +66,12 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
       "../assets/offroad/icon_monitoring.png",
     },
     {
+      "SpeakerHardwareMissing",
+      tr("Speaker Hardware Missing"),
+      tr("Speaker Hardware Missing"),
+      "../assets/offroad/icon_warning.png",
+    },
+    {
       "IsMetric",
       tr("Use Metric System"),
       tr("Display speed in km/h instead of mph."),

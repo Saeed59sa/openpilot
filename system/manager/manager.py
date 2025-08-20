@@ -167,6 +167,8 @@ def manager_thread() -> None:
   ignore += [x for x in os.getenv("BLOCK", "").split(",") if len(x) > 0]
   if params.get_bool("DriverCameraHardwareMissing"):
     ignore += ["dmonitoringd", "dmonitoringmodeld"]
+  if params.get_bool("SpeakerHardwareMissing"):
+    ignore.append("soundd")
 
   sm = messaging.SubMaster(['deviceState', 'carParams', 'frogpilotPlan'], poll='deviceState')
   pm = messaging.PubMaster(['managerState'])
@@ -185,6 +187,19 @@ def manager_thread() -> None:
     sm.update(1000)
 
     started = sm['deviceState'].started
+
+    if params.get_bool("DriverCameraHardwareMissing"):
+      if "dmonitoringd" not in ignore:
+        ignore += ["dmonitoringd", "dmonitoringmodeld"]
+    else:
+      if "dmonitoringd" in ignore:
+        ignore = [p for p in ignore if p not in ("dmonitoringd", "dmonitoringmodeld")]
+    if params.get_bool("SpeakerHardwareMissing"):
+      if "soundd" not in ignore:
+        ignore.append("soundd")
+    else:
+      if "soundd" in ignore:
+        ignore = [p for p in ignore if p != "soundd"]
 
     if started and not started_prev:
       params.clear_all(ParamKeyType.CLEAR_ON_ONROAD_TRANSITION)
