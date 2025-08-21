@@ -21,15 +21,15 @@ fi
 ftp -n << EOF
 open $FTP_HOST $FTP_PORT
 user $FTP_USER $FTP_PASSWORD
-mkdir /tmux_log/${LOG_FOLDER_NAME}
-mkdir /tmux_log/${LOG_FOLDER_NAME}/${TODAY}_${CAR}_${ID}
+mkdir /tmux_log/${TODAY}_${CAR}_${ID}
+mkdir /tmux_log/${TODAY}_${CAR}_${ID}/${LOG_FOLDER_NAME}
 bye
 EOF
 
 upload_file() {
   local filename="$1"
   local remote_filename="$2"
-  local remote_path="/tmux_log/${LOG_FOLDER_NAME}/${TODAY}_${CAR}_${ID}/${remote_filename}"
+  local remote_path="/tmux_log/${TODAY}_${CAR}_${ID}/${LOG_FOLDER_NAME}/${remote_filename}"
   curl -v -T "$filename" -u "$FTP_USER:$FTP_PASSWORD" "ftp://${FTP_HOST}:${FTP_PORT}${remote_path}"
     if [ $? -ne 0 ]; then
         echo "$(date) - Failed to upload ${remote_filename}" >&2
