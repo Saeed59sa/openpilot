@@ -3,7 +3,7 @@
 LOG_FOLDER="$1"
 LOG_FOLDER_NAME=$(basename "$LOG_FOLDER")
 
-TODAY=$(date +%y-%m-%d-%H:%M)
+TODAY=$(date +%Y-%m-%d)
 CAR=$(cat /data/params/d/CarName)
 ID=$(cat /data/params/d/DongleId)
 FTP_USER="openpilot"
