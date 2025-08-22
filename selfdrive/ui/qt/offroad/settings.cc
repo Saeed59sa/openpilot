@@ -1,4 +1,14 @@
 #include <cassert>
+
+// >>> AALC BEGIN (includes)
+
+#include <QLocale>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QGroupBox>
+#include <QVBoxLayout>
+#include "common/params.h"
+// >>> AALC END
 #include <cmath>
 #include <string>
 #include <tuple>
@@ -398,6 +408,80 @@ void SettingsWindow::setCurrentPanel(int index, const QString &param) {
 }
 
 SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
+// >>> AALC BEGIN (settings UI with agreement)
+
+// AALC UI group with activation agreement
+{
+  auto agreementText = []() -> QString {
+    QLocale::Language lang = QLocale::system().language();
+    if (lang == QLocale::Arabic) {
+      return QString::fromUtf8(
+        "اتفاقية تفعيل AALC (التجاوز التلقائي المتكيّف)\n\n"
+        "• هذه الميزة تجريبية وليست نظام قيادة مستقل.\n"
+        "• عند التفعيل، قد يقوم النظام بتشغيل الغماز وبدء انتقال الحارة عندما يكتشف مركبة أبطأ أمامك.\n"
+        "• يجب إبقاء اليدين على المقود والنظر للطريق وتحمل المسؤولية الكاملة عن القيادة.\n"
+        "• التزم بقوانين الدولة والسرعات المسموحة، وتحقق من المرايا والنقطة العمياء قبل أي انتقال.\n"
+        "• قد لا تعمل الميزة بشكل صحيح في جميع الظروف وقد تتعطل أو تخطئ.\n\n"
+        "بالمتابعة، أنت توافق على أنك المسؤول بالكامل عن التحكم بالسيارة واستخدام هذه الميزة على مسؤوليتك."
+      );
+    } else {
+      return QString(
+        "AALC Activation Agreement (Automatic Adaptive Lane Change)\n\n"
+        "• This feature is experimental and NOT a self-driving system.\n"
+        "• When enabled, the system may signal and initiate lane changes upon detecting a slower lead vehicle.\n"
+        "• Keep hands on the wheel, eyes on the road, and maintain full responsibility for driving.\n"
+        "• Obey local laws and speed limits; check mirrors and blind spots before any lane change.\n"
+        "• The feature may not function correctly in all conditions and may fail or behave unexpectedly.\n\n"
+        "By proceeding, you acknowledge full responsibility and use this feature at your own risk."
+      );
+    }
+  };
+
+  // Group UI
+  QGroupBox *aalcGroup = new QGroupBox(tr("Lane Change – AALC (Auto Adaptive)"));
+  QVBoxLayout *aalcLayout = new QVBoxLayout(aalcGroup);
+
+  // Buttons: Enable (Agreement), Disable
+  QPushButton *btnEnable = new QPushButton(tr("Enable AALC (Agreement)"));
+  QPushButton *btnDisable = new QPushButton(tr("Disable AALC"));
+
+  aalcLayout->addWidget(btnEnable);
+  aalcLayout->addWidget(btnDisable);
+
+  // Optional: quick params (visible for tuning convenience)
+  // You can still add ParamControl rows elsewhere; here we rely on Python defaults.
+
+  // Enable with agreement
+  QObject::connect(btnEnable, &QPushButton::clicked, [this, agreementText]() {
+    QMessageBox box(this);
+    box.setIcon(QMessageBox::Warning);
+    box.setWindowTitle(tr("AALC Activation"));
+    box.setText(agreementText());
+    auto *acceptBtn = box.addButton(tr("I Agree"), QMessageBox::AcceptRole);
+    box.addButton(QMessageBox::Cancel);
+    box.exec();
+    if (box.clickedButton() == acceptBtn) {
+      Params().put("AALCAgreed", "1");
+      Params().put("AALCEnabled", "1");
+      QMessageBox::information(this, tr("AALC Enabled"),
+                               tr("AALC has been enabled. You can adjust parameters in Advanced settings if available."));
+    }
+  });
+
+  // Disable
+  QObject::connect(btnDisable, &QPushButton::clicked, []() {
+    Params().put("AALCEnabled", "0");
+  });
+
+  // Add to main settings
+  try {
+    main_layout->addWidget(aalcGroup);
+  } catch (...) {
+    main_layout->addWidget(aalcGroup);
+  }
+}
+// >>> AALC END
+
 
   // setup two main layouts
   sidebar_widget = new QWidget;
