@@ -133,6 +133,7 @@ class CruiseController:
     road_limit_speed_nda = SpeedLimiter.instance().get_road_limit_speed()
     road_limit_speed_stock = CS.exState.navLimitSpeed
     road_signs = CS.exState.roadSigns
+    school_zone = road_signs == 1
     is_limit_zone = False
 
     # 1. Road limit speed
@@ -160,13 +161,13 @@ class CruiseController:
       camera_limit_speed_stock, is_limit_zone = (
         SpeedLimiter.instance().get_camera_limit_speed_stock(CS.speedLimitDistance, CS.speedLimit))
       camera_limit_speed_clu = camera_limit_speed_stock
-    if road_signs == 1:
+    if school_zone:
       camera_limit_speed_clu = self.conv.to_current_unit(30.0)
     # if speed_bump:
       # camera_limit_speed_clu = self.conv.to_current_unit(28.0)
     self.camera_limit_speed_clu = camera_limit_speed_clu
 
-    if camera_limit_speed_clu <= 30 or road_signs == 1:
+    if road_limit_speed_clu == 30 and school_zone:
       road_limit_speed_clu = min(road_limit_speed_clu, camera_limit_speed_clu)
 
     # 3. Lead limit speed
@@ -194,7 +195,16 @@ class CruiseController:
     valid_limits = [s for s in speed_candidates if s >= self.min_set_speed_clu and s != NO_LIMIT_SPEED]
     calculated_max_speed_clu = min(v_cruise_kph, min(valid_limits)) if valid_limits else self.apply_limit_speed_clu
 
-    if not self.CP.openpilotLongitudinalControl or self.apply_limit_speed_clu <= 0 or is_limit_zone:
+    is_curve_limit = (curve_limit_speed_clu != NO_LIMIT_SPEED and curve_limit_speed_clu == min(valid_limits))
+
+    immediate_apply_conditions = [
+      not self.CP.openpilotLongitudinalControl,
+      self.apply_limit_speed_clu <= 0,
+      is_limit_zone,
+      is_curve_limit
+    ]
+
+    if any(immediate_apply_conditions):
       self.apply_limit_speed_clu = calculated_max_speed_clu
     else:
       error = calculated_max_speed_clu - self.apply_limit_speed_clu
