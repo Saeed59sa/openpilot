@@ -55,23 +55,33 @@ void Sidebar::mousePressEvent(QMouseEvent *event) {
   } else if (recording_audio && mic_indicator_btn.contains(event->pos())) {
     mic_indicator_pressed = true;
     update();
+  } else if (commit_rect.contains(event->pos())) {
+    commit_pressed = true;
+    update();
   }
 }
 
 void Sidebar::mouseReleaseEvent(QMouseEvent *event) {
-  if (flag_pressed || settings_pressed || mic_indicator_pressed) {
-    flag_pressed = settings_pressed = mic_indicator_pressed = false;
+  if (flag_pressed || settings_pressed || mic_indicator_pressed || commit_pressed) {
+    flag_pressed = settings_pressed = mic_indicator_pressed = commit_pressed = false;
     update();
   }
   if (onroad && home_btn.contains(event->pos())) {
     //MessageBuilder msg;
     //msg.initEvent().initBookmarkButton();
     //pm->send("bookmarkButton", msg);
-    QProcess::startDetached("sh /data/openpilot/scripts/gitpull.sh");
+    params.remove("CalibrationParams");
+    params.remove("LiveTorqueParameters");
+    params.remove("LiveParameters");
+    params.remove("LiveParametersV2");
+    params.remove("LiveDelay");
+    params.putBool("OnroadCycleRequested", true);
   } else if (settings_btn.contains(event->pos())) {
     emit openSettings();
   } else if (recording_audio && mic_indicator_btn.contains(event->pos())) {
     emit openSettings(2, "RecordAudio");
+  } else if (commit_rect.contains(event->pos())) {
+    QProcess::startDetached("sh /data/openpilot/scripts/gitpull.sh");
   }
 }
 
@@ -103,6 +113,29 @@ void Sidebar::updateState(const UIState &s) {
   if (strength == 0) {
     commit_check_done = false;
   }
+
+  QString commit_compare_raw = QString::fromStdString(params.get("CommitCompare"));
+  QColor commit_color = warning_color;
+  QString remote_commit = "";
+  QString local_commit = "";
+
+  if (!commit_compare_raw.isEmpty()) {
+    QStringList parts = commit_compare_raw.split(" ");
+
+    if (parts.size() >= 3) {
+      local_commit = parts[0].remove("\"");
+      remote_commit = parts[parts.size()-1].remove("\"");
+
+      if (commit_compare_raw.contains("!=")) {
+        commit_color = danger_color;
+      } else if (commit_compare_raw.contains("==")) {
+        commit_color = QColor(0x80, 0xd8, 0xa6);
+      }
+    }
+  }
+
+  ItemStatus commitStatus = {{remote_commit, local_commit}, commit_color};
+  setProperty("commitStatus", QVariant::fromValue(commitStatus));
 
   ItemStatus connectStatus;
   auto last_ping = deviceState.getLastAthenaPingTime();
@@ -148,9 +181,6 @@ void Sidebar::paintEvent(QPaintEvent *event) {
   QString c3x_position_raw = QString::fromStdString(params.get("DevicePosition"));
   QString c3x_position = c3x_position_raw.isEmpty() ? "--" : c3x_position_raw;
 
-  QString commit_compare_raw = QString::fromStdString(params.get("CommitCompare"));
-  QString commit_compare = commit_compare_raw.isEmpty() ? "--" : commit_compare_raw;
-
   // buttons
   p.setOpacity(settings_pressed ? 0.65 : 1.0);
   p.drawPixmap(settings_btn.x(), settings_btn.y(), settings_img);
@@ -167,20 +197,12 @@ void Sidebar::paintEvent(QPaintEvent *event) {
 
   p.drawPixmap(home_btn.x(), home_btn.y(), c3x_img);
 
-  const QRect r3 = QRect(0, 970, event->rect().width(), 40);
-  const QRect r4 = QRect(0, 1020, event->rect().width(), 60);
+  const QRect r3 = QRect(0, 1020, event->rect().width(), 40);
 
   p.setFont(InterFont(30, QFont::DemiBold));
   p.setPen(QColor(0xff, 0xff, 0xff));
   p.drawText(r3, Qt::AlignCenter, c3x_position);
 
-  if (commit_compare.contains("!=")) {
-    p.setPen(QColor(0xc9, 0x22, 0x31));
-    p.drawText(r4, Qt::AlignCenter, commit_compare);
-  } else {
-    p.setPen(QColor(0x80, 0xd8, 0xa6));
-    p.drawText(r4, Qt::AlignCenter, commit_compare);
-  }
   p.setOpacity(1.0);
 
   // network
@@ -194,24 +216,25 @@ void Sidebar::paintEvent(QPaintEvent *event) {
 
   p.setFont(InterFont(30));
   p.setPen(QColor(0xff, 0xff, 0xff));
-  /*
+
   const QRect r = QRect(58, 247, width() - 100, 50);
+  const QRect r2 = QRect(0, 247, event->rect().width(), 50);
 
   if (net_type == "Hotspot") {
     p.drawPixmap(r.x(), r.y() + (r.height() - link_img.height()) / 2, link_img);
+  } else if (net_type == network_type[cereal::DeviceState::NetworkType::WIFI]) {
+    p.drawText(r2, Qt::AlignCenter, uiState()->wifi->getIp4Address());
   } else {
     p.drawText(r, Qt::AlignLeft | Qt::AlignVCenter, net_type);
-  }*/
-  const QRect r2 = QRect(0, 267, event->rect().width(), 50);
-
-  if (net_type == network_type[cereal::DeviceState::NetworkType::WIFI])
-    p.drawText(r2, Qt::AlignCenter, uiState()->wifi->getIp4Address());
-  else
-    p.drawText(r2, Qt::AlignCenter, net_type);
+  }
 
   // metrics
   p.setFont(InterFont(35));
-  drawMetric(p, temp_status.first, temp_status.second, 338);
-  drawMetric(p, panda_status.first, panda_status.second, 496);
-  drawMetric(p, connect_status.first, connect_status.second, 654);
+  drawMetric(p, temp_status.first, temp_status.second, 338 - 50);
+  drawMetric(p, panda_status.first, panda_status.second, 496 - 50);
+  drawMetric(p, connect_status.first, connect_status.second, 654 - 50);
+
+  p.setOpacity(commit_pressed ? 0.65 : 1.0);
+  drawMetric(p, commit_status.first, commit_status.second, 812 - 50);
+  p.setOpacity(1.0);
 }

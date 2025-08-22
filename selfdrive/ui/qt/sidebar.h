@@ -19,6 +19,7 @@ class Sidebar : public QFrame {
   Q_PROPERTY(QString netType MEMBER net_type NOTIFY valueChanged);
   Q_PROPERTY(int netStrength MEMBER net_strength NOTIFY valueChanged);
   Q_PROPERTY(bool recordingAudio MEMBER recording_audio NOTIFY valueChanged);
+  Q_PROPERTY(ItemStatus commitStatus MEMBER commit_status NOTIFY valueChanged);
 
 public:
   explicit Sidebar(QWidget* parent = 0);
@@ -39,7 +40,7 @@ protected:
 
   QPixmap home_img, flag_img, settings_img, mic_img, link_img, c3x_img;
   bool onroad, recording_audio, flag_pressed, settings_pressed, mic_indicator_pressed;
-  bool commit_check_done;
+  bool commit_check_done, commit_pressed;
   const QMap<cereal::DeviceState::NetworkType, QString> network_type = {
     {cereal::DeviceState::NetworkType::NONE, tr("--")},
     {cereal::DeviceState::NetworkType::WIFI, tr("Wi-Fi")},
@@ -50,14 +51,17 @@ protected:
     {cereal::DeviceState::NetworkType::CELL5_G, tr("5G")}
   };
 
-  const QRect home_btn = QRect(60, 860, 180, 180);
+  const QRect home_btn = QRect(60, 910, 180, 180);
   const QRect settings_btn = QRect(50, 35, 200, 117);
   const QRect mic_indicator_btn = QRect(158, 252, 75, 40);
   const QColor good_color = QColor(255, 255, 255);
   const QColor warning_color = QColor(218, 202, 37);
   const QColor danger_color = QColor(201, 34, 49);
 
+  const QRect commit_rect = QRect(30, 812, 240, 126);
+
   ItemStatus connect_status, panda_status, temp_status;
+  ItemStatus commit_status;
   QString net_type;
   int net_strength = 0;
 
