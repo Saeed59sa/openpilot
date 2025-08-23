@@ -3780,6 +3780,34 @@ This may take up to a minute.</source>
         <source>FrogPilot</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Lane Change – AALC (Auto Adaptive)</source>
+        <translation>تغيير الحارة – AALC (تلقائي متكيّف)</translation>
+    </message>
+    <message>
+        <source>Enable AALC (Agreement)</source>
+        <translation>تفعيل AALC (الموافقة)</translation>
+    </message>
+    <message>
+        <source>Disable AALC</source>
+        <translation>تعطيل AALC</translation>
+    </message>
+    <message>
+        <source>AALC Activation</source>
+        <translation>تفعيل AALC</translation>
+    </message>
+    <message>
+        <source>I Agree</source>
+        <translation>أوافق</translation>
+    </message>
+    <message>
+        <source>AALC Enabled</source>
+        <translation>تم تفعيل AALC</translation>
+    </message>
+    <message>
+        <source>AALC has been enabled. You can adjust parameters in Advanced settings if available.</source>
+        <translation>تم تفعيل AALC. يمكنك تعديل المعلمات في الإعدادات المتقدمة إذا كانت متاحة.</translation>
+    </message>
 </context>
 <context>
     <name>Setup</name>

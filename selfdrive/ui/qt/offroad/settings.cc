@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QGroupBox>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include "common/params.h"
 // >>> AALC END
 #include <cmath>
@@ -408,6 +409,7 @@ void SettingsWindow::setCurrentPanel(int index, const QString &param) {
 }
 
 SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
+  QHBoxLayout *main_layout = new QHBoxLayout(this);
 // >>> AALC BEGIN (settings UI with agreement)
 
 // AALC UI group with activation agreement
@@ -474,11 +476,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   });
 
   // Add to main settings
-  try {
-    main_layout->addWidget(aalcGroup);
-  } catch (...) {
-    main_layout->addWidget(aalcGroup);
-  }
+  main_layout->addWidget(aalcGroup);
 }
 // >>> AALC END
 
@@ -644,8 +642,6 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   sidebar_layout->setContentsMargins(50, 50, 100, 50);
 
   // main settings layout, sidebar + main panel
-  QHBoxLayout *main_layout = new QHBoxLayout(this);
-
   sidebar_widget->setFixedWidth(500);
   main_layout->addWidget(sidebar_widget);
   main_layout->addWidget(panel_widget);
