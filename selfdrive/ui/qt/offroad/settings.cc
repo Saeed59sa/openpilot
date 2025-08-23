@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QGroupBox>
 #include <QVBoxLayout>
+#include <QLayout>
 #include <QHBoxLayout>
 #include "common/params.h"
 // >>> AALC END
@@ -441,6 +442,15 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
 
   // Group UI
   QGroupBox *aalcGroup = new QGroupBox(tr("Lane Change – AALC (Auto Adaptive)"));
+  // AALC fix: attach group to a guaranteed layout (replaces undefined 'main_layout')
+  {
+    QVBoxLayout *__aalc_layout = qobject_cast<QVBoxLayout*>(this->layout());
+    if (!__aalc_layout) {
+      __aalc_layout = new QVBoxLayout(this);
+      this->setLayout(__aalc_layout);
+    }
+    __aalc_layout->addWidget(aalcGroup);
+  }
   QVBoxLayout *aalcLayout = new QVBoxLayout(aalcGroup);
 
   // Buttons: Enable (Agreement), Disable
@@ -475,8 +485,6 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     Params().put("AALCEnabled", "0");
   });
 
-  // Add to main settings
-  main_layout->addWidget(aalcGroup);
 }
 // >>> AALC END
 
