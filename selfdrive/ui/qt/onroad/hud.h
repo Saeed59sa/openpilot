@@ -61,7 +61,7 @@ private:
   float gpsBearing, gpsVerticalAccuracy, gpsAltitude, gpsAccuracy = 0;
   float steerAngle, steerAngleTarget = 0;
   float fl, fr, rl, rr = 0;
-  float roadLimitSpeed, navLimitSpeed = 0;
+  float roadLimitSpeed, navLimitSpeed, stockLimitSpeed = 0;
   float steer_torque, curvature, steer_ratio = 0;
 
   double prev_blink_time = 0.0;

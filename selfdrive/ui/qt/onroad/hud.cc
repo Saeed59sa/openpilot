@@ -117,6 +117,7 @@ void HudRenderer::updateState(const UIState &s) {
   rl = ce.getExState().getTpms().getRl();
   rr = ce.getExState().getTpms().getRr();
   navLimitSpeed = ce.getExState().getNavLimitSpeed();
+  stockLimitSpeed = ce.getSpeedLimit();
   road_signs = ce.getExState().getRoadSigns();
   nda_state = nd.getActive();
   roadLimitSpeed = nd.getRoadLimitSpeed();
@@ -197,6 +198,15 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     p.drawRoundedRect(x - 10, y - 20, ndaTextWidth + 20, ndaTextHeight + 10, 15, 15);
     drawTextColor(p, x, y, 30, ndaText, limeColor(200), "L");
     x += ndaTextWidth + 24;
+  } else if (stockLimitSpeed > 0) {
+    QString stockText = "Stock";
+    int stockTextWidth = p.fontMetrics().horizontalAdvance(stockText);
+    int stockTextHeight = p.fontMetrics().height();
+    p.setPen(Qt::NoPen);
+    p.setBrush(blackColor(200));
+    p.drawRoundedRect(x - 10, y - 20, stockTextWidth + 20, stockTextHeight + 10, 15, 15);
+    drawTextColor(p, x, y, 30, stockText, limeColor(200), "L");
+    x += stockTextWidth + 24;
   }
 
   // CameraScc Setting
@@ -439,9 +449,12 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
     } else {
       limit_speed = roadLimitSpeed;
     }
-  } else {
+  } else if (stockLimitSpeed > 0) {
+    limit_speed = stockLimitSpeed;
+  } else if (navLimitSpeed > 0) {
     limit_speed = navLimitSpeed;
   }
+
 
   QString roadLimitSpeedStr = QString::number(roadLimitSpeed, 'f', 0);
   QString limitSpeedStr = QString::number(limit_speed, 'f', 0);
@@ -481,7 +494,7 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   drawTextColor(p, max_speed_box.center().x(), max_speed_y, 60, is_cruise_set ? maxSpeedStr : "─", speedColor);
 
   // set speed
-  if (nda_state > 0) {
+  if (nda_state > 0 || stockLimitSpeed > 0) {
     QRect set_speed_box(speed_box.left() + 5, speed_box.bottom() + 5, 160, 160);
     p.setPen(QPen(whiteColor(200), 2));
     p.drawRoundedRect(set_speed_box, 15, 15);
@@ -501,7 +514,7 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   p.drawRoundedRect(traffic_box, 15, 15);
 
   // speedlimit sign
-  if (limit_speed > 0 || roadLimitSpeed > 0) {
+  if (limit_speed > 0) {
     QPoint center(speed_box.right() + 80, speed_box.center().y());
     const QList<QPair<int, QColor>> circles = {
       {72, whiteColor()},

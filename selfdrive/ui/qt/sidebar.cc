@@ -116,8 +116,8 @@ void Sidebar::updateState(const UIState &s) {
 
   QString commit_compare_raw = QString::fromStdString(params.get("CommitCompare"));
   QColor commit_color = warning_color;
-  QString remote_commit = "";
-  QString local_commit = "";
+  QString remote_commit = "--";
+  QString local_commit = "--";
 
   if (!commit_compare_raw.isEmpty()) {
     QStringList parts = commit_compare_raw.split(" ");
