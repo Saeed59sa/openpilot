@@ -4497,4 +4497,36 @@ This may take up to a minute.</source>
         <translation>نسيان</translation>
     </message>
 </context>
+</context>
+<context>
+    <name>OffroadSettings</name>
+    <message>
+        <source>Lane Change – AALC (Auto Adaptive)</source>
+        <translation>تغيير الحارة – AALC (تلقائي متكيف)</translation>
+    </message>
+    <message>
+        <source>Enable AALC (Agreement)</source>
+        <translation>تفعيل AALC (اتفاقية)</translation>
+    </message>
+    <message>
+        <source>Disable AALC</source>
+        <translation>تعطيل AALC</translation>
+    </message>
+    <message>
+        <source>AALC Activation</source>
+        <translation>تفعيل AALC</translation>
+    </message>
+    <message>
+        <source>I Agree</source>
+        <translation>أوافق</translation>
+    </message>
+    <message>
+        <source>AALC Enabled</source>
+        <translation>تم تفعيل AALC</translation>
+    </message>
+    <message>
+        <source>AALC has been enabled. You can adjust parameters in Advanced settings if available.</source>
+        <translation>تم تفعيل AALC. يمكنك ضبط الإعدادات في الإعدادات المتقدمة إذا كانت متاحة.</translation>
+    </message>
+</context>
 </TS>

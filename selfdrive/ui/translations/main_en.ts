@@ -35,4 +35,36 @@
         </translation>
     </message>
 </context>
+</context>
+<context>
+    <name>OffroadSettings</name>
+    <message>
+        <source>Lane Change – AALC (Auto Adaptive)</source>
+        <translation>Lane Change – AALC (Auto Adaptive)</translation>
+    </message>
+    <message>
+        <source>Enable AALC (Agreement)</source>
+        <translation>Enable AALC (Agreement)</translation>
+    </message>
+    <message>
+        <source>Disable AALC</source>
+        <translation>Disable AALC</translation>
+    </message>
+    <message>
+        <source>AALC Activation</source>
+        <translation>AALC Activation</translation>
+    </message>
+    <message>
+        <source>I Agree</source>
+        <translation>I Agree</translation>
+    </message>
+    <message>
+        <source>AALC Enabled</source>
+        <translation>AALC Enabled</translation>
+    </message>
+    <message>
+        <source>AALC has been enabled. You can adjust parameters in Advanced settings if available.</source>
+        <translation>AALC has been enabled. You can adjust parameters in Advanced settings if available.</translation>
+    </message>
+</context>
 </TS>

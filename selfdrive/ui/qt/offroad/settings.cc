@@ -1,22 +1,18 @@
 #include <cassert>
-
-// >>> AALC BEGIN (includes)
-
-#include <QLocale>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QGroupBox>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include "common/params.h"
-// >>> AALC END
 #include <cmath>
 #include <string>
 #include <tuple>
 #include <vector>
 
 #include <QDebug>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLocale>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QVBoxLayout>
 
+#include "common/params.h"
 #include "common/watchdog.h"
 #include "common/util.h"
 #include "selfdrive/ui/qt/network/networking.h"
@@ -410,8 +406,6 @@ void SettingsWindow::setCurrentPanel(int index, const QString &param) {
 
 SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   QHBoxLayout *main_layout = new QHBoxLayout(this);
-// >>> AALC BEGIN (settings UI with agreement)
-
 // AALC UI group with activation agreement
 {
   auto agreementText = []() -> QString {
@@ -441,6 +435,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
 
   // Group UI
   QGroupBox *aalcGroup = new QGroupBox(tr("Lane Change – AALC (Auto Adaptive)"));
+  main_layout->addWidget(aalcGroup);
   QVBoxLayout *aalcLayout = new QVBoxLayout(aalcGroup);
 
   // Buttons: Enable (Agreement), Disable
@@ -475,10 +470,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     Params().put("AALCEnabled", "0");
   });
 
-  // Add to main settings
-  main_layout->addWidget(aalcGroup);
 }
-// >>> AALC END
 
 
   // setup two main layouts
