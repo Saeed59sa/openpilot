@@ -1,4 +1,19 @@
 #include <cassert>
+
+// >>> AALC BEGIN (includes)
+
+#include <QGroupBox>
+#include <QVBoxLayout>
+#include <QFormLayout>
+#include <QHBoxLayout>
+#include <QLayout>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QSpinBox>
+#include <QPushButton>
+#include <QMessageBox>
+#include "common/params.h"
+// >>> AALC END
 #include <cmath>
 #include <string>
 #include <tuple>
@@ -119,12 +134,12 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   toggles["ExperimentalMode"]->setConfirmation(true, true);
   toggles["ExperimentalLongitudinalEnabled"]->setConfirmation(true, false);
 
-  connect(toggles["ExperimentalLongitudinalEnabled"], &ToggleControl::toggleFlipped, [=]() {
+  connect(toggles["ExperimentalLongitudinalEnabled"], &ToggleControl::toggleFlipped, this, [=]() {
     updateToggles();
   });
 
   // FrogPilot signals
-  connect(toggles["IsMetric"], &ToggleControl::toggleFlipped, [=]() {
+  connect(toggles["IsMetric"], &ToggleControl::toggleFlipped, this, [=]() {
     updateMetric();
   });
 }
@@ -223,7 +238,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
 
   pair_device = new ButtonControl(tr("Pair Device"), tr("PAIR"),
                                   tr("Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer."));
-  connect(pair_device, &ButtonControl::clicked, [=]() {
+  connect(pair_device, &ButtonControl::clicked, this, [=]() {
     PairingPopup popup(this);
     popup.exec();
   });
@@ -233,12 +248,12 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
 
   auto dcamBtn = new ButtonControl(tr("Driver Camera"), tr("PREVIEW"),
                                    tr("Preview the driver facing camera to ensure that driver monitoring has good visibility. (vehicle must be off)"));
-  connect(dcamBtn, &ButtonControl::clicked, [=]() { emit showDriverView(); });
+  connect(dcamBtn, &ButtonControl::clicked, this, [=]() { emit showDriverView(); });
   addItem(dcamBtn);
 
   resetCalibBtn = new ButtonControl(tr("Reset Calibration"), tr("RESET"), "");
   connect(resetCalibBtn, &ButtonControl::showDescriptionEvent, this, &DevicePanel::updateCalibDescription);
-  connect(resetCalibBtn, &ButtonControl::clicked, [&]() {
+  connect(resetCalibBtn, &ButtonControl::clicked, this, [&]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to reset calibration?"), tr("Reset"), this)) {
       params.remove("CalibrationParams");
       params.remove("LiveTorqueParameters");
@@ -247,7 +262,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   addItem(resetCalibBtn);
 
   auto retrainingBtn = new ButtonControl(tr("Review Training Guide"), tr("REVIEW"), tr("Review the rules, features, and limitations of openpilot"));
-  connect(retrainingBtn, &ButtonControl::clicked, [=]() {
+  connect(retrainingBtn, &ButtonControl::clicked, this, [=]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to review the training guide?"), tr("Review"), this)) {
       emit reviewTrainingGuide();
     }
@@ -256,7 +271,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
 
   if (Hardware::TICI()) {
     auto regulatoryBtn = new ButtonControl(tr("Regulatory"), tr("VIEW"), "");
-    connect(regulatoryBtn, &ButtonControl::clicked, [=]() {
+    connect(regulatoryBtn, &ButtonControl::clicked, this, [=]() {
       const std::string txt = util::read_file("../assets/offroad/fcc.html");
       ConfirmationDialog::rich(QString::fromStdString(txt), this);
     });
@@ -264,7 +279,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   }
 
   auto translateBtn = new ButtonControl(tr("Change Language"), tr("CHANGE"), "");
-  connect(translateBtn, &ButtonControl::clicked, [=]() {
+  connect(translateBtn, &ButtonControl::clicked, this, [=]() {
     QMap<QString, QString> langs = getSupportedLanguages();
     QString selection = MultiOptionDialog::getSelection(tr("Select a language"), langs.keys(), langs.key(uiState()->language), this);
     if (!selection.isEmpty()) {
@@ -398,6 +413,159 @@ void SettingsWindow::setCurrentPanel(int index, const QString &param) {
 }
 
 SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
+// >>> AALC BEGIN (settings UI block)
+
+// === AALC UI (defensive attach) ===
+{
+  // Build group
+  QGroupBox *aalcGroup = new QGroupBox(tr("AALC — Auto Adaptive Lane Change"));
+  aalcGroup->setObjectName("AALCGroup");
+  QVBoxLayout *v = new QVBoxLayout(aalcGroup);
+  QFormLayout *f = new QFormLayout();
+  v->addLayout(f);
+
+  // Controls
+  QCheckBox *cbEnable = new QCheckBox(tr("Enable AALC"));
+  QCheckBox *cbBlink  = new QCheckBox(tr("Auto Blinkers"));
+  QComboBox *cmbSide  = new QComboBox(); cmbSide->addItems(QStringList() << "left" << "right" << "auto");
+  QSpinBox  *spMinSpd = new QSpinBox();  spMinSpd->setRange(0, 200);  spMinSpd->setSuffix(" kph");
+  QSpinBox  *spDelta  = new QSpinBox();  spDelta->setRange(5, 60);    spDelta->setSuffix(" kph");
+  QSpinBox  *spHold   = new QSpinBox();  spHold->setRange(1, 8);      spHold->setSuffix(" s");
+  QSpinBox  *spRearm  = new QSpinBox();  spRearm->setRange(4, 60);    spRearm->setSuffix(" s");
+
+  // CAN config row (advanced)
+  QComboBox *cmbDbc   = new QComboBox(); cmbDbc->setEditable(true);
+  cmbDbc->addItems(QStringList() << "" << "hyundai_canfd" << "toyota_tss2" << "tesla_can");
+  QComboBox *cmbMsg   = new QComboBox(); cmbMsg->setEditable(true);
+  QComboBox *cmbLeft  = new QComboBox(); cmbLeft->setEditable(true);
+  QComboBox *cmbRight = new QComboBox(); cmbRight->setEditable(true);
+  QSpinBox  *spBus    = new QSpinBox();  spBus->setRange(0, 7);
+
+  // Layout form
+  f->addRow(tr("Enabled"), cbEnable);
+  f->addRow(tr("Auto Blinkers"), cbBlink);
+  f->addRow(tr("Preferred Side"), cmbSide);
+  f->addRow(tr("Min Speed"), spMinSpd);
+  f->addRow(tr("Min Δ Speed"), spDelta);
+  f->addRow(tr("Blinker Hold"), spHold);
+  f->addRow(tr("Cooldown"), spRearm);
+
+  QFormLayout *f2 = new QFormLayout();
+  v->addLayout(f2);
+  f2->addRow(tr("DBC"), cmbDbc);
+  f2->addRow(tr("Msg Name"), cmbMsg);
+  f2->addRow(tr("Left Signal"), cmbLeft);
+  f2->addRow(tr("Right Signal"), cmbRight);
+  f2->addRow(tr("Bus"), spBus);
+
+  // Buttons
+  QHBoxLayout *btns = new QHBoxLayout();
+  QPushButton *btnDefaults = new QPushButton(tr("Reset Defaults"));
+  QPushButton *btnAgreement = new QPushButton(tr("Activation Agreement"));
+  btns->addWidget(btnDefaults);
+  btns->addWidget(btnAgreement);
+  v->addLayout(btns);
+
+  // Load from Params
+  auto getS = [](const char* k){ return QString::fromUtf8(Params().get(k)); };
+  auto getI = [&](const char* k, int d){ auto v=Params().get(k); if(v.isEmpty()) return d; bool ok=false; int x=QString::fromUtf8(v).toInt(&ok); return ok?x:d; };
+  auto getB = [&](const char* k, bool d){ auto v=Params().get(k); if(v.isEmpty()) return d; QString s=QString::fromUtf8(v).trimmed().toLower(); return (s=="1"||s=="true"||s=="yes"||s=="on"); };
+
+  cbEnable->setChecked(getB("AALCEnabled", false));
+  cbBlink->setChecked(getB("AALCAutoBlinkers", true));
+  cmbSide->setCurrentText(getS("AALCPreferredSide").isEmpty() ? "left" : getS("AALCPreferredSide"));
+  spMinSpd->setValue(getI("AALCMinSpeedKph", 50));
+  spDelta->setValue(getI("AALCMinDeltaKph", 20));
+  spHold->setValue(getI("AALCSignalHoldS", 3));
+  spRearm->setValue(getI("AALCRearmS", 12));
+
+  cmbDbc->setCurrentText(getS("AALCDbc"));
+  cmbMsg->setCurrentText(getS("AALCMsgName"));
+  cmbLeft->setCurrentText(getS("AALCLeftSig"));
+  cmbRight->setCurrentText(getS("AALCRightSig"));
+  spBus->setValue(getI("AALCBus", 1));
+
+  // Save helpers
+  auto putS = [](const char* k, const QString &v){ Params().put(k, v.toUtf8()); };
+  auto putI = [](const char* k, int v){ Params().put(k, QString::number(v).toUtf8()); };
+  auto putB = [](const char* k, bool v){ Params().put(k, v? "1" : "0"); };
+
+  QObject::connect(cbEnable, &QCheckBox::toggled, this, [&](bool on){
+    // EULA (English-only)
+    if(on && !getB("AALC_EULA_ACCEPTED", false)){
+      QMessageBox m; m.setIcon(QMessageBox::Warning);
+      m.setWindowTitle("AALC Activation");
+      m.setText("AALC is experimental. Keep hands on the wheel and obey the law. You accept full responsibility.");
+      auto *ok = m.addButton("I Agree", QMessageBox::AcceptRole);
+      m.addButton(QMessageBox::Cancel);
+      m.exec();
+      if(m.clickedButton()!=ok){ cbEnable->setChecked(false); return; }
+      putB("AALC_EULA_ACCEPTED", true);
+    }
+    putB("AALCEnabled", on);
+  });
+
+  QObject::connect(cbBlink, &QCheckBox::toggled, this, [&](bool on){ putB("AALCAutoBlinkers", on); });
+  QObject::connect(cmbSide, &QComboBox::currentTextChanged, this, [&](const QString &s){ putS("AALCPreferredSide", s); });
+  QObject::connect(spMinSpd,  &QSpinBox::valueChanged, this, [&](int v){ putI("AALCMinSpeedKph", v); });
+  QObject::connect(spDelta,   &QSpinBox::valueChanged, this, [&](int v){ putI("AALCMinDeltaKph", v); });
+  QObject::connect(spHold,    &QSpinBox::valueChanged, this, [&](int v){ putI("AALCSignalHoldS", v); });
+  QObject::connect(spRearm,   &QSpinBox::valueChanged, this, [&](int v){ putI("AALCRearmS", v); });
+
+  QObject::connect(cmbDbc,    &QComboBox::editTextChanged, this, [&](const QString &s){ putS("AALCDbc", s); });
+  QObject::connect(cmbMsg,    &QComboBox::editTextChanged, this, [&](const QString &s){ putS("AALCMsgName", s); });
+  QObject::connect(cmbLeft,   &QComboBox::editTextChanged, this, [&](const QString &s){ putS("AALCLeftSig", s); });
+  QObject::connect(cmbRight,  &QComboBox::editTextChanged, this, [&](const QString &s){ putS("AALCRightSig", s); });
+  QObject::connect(spBus,     qOverload<int>(&QSpinBox::valueChanged), this, [&](int v){ putI("AALCBus", v); });
+
+  QObject::connect(btnDefaults, &QPushButton::clicked, this, [&](){
+    putB("AALCEnabled", false); cbEnable->setChecked(false);
+    putB("AALCAutoBlinkers", true); cbBlink->setChecked(true);
+    putI("AALCMinSpeedKph", 50); spMinSpd->setValue(50);
+    putI("AALCMinDeltaKph", 20); spDelta->setValue(20);
+    putI("AALCSignalHoldS", 3);  spHold->setValue(3);
+    putI("AALCRearmS", 12);      spRearm->setValue(12);
+    putS("AALCPreferredSide","left"); cmbSide->setCurrentText("left");
+  });
+
+  QObject::connect(btnAgreement, &QPushButton::clicked, this, [&](){
+    QMessageBox::information(aalcGroup, "AALC Activation Agreement",
+      "AALC is experimental and not a self-driving system.\n"
+      "- It may signal and initiate lane changes when your lane is slowed by a lead vehicle.\n"
+      "- Keep hands on the wheel and eyes on the road; obey local laws and speed limits.\n"
+      "- Always check mirrors and blind spots. Use at your own risk.");
+  });
+
+  // Attach defensively:
+  // 1) Try to locate an existing 'Lane Change' container (by title/object name)
+  QLayout *targetLayout = nullptr;
+  for (auto gb : aalcGroup->parentWidget() ? aalcGroup->parentWidget()->findChildren<QGroupBox*>() : findChildren<QGroupBox*>()){
+    QString t = gb->title().toLower();
+    if (t.contains("lane") && t.contains("change")) { targetLayout = gb->layout(); break; }
+  }
+  if (!targetLayout) {
+    // Try a few common objectNames
+    QStringList names = {"lane_change_box","laneChangeLayout","laneChangeBox","driving_controls_box","steering_box"};
+    for (const QString &n : names) {
+      if (auto *w = findChild<QWidget*>(n)) { if (w->layout()) { targetLayout = w->layout(); break; } }
+      if (auto *l = findChild<QLayout*>(n)) { targetLayout = l; break; }
+    }
+  }
+  if (!targetLayout) {
+    // Fallback: use this window's main layout
+    if (this->layout()) targetLayout = this->layout();
+  }
+  if (targetLayout) {
+    targetLayout->addWidget(aalcGroup);
+  } else {
+    // As a last resort, create a top-level layout
+    QVBoxLayout *fallback = new QVBoxLayout(this);
+    fallback->addWidget(aalcGroup);
+    setLayout(fallback);
+  }
+}
+// >>> AALC END
+
 
   // setup two main layouts
   sidebar_widget = new QWidget;
@@ -420,7 +588,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   close_btn->setFixedSize(300, 125);
   sidebar_layout->addSpacing(10);
   sidebar_layout->addWidget(close_btn, 0, Qt::AlignRight);
-  QObject::connect(close_btn, &QPushButton::clicked, [this]() {
+  QObject::connect(close_btn, &QPushButton::clicked, this, [this]() {
     if (mapboxInstructionsOpen) {
       closeMapBoxInstructions();
       mapboxInstructionsOpen = false;
@@ -453,12 +621,12 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   QObject::connect(toggles, &TogglesPanel::updateMetric, this, &SettingsWindow::updateMetric);
 
   FrogPilotSettingsWindow *frogpilotSettingsWindow = new FrogPilotSettingsWindow(this);
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::closeMapBoxInstructions, [this]() {mapboxInstructionsOpen=false;});
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openMapBoxInstructions, [this]() {mapboxInstructionsOpen=true;});
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openMapSelection, [this]() {mapSelectionOpen=true;});
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openPanel, [this]() {panelOpen=true;});
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openParentToggle, [this]() {parentToggleOpen=true;});
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubParentToggle, [this]() {subParentToggleOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::closeMapBoxInstructions, this, [this]() {mapboxInstructionsOpen=false;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openMapBoxInstructions, this, [this]() {mapboxInstructionsOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openMapSelection, this, [this]() {mapSelectionOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openPanel, this, [this]() {panelOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openParentToggle, this, [this]() {parentToggleOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubParentToggle, this, [this]() {subParentToggleOpen=true;});
 
   QList<QPair<QString, QWidget *>> panels = {
     {tr("Device"), device},
@@ -498,7 +666,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     ScrollView *panel_frame = new ScrollView(panel, this);
     panel_widget->addWidget(panel_frame);
 
-    QObject::connect(btn, &QPushButton::clicked, [=, w = panel_frame]() {
+    QObject::connect(btn, &QPushButton::clicked, this, [=, w = panel_frame]() {
       if (w->widget() == frogpilotSettingsWindow) {
         bool customizationLevelConfirmed = params.getBool("CustomizationLevelConfirmed");
 

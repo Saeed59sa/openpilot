@@ -37,7 +37,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
 
   // download update btn
   downloadBtn = new ButtonControl(tr("Download"), tr("CHECK"));
-  connect(downloadBtn, &ButtonControl::clicked, [=]() {
+  connect(downloadBtn, &ButtonControl::clicked, this, [=]() {
     device()->resetInteractiveTimeout(300);
 
     downloadBtn->setEnabled(false);
@@ -52,7 +52,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
 
   // install update btn
   installBtn = new ButtonControl(tr("Install Update"), tr("INSTALL"));
-  connect(installBtn, &ButtonControl::clicked, [=]() {
+  connect(installBtn, &ButtonControl::clicked, this, [=]() {
     installBtn->setEnabled(false);
     params.putBool("DoReboot", true);
   });
@@ -60,7 +60,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
 
   // branch selecting
   targetBranchBtn = new ButtonControl(tr("Target Branch"), tr("SELECT"));
-  connect(targetBranchBtn, &ButtonControl::clicked, [=]() {
+  connect(targetBranchBtn, &ButtonControl::clicked, this, [=]() {
     auto current = params.get("GitBranch");
     QStringList branches = QString::fromStdString(params.get("UpdaterAvailableBranches")).split(",");
     if (!frogsGoMoo) {
@@ -89,7 +89,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
 
   // uninstall button
   auto uninstallBtn = new ButtonControl(tr("Uninstall %1").arg(getBrand()), tr("UNINSTALL"));
-  connect(uninstallBtn, &ButtonControl::clicked, [&]() {
+  connect(uninstallBtn, &ButtonControl::clicked, this, [&]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to uninstall?"), tr("Uninstall"), this)) {
       if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to permanently delete any additional FrogPilot assets? This is 100% unrecoverable and includes backups, models, and long-term storage toggle settings for easy reinstalls."), this, true)) {
         std::system("rm -rf /data/backups");
@@ -107,14 +107,14 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
 
   // error log button
   auto errorLogBtn = new ButtonControl(tr("Error Log"), tr("VIEW"), tr("View the error log for openpilot crashes."));
-  connect(errorLogBtn, &ButtonControl::clicked, [=]() {
+  connect(errorLogBtn, &ButtonControl::clicked, this, [=]() {
     const std::string txt = util::read_file("/data/crashes/error.txt");
     ConfirmationDialog::rich(QString::fromStdString(txt), this);
   });
   addItem(errorLogBtn);
 
   fs_watch = new ParamWatcher(this);
-  QObject::connect(fs_watch, &ParamWatcher::paramChanged, [=](const QString &param_name, const QString &param_value) {
+  QObject::connect(fs_watch, &ParamWatcher::paramChanged, this, [=](const QString &param_name, const QString &param_value) {
     updateLabels();
   });
 

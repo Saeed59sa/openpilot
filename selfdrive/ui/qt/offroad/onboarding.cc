@@ -175,7 +175,7 @@ void DeclinePage::showEvent(QShowEvent *event) {
   QPushButton *uninstall_btn = new QPushButton(tr("Decline, uninstall %1").arg(getBrand()));
   uninstall_btn->setStyleSheet("background-color: #B73D3D");
   buttons->addWidget(uninstall_btn);
-  QObject::connect(uninstall_btn, &QPushButton::clicked, [=]() {
+  QObject::connect(uninstall_btn, &QPushButton::clicked, this, [=]() {
     Params().putBool("DoUninstall", true);
   });
 }
@@ -198,16 +198,16 @@ OnboardingWindow::OnboardingWindow(QWidget *parent) : QStackedWidget(parent) {
 
   TermsPage* terms = new TermsPage(this);
   addWidget(terms);
-  connect(terms, &TermsPage::acceptedTerms, [=]() {
+  connect(terms, &TermsPage::acceptedTerms, this, [=]() {
     params.put("HasAcceptedTerms", current_terms_version);
     accepted_terms = true;
     updateActiveScreen();
   });
-  connect(terms, &TermsPage::declinedTerms, [=]() { setCurrentIndex(2); });
+  connect(terms, &TermsPage::declinedTerms, this, [=]() { setCurrentIndex(2); });
 
   TrainingGuide* tr = new TrainingGuide(this);
   addWidget(tr);
-  connect(tr, &TrainingGuide::completedTraining, [=]() {
+  connect(tr, &TrainingGuide::completedTraining, this, [=]() {
     training_done = true;
     params.put("CompletedTrainingVersion", current_training_version);
     updateActiveScreen();
@@ -215,7 +215,7 @@ OnboardingWindow::OnboardingWindow(QWidget *parent) : QStackedWidget(parent) {
 
   DeclinePage* declinePage = new DeclinePage(this);
   addWidget(declinePage);
-  connect(declinePage, &DeclinePage::getBack, [=]() { updateActiveScreen(); });
+  connect(declinePage, &DeclinePage::getBack, this, [=]() { updateActiveScreen(); });
 
   setStyleSheet(R"(
     * {
