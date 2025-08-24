@@ -241,86 +241,50 @@ void Sidebar::paintEvent(QPaintEvent *event) {
 
 void Sidebar::showGitPullConsole() {
   if (gitPullProcess && gitPullProcess->state() == QProcess::Running) {
-    if (gitPullDialog) {
-      gitPullDialog->raise();
-      gitPullDialog->activateWindow();
-    }
     return;
   }
 
-  gitPullDialog = new QDialog(this);
-  gitPullDialog->setWindowTitle(tr("Git Pull Progress"));
-  gitPullDialog->setModal(true);
-  gitPullDialog->resize(1200, 800);
-
-  QVBoxLayout* layout = new QVBoxLayout(gitPullDialog);
-
-  consoleOutput = new QTextEdit();
-  consoleOutput->setReadOnly(true);
-  consoleOutput->setFont(QFont("DemiBold", 12));
-  consoleOutput->setStyleSheet("background-color: #000000; color: #ffffff; border: 1px solid #333333; padding: 8px;");
-  layout->addWidget(consoleOutput);
-
-  QPushButton* closeBtn = new QPushButton(tr("Close"));
-  closeBtn->setEnabled(false);
-  closeBtn->setMinimumHeight(50);
-  closeBtn->setMinimumWidth(120);
-  closeBtn->setFont(QFont("DemiBold", 20));
-  layout->addWidget(closeBtn);
-
-  QObject::connect(closeBtn, &QPushButton::clicked, gitPullDialog, &QDialog::accept);
-
-  startGitPull(closeBtn);
-
-  gitPullDialog->show();
-}
-
-void Sidebar::startGitPull(QPushButton* closeBtn) {
   gitPullProcess = new QProcess(this);
 
-  QObject::connect(gitPullProcess, &QProcess::readyReadStandardOutput, this, [this]() {
+  QString consoleOutput = "";
+  consoleOutput += "Starting git pull...\n";
+  consoleOutput += "Command: sh /data/openpilot/scripts/gitpull.sh\n";
+  consoleOutput += "===========================================\n\n";
+
+  QObject::connect(gitPullProcess, &QProcess::readyReadStandardOutput, this, [this, &consoleOutput]() {
     QByteArray data = gitPullProcess->readAllStandardOutput();
-    consoleOutput->insertPlainText(QString::fromUtf8(data));
-    consoleOutput->moveCursor(QTextCursor::End);
+    consoleOutput += QString::fromUtf8(data);
   });
 
-  QObject::connect(gitPullProcess, &QProcess::readyReadStandardError, this, [this]() {
+  QObject::connect(gitPullProcess, &QProcess::readyReadStandardError, this, [this, &consoleOutput]() {
     QByteArray data = gitPullProcess->readAllStandardError();
-    consoleOutput->insertPlainText(QString::fromUtf8(data));
-    consoleOutput->moveCursor(QTextCursor::End);
+    consoleOutput += QString::fromUtf8(data);
   });
 
   QObject::connect(gitPullProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                   this, [this, closeBtn](int exitCode, QProcess::ExitStatus exitStatus) {
-    QString statusMsg;
+                   this, [this, consoleOutput](int exitCode, QProcess::ExitStatus exitStatus) {
+    QString finalOutput = consoleOutput;
+
     if (exitStatus == QProcess::NormalExit) {
       if (exitCode == 0) {
-        statusMsg = tr("\n=== Git pull completed successfully! ===\n");
+        finalOutput += "\n=== Git pull completed successfully! ===\n";
       } else {
-        statusMsg = tr("\n=== Git pull failed with exit code %1 ===\n").arg(exitCode);
+        finalOutput += QString("\n=== Git pull failed with exit code %1 ===\n").arg(exitCode);
       }
     } else {
-      statusMsg = tr("\n=== Git pull process crashed ===\n");
+      finalOutput += "\n=== Git pull process crashed ===\n";
     }
 
-    consoleOutput->insertPlainText(statusMsg);
-    consoleOutput->moveCursor(QTextCursor::End);
-
-    closeBtn->setEnabled(true);
-    closeBtn->setText(tr("Close"));
+    ConfirmationDialog::rich(finalOutput, this);
 
     gitPullProcess->deleteLater();
     gitPullProcess = nullptr;
   });
 
-  consoleOutput->insertPlainText(tr("Starting git pull...\n"));
-  consoleOutput->insertPlainText(tr("Command: sh /data/openpilot/scripts/gitpull.sh\n"));
-  consoleOutput->insertPlainText(tr("===========================================\n\n"));
-
   gitPullProcess->start("sh", QStringList() << "/data/openpilot/scripts/gitpull.sh");
 
   if (!gitPullProcess->waitForStarted(3000)) {
-    consoleOutput->insertPlainText(tr("ERROR: Failed to start git pull process!\n"));
-    closeBtn->setEnabled(true);
+    ConfirmationDialog::rich("ERROR: Failed to start git pull process!", this);
+    return;
   }
 }
