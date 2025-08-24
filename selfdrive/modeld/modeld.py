@@ -28,6 +28,13 @@ from openpilot.selfdrive.modeld.models.commonmodel_pyx import ModelFrame, CLCont
 from openpilot.selfdrive.frogpilot.frogpilot_functions import MODELS_PATH
 from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles
 
+# >>> AALC BEGIN (import)
+try:
+  from openpilot.selfdrive.controls.lib.aalc import get_aalc
+except Exception:
+  get_aalc = None
+# >>> AALC END
+
 PROCESS_NAME = "selfdrive.modeld.modeld"
 SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
 
@@ -295,6 +302,37 @@ def main(demo=False):
       l_lane_change_prob = desire_state[log.Desire.laneChangeLeft]
       r_lane_change_prob = desire_state[log.Desire.laneChangeRight]
       lane_change_prob = l_lane_change_prob + r_lane_change_prob
+
+      # >>> AALC BEGIN (policy hook)
+      try:
+        _aalc = get_aalc() if get_aalc else None
+      except Exception:
+        _aalc = None
+
+      try:
+        v_ego_here = sm['carState'].vEgo
+      except Exception:
+        v_ego_here = 0.0
+
+      try:
+        if (_aalc is not None and
+            DH.lane_change_state in (log.LaneChangeState.off, log.LaneChangeState.preLaneChange)):
+          side = _aalc.choose(sm, v_ego_here)
+          if side in ('left', 'right'):
+            DH.lane_change_direction = (log.LaneChangeDirection.left
+                                        if side == 'left' else log.LaneChangeDirection.right)
+            DH.lane_change_state = log.LaneChangeState.preLaneChange
+      except Exception:
+        pass
+
+      # ensure periodic() runs to stop blinker after hold window
+      try:
+        if _aalc is not None:
+          _aalc.periodic()
+      except Exception:
+        pass
+      # >>> AALC END
+
       DH.update(sm['carState'], sm['carControl'].latActive, lane_change_prob, sm['frogpilotPlan'], frogpilot_toggles)
       modelv2_send.modelV2.meta.laneChangeState = DH.lane_change_state
       modelv2_send.modelV2.meta.laneChangeDirection = DH.lane_change_direction

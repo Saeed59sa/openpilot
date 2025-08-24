@@ -4469,4 +4469,98 @@ This may take up to a minute.</source>
         <translation>نسيان</translation>
     </message>
 </context>
+
+  <context>
+    <name>OffroadSettings</name>
+      <message>
+      <source>AALC — Auto Adaptive Lane Change</source>
+      <translation>AALC — الانتقال التلقائي التكيّفي بين الحارات</translation>
+    </message>
+    <message>
+      <source>Enable AALC</source>
+      <translation>تفعيل AALC</translation>
+    </message>
+    <message>
+      <source>Auto Blinkers</source>
+      <translation>إشارات الانعطاف التلقائية</translation>
+    </message>
+    <message>
+      <source>Preferred Side</source>
+      <translation>الجهة المفضلة</translation>
+    </message>
+    <message>
+      <source>Min Speed</source>
+      <translation>أدنى سرعة</translation>
+    </message>
+    <message>
+      <source>Min Δ Speed</source>
+      <translation>فارق السرعة الأدنى</translation>
+    </message>
+    <message>
+      <source>Blinker Hold</source>
+      <translation>مدة إبقاء الإشارة</translation>
+    </message>
+    <message>
+      <source>Cooldown</source>
+      <translation>فترة التبريد</translation>
+    </message>
+    <message>
+      <source>DBC</source>
+      <translation>قاعدة بيانات DBC</translation>
+    </message>
+    <message>
+      <source>Msg Name</source>
+      <translation>اسم الرسالة</translation>
+    </message>
+    <message>
+      <source>Left Signal</source>
+      <translation>إشارة اليسار</translation>
+    </message>
+    <message>
+      <source>Right Signal</source>
+      <translation>إشارة اليمين</translation>
+    </message>
+    <message>
+      <source>Bus</source>
+      <translation>الباص</translation>
+    </message>
+    <message>
+      <source>Reset Defaults</source>
+      <translation>إعادة القيم الافتراضية</translation>
+    </message>
+    <message>
+      <source>Activation Agreement</source>
+      <translation>اتفاقية التفعيل</translation>
+    </message>
+    <message>
+      <source>AALC Activation</source>
+      <translation>تفعيل AALC</translation>
+    </message>
+    <message>
+      <source>I Agree</source>
+      <translation>أوافق</translation>
+    </message>
+    <message>
+      <source>Cancel</source>
+      <translation>إلغاء</translation>
+    </message>
+    <message>
+      <source>AALC Activation Agreement</source>
+      <translation>اتفاقية تفعيل AALC</translation>
+    </message>
+    <message>
+      <source>AALC is experimental and provided under the MIT License.
+- Keep your hands on the wheel and eyes on the road.
+- AALC may signal/request lane changes when traffic slows due to a lead vehicle.
+- Always obey local laws and speed limits.
+- Always check mirrors and blind spots.
+By enabling AALC, you accept full responsibility.</source>
+      <translation>ميزة AALC تجريبية ومقدّمة بموجب ترخيص MIT.
+- أبقِ يديك على المقود وناظريك على الطريق.
+- قد تقوم AALC بتشغيل الإشارات وطلب تغيير الحارة عند تباطؤ السير بسبب مركبة أمامية.
+- التزم دائمًا بالقوانين والسرعات المحلية.
+- افحص المرايا والنقاط العمياء دائمًا.
+بتفعيل AALC، تتحمّل المسؤولية الكاملة.</translation>
+    </message>
+</context>
 </TS>
