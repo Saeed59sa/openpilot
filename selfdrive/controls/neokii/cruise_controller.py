@@ -236,19 +236,19 @@ class CruiseController:
     return lead_limit_speed_clu
 
   def _get_model_based_speed(self, model, current_speed_ms: float, min_curve_speed_ms: float):
-    x = model.position.x
-    y = model.position.y
+    x_positions = np.array(model.position.x)
+    y_positions = np.array(model.position.y)
 
-    if len(x) < 10:
+    if len(x_positions) < 10:
       return NO_LIMIT_SPEED, 0.0
 
-    dy = np.gradient(y, x)
-    d2y = np.gradient(dy, x)
+    dy = np.gradient(y_positions, x_positions)
+    d2y = np.gradient(dy, x_positions)
     curv = d2y / (1 + dy ** 2) ** 1.5
     curv_abs = np.abs(curv)
     curv_segment = curv_abs[-10:]
     curv_variance = np.var(curv_segment)
-    trajectory_length = np.sum(np.sqrt(np.diff(x) ** 2 + np.diff(y) ** 2))
+    trajectory_length = np.sum(np.sqrt(np.diff(x_positions) ** 2 + np.diff(y_positions) ** 2))
     confidence = min(1.0, trajectory_length / 100.0) * (1.0 / (1.0 + curv_variance * 1000))
 
     a_y_max = 2.975 - current_speed_ms * 0.0375
@@ -258,12 +258,12 @@ class CruiseController:
       if not math.isnan(current_curve_speed_ms) and current_curve_speed_ms < current_speed_ms else NO_LIMIT_SPEED
 
     lookahead_distance = current_speed_ms * 3.0
-    lookahead_indices = (x <= lookahead_distance) & (x > current_speed_ms * 0.5)
+    lookahead_indices = (x_positions <= lookahead_distance) & (x_positions > current_speed_ms * 0.5)
 
     predictive_speed = NO_LIMIT_SPEED
 
     if np.any(lookahead_indices) and np.sum(lookahead_indices) > 5:
-      x_ahead = x[lookahead_indices]
+      x_ahead = x_positions[lookahead_indices]
       curv_ahead = curv_abs[lookahead_indices]
 
       max_future_curv = np.max(curv_ahead)
