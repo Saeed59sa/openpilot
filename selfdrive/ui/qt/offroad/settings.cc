@@ -114,6 +114,26 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
     }
   }
 
+  // ==== AALC Settings (Saeed ALmansoori) ====
+  {
+    ParamControl *aalc_enable = new ParamControl(
+      "AALCEnabled", "Auto Adaptive Lane Change (AALC)",
+      "Enable/disable AALC. Tuning dialog appears on enable.",
+      "../assets/offroad/icon_settings.png", this);
+    addItem(aalc_enable);
+
+    QObject::connect(aalc_enable, &ParamControl::toggleFlipped, [this](bool on){
+      if (on) {
+        showSliderParam("AALCResponsiveness", "Responsiveness", 0, 3, 1, 2);
+        showSwitchParam("AALCLearner", "Learner Mode", true);
+        showFloatParam("AALCMinGapM", "Min Gap (m)", 15.0, 60.0, 1.0, 25.0);
+        showFloatParam("AALCSpeedDeltaKph", "Speed Delta (kph)", 8.0, 40.0, 1.0, 15.0);
+        showFloatParam("AALCMaxAccelMps2", "Max Accel (m/s^2)", 0.5, 3.0, 0.1, 1.5);
+      }
+    });
+  }
+  // ==== End AALC Settings ====
+
   // Toggles with confirmation dialogs
   toggles["ExperimentalMode"]->setActiveIcon("../assets/img_experimental.svg");
   toggles["ExperimentalMode"]->setConfirmation(true, true);
