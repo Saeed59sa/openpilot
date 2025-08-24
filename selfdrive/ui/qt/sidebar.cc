@@ -81,7 +81,7 @@ void Sidebar::mouseReleaseEvent(QMouseEvent *event) {
   } else if (recording_audio && mic_indicator_btn.contains(event->pos())) {
     emit openSettings(2, "RecordAudio");
   } else if (commit_rect.contains(event->pos())) {
-    QProcess::startDetached("sh /data/openpilot/scripts/gitpull.sh");
+    showGitPullConsole();
   }
 }
 
@@ -237,4 +237,90 @@ void Sidebar::paintEvent(QPaintEvent *event) {
   p.setOpacity(commit_pressed ? 0.65 : 1.0);
   drawMetric(p, commit_status.first, commit_status.second, 812 - 50);
   p.setOpacity(1.0);
+}
+
+void Sidebar::showGitPullConsole() {
+  if (gitPullProcess && gitPullProcess->state() == QProcess::Running) {
+    if (gitPullDialog) {
+      gitPullDialog->raise();
+      gitPullDialog->activateWindow();
+    }
+    return;
+  }
+
+  gitPullDialog = new QDialog(this);
+  gitPullDialog->setWindowTitle(tr("Git Pull Progress"));
+  gitPullDialog->setModal(true);
+  gitPullDialog->resize(1200, 800);
+
+  QVBoxLayout* layout = new QVBoxLayout(gitPullDialog);
+
+  consoleOutput = new QTextEdit();
+  consoleOutput->setReadOnly(true);
+  consoleOutput->setFont(QFont("DemiBold", 12));
+  consoleOutput->setStyleSheet("background-color: #000000; color: #ffffff; border: 1px solid #333333; padding: 8px;");
+  layout->addWidget(consoleOutput);
+
+  QPushButton* closeBtn = new QPushButton(tr("Close"));
+  closeBtn->setEnabled(false);
+  closeBtn->setMinimumHeight(50);
+  closeBtn->setMinimumWidth(120);
+  closeBtn->setFont(QFont("DemiBold", 20));
+  layout->addWidget(closeBtn);
+
+  QObject::connect(closeBtn, &QPushButton::clicked, gitPullDialog, &QDialog::accept);
+
+  startGitPull(closeBtn);
+
+  gitPullDialog->show();
+}
+
+void Sidebar::startGitPull(QPushButton* closeBtn) {
+  gitPullProcess = new QProcess(this);
+
+  QObject::connect(gitPullProcess, &QProcess::readyReadStandardOutput, this, [this]() {
+    QByteArray data = gitPullProcess->readAllStandardOutput();
+    consoleOutput->insertPlainText(QString::fromUtf8(data));
+    consoleOutput->moveCursor(QTextCursor::End);
+  });
+
+  QObject::connect(gitPullProcess, &QProcess::readyReadStandardError, this, [this]() {
+    QByteArray data = gitPullProcess->readAllStandardError();
+    consoleOutput->insertPlainText(QString::fromUtf8(data));
+    consoleOutput->moveCursor(QTextCursor::End);
+  });
+
+  QObject::connect(gitPullProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+                   this, [this, closeBtn](int exitCode, QProcess::ExitStatus exitStatus) {
+    QString statusMsg;
+    if (exitStatus == QProcess::NormalExit) {
+      if (exitCode == 0) {
+        statusMsg = tr("\n=== Git pull completed successfully! ===\n");
+      } else {
+        statusMsg = tr("\n=== Git pull failed with exit code %1 ===\n").arg(exitCode);
+      }
+    } else {
+      statusMsg = tr("\n=== Git pull process crashed ===\n");
+    }
+
+    consoleOutput->insertPlainText(statusMsg);
+    consoleOutput->moveCursor(QTextCursor::End);
+
+    closeBtn->setEnabled(true);
+    closeBtn->setText(tr("Close"));
+
+    gitPullProcess->deleteLater();
+    gitPullProcess = nullptr;
+  });
+
+  consoleOutput->insertPlainText(tr("Starting git pull...\n"));
+  consoleOutput->insertPlainText(tr("Command: sh /data/openpilot/scripts/gitpull.sh\n"));
+  consoleOutput->insertPlainText(tr("===========================================\n\n"));
+
+  gitPullProcess->start("sh", QStringList() << "/data/openpilot/scripts/gitpull.sh");
+
+  if (!gitPullProcess->waitForStarted(3000)) {
+    consoleOutput->insertPlainText(tr("ERROR: Failed to start git pull process!\n"));
+    closeBtn->setEnabled(true);
+  }
 }

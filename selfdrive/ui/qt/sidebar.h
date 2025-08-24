@@ -5,6 +5,12 @@
 #include <QFrame>
 #include <QMap>
 
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QTextEdit>
+#include <QPushButton>
+#include <QProcess>
+
 #include "selfdrive/ui/ui.h"
 #include "selfdrive/ui/qt/network/networking.h"
 
@@ -71,4 +77,12 @@ private:
 
   UIScene &scene;
   Params params;
+
+  // Git Pull Console
+  QProcess* gitPullProcess = nullptr;
+  QDialog* gitPullDialog = nullptr;
+  QTextEdit* consoleOutput = nullptr;
+
+  void showGitPullConsole();
+  void startGitPull(QPushButton* closeBtn);
 };
