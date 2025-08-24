@@ -239,22 +239,59 @@ class CruiseController:
     x = model.position.x
     y = model.position.y
 
+    if len(x) < 10:
+      return NO_LIMIT_SPEED, 0.0
+
     dy = np.gradient(y, x)
     d2y = np.gradient(dy, x)
     curv = d2y / (1 + dy ** 2) ** 1.5
-    curv_segment = curv[-10:]
-    curv_segment_abs = np.abs(curv_segment)
-
-    curv_variance = np.var(curv_segment_abs)
+    curv_abs = np.abs(curv)
+    curv_segment = curv_abs[-10:]
+    curv_variance = np.var(curv_segment)
     trajectory_length = np.sum(np.sqrt(np.diff(x) ** 2 + np.diff(y) ** 2))
-
     confidence = min(1.0, trajectory_length / 100.0) * (1.0 / (1.0 + curv_variance * 1000))
 
     a_y_max = 2.975 - current_speed_ms * 0.0375
-    model_speed_ms = float(np.mean(np.sqrt(a_y_max / np.clip(curv_segment_abs, 1e-4, None)))) * 0.85
+    current_curve_speed_ms = float(np.mean(np.sqrt(a_y_max / np.clip(curv_segment, 1e-4, None)))) * 0.85
 
-    model_based_speed = float(max(model_speed_ms, min_curve_speed_ms)) \
-      if not math.isnan(model_speed_ms) and model_speed_ms < current_speed_ms else NO_LIMIT_SPEED
+    current_model_speed = float(max(current_curve_speed_ms, min_curve_speed_ms)) \
+      if not math.isnan(current_curve_speed_ms) and current_curve_speed_ms < current_speed_ms else NO_LIMIT_SPEED
+
+    lookahead_distance = current_speed_ms * 3.0
+    lookahead_indices = (x <= lookahead_distance) & (x > current_speed_ms * 0.5)
+
+    predictive_speed = NO_LIMIT_SPEED
+
+    if np.any(lookahead_indices) and np.sum(lookahead_indices) > 5:
+      x_ahead = x[lookahead_indices]
+      curv_ahead = curv_abs[lookahead_indices]
+
+      max_future_curv = np.max(curv_ahead)
+      max_curv_idx = np.argmax(curv_ahead)
+      curve_distance = x_ahead[max_curv_idx]
+
+      if max_future_curv > 0.005:
+        safe_speed_ms = np.sqrt(a_y_max / max_future_curv) * 0.9
+
+        if safe_speed_ms < current_speed_ms and curve_distance > 10:
+          required_decel = (current_speed_ms ** 2 - safe_speed_ms ** 2) / (2 * curve_distance)
+          max_comfortable_decel = 1.8
+
+          if required_decel <= max_comfortable_decel:
+            predictive_speed = safe_speed_ms
+            confidence = min(1.0, confidence * 1.5)
+          else:
+            early_speed_ms = current_speed_ms - 3.0
+            predictive_speed = max(early_speed_ms, safe_speed_ms)
+            confidence = min(1.0, confidence * 1.2)
+
+    if predictive_speed != NO_LIMIT_SPEED:
+      if current_model_speed != NO_LIMIT_SPEED:
+        model_based_speed = min(current_model_speed, predictive_speed)
+      else:
+        model_based_speed = predictive_speed
+    else:
+      model_based_speed = current_model_speed
 
     return model_based_speed, confidence
 
@@ -308,10 +345,66 @@ class CruiseController:
       if valid_speeds else NO_LIMIT_SPEED
     )
 
+    if calculated_curve_speed_ms != NO_LIMIT_SPEED:
+      speed_reduction_ratio = current_speed_ms / calculated_curve_speed_ms
+      if speed_reduction_ratio > 1.3:
+        calculated_curve_speed_ms *= 0.9
+
     curve_speed_ms = min(calculated_curve_speed_ms, self.conv.to_ms(v_cruise_kph))
     curve_speed_clu = self.conv.to_clu(curve_speed_ms)
 
     return curve_speed_clu
+
+  def _predictive_curve_deceleration(self, model, current_speed_ms: float, cluster_speed_clu: float):
+    x = model.position.x
+    y = model.position.y
+
+    if len(x) < 10:
+      return NO_LIMIT_SPEED
+
+    lookahead_distance = current_speed_ms * 3.0
+    lookahead_indices = (x <= lookahead_distance) & (x > 0)
+
+    if not np.any(lookahead_indices):
+      return NO_LIMIT_SPEED
+
+    x_ahead = x[lookahead_indices]
+    y_ahead = y[lookahead_indices]
+
+    if len(x_ahead) < 5:
+      return NO_LIMIT_SPEED
+
+    try:
+      dy = np.gradient(y_ahead, x_ahead)
+      d2y = np.gradient(dy, x_ahead)
+      curvature = np.abs(d2y / (1 + dy ** 2) ** 1.5)
+
+      max_curvature = np.max(curvature)
+      max_curve_idx = np.argmax(curvature)
+      curve_distance = x_ahead[max_curve_idx]
+
+      if max_curvature > 0.005:  # 유의미한 곡률
+        # 해당 곡률에서 안전한 속도 계산
+        a_y_max = 2.5  # 최대 허용 횡가속도 (m/s²)
+        safe_speed_ms = np.sqrt(a_y_max / max_curvature) * 0.9  # 10% 안전 마진
+
+        if safe_speed_ms < current_speed_ms and curve_distance > 10:  # 최소 10m 이상 거리
+          # 편안한 감속도로 도달 가능한지 확인
+          required_decel = (current_speed_ms ** 2 - safe_speed_ms ** 2) / (2 * curve_distance)
+          max_comfortable_decel = 1.8  # m/s² (편안한 최대 감속도)
+
+          if required_decel <= max_comfortable_decel:
+            # 예측적 감속 시작
+            return self.conv.to_clu(safe_speed_ms)
+          else:
+            # 더 일찍 감속 시작 (현재 속도에서 조금씩)
+            early_target_speed_ms = current_speed_ms - 3.0  # 3m/s (약 10km/h) 감속
+            return self.conv.to_clu(max(early_target_speed_ms, safe_speed_ms))
+
+    except (ValueError, IndexError):
+      pass
+
+    return NO_LIMIT_SPEED
 
   def _cal_steer_based_speed(self, current_speed_ms: float, steering_angle_deg: float):
     start_decel_angle = 45.

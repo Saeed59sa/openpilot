@@ -390,6 +390,7 @@ class LongitudinalMpc:
 
   def update(self, sm, v_cruise, x, v, a, j, personality=log.LongitudinalPersonality.standard):
     radarstate = sm['radarState']
+    CS = sm['carState']
     t_follow = get_T_FOLLOW(personality)
     v_ego = self.x0[1]
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
@@ -409,7 +410,12 @@ class LongitudinalMpc:
     lead_0_obstacle = lead_xv_0[:,0] + get_stopped_equivalence_factor(lead_xv_0[:,1])
     lead_1_obstacle = lead_xv_1[:,0] + get_stopped_equivalence_factor(lead_xv_1[:,1])
 
-    comfort_brake = COMFORT_BRAKE
+    curve_detected = abs(CS.steeringAngleDeg) > 45
+    if curve_detected:
+      comfort_brake = COMFORT_BRAKE * 1.2
+    else:
+      comfort_brake = COMFORT_BRAKE
+
     stop_distance = STOP_DISTANCE
 
     self.params[:,0] = ACCEL_MIN
