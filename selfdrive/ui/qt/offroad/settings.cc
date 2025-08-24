@@ -114,6 +114,16 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
     }
   }
 
+  // ==== AALC (Saeed ALmansoori) - minimal, no translations ====
+  {
+    auto aalc_enable = new ParamControl("AALCEnabled", "Auto Adaptive Lane Change (AALC)",
+                                        "Enable/disable AALC feature.", "../assets/offroad/icon_settings.png", this);
+    aalc_enable->setObjectName("AALCEnabled");
+    addItem(aalc_enable);
+  }
+  // TODO: Add numeric params: AALCMinGapM, AALCSpeedDeltaKph, AALCMaxAccelMps2
+  // ==== End AALC ====
+
   // Toggles with confirmation dialogs
   toggles["ExperimentalMode"]->setActiveIcon("../assets/img_experimental.svg");
   toggles["ExperimentalMode"]->setConfirmation(true, true);

@@ -19,6 +19,7 @@ from openpilot.common.realtime import config_realtime_process, Priority, Ratekee
 from openpilot.common.swaglog import cloudlog
 
 from openpilot.selfdrive.car.car_helpers import get_car_interface, get_startup_event
+from openpilot.selfdrive.controls.lib.aalc import AALC, AALCConfig  # AALC (Saeed ALmansoori)
 from openpilot.selfdrive.controls.lib.alertmanager import AlertManager, set_offroad_alert
 from openpilot.selfdrive.controls.lib.drive_helpers import VCruiseHelper, clip_curvature
 from openpilot.selfdrive.controls.lib.events import Events, ET
@@ -32,7 +33,7 @@ from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 from openpilot.system.hardware import HARDWARE
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_acceleration import get_max_allowed_accel
-from openpilot.selfdrive.frogpilot.frogpilot_variables import CRUISING_SPEED, NON_DRIVING_GEARS, get_frogpilot_toggles
+from openpilot.selfdrive.frogpilot.frogpilot_variables import NON_DRIVING_GEARS, get_frogpilot_toggles
 
 SOFT_DISABLE_TIME = 3  # seconds
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
@@ -65,6 +66,10 @@ ENABLED_STATES = (State.preEnabled, *ACTIVE_STATES)
 class Controls:
   def __init__(self, CI=None):
     self.params = Params()
+
+    # AALC init (Saeed ALmansoori)
+    if not hasattr(self, "aalc"):
+      self.aalc = AALC(AALCConfig())
 
     if CI is None:
       cloudlog.info("controlsd is waiting for CarParams")
@@ -585,11 +590,24 @@ class Controls:
     # Update Torque Params
     if self.CP.lateralTuning.which() == 'torque':
       torque_params = self.sm['liveTorqueParameters']
-      friction = self.frogpilot_toggles.steer_friction if self.frogpilot_toggles.use_custom_steer_friction else torque_params.frictionCoefficientFiltered
-      lat_accel_factor = self.frogpilot_toggles.steer_lat_accel_factor if self.frogpilot_toggles.use_custom_lat_accel_factor else torque_params.latAccelFactorFiltered
-      if self.sm.all_checks(['liveTorqueParameters']) and (torque_params.useParams or self.frogpilot_toggles.force_auto_tune) and not self.frogpilot_toggles.force_auto_tune_off:
-        self.LaC.update_live_torque_params(lat_accel_factor, torque_params.latAccelOffsetFiltered,
-                                           friction)
+      friction = (
+        self.frogpilot_toggles.steer_friction
+        if self.frogpilot_toggles.use_custom_steer_friction
+        else torque_params.frictionCoefficientFiltered
+      )
+      lat_accel_factor = (
+        self.frogpilot_toggles.steer_lat_accel_factor
+        if self.frogpilot_toggles.use_custom_lat_accel_factor
+        else torque_params.latAccelFactorFiltered
+      )
+      if (
+        self.sm.all_checks(["liveTorqueParameters"])
+        and (torque_params.useParams or self.frogpilot_toggles.force_auto_tune)
+        and not self.frogpilot_toggles.force_auto_tune_off
+      ):
+        self.LaC.update_live_torque_params(
+          lat_accel_factor, torque_params.latAccelOffsetFiltered, friction
+        )
 
     long_plan = self.sm['longitudinalPlan']
     model_v2 = self.sm['modelV2']
@@ -634,7 +652,14 @@ class Controls:
         t_since_plan = (self.sm.frame - self.sm.recv_frame['longitudinalPlan']) * DT_CTRL
         actuators.accel = self.LoC.update_old_long(CC.longActive, CS, long_plan, pid_accel_limits, t_since_plan)
       else:
-        actuators.accel = self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop or self.sm['frogpilotPlan'].forcingStopLength <= 0, pid_accel_limits)
+        actuators.accel = self.LoC.update(
+          CC.longActive,
+          CS,
+          long_plan.aTarget,
+          long_plan.shouldStop
+          or self.sm["frogpilotPlan"].forcingStopLength <= 0,
+          pid_accel_limits,
+        )
 
       if len(long_plan.speeds):
         actuators.speed = long_plan.speeds[-1]
@@ -910,6 +935,24 @@ class Controls:
     fpcc_send.valid = CS.canValid
     fpcc_send.frogpilotCarControl = FPCC
     self.pm.send('frogpilotCarControl', fpcc_send)
+  # ===== AALC hook (safe helper) =====
+  def _aalc_hook_update(self):
+    try:
+      # Derive basic signals; adjust names if different in your tree
+      v_ego = getattr(self, "v_ego", None)
+      lead_v = getattr(self, "lead_v", None)
+      lead_d = getattr(self, "lead_d", None)
+      lane_left_ok = getattr(self, "lane_change_left_ok", False)
+      lane_right_ok = getattr(self, "lane_change_right_ok", False)
+
+      ego_kph = (v_ego * 3.6) if v_ego is not None else 0.0
+      lead_kph = (lead_v * 3.6) if lead_v is not None else None
+      gap_m = lead_d
+
+      self.aalc.update(ego_kph, lead_kph, gap_m, lane_left_ok, lane_right_ok)
+    except Exception as e:
+      # Keep silent to avoid regressions
+      _ = e
 
   def step(self):
     start_time = time.monotonic()
@@ -920,6 +963,8 @@ class Controls:
 
     self.update_events(CS)
     cloudlog.timestamp("Events updated")
+
+    self._aalc_hook_update()
 
     if not self.CP.passive and self.initialized:
       # Update control state
