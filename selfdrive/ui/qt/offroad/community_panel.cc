@@ -211,7 +211,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   gitpull_btn->setObjectName("gitpull_btn");
   QObject::connect(gitpull_btn, &QPushButton::clicked, this, [this]() {
     if (ConfirmationDialog::confirm(tr("Git Fetch and Reset<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/scripts/gitpull.sh");
+      QProcess::startDetached("/data/openpilot/scripts/gitpull.sh");
     }
     const QString file_path = "/data/check_network";
     if (QFile::exists(file_path)) {
@@ -223,7 +223,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   cleardtc_btn->setObjectName("cleardtc_btn");
   QObject::connect(cleardtc_btn, &QPushButton::clicked, this, [this]() {
     if (ConfirmationDialog::confirm(tr("Clear DTC<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/scripts/cleardtc.sh");
+      QProcess::startDetached("/data/openpilot/scripts/cleardtc.sh");
     }
   });
 
@@ -231,7 +231,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   gitcheckout_btn->setObjectName("gitcheckout_btn");
   QObject::connect(gitcheckout_btn, &QPushButton::clicked, this, [this]() {
     if (ConfirmationDialog::confirm(tr("Git Checkout<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/scripts/checkout.sh");
+      QProcess::startDetached("/data/openpilot/scripts/checkout.sh");
     }
   });
 
@@ -239,7 +239,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   gitreset_btn->setObjectName("gitreset_btn");
   QObject::connect(gitreset_btn, &QPushButton::clicked, this, [this]() {
     if (ConfirmationDialog::confirm(tr("Git Reset<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/scripts/reset.sh");
+      QProcess::startDetached("/data/openpilot/scripts/reset.sh");
     }
   });
 
@@ -247,7 +247,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   pandaflash_btn->setObjectName("pandaflash_btn");
   QObject::connect(pandaflash_btn, &QPushButton::clicked, this, [this]() {
     if (ConfirmationDialog::confirm(tr("Panda Flash<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/panda/board/flash.py");
+      QProcess::startDetached("/data/openpilot/panda/board/flash.py");
     }
   });
 
@@ -255,7 +255,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   pandarecover_btn->setObjectName("pandarecover_btn");
   QObject::connect(pandarecover_btn, &QPushButton::clicked, this, [this]() {
     if (ConfirmationDialog::confirm(tr("Panda Recover<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/panda/board/recover.py");
+      QProcess::startDetached("/data/openpilot/panda/board/recover.py");
     }
   });
 
@@ -263,14 +263,14 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   scons_rebuild_btn->setObjectName("scons_rebuild_btn");
   QObject::connect(scons_rebuild_btn, &QPushButton::clicked, this, [this]() {
     if (ConfirmationDialog::confirm(tr("Scons Rebuild<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/scripts/scons_rebuild.sh");
+      QProcess::startDetached("/data/openpilot/scripts/scons_rebuild.sh");
     }
   });
 
   QPushButton* cameraview_btn = new QPushButton(tr("Camera View"));
   cameraview_btn->setObjectName("cameraview_btn");
   QObject::connect(cameraview_btn, &QPushButton::clicked, this, []() {
-    QProcess::execute("/data/openpilot/selfdrive/ui/watch3.py");
+    QProcess::startDetached("/data/openpilot/selfdrive/ui/watch3.py");
   });
 
   QString buttonStyle = R"(
@@ -353,7 +353,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     const QString file_path = "/data/tmux_error.log";
     if (QFile::exists(file_path)) {
       if (ConfirmationDialog::confirm(tr("tmux log upload<br><br>Process?"), tr("Process"), this)) {
-        QProcess::execute("/data/openpilot/scripts/log_upload.sh tmux_error.log");
+        QProcess::startDetached("/data/openpilot/scripts/log_upload.sh tmux_error.log");
     }
     } else {
       ConfirmationDialog::alert(tr("log file not found"), this);
@@ -363,10 +363,10 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   QPushButton* tmux_console_upload_btn = new QPushButton(tr("tmux console Upload"));
   tmux_console_upload_btn->setObjectName("tmux_console_upload_btn");
   QObject::connect(tmux_console_upload_btn, &QPushButton::clicked, this, [this]() {
-    int exitCode = QProcess::execute("sh", QStringList() << "-c" << "tmux capture-pane -p -t 0 -S -250 > /data/tmux_console.log");
+    int exitCode = QProcess::startDetached("sh", QStringList() << "-c" << "tmux capture-pane -p -t 0 -S -250 > /data/tmux_console.log");
     if (exitCode == 0) {
       if (ConfirmationDialog::confirm(tr("tmux console log upload<br><br>Process?"), tr("Process"), this)) {
-        QProcess::execute("/data/openpilot/scripts/log_upload.sh tmux_console.log");
+        QProcess::startDetached("/data/openpilot/scripts/log_upload.sh tmux_console.log");
       }
     } else {
       ConfirmationDialog::alert(tr("log file not found"), this);
@@ -377,7 +377,7 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   carparams_dump_upload_btn->setObjectName("carparams_dump_upload_btn");
   QObject::connect(carparams_dump_upload_btn, &QPushButton::clicked, this, [this]() {
     if (ConfirmationDialog::confirm(tr("carParams dump upload<br><br>Process?"), tr("Process"), this)) {
-      QProcess::execute("/data/openpilot/scripts/dump_upload.sh carParams");
+      QProcess::startDetached("/data/openpilot/scripts/dump_upload.sh carParams");
     }
   });
 
@@ -422,17 +422,8 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
       QString selectedFolderPath = folderPaths[selectedFolderName];
       if (ConfirmationDialog::confirm(tr("Are you sure you want to upload files from this folder?\n") + selectedFolderPath, tr("Upload"), this)) {
         QString command = scriptPath + " \"" + selectedFolderPath + "\"";
-
-        QProcess *process = new QProcess(this);
-        process->startDetached(command);
-        int exitCode = process->waitForFinished();
-        QString message;
-        if (exitCode != 0) {
-          ConfirmationDialog::alert(tr("Upload failed. Exit code: ") + QString::number(exitCode), this);
-        //} else {
-        //  ConfirmationDialog::alert(tr("Upload complete"), this);
-        process->deleteLater();
-        }
+        QProcess::startDetached(command);
+        emit closeSettings();
       }
     }
   });

@@ -509,6 +509,9 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   auto networking = new Networking(this);
   QObject::connect(uiState()->prime_state, &PrimeState::changed, networking, &Networking::setPrimeType);
 
+  CommunityPanel *community = new CommunityPanel(this);
+  QObject::connect(community, &CommunityPanel::closeSettings, this, &SettingsWindow::closeSettings);
+
   QList<QPair<QString, QWidget *>> panels = {
     {tr("Device"), device},
     {tr("Network"), networking},
@@ -516,7 +519,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     {tr("Software"), new SoftwarePanel(this)},
     {tr("Firehose"), new FirehosePanel(this)},
     {tr("Developer"), new DeveloperPanel(this)},
-    {tr("Community"), new CommunityPanel(this)},
+    {tr("Community"), community},
   };
 
   nav_btns = new QButtonGroup(this);
