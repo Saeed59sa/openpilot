@@ -74,5 +74,6 @@ private:
 
   // Git Pull Console
   QProcess* gitPullProcess = nullptr;
+  QString gitPullOutput;
   void showGitPullConsole();
 };

@@ -246,36 +246,48 @@ void Sidebar::showGitPullConsole() {
 
   gitPullProcess = new QProcess(this);
 
-  QString consoleOutput = "";
-  consoleOutput += "Starting git pull...\n";
-  consoleOutput += "Command: sh /data/openpilot/scripts/gitpull.sh\n";
-  consoleOutput += "===========================================\n\n";
+  gitPullOutput = "Starting git pull...\n";
+  gitPullOutput += "Command: sh /data/openpilot/scripts/gitpull.sh\n";
+  gitPullOutput += "===========================================\n\n";
 
-  QObject::connect(gitPullProcess, &QProcess::readyReadStandardOutput, this, [this, &consoleOutput]() {
+  QObject::connect(gitPullProcess, &QProcess::readyReadStandardOutput, this, [this]() {
     QByteArray data = gitPullProcess->readAllStandardOutput();
-    consoleOutput += QString::fromUtf8(data);
+    QString newData = QString::fromUtf8(data);
+
+    if (gitPullOutput.length() + newData.length() > 10240) {
+      gitPullOutput = gitPullOutput.right(5120);
+      gitPullOutput += "\n[...truncated...]\n";
+    }
+    gitPullOutput += newData;
   });
 
-  QObject::connect(gitPullProcess, &QProcess::readyReadStandardError, this, [this, &consoleOutput]() {
+  QObject::connect(gitPullProcess, &QProcess::readyReadStandardError, this, [this]() {
     QByteArray data = gitPullProcess->readAllStandardError();
-    consoleOutput += QString::fromUtf8(data);
+    QString newData = QString::fromUtf8(data);
+
+    if (gitPullOutput.length() + newData.length() > 10240) {
+      gitPullOutput = gitPullOutput.right(5120);
+      gitPullOutput += "\n[...truncated...]\n";
+    }
+    gitPullOutput += newData;
   });
 
   QObject::connect(gitPullProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                   this, [this, consoleOutput](int exitCode, QProcess::ExitStatus exitStatus) {
-    QString finalOutput = consoleOutput;
+                   this, [this](int exitCode, QProcess::ExitStatus exitStatus) {
 
     if (exitStatus == QProcess::NormalExit) {
       if (exitCode == 0) {
-        finalOutput += "\n=== Git pull completed successfully! ===\n";
+        gitPullOutput += "\n=== Git pull completed successfully! ===\n";
       } else {
-        finalOutput += QString("\n=== Git pull failed with exit code %1 ===\n").arg(exitCode);
+        gitPullOutput += QString("\n=== Git pull failed with exit code %1 ===\n").arg(exitCode);
       }
     } else {
-      finalOutput += "\n=== Git pull process crashed ===\n";
+      gitPullOutput += "\n=== Git pull process crashed ===\n";
     }
 
-    ConfirmationDialog::rich(finalOutput, this);
+    ConfirmationDialog::rich(gitPullOutput, this);
+
+    gitPullOutput.clear();
 
     gitPullProcess->deleteLater();
     gitPullProcess = nullptr;
@@ -285,6 +297,5 @@ void Sidebar::showGitPullConsole() {
 
   if (!gitPullProcess->waitForStarted(3000)) {
     ConfirmationDialog::rich("ERROR: Failed to start git pull process!", this);
-    return;
   }
 }
