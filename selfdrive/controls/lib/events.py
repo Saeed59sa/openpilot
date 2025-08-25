@@ -14,6 +14,36 @@ from openpilot.common.params import Params
 from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.locationd.calibrationd import MIN_SPEED_FILTER
 
+# --- SDpilot: Overspeed alert muting (by Saeed Almansoori) ---
+# Mute speed-related alerts whenever vehicle speed exceeds threshold.
+SDPILOT_MUTE_SPEED_WARN_ABOVE_KPH = 145.0
+
+_SDPILOT_MUTED_SPEED_EVENTS = {
+  'speedLimitExceeded', 'speedTooHigh', 'overspeed',
+  'belowEngageSpeed', 'belowSteerSpeed'
+}
+
+def _sdpilot_is_speed_event(name: str) -> bool:
+  if not name:
+    return False
+  return (name in _SDPILOT_MUTED_SPEED_EVENTS) or ("speed" in name.lower())
+
+def _sdpilot_current_kph() -> float:
+  try:
+    sm = messaging.SubMaster(['carState'])
+    sm.update(0)   # non-blocking single poll
+    return float(sm['carState'].vEgo) * 3.6
+  except Exception:
+    return 0.0
+
+def _sdpilot_should_mute_event(event_enum_val: int) -> bool:
+  try:
+    name = EVENT_NAME.get(event_enum_val, '')
+    return _sdpilot_is_speed_event(name) and (_sdpilot_current_kph() > SDPILOT_MUTE_SPEED_WARN_ABOVE_KPH)
+  except Exception:
+    return False
+# --- /SDpilot helpers ---
+
 AlertSize = log.ControlsState.AlertSize
 AlertStatus = log.ControlsState.AlertStatus
 VisualAlert = car.CarControl.HUDControl.VisualAlert
@@ -63,6 +93,12 @@ class Events:
     return len(self.events)
 
   def add(self, event_name: int, static: bool=False) -> None:
+    # SDpilot: mute speed-related alerts above threshold
+    try:
+      if _sdpilot_should_mute_event(event_name):
+        return
+    except Exception:
+      pass
     if static:
       bisect.insort(self.static_events, event_name)
     bisect.insort(self.events, event_name)
