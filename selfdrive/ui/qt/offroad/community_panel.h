@@ -10,7 +10,17 @@ public:
 signals:
   void closeSettings();
 
+private slots:
+  void uploadRouteSegments(const QStringList& segmentPaths, const QString& scriptPath);
+
 private:
+  struct RouteInfo {
+    QString routeName;
+    QStringList segmentPaths;
+    QDateTime lastModified;
+    int segmentCount;
+  };
+
   QStackedLayout* main_layout = nullptr;
   QWidget* homeScreen = nullptr;
   int currentCommunityIndex = 0;

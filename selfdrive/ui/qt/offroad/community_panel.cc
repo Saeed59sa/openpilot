@@ -385,7 +385,14 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   QString targetPath = "/data/media/0/realdata";
   QString scriptPath = "/data/openpilot/scripts/realdata_upload.sh";
 
-  QPushButton* realdate_upload_btn = new QPushButton(tr("Realdata Files Upload"));
+  struct RouteInfo {
+    QString routeName;
+    QStringList segmentPaths;
+    QDateTime lastModified;
+    int segmentCount;
+  };
+
+  QPushButton* realdate_upload_btn = new QPushButton(tr("Realdata Routes Upload"));
   connect(realdate_upload_btn, &QPushButton::clicked, [=]() {
     QDir dir(targetPath);
     if (!dir.exists()) {
@@ -394,35 +401,72 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
     }
 
     QFileInfoList fileInfoList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-    // Exclude "boot" folder
     fileInfoList.erase(std::remove_if(fileInfoList.begin(), fileInfoList.end(),
                                      [](const QFileInfo& info) { return info.fileName() == "boot"; }),
                        fileInfoList.end());
 
-    // Sort by last modified date (descending)
-    std::sort(fileInfoList.begin(), fileInfoList.end(), [](const QFileInfo& a, const QFileInfo& b) {
-        return a.lastModified() > b.lastModified();
-    });
-
-    QStringList folderNames;
-    QMap<QString, QString> folderPaths;
+    QMap<QString, RouteInfo> routeMap;
 
     for (const QFileInfo &fileInfo : fileInfoList) {
-      folderNames.append(fileInfo.fileName());
-      folderPaths[fileInfo.fileName()] = fileInfo.absoluteFilePath();
+      QString folderName = fileInfo.fileName();
+
+      QStringList parts = folderName.split("--");
+      if (parts.size() >= 3) {
+        QString routeName = parts[0] + "--" + parts[1];
+
+        if (!routeMap.contains(routeName)) {
+          RouteInfo routeInfo;
+          routeInfo.routeName = routeName;
+          routeInfo.segmentCount = 0;
+          routeInfo.lastModified = fileInfo.lastModified();
+          routeMap[routeName] = routeInfo;
+        }
+
+        routeMap[routeName].segmentPaths.append(fileInfo.absoluteFilePath());
+        routeMap[routeName].segmentCount++;
+
+        if (fileInfo.lastModified() > routeMap[routeName].lastModified) {
+          routeMap[routeName].lastModified = fileInfo.lastModified();
+        }
+      }
     }
 
-    if (folderNames.isEmpty()) {
-      ConfirmationDialog::alert(tr("Files does not exist"), this);
+    if (routeMap.isEmpty()) {
+      ConfirmationDialog::alert(tr("Routes do not exist"), this);
       return;
     }
 
-    QString selectedFolderName = MultiOptionDialog::getSelection(tr("Realdata Files Upload"), folderNames, "", this);
-    if (!selectedFolderName.isEmpty()) {
-      QString selectedFolderPath = folderPaths[selectedFolderName];
-      if (ConfirmationDialog::confirm(tr("Are you sure you want to upload files from this folder?\n") + selectedFolderPath, tr("Upload"), this)) {
-        QString command = scriptPath + " \"" + selectedFolderPath + "\"";
-        QProcess::startDetached(command);
+    QList<RouteInfo> sortedRoutes = routeMap.values();
+    std::sort(sortedRoutes.begin(), sortedRoutes.end(),
+              [](const RouteInfo& a, const RouteInfo& b) {
+                  return a.lastModified > b.lastModified;
+              });
+
+    QStringList routeDisplayNames;
+    QMap<QString, RouteInfo> displayToRoute;
+
+    for (const RouteInfo &route : sortedRoutes) {
+      QString displayName = QString("%1 (%2 segments)")
+                           .arg(route.routeName)
+                           .arg(route.segmentCount);
+      routeDisplayNames.append(displayName);
+      displayToRoute[displayName] = route;
+    }
+
+    QString selectedRoute = MultiOptionDialog::getSelection(
+      tr("Select Route to Upload"),
+      routeDisplayNames, "", this);
+
+    if (!selectedRoute.isEmpty()) {
+      RouteInfo selectedRouteInfo = displayToRoute[selectedRoute];
+
+      if (ConfirmationDialog::confirm(
+        tr("Upload route: %1\nSegments: %2\nAre you sure?")
+        .arg(selectedRouteInfo.routeName)
+        .arg(selectedRouteInfo.segmentCount),
+        tr("Upload"), this)) {
+
+        this->uploadRouteSegments(selectedRouteInfo.segmentPaths, scriptPath);
         emit closeSettings();
       }
     }
@@ -455,6 +499,28 @@ CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   main_layout->setCurrentWidget(homeScreen);
 
   togglesCommunity(0);
+}
+
+void CommunityPanel::uploadRouteSegments(const QStringList& segmentPaths, const QString& scriptPath) {
+  QProcess* uploadProcess = new QProcess(this);
+
+  connect(uploadProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+              [=](int exitCode, QProcess::ExitStatus exitStatus) {
+              uploadProcess->deleteLater();
+              if (exitCode == 0) {
+                ConfirmationDialog::alert(tr("Upload completed successfully"), this);
+              } else {
+                ConfirmationDialog::alert(tr("Upload failed"), this);
+              }
+          });
+
+  QStringList arguments;
+  for (const QString& path : segmentPaths) {
+    arguments << QString("\"%1\"").arg(path);
+  }
+
+  QString command = QString("%1 %2").arg(scriptPath, arguments.join(" "));
+  uploadProcess->start("sh", QStringList() << "-c" << command);
 }
 
 void CommunityPanel::togglesCommunity(int widgetIndex) {
