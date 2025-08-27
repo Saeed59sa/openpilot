@@ -71,9 +71,4 @@ private:
 
   UIScene &scene;
   Params params;
-
-  // Git Pull Console
-  QProcess* gitPullProcess = nullptr;
-  QString gitPullOutput;
-  void showGitPullConsole();
 };

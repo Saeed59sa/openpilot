@@ -81,7 +81,7 @@ void Sidebar::mouseReleaseEvent(QMouseEvent *event) {
   } else if (recording_audio && mic_indicator_btn.contains(event->pos())) {
     emit openSettings(2, "RecordAudio");
   } else if (commit_rect.contains(event->pos())) {
-    showGitPullConsole();
+    QProcess::startDetached("sh /data/openpilot/scripts/gitpull.sh");
   }
 }
 
@@ -237,65 +237,4 @@ void Sidebar::paintEvent(QPaintEvent *event) {
   p.setOpacity(commit_pressed ? 0.65 : 1.0);
   drawMetric(p, commit_status.first, commit_status.second, 812 - 50);
   p.setOpacity(1.0);
-}
-
-void Sidebar::showGitPullConsole() {
-  if (gitPullProcess && gitPullProcess->state() == QProcess::Running) {
-    return;
-  }
-
-  gitPullProcess = new QProcess(this);
-
-  gitPullOutput = "Starting git pull...\n";
-  gitPullOutput += "Command: sh /data/openpilot/scripts/gitpull.sh\n";
-  gitPullOutput += "===========================================\n\n";
-
-  QObject::connect(gitPullProcess, &QProcess::readyReadStandardOutput, this, [this]() {
-    QByteArray data = gitPullProcess->readAllStandardOutput();
-    QString newData = QString::fromUtf8(data);
-
-    if (gitPullOutput.length() + newData.length() > 10240) {
-      gitPullOutput = gitPullOutput.right(5120);
-      gitPullOutput += "\n[...truncated...]\n";
-    }
-    gitPullOutput += newData;
-  });
-
-  QObject::connect(gitPullProcess, &QProcess::readyReadStandardError, this, [this]() {
-    QByteArray data = gitPullProcess->readAllStandardError();
-    QString newData = QString::fromUtf8(data);
-
-    if (gitPullOutput.length() + newData.length() > 10240) {
-      gitPullOutput = gitPullOutput.right(5120);
-      gitPullOutput += "\n[...truncated...]\n";
-    }
-    gitPullOutput += newData;
-  });
-
-  QObject::connect(gitPullProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                   this, [this](int exitCode, QProcess::ExitStatus exitStatus) {
-
-    if (exitStatus == QProcess::NormalExit) {
-      if (exitCode == 0) {
-        gitPullOutput += "\n=== Git pull completed successfully! ===\n";
-      } else {
-        gitPullOutput += QString("\n=== Git pull failed with exit code %1 ===\n").arg(exitCode);
-      }
-    } else {
-      gitPullOutput += "\n=== Git pull process crashed ===\n";
-    }
-
-    ConfirmationDialog::rich(gitPullOutput, this);
-
-    gitPullOutput.clear();
-
-    gitPullProcess->deleteLater();
-    gitPullProcess = nullptr;
-  });
-
-  gitPullProcess->start("sh", QStringList() << "/data/openpilot/scripts/gitpull.sh");
-
-  if (!gitPullProcess->waitForStarted(3000)) {
-    ConfirmationDialog::rich("ERROR: Failed to start git pull process!", this);
-  }
 }
