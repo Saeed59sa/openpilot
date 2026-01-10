@@ -36,6 +36,7 @@ FW_VERSIONS = {
       b'TeMYG4_Legacy3Y_0.0.0 (5),Y4P003.03.2',
       b'TeMYG4_SingleECU_0.0.0 (28),Y4S002.23.0',
       b'TeMYG4_SingleECU_0.0.0 (33),Y4S002.26',
+      b'TeMYG4_Main_0.0.0 (67),Y4OC003.04.3',
     ],
   },
   CAR.TESLA_MODEL_X: {
